@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${JDBC_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
