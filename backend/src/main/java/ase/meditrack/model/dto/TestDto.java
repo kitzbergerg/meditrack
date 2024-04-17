@@ -1,10 +1,7 @@
 package ase.meditrack.model.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
-@Data
-public class TestDto {
-
-    Integer id;
-    String value;
+public record TestDto (@NotBlank Integer id, @NotBlank @Size(min = 1, max = 2000) String value){
 }
