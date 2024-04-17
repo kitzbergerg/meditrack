@@ -14,7 +14,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // TODO: set up proper security with keycloak
         http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
-
+        http.csrf().disable(); //needed for POST requests, otherwise 403 will automatically be returned
         return http.build();
     }
 
