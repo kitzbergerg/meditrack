@@ -14,6 +14,8 @@ You can integrate Checkstyle directly into your IDE by downloading the plugin (i
 - Click on the `+` sign and select the `checkstyle.xml` file in the root of the backend directory of the project
 - Set scope to `all files` and click `OK`
 
+For the frontend, ESLint is implemented and can be run with `npm run lint`. The results can be found in the console.
+
 ## Security
 The project uses the SpotBugs plugin with the FindBugs plugin to check for security vulnerabilities.
 You can check for security vulnerabilities by running `mvn clean compile spotbugs:spotbugs` in the backend directory 
