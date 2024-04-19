@@ -1,10 +1,9 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.model.entity.Test;
+import ase.meditrack.model.dto.TestDto;
+import ase.meditrack.model.mapper.TestMapper;
 import ase.meditrack.service.TestService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,13 +13,20 @@ public class TestController {
 
     private final TestService service;
 
-    public TestController(TestService service) {
+    private final TestMapper mapper;
+
+    public TestController(TestService service, TestMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @GetMapping
-    public List<Test> findAll() {
-        // TODO: add mapping to DTOs using mapstruct
-        return service.findAll();
+    public List<TestDto> findAll() {
+        return mapper.toDtoList(service.findAll());
+    }
+
+    @PostMapping
+    public TestDto save(@RequestBody TestDto testDto) {
+        return mapper.toDto(service.save(mapper.fromDto(testDto)));
     }
 }
