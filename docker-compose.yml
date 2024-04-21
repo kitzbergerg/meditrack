@@ -2,6 +2,8 @@ version: '3'
 services:
   postgres:
     image: postgres:16-alpine
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_DB=meditrack
       - POSTGRES_USER=meditrack
@@ -13,20 +15,25 @@ services:
       retries: 3
 
   backend:
+    profiles:
+      - backend
     build:
       context: backend
       dockerfile: Dockerfile
     ports:
-      - "8081:8080"
+      - "8081:8081"
     environment:
       - JDBC_URL=jdbc:postgresql://postgres:5432/meditrack
       - POSTGRES_USER=meditrack
       - POSTGRES_PASSWORD=PFtkqhXnCxFSScMY5Zh5
+      - OAUTH_JWK_URI=http://keycloak:8080/realms/meditrack/protocol/openid-connect/certs
     depends_on:
       postgres:
         condition: service_healthy
 
   angular:
+    profiles:
+      - frontend
     build:
       context: frontend
       dockerfile: Dockerfile

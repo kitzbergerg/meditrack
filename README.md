@@ -2,9 +2,12 @@
 
 ## Setup
 
-Run `docker compose --profile keycloak build` to build the docker images.  
-Run `docker compose --profile keycloak up -d` to start all containers.  
-Run `docker compose --profile keycloak down` to stop all containers.
+Run `docker compose --profile keycloak --profile backend --profile frontend build` to build the docker images.  
+Run `docker compose --profile keycloak --profile backend --profile frontend up -d` to start all containers.  
+Run `docker compose --profile keycloak --profile backend --profile frontend down` to stop all containers.
+
+Depending on which services you want to run you can leave out profiles. For example to run the backend locally and the
+rest in docker do: `docker compose --profile keycloak --profile frontend up -d`
 
 ## Development Environment
 
