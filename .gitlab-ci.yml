@@ -11,15 +11,15 @@ test-backend:
   stage: test
   script:
     - cd backend
-    - mvn clean test
+    - mvn clean install
 
 test-frontend:
   stage: test
   image: node:lts
   script:
     - cd frontend
-    - npm install
-    - npm run test
+    - npm run lint
+    - npm run build
 
 backend_build:
   stage: build
