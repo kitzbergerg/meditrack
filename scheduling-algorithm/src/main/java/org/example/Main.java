@@ -86,12 +86,25 @@ public class Main {
         // Creates shift variables.
         // shifts[(n, d, s)]: nurse 'n' works shift 's' on day 'd'.
         Literal[][][] shifts = new Literal[numNurses][numDays][numShifts];
+        Literal[][][] consecShifts = new Literal[numNurses][numDays][numShifts];
         for (int n : allNurses) {
             for (int d : allDays) {
                 for (int s : allShifts) {
                     shifts[n][d][s] = model.newBoolVar("shifts_n" + n + "d" + d + "s" + s);
+                    consecShifts[n][d][s] = model.newBoolVar("consec_n" + n + "_d" + d + "_s" + s);
+
+                    if (d >= 1) {
+                        // consecShifts is true iff todays and yesterdays shift are the same type
+                        model.addImplication(consecShifts[n][d][s], shifts[n][d-1][s]);
+                        model.addImplication(consecShifts[n][d][s], shifts[n][d][s]);
+
+                        model.addBoolOr(new Literal[] {
+                                shifts[n][d][s].not(), shifts[n][d-1][s].not()
+                        }).onlyEnforceIf(consecShifts[n][d][s].not());
+                    }
+
                     if (!nurseShiftCompatibility.get(n).contains(s)) {
-                        model.addBoolOr(new Literal[]{shifts[n][d][s].not()}); // constraint so nurses only get assigned suitable shifts
+                        model.addBoolOr(new Literal[]{shifts[n][d][s].not()}); // nurses only get assigned right shift-types
                     }
                 }
             }
@@ -170,6 +183,17 @@ public class Main {
                 model.addLessOrEqual(workDaysSum, maxConsecutiveWorkDays);
             }
         }
+
+        // Maximize the amount of consecutive shifts
+        LinearExprBuilder objective = LinearExpr.newBuilder();
+        for (int n = 0; n < allNurses.length; n++) {
+            for (int d = 0; d < allDays.length - 1; d++) {
+                for (int s = 0; s < allShifts.length; s++) {
+                    objective.addTerm(consecShifts[n][d][s], 1);
+                }
+            }
+        }
+        model.maximize(objective);
 
         // Creates a solver and solves the model.
         CpSolver solver = new CpSolver();
