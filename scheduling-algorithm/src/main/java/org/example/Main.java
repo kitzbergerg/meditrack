@@ -119,6 +119,24 @@ public class Main {
             LinearExpr totalNursesPerDay = LinearExpr.sum(dailyNurses.toArray(new BoolVar[0]));
             model.addGreaterOrEqual(totalNursesPerDay, minTotalNursesPerDay);
         }
+
+        // Nurses have to work between min - maxHours per month
+        for (int n : allNurses) {
+            List<LinearExpr> monthlyHours = new ArrayList<>();
+            for (int d : allDays) {
+                for (int s : allShifts) {
+                    if (nurseShiftCompatibility.get(n).contains(s)) {
+                        // Multiplies the shift variable by its duration to get the hours worked
+                        LinearExpr shiftHours = LinearExpr.term(shifts[n][d][s], shiftDurations[s]);
+                        monthlyHours.add(shiftHours);
+                    }
+                }
+            }
+            // Sum up all the hours worked by the nurse over the month
+            LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
+            // Constraint to ensure total monthly hours does not exceed the maximum allowed for each nurse
+            model.addLessOrEqual(totalMonthlyHours, nurseMonthlyMaxHours.get(n));
+            model.addGreaterOrEqual(totalMonthlyHours, nurseMonthlyMinHours.get(n));
         }
 
         // Each nurse works at most one shift per day.
