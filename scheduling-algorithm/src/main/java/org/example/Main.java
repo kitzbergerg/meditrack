@@ -20,35 +20,65 @@ import java.util.stream.IntStream;
 public class Main {
     /**
      * Scheduling Algorithm - Google OR-Tools
-     * <p>
+     * <br>
      * Goals:
      * Generate a monthly possible shift schedule
-     * <p>
+     * <br>
      * Input:
+     * [x] Nurses
+     * [x] Days
      * [x] Shift-types
-     * <p>
+     * <br>
      * Constraints:
      * [x] Employees work at most one shift per day
-     * [x] Required roles per shift
-     * [] Required total staffing levels (day/night)
+     * [x] Required nurses per shift
+     * [x] Off-days/Holidays
+     * [x] Required total staffing levels
+     * [x] Max/Min hours worked
+     * [x] Max consecutive shifts before off-day
+     * <br>
+     * Optimizations:
+     * [x] Maximize same shifts in a row
      */
     public static void main(String[] args) {
 
         Loader.loadNativeLibraries();
-        final int numNurses = 3;
-        final int numDays = 10;
+        final int numNurses = 5;
+        final int numDays = 30;
         final int numShifts = 3;
 
         final int[] allNurses = IntStream.range(0, numNurses).toArray();
         final int[] allDays = IntStream.range(0, numDays).toArray();
-        final int[] allShifts = IntStream.range(0, numShifts).toArray(); // holds the different shift types
+        final int[] allShifts = IntStream.range(0, numShifts).toArray(); // would hold the different shift types
 
-        Map<Integer, List<Integer>> nurseShiftCompatibility = new HashMap<>();
-        nurseShiftCompatibility.put(0, Arrays.asList(0,1)); // Nurse 1 can work shifts 0 and 1
-        nurseShiftCompatibility.put(1, Arrays.asList(1,2)); // Nurse 2 can work shifts 1 and 2
-        nurseShiftCompatibility.put(2, Arrays.asList(2)); // Nurse 3 can work shifts 2
+        Map<Integer, List<Integer>> nurseShiftCompatibility = new HashMap<>(); // Which nurses can work which shifts
+        nurseShiftCompatibility.put(0, Arrays.asList(0,1,2));
+        nurseShiftCompatibility.put(1, Arrays.asList(0,1,2));
+        nurseShiftCompatibility.put(2, Arrays.asList(0,1,2));
+        nurseShiftCompatibility.put(3, Arrays.asList(0,1,2));
+        nurseShiftCompatibility.put(4, Arrays.asList(0,1,2));
 
-        int[] minNursesPerShift = {1, 0, 2}; // Minimum nurses for shifts 1-3
+        int[] minNursesPerShift = {1, 1, 0}; // Minimum nurses for shifts
+
+        int[] shiftDurations = {12, 12, 6}; // Duration of each shift type in hours
+
+        Map<Integer, Integer> nurseMonthlyMaxHours = new HashMap<>(); // Max hours worked per nurse
+        nurseMonthlyMaxHours.put(0, 210);
+        nurseMonthlyMaxHours.put(1, 210);
+        nurseMonthlyMaxHours.put(2, 210);
+        nurseMonthlyMaxHours.put(3, 210);
+        nurseMonthlyMaxHours.put(4, 210);
+
+        Map<Integer, Integer> nurseMonthlyMinHours = new HashMap<>(); // Min hours worked per nurse
+        nurseMonthlyMinHours.put(0, 180);
+        nurseMonthlyMinHours.put(1, 180);
+        nurseMonthlyMinHours.put(2, 180);
+        nurseMonthlyMinHours.put(3, 180);
+        nurseMonthlyMinHours.put(4, 180);
+
+        // max consecutive work days and staffing level
+        int maxConsecutiveWorkDays = 4;
+        int minTotalNursesPerDay = 3;
 
         // Creates the model.
         CpModel model = new CpModel();
@@ -69,17 +99,26 @@ public class Main {
 
         // Each shift is assigned to at least the minimum required amount - defined in minNursesPerShift
         for (int d : allDays) {
+            List<BoolVar> dailyNurses = new ArrayList<>(); // To track all nurses working on day 'd'
             for (int s : allShifts) {
                 List<BoolVar> nurses = new ArrayList<>();
                 for (int n : allNurses) {
                     if (nurseShiftCompatibility.get(n).contains(s)) {
-                        nurses.add((BoolVar) shifts[n][d][s]);
+                        BoolVar shift = (BoolVar) shifts[n][d][s];
+                        nurses.add(shift);
+                        if (!dailyNurses.contains(shift)) { // Ensure each nurse is only added once per day
+                            dailyNurses.add(shift);
+                        }
                     }
                 }
                 LinearExpr nurseSum = LinearExpr.sum(nurses.toArray(new BoolVar[0]));
                 // Add a constraint that at least minNursesPerShift[s] must be true
                 model.addGreaterOrEqual(nurseSum, minNursesPerShift[s]);
             }
+            // Add a constraint to ensure that the total number of nurses per day meets the minimum
+            LinearExpr totalNursesPerDay = LinearExpr.sum(dailyNurses.toArray(new BoolVar[0]));
+            model.addGreaterOrEqual(totalNursesPerDay, minTotalNursesPerDay);
+        }
         }
 
         // Each nurse works at most one shift per day.
@@ -95,16 +134,23 @@ public class Main {
 
         // Creates a solver and solves the model.
         CpSolver solver = new CpSolver();
+        solver.getParameters().setMaxTimeInSeconds(3); // algo doesn't complete without maxTime
         CpSolverStatus status = solver.solve(model);
+
+        int[] nurseHours = new int[numNurses];
+        int[][] worksToday = new int[numNurses][numDays];
 
         if (status == CpSolverStatus.OPTIMAL || status == CpSolverStatus.FEASIBLE) {
             System.out.printf("Solution:%n");
             for (int d : allDays) {
                 System.out.printf("Day %d%n", d);
                 for (int n : allNurses) {
+                    worksToday[n][d] = -1;
                     for (int s : allShifts) {
                         if (solver.booleanValue(shifts[n][d][s])) {
-                            System.out.printf("  Nurse %d works shift %d .%n", n, s);
+                            nurseHours[n] += shiftDurations[s];
+                            worksToday[n][d] = s;
+                            System.out.printf("  Nurse %d works shift %d.%n", n, s);
                         }
                     }
                 }
@@ -112,11 +158,27 @@ public class Main {
         } else {
             System.out.printf("No optimal solution found !");
         }
-        // Statistics.
+
+        // Statistics
         System.out.println("Statistics");
         System.out.printf("  conflicts: %d%n", solver.numConflicts());
         System.out.printf("  branches : %d%n", solver.numBranches());
         System.out.printf("  wall time: %f s%n", solver.wallTime());
+
+        for (int i = 0; i < numNurses; i++) {
+            System.out.print("Nurse " + i + ": \n" + "Total working hours: " + nurseHours[i] + "\nSchedule: ");
+            for (int j = 0; j < numDays; j++) {
+                if (j % 7 == 0) { // weeks
+                    System.out.print("|");
+                }
+                if (worksToday[i][j] == -1){ // off-day
+                    System.out.print("-");
+                } else { // index of shift
+                    System.out.print(worksToday[i][j]);
+                }
+            }
+            System.out.println("\n");
+        }
     }
 }
 
