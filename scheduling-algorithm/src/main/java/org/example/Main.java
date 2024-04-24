@@ -150,6 +150,27 @@ public class Main {
             }
         }
 
+        // Each nurse has an off day after a max amount of consecutive shifts
+        for (int n : allNurses) {
+            // Loop through each possible starting day for a sequence of `maxConsecutiveWorkDays + 1` days
+            for (int startDay = 0; startDay <= numDays - maxConsecutiveWorkDays - 1; startDay++) {
+
+                List<BoolVar> consecutiveShifts = new ArrayList<>();
+                // Collect shifts for `maxConsecutiveWorkDays + 1` days to enforce the requirement
+                for (int d = startDay; d < startDay + maxConsecutiveWorkDays + 1; d++) {
+                    for (int s : allShifts) {
+                        consecutiveShifts.add((BoolVar) shifts[n][d][s]);
+                    }
+                }
+
+                // Create a linear expression that sums the BoolVars in `consecutiveShifts`
+                LinearExpr workDaysSum = LinearExpr.sum(consecutiveShifts.toArray(new BoolVar[0]));
+
+                // Add constraint to ensure the sum of these `maxConsecutiveWorkDays + 1` days does not exceed `maxConsecutiveWorkDays`
+                model.addLessOrEqual(workDaysSum, maxConsecutiveWorkDays);
+            }
+        }
+
         // Creates a solver and solves the model.
         CpSolver solver = new CpSolver();
         solver.getParameters().setMaxTimeInSeconds(3); // algo doesn't complete without maxTime
