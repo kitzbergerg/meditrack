@@ -18,10 +18,16 @@ build:
     - echo "Building the project..."
     - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack
 
+build-backend:
+  image: docker/compose:1.29.2
+  stage: build
+  script:
+    - echo "Building the backend..."
+    - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack backend
+
 test:
+  image: docker/compose:1.29.2
   stage: test
-  before_script:
-    - apk add --no-cache docker-compose
   script:
     - echo "Running tests..."
-    - docker-compose -f docker-compose.yml run backend mvn test
+    - docker-compose -f docker-compose.yml run --rm backend mvn test
