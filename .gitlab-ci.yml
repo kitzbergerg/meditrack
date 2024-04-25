@@ -16,7 +16,7 @@ build:
   stage: build
   script:
     - echo "Building the project..."
-    - docker-compose -f docker-compose.yml build
+    - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack
 
 test:
   stage: test
