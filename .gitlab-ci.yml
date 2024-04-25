@@ -1,5 +1,12 @@
 image: maven:3-openjdk-17
 
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+
+services:
+  - docker:19.03.12-dind
+
 stages:
   - build
   - test
@@ -8,8 +15,10 @@ build:
   stage: build
   script:
     - echo "Building the project..."
+    - docker-compose -f docker-compose.yml build
 
 test:
   stage: test
   script:
     - echo "Running tests..."
+    - docker-compose -f docker-compose.yml run backend mvn test
