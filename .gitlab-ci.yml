@@ -25,9 +25,15 @@ build-backend:
     - echo "Building the backend..."
     - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack backend
 
+build-frontend:
+  stage: build
+  script:
+    - echo "Building the frontend..."
+    - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack angular
+
 test:
   image: docker/compose:1.29.2
   stage: test
   script:
     - echo "Running tests..."
-    - docker-compose -f docker-compose.yml run --rm backend mvn test
+    - docker-compose -f docker-compose.yml run -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack --rm backend mvn test
