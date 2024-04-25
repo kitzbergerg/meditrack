@@ -1,27 +1,28 @@
 image: maven:3-openjdk-17
 
 variables:
-  GIT_STRATEGY: "clone"
-  DOCKER_HOST: tcp://localhost:2375/
-  DOCKER_DRIVER: overlay
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
 
 stages:
   - build
+  - test
   - deploy
 
-backend_build:
+build_backend:
   stage: build
-  image: docker:18.09.7-dind
   script:
-    - cd backend
-    - docker build -t backend-image .
+    - docker build -t backend:latest backend/
 
-frontend_build:
+build_angular:
   stage: build
-  image: docker:18.09.7-dind
   script:
-    - cd frontend
-    - docker build -t frontend-image .
+    - docker build -t angular:latest frontend/
+
+maven_build:
+  stage: build
+  script:
+    - mvn clean install
 
 deploy:
   stage: deploy
