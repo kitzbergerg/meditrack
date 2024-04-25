@@ -43,7 +43,7 @@ public class Main {
     public static void main(String[] args) {
 
         Loader.loadNativeLibraries();
-        final int numNurses = 5;
+        final int numNurses = 60;
         final int numDays = 30;
         final int numShifts = 3;
 
@@ -52,32 +52,23 @@ public class Main {
         final int[] allShifts = IntStream.range(0, numShifts).toArray(); // would hold the different shift types
 
         Map<Integer, List<Integer>> nurseShiftCompatibility = new HashMap<>(); // Which nurses can work which shifts
-        nurseShiftCompatibility.put(0, Arrays.asList(0,1,2));
-        nurseShiftCompatibility.put(1, Arrays.asList(0,1,2));
-        nurseShiftCompatibility.put(2, Arrays.asList(0,1,2));
-        nurseShiftCompatibility.put(3, Arrays.asList(0,1,2));
-        nurseShiftCompatibility.put(4, Arrays.asList(0,1,2));
+        for (int i = 0; i < numNurses; i++) {
+            nurseShiftCompatibility.put(i, Arrays.asList(0, 1, 2)); // Assuming all nurses are compatible with all shifts
+        }
 
         int[] minNursesPerShift = {1, 1, 0}; // Minimum nurses for shifts
 
         int[] shiftDurations = {12, 12, 6}; // Duration of each shift type in hours
 
         Map<Integer, Integer> nurseMonthlyMaxHours = new HashMap<>(); // Max hours worked per nurse
-        nurseMonthlyMaxHours.put(0, 210);
-        nurseMonthlyMaxHours.put(1, 210);
-        nurseMonthlyMaxHours.put(2, 210);
-        nurseMonthlyMaxHours.put(3, 210);
-        nurseMonthlyMaxHours.put(4, 210);
-
         Map<Integer, Integer> nurseMonthlyMinHours = new HashMap<>(); // Min hours worked per nurse
-        nurseMonthlyMinHours.put(0, 180);
-        nurseMonthlyMinHours.put(1, 180);
-        nurseMonthlyMinHours.put(2, 180);
-        nurseMonthlyMinHours.put(3, 180);
-        nurseMonthlyMinHours.put(4, 180);
+        for (int i = 0; i < numNurses; i++) {
+            nurseMonthlyMaxHours.put(i, 190);
+            nurseMonthlyMinHours.put(i, 150);
+        }
 
         // max consecutive work days and staffing level
-        int maxConsecutiveWorkDays = 4;
+        int maxConsecutiveWorkDays = 3;
         int minTotalNursesPerDay = 3;
 
         // Creates the model.
