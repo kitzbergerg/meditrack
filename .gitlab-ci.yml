@@ -2,7 +2,7 @@ image: maven:3-openjdk-17
 
 variables:
   GIT_STRATEGY: "clone"
-  DOCKER_HOST: tcp://localhost:2375/
+  DOCKER_HOST: tcp://localhost:8080/
   DOCKER_DRIVER: overlay
 
 services:
