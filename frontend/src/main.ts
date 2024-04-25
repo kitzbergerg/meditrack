@@ -15,14 +15,9 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 if (localStorage.getItem('locale') === null) {
   localStorage.setItem('locale', 'en');
 }
-
 const locale = localStorage.getItem('locale');
-
 let translations = english;
-
 if (locale == 'de') {
   translations = german;
 }
-
-console.log('main',locale)
 loadTranslations((translations))
