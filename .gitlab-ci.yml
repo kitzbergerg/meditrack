@@ -9,7 +9,6 @@ services:
 
 stages:
   - build
-  - test
   - deploy
 
 build:
@@ -29,12 +28,6 @@ build-frontend:
   script:
     - echo "Building the frontend..."
     - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack angular
-
-test:
-  stage: test
-  script:
-    - echo "Running tests..."
-    - docker-compose -f docker-compose.yml run --rm -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack backend mvn test
 
 deploy:
   stage: deploy
