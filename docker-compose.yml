@@ -34,3 +34,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4200:80"
+
+  maven:
+    image: maven:3-openjdk-17
+    command: mvn test
