@@ -1,4 +1,4 @@
-# This is a basic GitLab CI/CD configuration file.
+image: maven:3-openjdk-17
 
 stages:
   - build
