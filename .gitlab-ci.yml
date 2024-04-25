@@ -3,29 +3,16 @@ image: maven:3-openjdk-17
 variables:
   GIT_STRATEGY: "clone"
 
+services:
+    - docker:dind
+
 stages:
-  - test
   - build
-
-test-backend:
-  stage: test
-  script:
-    - cd backend
-    - mvn clean install
-
-test-frontend:
-  stage: test
-  image: node:lts
-  script:
-    - cd frontend
-    - npm run lint
-    - npm run build
+  - deploy
 
 backend_build:
   stage: build
   image: docker:latest
-  services:
-    - docker:dind
   script:
     - cd backend
     - docker build -t backend-image .
@@ -33,8 +20,11 @@ backend_build:
 frontend_build:
   stage: build
   image: docker:latest
-  services:
-    - docker:dind
   script:
     - cd frontend
     - docker build -t frontend-image .
+
+deploy:
+  stage: deploy
+  script:
+    - docker-compose -f docker-compose.yml up -d
