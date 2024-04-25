@@ -2,29 +2,14 @@ image: maven:3-openjdk-17
 
 variables:
   DOCKER_HOST: tcp://docker:2375/
-  DOCKER_DRIVER: overlay2
 
 stages:
   - build
-  - test
-  - deploy
 
-build_backend:
+services:
+  - docker:19.03.12-dind
+
+build:
   stage: build
   script:
-    - docker build -t backend:latest backend/
-
-build_angular:
-  stage: build
-  script:
-    - docker build -t angular:latest frontend/
-
-maven_build:
-  stage: build
-  script:
-    - mvn clean install
-
-deploy:
-  stage: deploy
-  script:
-    - docker-compose -f docker-compose.yml up -d
+    - docker-compose build
