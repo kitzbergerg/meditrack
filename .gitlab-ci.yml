@@ -1,4 +1,4 @@
-image: maven:3-openjdk-17
+image: docker/compose:1.29.2
 
 variables:
   DOCKER_HOST: tcp://docker:2375/
@@ -10,16 +10,15 @@ services:
 stages:
   - build
   - test
+  - deploy
 
 build:
-  image: docker/compose:1.29.2
   stage: build
   script:
     - echo "Building the project..."
     - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack
 
 build-backend:
-  image: docker/compose:1.29.2
   stage: build
   script:
     - echo "Building the backend..."
@@ -32,8 +31,13 @@ build-frontend:
     - docker-compose -f docker-compose.yml build -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack angular
 
 test:
-  image: docker/compose:1.29.2
   stage: test
   script:
     - echo "Running tests..."
     - docker-compose -f docker-compose.yml run -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack --rm backend mvn test
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying the application..."
+    - docker-compose -f docker-compose.yml up -d -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack
