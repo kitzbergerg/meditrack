@@ -1,15 +1,15 @@
-image: maven:3-openjdk-17
-
-variables:
-  DOCKER_HOST: tcp://docker:2375/
+# This is a basic GitLab CI/CD configuration file.
 
 stages:
   - build
-
-services:
-  - docker:19.03.12-dind
+  - test
 
 build:
   stage: build
   script:
-    - docker-compose build
+    - echo "Building the project..."
+
+test:
+  stage: test
+  script:
+    - echo "Running tests..."
