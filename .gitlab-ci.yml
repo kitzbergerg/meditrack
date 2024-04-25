@@ -5,9 +5,6 @@ variables:
   DOCKER_HOST: tcp://localhost:8080/
   DOCKER_DRIVER: overlay
 
-services:
-  - docker:18.09.7-dind
-
 stages:
   - build
   - deploy
