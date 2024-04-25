@@ -2,9 +2,11 @@ image: maven:3-openjdk-17
 
 variables:
   GIT_STRATEGY: "clone"
+  DOCKER_HOST: tcp://localhost:2375/
+  DOCKER_DRIVER: overlay
 
 services:
-    - docker:dind
+  - docker:18.09.7-dind
 
 stages:
   - build
@@ -12,14 +14,14 @@ stages:
 
 backend_build:
   stage: build
-  image: docker:latest
+  image: docker:18.09.7-dind
   script:
     - cd backend
     - docker build -t backend-image .
 
 frontend_build:
   stage: build
-  image: docker:latest
+  image: docker:18.09.7-dind
   script:
     - cd frontend
     - docker build -t frontend-image .
