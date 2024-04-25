@@ -34,7 +34,7 @@ test:
   stage: test
   script:
     - echo "Running tests..."
-    - docker-compose -f docker-compose.yml run --rm backend mvn test
+    - docker-compose -f docker-compose.yml run  --rm backend -e POSTGRES_USER=meditrack -e POSTGRES_DB=meditrack mvn test
 
 deploy:
   stage: deploy
