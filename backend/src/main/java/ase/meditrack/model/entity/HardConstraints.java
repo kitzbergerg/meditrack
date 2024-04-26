@@ -4,8 +4,10 @@ import ase.meditrack.model.entity.enums.Role;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyEnumerated;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -29,15 +31,18 @@ public class HardConstraints {
     private UUID id;
 
     @ElementCollection
-    @CollectionTable(name = "shift_off_shift", joinColumns = @JoinColumn(name = "team_id"))
+    @CollectionTable(name = "shift_off_shift", joinColumns = @JoinColumn(name = "hard_constraints_id"))
+    @MapKeyEnumerated(EnumType.STRING)
     private Map<UUID, UUID> shiftOffShift;
 
     @ElementCollection
-    @CollectionTable(name = "daytime_required_roles", joinColumns = @JoinColumn(name = "team_id"))
+    @CollectionTable(name = "daytime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
+    @MapKeyEnumerated(EnumType.STRING)
     private Map<Role, Integer> daytimeRequiredRoles;
 
     @ElementCollection
-    @CollectionTable(name = "nighttime_required_roles", joinColumns = @JoinColumn(name = "team_id"))
+    @CollectionTable(name = "nighttime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
+    @MapKeyEnumerated(EnumType.STRING)
     private Map<Role, Integer> nighttimeRequiredRoles;
 
     private Integer daytimeRequirePeople;

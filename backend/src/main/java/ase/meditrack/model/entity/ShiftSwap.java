@@ -38,7 +38,7 @@ public class ShiftSwap {
     @JoinTable(
             name = "shift_swap_user_suggestion",
             joinColumns = @JoinColumn(name = "shift_swap_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+            inverseJoinColumns = @JoinColumn(name = "users_id")
     )
     private List<User> swapSuggestingUsers;
 

@@ -34,7 +34,7 @@ public class Holiday {
     private Boolean isApproved;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "users_id")
     private User user;
 
     @Override

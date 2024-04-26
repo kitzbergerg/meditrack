@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity(name = "user")
+@Entity(name = "users")
 @Getter
 @Setter
 @ToString
@@ -46,7 +46,7 @@ public class User {
     private Integer currentOverTime;
 
     @ElementCollection
-    @CollectionTable(name = "special_skills", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "special_skills", joinColumns = @JoinColumn(name = "users_id"))
     private List<String> specialSkills;
 
     @ManyToOne
@@ -69,7 +69,7 @@ public class User {
     @ManyToMany
     @JoinTable(
             name = "user_shifts",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "shift_id")
     )
     private List<Shift> shifts;
@@ -77,7 +77,7 @@ public class User {
     @ManyToMany
     @JoinTable(
             name = "user_can_work_shift_type",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "shift_type_id")
     )
     private List<ShiftType> canWorkShiftTypes;
@@ -85,7 +85,7 @@ public class User {
     @ManyToMany
     @JoinTable(
             name = "user_prefers_shift_type",
-            joinColumns = @JoinColumn(name = "user_id"),
+            joinColumns = @JoinColumn(name = "users_id"),
             inverseJoinColumns = @JoinColumn(name = "shift_type_id")
     )
     private List<ShiftType> preferredShiftTypes;
