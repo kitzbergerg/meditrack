@@ -1,60 +1,33 @@
 package ase.meditrack.model.entity;
 
-import ase.meditrack.model.entity.enums.Role;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapKeyEnumerated;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity(name = "hard_constraints")
+@Entity(name = "shift_off_shift_id_list")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class HardConstraints {
+public class ShiftOffShiftIdList {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ElementCollection
-    @CollectionTable(name = "shift_off_shift", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    private Map<ShiftOffShiftIdList, UUID> shiftOffShift;
-
-    @ElementCollection
-    @CollectionTable(name = "daytime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Role, Integer> daytimeRequiredRoles;
-
-    @ElementCollection
-    @CollectionTable(name = "nighttime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Role, Integer> nighttimeRequiredRoles;
-
-    private Integer daytimeRequirePeople;
-
-    private Integer nighttimeRequirePeople;
-
-    private Integer allowedFlextimeTotal;
-
-    private Integer allowedFlextimePerMonth;
-
-    @OneToOne
-    @MapsId
-    private Team team;
+    private List<UUID> shiftOffShiftIdList;
 
     @Override
     public final boolean equals(final Object o) {
@@ -65,7 +38,7 @@ public class HardConstraints {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this)
                 .getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        HardConstraints that = (HardConstraints) o;
+        ShiftOffShiftIdList that = (ShiftOffShiftIdList) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 
