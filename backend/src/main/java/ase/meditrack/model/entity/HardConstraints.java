@@ -44,9 +44,9 @@ public class HardConstraints {
     @MapKeyEnumerated(EnumType.STRING)
     private Map<Role, Integer> nighttimeRequiredRoles;
 
-    private Integer daytimeRequirePeople;
+    private Integer daytimeRequiredPeople;
 
-    private Integer nighttimeRequirePeople;
+    private Integer nighttimeRequiredPeople;
 
     private Integer allowedFlextimeTotal;
 
