@@ -21,6 +21,7 @@
     {
       "clientScope": "user",
       "roles": [
+        "admin",
         "user"
       ]
     }

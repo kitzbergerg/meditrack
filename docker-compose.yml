@@ -23,13 +23,18 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - JDBC_URL=jdbc:postgresql://postgres:5432/meditrack
-      - POSTGRES_USER=meditrack
-      - POSTGRES_PASSWORD=PFtkqhXnCxFSScMY5Zh5
-      - OAUTH_JWK_URI=http://keycloak:8080/realms/meditrack/protocol/openid-connect/certs
+      JDBC_URL: "jdbc:postgresql://postgres:5432/meditrack"
+      POSTGRES_USER: "meditrack"
+      POSTGRES_PASSWORD: "PFtkqhXnCxFSScMY5Zh5"
+      OAUTH_JWK_URI: "http://keycloak:8080/realms/meditrack/protocol/openid-connect/certs"
+      KEYCLOAK_URL: "http://keycloak:8080/"
+      KEYCLOAK_USER: "admin"
+      KEYCLOAK_PASSWORD: "admin"
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak-config:
+        condition: service_completed_successfully
 
   angular:
     profiles:
