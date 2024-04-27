@@ -27,3 +27,22 @@ For the frontend, ESLint is implemented and can be run with `npm run lint`. The 
 The project uses the SpotBugs plugin with the FindBugs plugin to check for security vulnerabilities.
 You can check for security vulnerabilities by running `mvn clean compile spotbugs:spotbugs` in the backend directory
 of the project. The results can be found in the `target/spotbugsXml.xml` file.
+
+## OAuth2
+
+The following configuration can be used for authentication:
+
+```json
+{
+  "auth_url": "http://localhost:8080/realms/meditrack/protocol/openid-connect/auth",
+  "token_url": "http://localhost:8080/realms/meditrack/protocol/openid-connect/token",
+  "callback_url": "http://localhost:4200/",
+  "client_id": "web",
+  "grant_type": "code"
+}
+```
+
+To make calls to the backend you can use Postman with `OAuth 2.0`. 
+Set `Grant type` to `Authorization Code (With PKCE)` and enter the above values. 
+Once you click `Get New Access Token` a window should open where you can enter credentials.
+The default credentials are username `admin` and password `admin`.
