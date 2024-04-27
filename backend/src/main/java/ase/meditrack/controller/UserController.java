@@ -47,9 +47,9 @@ public class UserController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #dto.id().toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
-        log.info("Creating user {}", dto.username());
+        log.info("Updating user {}", dto.username());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
