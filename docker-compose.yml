@@ -15,22 +15,69 @@ services:
       retries: 3
 
   backend:
+    profiles:
+      - backend
     build:
       context: backend
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
-      - JDBC_URL=jdbc:postgresql://postgres:5432/meditrack
-      - POSTGRES_USER=meditrack
-      - POSTGRES_PASSWORD=PFtkqhXnCxFSScMY5Zh5
+      JDBC_URL: "jdbc:postgresql://postgres:5432/meditrack"
+      POSTGRES_USER: "meditrack"
+      POSTGRES_PASSWORD: "PFtkqhXnCxFSScMY5Zh5"
+      OAUTH_JWK_URI: "http://keycloak:8080/realms/meditrack/protocol/openid-connect/certs"
+      KEYCLOAK_URL: "http://keycloak:8080/"
+      KEYCLOAK_USER: "admin"
+      KEYCLOAK_PASSWORD: "admin"
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak-config:
+        condition: service_completed_successfully
 
   angular:
+    profiles:
+      - frontend
     build:
       context: frontend
       dockerfile: Dockerfile
     ports:
       - "4200:80"
+
+  keycloak:
+    profiles:
+      - keycloak
+    build:
+      context: keycloak
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+  keycloak-config: # Only required to run once. Service will fail
+    profiles:
+      - keycloak
+    image: adorsys/keycloak-config-cli:latest-24.0.1
+    volumes:
+      - kc_config:/config
+    environment:
+      KEYCLOAK_URL: "http://keycloak:8080/"
+      KEYCLOAK_USER: "admin"
+      KEYCLOAK_PASSWORD: "admin"
+      KEYCLOAK_AVAILABILITYCHECK_ENABLED: true
+      KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: "120s"
+      IMPORT_FILES_LOCATIONS: "/config/meditrack.json"
+
+  maven:
+    image: maven:3-openjdk-17
+    command: mvn test
+
+volumes:
+  kc_config:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: 'keycloak/config'

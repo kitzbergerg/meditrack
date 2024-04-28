@@ -3,6 +3,8 @@ package ase.meditrack.controller;
 import ase.meditrack.model.dto.TestDto;
 import ase.meditrack.model.mapper.TestMapper;
 import ase.meditrack.service.TestService;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,12 +23,14 @@ public class TestController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_user')")
     public List<TestDto> findAll() {
         return mapper.toDtoList(service.findAll());
     }
 
     @PostMapping
-    public TestDto save(@RequestBody TestDto testDto) {
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    public TestDto save(@Valid @RequestBody TestDto testDto) {
         return mapper.toDto(service.save(mapper.fromDto(testDto)));
     }
 }
