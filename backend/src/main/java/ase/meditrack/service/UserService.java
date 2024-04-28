@@ -71,7 +71,7 @@ public class UserService {
         }
     }
 
-    public static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
+    private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
         if (roles == null) return;
         // for some reason keycloak doesn't use the roles in UserRepresentation, so we need to set them explicitly
         List<RoleRepresentation> userRoles = roles.stream().map(role -> meditrackRealm.roles().get(role).toRepresentation()).toList();
