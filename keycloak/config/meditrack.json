@@ -43,6 +43,23 @@
         "oidc.ciba.grant.enabled": "false",
         "post.logout.redirect.uris": "+"
       }
+    },
+    {
+      "clientId": "swagger-ui",
+      "rootUrl": "http://localhost:8081/swagger-ui",
+      "adminUrl": "",
+      "baseUrl": "/index.html",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "publicClient": true,
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "post.logout.redirect.uris": "+"
+      }
     }
   ],
   "clientScopes": [

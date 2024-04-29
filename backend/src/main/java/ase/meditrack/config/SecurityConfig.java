@@ -16,7 +16,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(registry -> registry.anyRequest().authenticated());
+        http.authorizeHttpRequests(registry -> registry
+                .requestMatchers("/api-docs", "/api-docs/*", "/swagger-ui/**").permitAll()
+                .anyRequest().authenticated()
+        );
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         http.csrf(AbstractHttpConfigurer::disable); //needed for POST requests, otherwise 403 will automatically be returned
         return http.build();
