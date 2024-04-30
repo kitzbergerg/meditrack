@@ -7,13 +7,15 @@ import { LangComponent } from './lang/lang.component';
 import { DepartmentManagerDashboardComponent } from './components/department-manager-dashboard/department-manager-dashboard.component';
 import { RouterModule } from '@angular/router';
 import { EmployeeDashboardComponent } from './components/employee-dashboard/employee-dashboard.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LangComponent,
     DepartmentManagerDashboardComponent,
-    EmployeeDashboardComponent
+    EmployeeDashboardComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
