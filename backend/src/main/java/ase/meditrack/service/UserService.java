@@ -46,10 +46,10 @@ public class UserService {
      * @return List of all users
      */
     public List<User> findAll() {
-        return repository.findAll().stream()
-                .peek(u -> meditrackRealm.users().list().stream()
-                        .filter(ur -> ur.getId().equals(u.getId().toString()))
-                        .findFirst().ifPresent(u::setUserRepresentation)).toList();
+        return repository.findAll()
+                .stream()
+                .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
+                .toList();
     }
 
     /**
@@ -70,15 +70,18 @@ public class UserService {
      * @return the created user
      */
     public User create(User user) {
-        user.setUserRepresentation(createKeycloakUser(user.getUserRepresentation()));
-        user.setId(UUID.fromString(user.getUserRepresentation().getId()));
-        return repository.save(user);
+        UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
+        user.setId(UUID.fromString(userRepresentation.getId()));
+        user = repository.save(user);
+        //as transient ignores the userRepresentation, we need to set it again
+        user.setUserRepresentation(userRepresentation);
+        return user;
     }
 
     private UserRepresentation createKeycloakUser(UserRepresentation userRepresentation) {
         try (Response response = meditrackRealm.users().create(userRepresentation)) {
             if (response.getStatusInfo().toEnum().getFamily() != SUCCESSFUL) {
-                log.error("Error creating admin user: {}", response.getStatusInfo().getReasonPhrase());
+                log.error("Error creating user: {}", response.getStatusInfo().getReasonPhrase());
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
             }
             String id = CreatedResponseUtil.getCreatedId(response);
@@ -96,8 +99,14 @@ public class UserService {
         meditrackRealm.users().get(user.getUserRepresentation().getId()).update(user.getUserRepresentation());
         setUserRoles(meditrackRealm,
                 user.getUserRepresentation().getId(), user.getUserRepresentation().getRealmRoles());
-        user.setUserRepresentation(meditrackRealm.users().get(user.getUserRepresentation().getId()).toRepresentation());
-        return repository.save(user);
+        //as transient ignores the userRepresentation, we need to remember and set it again if we want to return it
+        UserRepresentation userRepresentation = user.getUserRepresentation();
+
+        //perform partial update: load user from db and update only the fields that are not null
+        user = updateChangedAttributes(user);
+        user = repository.save(user);
+        user.setUserRepresentation(userRepresentation);
+        return user;
     }
 
     /**
@@ -108,7 +117,11 @@ public class UserService {
         try (Response response = meditrackRealm.users().delete(String.valueOf(id))) {
             if (response.getStatusInfo().toEnum().getFamily() != SUCCESSFUL) {
                 log.error("Error deleting user: {}", response.getStatusInfo().getReasonPhrase());
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                if (response.getStatusInfo().getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                } else {
+                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
             repository.deleteById(id);
         }
@@ -135,5 +148,49 @@ public class UserService {
         userRepresentation.setCredentials(List.of(credentialRepresentation));
         userRepresentation.setRealmRoles(List.of("admin"));
         return userRepresentation;
+    }
+
+    private User updateChangedAttributes(User user) {
+        User dbUser = repository.findById(user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (user.getRole() != null) {
+            dbUser.setRole(user.getRole());
+        }
+        if (user.getWorkingHoursPercentage() != null) {
+            dbUser.setWorkingHoursPercentage(user.getWorkingHoursPercentage());
+        }
+        if (user.getCurrentOverTime() != null) {
+            dbUser.setCurrentOverTime(user.getCurrentOverTime());
+        }
+        if (user.getSpecialSkills() != null) {
+            dbUser.setSpecialSkills(user.getSpecialSkills());
+        }
+        if (user.getTeam() != null) {
+            dbUser.setTeam(user.getTeam());
+        }
+        if (user.getHolidays() != null) {
+            dbUser.setHolidays(user.getHolidays());
+        }
+        if (user.getPreferences() != null) {
+            dbUser.setPreferences(user.getPreferences());
+        }
+        if (user.getRequestedShiftSwaps() != null) {
+            dbUser.setRequestedShiftSwaps(user.getRequestedShiftSwaps());
+        }
+        if (user.getSuggestedShiftSwaps() != null) {
+            dbUser.setSuggestedShiftSwaps(user.getSuggestedShiftSwaps());
+        }
+        if (user.getShifts() != null) {
+            dbUser.setShifts(user.getShifts());
+        }
+        if (user.getCanWorkShiftTypes() != null) {
+            dbUser.setCanWorkShiftTypes(user.getCanWorkShiftTypes());
+        }
+        if (user.getPreferredShiftTypes() != null) {
+            dbUser.setPreferredShiftTypes(user.getPreferredShiftTypes());
+        }
+
+        return dbUser;
     }
 }

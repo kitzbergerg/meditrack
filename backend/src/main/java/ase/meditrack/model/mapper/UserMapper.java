@@ -51,14 +51,18 @@ public abstract class UserMapper {
                 user.getWorkingHoursPercentage(),
                 user.getCurrentOverTime(),
                 user.getSpecialSkills(),
-                user.getTeam().getId(),
-                user.getHolidays().stream().map(Holiday::getId).toList(),
-                user.getPreferences().getId(),
-                user.getRequestedShiftSwaps().stream().map(ShiftSwap::getId).toList(),
-                user.getSuggestedShiftSwaps().stream().map(ShiftSwap::getId).toList(),
-                user.getShifts().stream().map(Shift::getId).toList(),
-                user.getCanWorkShiftTypes().stream().map(ShiftType::getId).toList(),
-                user.getPreferredShiftTypes().stream().map(ShiftType::getId).toList()
+                user.getTeam() != null ? user.getTeam().getId() : null,
+                user.getHolidays() != null ? user.getHolidays().stream().map(Holiday::getId).toList() : null,
+                user.getPreferences() != null ? user.getPreferences().getId() : null,
+                user.getRequestedShiftSwaps() != null
+                        ? user.getRequestedShiftSwaps().stream().map(ShiftSwap::getId).toList() : null,
+                user.getSuggestedShiftSwaps() != null
+                        ? user.getSuggestedShiftSwaps().stream().map(ShiftSwap::getId).toList() : null,
+                user.getShifts() != null ? user.getShifts().stream().map(Shift::getId).toList() : null,
+                user.getCanWorkShiftTypes() != null
+                        ? user.getCanWorkShiftTypes().stream().map(ShiftType::getId).toList() : null,
+                user.getPreferredShiftTypes() != null
+                        ? user.getPreferredShiftTypes().stream().map(ShiftType::getId).toList() : null
         );
     }
 
@@ -95,49 +99,65 @@ public abstract class UserMapper {
         user.setCurrentOverTime(dto.currentOverTime());
         user.setSpecialSkills(dto.specialSkills());
 
-        Team team = new Team();
-        team.setId(dto.team());
-        user.setTeam(team);
+        if (dto.team() != null) {
+            Team team = new Team();
+            team.setId(dto.team());
+            user.setTeam(team);
+        }
 
-        user.setHolidays(dto.holidays().stream().map(id -> {
-            Holiday holiday = new Holiday();
-            holiday.setId(id);
-            return holiday;
-        }).toList());
+        if (dto.holidays() != null) {
+            user.setHolidays(dto.holidays().stream().map(id -> {
+                Holiday holiday = new Holiday();
+                holiday.setId(id);
+                return holiday;
+            }).toList());
+        }
 
-        Preferences preferences = new Preferences();
-        preferences.setId(dto.preferences());
-        user.setPreferences(preferences);
+        if (dto.preferences() != null) {
+            Preferences preferences = new Preferences();
+            preferences.setId(dto.preferences());
+            user.setPreferences(preferences);
+        }
 
-        user.setRequestedShiftSwaps(dto.requestedShiftSwaps().stream().map(id -> {
-            ShiftSwap shiftSwap = new ShiftSwap();
-            shiftSwap.setId(id);
-            return shiftSwap;
-        }).toList());
+        if (dto.requestedShiftSwaps() != null) {
+            user.setRequestedShiftSwaps(dto.requestedShiftSwaps().stream().map(id -> {
+                ShiftSwap shiftSwap = new ShiftSwap();
+                shiftSwap.setId(id);
+                return shiftSwap;
+            }).toList());
+        }
 
-        user.setSuggestedShiftSwaps(dto.suggestedShiftSwaps().stream().map(id -> {
-            ShiftSwap shiftSwap = new ShiftSwap();
-            shiftSwap.setId(id);
-            return shiftSwap;
-        }).toList());
+        if (dto.suggestedShiftSwaps() != null) {
+            user.setSuggestedShiftSwaps(dto.suggestedShiftSwaps().stream().map(id -> {
+                ShiftSwap shiftSwap = new ShiftSwap();
+                shiftSwap.setId(id);
+                return shiftSwap;
+            }).toList());
+        }
 
-        user.setShifts(dto.shifts().stream().map(id -> {
-            Shift shift = new Shift();
-            shift.setId(id);
-            return shift;
-        }).toList());
+        if (dto.shifts() != null) {
+            user.setShifts(dto.shifts().stream().map(id -> {
+                Shift shift = new Shift();
+                shift.setId(id);
+                return shift;
+            }).toList());
+        }
 
-        user.setCanWorkShiftTypes(dto.canWorkShiftTypes().stream().map(id -> {
-            ShiftType shiftType = new ShiftType();
-            shiftType.setId(id);
-            return shiftType;
-        }).toList());
+        if (dto.canWorkShiftTypes() != null) {
+            user.setCanWorkShiftTypes(dto.canWorkShiftTypes().stream().map(id -> {
+                ShiftType shiftType = new ShiftType();
+                shiftType.setId(id);
+                return shiftType;
+            }).toList());
+        }
 
-        user.setPreferredShiftTypes(dto.preferredShiftTypes().stream().map(id -> {
-            ShiftType shiftType = new ShiftType();
-            shiftType.setId(id);
-            return shiftType;
-        }).toList());
+        if (dto.preferredShiftTypes() != null) {
+            user.setPreferredShiftTypes(dto.preferredShiftTypes().stream().map(id -> {
+                ShiftType shiftType = new ShiftType();
+                shiftType.setId(id);
+                return shiftType;
+            }).toList());
+        }
 
         return user;
     }

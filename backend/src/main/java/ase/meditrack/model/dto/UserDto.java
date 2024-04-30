@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Positive;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,16 +20,16 @@ public record UserDto(
         @NotBlank(groups = CreateValidator.class) String lastName,
         List<String> roles,
         @NotBlank(groups = CreateValidator.class) String role,
-        @NotBlank(groups = CreateValidator.class) Float workingHoursPercentage,
+        @NotNull(groups = CreateValidator.class) @Positive(groups = CreateValidator.class) Float workingHoursPercentage,
         @Null(groups = CreateValidator.class) Integer currentOverTime,
         List<String> specialSkills,
-        @NotNull(groups = {CreateValidator.class, UpdateValidator.class}) UUID team,
+        UUID team,
         List<UUID> holidays,
         UUID preferences,
         List<UUID> requestedShiftSwaps,
         List<UUID> suggestedShiftSwaps,
         List<UUID> shifts,
-        @NotNull(groups = {CreateValidator.class, UpdateValidator.class}) List<UUID> canWorkShiftTypes,
+        List<UUID> canWorkShiftTypes,
         List<UUID> preferredShiftTypes
 ) {
 }

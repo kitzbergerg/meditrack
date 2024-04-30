@@ -39,15 +39,16 @@ To follow Angular and TypeScript best practices, we use the `Recommended` set of
 [here](https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/src/configs/README.md).
 
 ### Branches
-We differentiate between feature and bugfix branches. The structure is as follows: `feature|fix: #<issuenumber>`. For 
-example, when a new feature is implemented: `feature: #13`. This can be used for the majority of issues. If bugs are 
-detected (after an issue has been completed!) a new issue must be created and a branch defined as follows: 
-`fix: #xx`, where `xx` is the new created issue number.
+We differentiate between feature and bugfix branches. The structure is as follows: 
+`feature|fix/#<issuenumber>-<some-short-description>`, where the description is optional. For 
+example, when a new feature is implemented: `feature/#13-backend-setup`. This can be used for the majority of issues.
+If bugs are detected (after an issue has been completed!) a new issue must be created and a branch defined as follows: 
+`fix/#xx-<some-short-description>`, where `xx` is the new created issue number and optional a short description.
 
 ### Commits
-Depending on the branch (feature or bugfix), commits must follow the following structure:
-`feature|fix: #<issue-number>: <commit-message>`
-For example, if I am on a feature branch: `feature: #13: my meaningful commit message`
+Commits must follow the following structure:
+`#<issue-number>: <commit-message>`
+For example: `#13: my meaningful commit message`
 
 ## Security
 
