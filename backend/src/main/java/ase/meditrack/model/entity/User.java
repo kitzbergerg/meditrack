@@ -1,14 +1,13 @@
 package ase.meditrack.model.entity;
 
-import ase.meditrack.model.entity.enums.Role;
+import ase.meditrack.model.enums.Role;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -17,11 +16,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
+import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +36,6 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Enumerated(EnumType.STRING)
@@ -89,6 +89,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "shift_type_id")
     )
     private List<ShiftType> preferredShiftTypes;
+
+    @Transient
+    @JsonInclude
+    private UserRepresentation userRepresentation;
 
     @Override
     public final boolean equals(final Object o) {

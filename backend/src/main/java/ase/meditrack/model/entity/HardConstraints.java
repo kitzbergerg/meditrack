@@ -1,6 +1,6 @@
 package ase.meditrack.model.entity;
 
-import ase.meditrack.model.entity.enums.Role;
+import ase.meditrack.model.enums.Role;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;

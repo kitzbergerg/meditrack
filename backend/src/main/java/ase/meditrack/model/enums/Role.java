@@ -1,4 +1,4 @@
-package ase.meditrack.model.entity.enums;
+package ase.meditrack.model.enums;
 
 public enum Role {
     DOCTOR,

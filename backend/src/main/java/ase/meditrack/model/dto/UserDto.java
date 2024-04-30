@@ -17,6 +17,18 @@ public record UserDto(
         @NotBlank(groups = CreateValidator.class) @Email String email,
         @NotBlank(groups = CreateValidator.class) String firstName,
         @NotBlank(groups = CreateValidator.class) String lastName,
-        List<String> roles
+        List<String> roles,
+        @NotBlank(groups = CreateValidator.class) String role,
+        @NotBlank(groups = CreateValidator.class) Float workingHoursPercentage,
+        @Null(groups = CreateValidator.class) Integer currentOverTime,
+        List<String> specialSkills,
+        @NotNull(groups = {CreateValidator.class, UpdateValidator.class}) UUID team,
+        List<UUID> holidays,
+        UUID preferences,
+        List<UUID> requestedShiftSwaps,
+        List<UUID> suggestedShiftSwaps,
+        List<UUID> shifts,
+        @NotNull(groups = {CreateValidator.class, UpdateValidator.class}) List<UUID> canWorkShiftTypes,
+        List<UUID> preferredShiftTypes
 ) {
 }
