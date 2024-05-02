@@ -1,6 +1,8 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from "../../services/authentication/authentication.service";
 import {Router} from "@angular/router";
+import { JwksValidationHandler, OAuthService } from 'angular-oauth2-oidc';
+import { authConfig } from 'src/app/auth.config';
 
 @Component({
   selector: 'app-login',
@@ -8,21 +10,39 @@ import {Router} from "@angular/router";
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  username: string = '';
+  password: string = '';
+  token: string = "";
 
-  constructor(
-    private router: Router,
-    private authenticationService: AuthenticationService) {
+  constructor(private oauthService: OAuthService) {
   }
 
-  loginStub(role: string) {
-    console.log('loginStub')
-    this.authenticationService.login(role)
-      .subscribe(res => {
-        if (role == 'employer') {
-          void this.router.navigate(['department-manager-dashboard'])
-        } else if (role == 'employee') {
-          void this.router.navigate(['employee-dashboard'],  )
-        }
-      });
+  ngOnInit(): void{
+    this.configureWithNewConfigApi();
+  }
+
+  private configureWithNewConfigApi() {
+    this.oauthService.configure(authConfig);
+    this.oauthService.tokenValidationHandler = new JwksValidationHandler();
+    this.oauthService.loadDiscoveryDocumentAndTryLogin();
+  }
+
+  login() {
+    this.oauthService.initCodeFlow();
+  }
+
+
+  logout() {
+    this.oauthService.logOut();
+  }
+
+  get userName() {
+    const claims = this.oauthService.getIdentityClaims();
+    if (!claims) return null;
+    return claims['preferred_username'];
+  }
+
+  get isLoggedIn() {
+    return this.oauthService.hasValidAccessToken();
   }
 }

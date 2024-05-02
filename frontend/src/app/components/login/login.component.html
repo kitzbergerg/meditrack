@@ -1,4 +1,17 @@
-<p>login works!</p>
+<div class="login-container">
+    <h2>Welcome to Your App</h2>
+    <p>Please login to access the application</p>
+    <button class="btn btn-primary" (click)="login()">Login</button>
+</div>
 
-<button (click)="loginStub('employer')">login employer</button>
-<button (click)="loginStub('employee')">login employee</button>
+{{token}}
+
+  <div class="logout-container">
+    <h2>Logout</h2>
+    <form (ngSubmit)="logout()">
+      <button type="submit" class="btn btn-primary">LogOut</button>
+    </form>
+  </div>
+
+
+
