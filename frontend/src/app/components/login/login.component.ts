@@ -1,8 +1,7 @@
-import {Component, OnInit} from '@angular/core';
-import {AuthenticationService} from "../../services/authentication/authentication.service";
-import {Router} from "@angular/router";
+import {Component} from '@angular/core';
+
 import { JwksValidationHandler, OAuthService } from 'angular-oauth2-oidc';
-import { authConfig } from 'src/app/auth.config';
+import {AuthorizationService} from "../../services/authentication/authorization.service";
 
 @Component({
   selector: 'app-login',
@@ -10,30 +9,20 @@ import { authConfig } from 'src/app/auth.config';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  username: string = '';
-  password: string = '';
-  token: string = "";
 
-  constructor(private oauthService: OAuthService) {
+
+  constructor(private oauthService: OAuthService, private authorizationService: AuthorizationService) {
   }
 
-  ngOnInit(): void{
-    this.configureWithNewConfigApi();
+  ngOnInit(): void {
+    if (this.authorizationService.isLoggedIn()) {
+      console.log(this.authorizationService.userName.then())
+    }
   }
-
-  private configureWithNewConfigApi() {
-    this.oauthService.configure(authConfig);
-    this.oauthService.tokenValidationHandler = new JwksValidationHandler();
-    this.oauthService.loadDiscoveryDocumentAndTryLogin();
-  }
-
-  login() {
-    this.oauthService.initCodeFlow();
-  }
-
 
   logout() {
-    this.oauthService.logOut();
+    this.authorizationService.logout();
+    //this.oauthService.logOut();
   }
 
   get userName() {
