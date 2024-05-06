@@ -14,16 +14,8 @@ export class AuthorizationService {
   redirectToLoginPage(): void {
     this.keycloakService.login().then();
   }
-  userName(): any {
+  parsedToken(): any {
     return this.keycloakService.getKeycloakInstance().tokenParsed;
-
-/*      return this.keycloakService.getKeycloakInstance().loadUserInfo().then(
-        userInfo => {
-          return userInfo
-        })
-        .catch(error => {
-          return "error"
-        });*/
   }
 
   get token(): Promise<string> {

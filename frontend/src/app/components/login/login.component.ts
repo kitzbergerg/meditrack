@@ -16,7 +16,7 @@ export class LoginComponent {
 
   ngOnInit(): void {
     if (this.authorizationService.isLoggedIn()) {
-      console.log(this.authorizationService.userName().sub)
+      console.log(this.authorizationService.parsedToken().sub)
     }
   }
 

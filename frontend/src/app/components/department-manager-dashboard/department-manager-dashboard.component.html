@@ -1,13 +1,4 @@
 <p>department-manager-dashboard works!</p>
 
-<div class="logout-container">
-  <form (ngSubmit)="getUserName()">
-    <button type="submit" class="btn btn-primary">Get Token</button>
-  </form>
-</div>
+<div>Hello <span *ngIf="data">{{data.username}}, your role is: {{data.roles[0]}}</span></div>
 
-<div class="logout-container">
-  <form (ngSubmit)="dGet()">
-    <button type="submit" class="btn btn-primary">getUser</button>
-  </form>
-</div>
