@@ -4,13 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 
 public record AlgorithmOutput(
-        // key is employee id, value is all shifts assigned to the employee
-        HashMap<Integer, List<ShiftTypeDatePair>> assignmentOfEmployeesToShifts,
+        // key is employee, value is all shifts assigned to the employee
+        HashMap<Integer, List<ShiftTypeDayPair>> assignmentOfEmployeesToShifts,
         boolean isOptimal
 ) {
-    public record ShiftTypeDatePair(
+    public record ShiftTypeDayPair(
             Integer shiftType,
-            Integer date
+            Integer day
     ) {
     }
 }

@@ -13,8 +13,7 @@ public class MonthlyPlanCreator {
 
         // TODO: map to algorithm input
 
-        SchedulingSolver solver = new SchedulingSolver();
-        Optional<AlgorithmOutput> output = solver.solve(null);
+        Optional<AlgorithmOutput> output = SchedulingSolver.solve(null);
 
         // TODO: map from algorithm output
 
