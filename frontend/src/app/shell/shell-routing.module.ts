@@ -7,6 +7,7 @@ import {
 import {EmployeeDashboardComponent} from "../components/employee-dashboard/employee-dashboard.component";
 import {AccountSettingsComponent} from "../components/account-settings/account-settings.component";
 import {ShellComponent} from "./shell/shell.component";
+import {EmployeesComponent} from "../components/employees/employees.component";
 
 const routes: Routes = [
   {
@@ -16,6 +17,10 @@ const routes: Routes = [
   {
     path: 'employee-dashboard',
     component: EmployeeDashboardComponent,
+  },
+  {
+    path: 'employees',
+    component: EmployeesComponent,
   },
   {
     path: 'account-settings',
@@ -28,13 +33,13 @@ const routes: Routes = [
       path: '',
       pathMatch: 'full',
       canActivate: [ShellRedirectGuard],
-      children: []
+      children: routes
     },
 
     {
       path: '',
       component: ShellComponent,
-      data: {reuse: true}, // Reuse ShellComponent instance when navigating between child views
+      data: {reuse: false}, // Reuse ShellComponent instance when navigating between child views
       children: routes
     },
     ]

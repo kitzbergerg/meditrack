@@ -1,0 +1,13 @@
+<ul class="d-flex justify-content-center top-toolbar"><!--top toolbar-->
+  <div class="top-item">{{ workgroupName }}</div>
+  <p-button class="account-button top-item">Account <i class="pi pi-cog"></i></p-button><!--todo change both to li-->
+</ul>
+<ul class="side-toolbar"><!--side toolbar-->
+  <li                        [routerLink]="getDashboard()">Calendar</li>
+  <li [hidden]="!isEmployer" [routerLink]="'employees'">Employees</li>
+  <li [hidden]="!isEmployer">Shift Types</li>
+  <li [hidden]="!isEmployer">Roles</li>
+  <li>Holidays</li>
+  <li [hidden]="!isEmployer">Rules</li>
+  <li [hidden]="!isEmployee">Shift Swapping</li>
+</ul>

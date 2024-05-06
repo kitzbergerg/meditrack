@@ -9,8 +9,8 @@ import { RouterModule } from '@angular/router';
 import { EmployeeDashboardComponent } from './components/employee-dashboard/employee-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
 import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
-import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import {ButtonModule} from "primeng/button";
+import { EmployeesComponent } from './components/employees/employees.component';
 
 @NgModule({
   declarations: [
@@ -20,15 +20,17 @@ import {ButtonModule} from "primeng/button";
     EmployeeDashboardComponent,
     LoginComponent,
     AccountSettingsComponent,
-    ToolbarComponent
+    EmployeesComponent,
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        RouterModule,
-        ButtonModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    RouterModule,
+    ButtonModule
+  ],
   providers: [],
+  exports: [
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

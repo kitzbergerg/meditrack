@@ -1,7 +1,7 @@
 /* Add a black background color to the top navigation */
 
-@import 'src/styles/spacing';
-@import 'src/styles/colors';
+@import '../../../styles/spacing';
+@import '../../../styles/colors';
 
 .top-toolbar {
   height: $top-toolbar-height;
