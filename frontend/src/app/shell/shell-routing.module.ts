@@ -1,4 +1,4 @@
-import {RouterModule} from "@angular/router";
+import {RouterModule, Routes} from "@angular/router";
 import {NgModule} from "@angular/core";
 import {ShellRedirectGuard} from "../guard/shell-redirection.guard";
 import {
@@ -6,6 +6,22 @@ import {
 } from "../components/department-manager-dashboard/department-manager-dashboard.component";
 import {EmployeeDashboardComponent} from "../components/employee-dashboard/employee-dashboard.component";
 import {AccountSettingsComponent} from "../components/account-settings/account-settings.component";
+import {ShellComponent} from "./shell/shell.component";
+
+const routes: Routes = [
+  {
+    path: 'department-manager-dashboard',
+    component: DepartmentManagerDashboardComponent,
+  },
+  {
+    path: 'employee-dashboard',
+    component: EmployeeDashboardComponent,
+  },
+  {
+    path: 'account-settings',
+    component: AccountSettingsComponent,
+  },
+]
 
 @NgModule({
   imports: [RouterModule.forChild([{
@@ -14,17 +30,12 @@ import {AccountSettingsComponent} from "../components/account-settings/account-s
       canActivate: [ShellRedirectGuard],
       children: []
     },
+
     {
-      path: 'department-manager-dashboard',
-      component: DepartmentManagerDashboardComponent,
-    },
-    {
-      path: 'employee-dashboard',
-      component: EmployeeDashboardComponent,
-    },
-    {
-      path: 'account-settings',
-      component: AccountSettingsComponent,
+      path: '',
+      component: ShellComponent,
+      data: {reuse: true}, // Reuse ShellComponent instance when navigating between child views
+      children: routes
     },
     ]
   )],

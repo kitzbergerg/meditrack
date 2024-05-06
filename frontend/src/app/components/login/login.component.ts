@@ -19,9 +19,9 @@ export class LoginComponent {
     this.authenticationService.login(role)
       .subscribe(res => {
         if (role == 'employer') {
-          void this.router.navigate(['department-manager-dashboard'])
+          void this.router.navigate([''])
         } else if (role == 'employee') {
-          void this.router.navigate(['employee-dashboard'],  )
+          void this.router.navigate([''],)
         }
       });
   }
