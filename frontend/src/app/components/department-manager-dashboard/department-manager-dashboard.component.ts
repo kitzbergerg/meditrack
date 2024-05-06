@@ -43,7 +43,6 @@ export class DepartmentManagerDashboardComponent {
   }
 
   async getUser() {
-    this.accessToken = await this.authorizationService.token
     this.getUserKeycloakInfo().subscribe(
       userinfo => this.userinfo = userinfo,
       error => console.log('Error fetching userinfo:', error)
@@ -57,7 +56,6 @@ export class DepartmentManagerDashboardComponent {
   }
 
   getUserData(): Observable<any> {
-    console.log(this.accessToken)
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.accessToken}`
     });

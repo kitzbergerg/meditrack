@@ -14,14 +14,16 @@ export class AuthorizationService {
   redirectToLoginPage(): void {
     this.keycloakService.login().then();
   }
-  get userName(): any {
-      return this.keycloakService.getKeycloakInstance().loadUserInfo().then(
+  userName(): any {
+    return this.keycloakService.getKeycloakInstance().tokenParsed;
+
+/*      return this.keycloakService.getKeycloakInstance().loadUserInfo().then(
         userInfo => {
           return userInfo
         })
         .catch(error => {
           return "error"
-        });
+        });*/
   }
 
   get token(): Promise<string> {
