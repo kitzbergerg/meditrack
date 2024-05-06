@@ -44,7 +44,7 @@ public class Main {
 
         Loader.loadNativeLibraries();
         final int numNurses = 60;
-        final int numDays = 30;
+        final int numDays = 28;
         final int numShifts = 3;
 
         final int[] allNurses = IntStream.range(0, numNurses).toArray();
@@ -64,7 +64,7 @@ public class Main {
         Map<Integer, Integer> nurseMonthlyMinHours = new HashMap<>(); // Min hours worked per nurse
         for (int i = 0; i < numNurses; i++) {
             nurseMonthlyMaxHours.put(i, 190);
-            nurseMonthlyMinHours.put(i, 150);
+            nurseMonthlyMinHours.put(i, 170);
         }
 
         // max consecutive work days and staffing level
@@ -175,6 +175,32 @@ public class Main {
             }
         }
 
+        // Evenly distribute shifts per week
+
+        int numDaysInMonth = 28;
+        int numWeeks = numDaysInMonth / 7; // Number of weeks in the month
+        int totalWorkingHours = 180;
+        int hoursPerShift = 8; // Assuming each shift is 8 hours long
+        int weeklyHours = totalWorkingHours / 4;
+
+        for (int n : allNurses) {
+            for (int w = 0; w < 4; w++) {
+                LinearExprBuilder weeklyHoursWorked = LinearExpr.newBuilder();
+                int startDay = w * 7;
+                int endDay = startDay + 7;
+
+                // Accumulate hours worked for the week based on shift durations
+                for (int d = startDay; d < endDay; d++) {
+                    for (int s = 0; s < numShifts; s++) {
+                        weeklyHoursWorked.addTerm(shifts[n][d][s], shiftDurations[s]);
+                    }
+                }
+
+                // Set constraint to model
+              model.addLinearConstraint(weeklyHoursWorked, 40, 50);
+            }
+        }
+
         // Maximize the amount of consecutive shifts
         LinearExprBuilder objective = LinearExpr.newBuilder();
         for (int n = 0; n < allNurses.length; n++) {
@@ -186,9 +212,12 @@ public class Main {
         }
         model.maximize(objective);
 
+
         // Creates a solver and solves the model.
         CpSolver solver = new CpSolver();
-        solver.getParameters().setMaxTimeInSeconds(3); // algo doesn't complete without maxTime
+        solver.getParameters().setMaxTimeInSeconds(6); // algo doesn't complete without maxTime
+        solver.getParameters().setLinearizationLevel(0);
+        solver.getParameters().setEnumerateAllSolutions(true);
         CpSolverStatus status = solver.solve(model);
 
         int[] nurseHours = new int[numNurses];
