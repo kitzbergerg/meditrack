@@ -1,9 +1,32 @@
+server:
+  port: 8081
 spring:
   datasource:
-    url: ${JDBC_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${JDBC_URL:jdbc:postgresql://localhost:5432/meditrack}
+    username: ${POSTGRES_USER:meditrack}
+    password: ${POSTGRES_PASSWORD:PFtkqhXnCxFSScMY5Zh5}
   jpa:
     hibernate:
       ddl-auto: create-drop
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "${OAUTH_JWK_URI:http://localhost:8080/realms/meditrack/protocol/openid-connect/certs}"
 spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
+meditrack.keycloak:
+  server-url: "${KEYCLOAK_URL:http://localhost:8080}"
+  username: "${KEYCLOAK_USER:admin}"
+  password: "${KEYCLOAK_PASSWORD:admin}"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    oauth:
+      client-id: swagger-ui
+
+  oAuthFlow:
+    authorizationUrl: "${OAUTH_AUTH_URL:http://localhost:8080/realms/meditrack/protocol/openid-connect/auth}"
+    tokenUrl: "${OAUTH_TOKEN_URL:http://localhost:8080/realms/meditrack/protocol/openid-connect/token}"

@@ -1,0 +1,85 @@
+{
+  "realm": "meditrack",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin"
+      },
+      {
+        "name": "user"
+      }
+    ]
+  },
+  "scopeMappings": [
+    {
+      "clientScope": "admin",
+      "roles": [
+        "admin"
+      ]
+    },
+    {
+      "clientScope": "user",
+      "roles": [
+        "admin",
+        "user"
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "web",
+      "rootUrl": "http://localhost:4200",
+      "adminUrl": "",
+      "baseUrl": "/",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "publicClient": true,
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "post.logout.redirect.uris": "+"
+      }
+    },
+    {
+      "clientId": "swagger-ui",
+      "rootUrl": "http://localhost:8081/swagger-ui",
+      "adminUrl": "",
+      "baseUrl": "/index.html",
+      "redirectUris": [
+        "/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "publicClient": true,
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "post.logout.redirect.uris": "+"
+      }
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "admin",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    },
+    {
+      "name": "user",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    }
+  ],
+  "defaultDefaultClientScopes": [
+    "admin",
+    "user"
+  ]
+}
