@@ -19,3 +19,14 @@ meditrack.keycloak:
   server-url: "${KEYCLOAK_URL:http://localhost:8080}"
   username: "${KEYCLOAK_USER:admin}"
   password: "${KEYCLOAK_PASSWORD:admin}"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    oauth:
+      client-id: swagger-ui
+
+  oAuthFlow:
+    authorizationUrl: "${OAUTH_AUTH_URL:http://localhost:8080/realms/meditrack/protocol/openid-connect/auth}"
+    tokenUrl: "${OAUTH_TOKEN_URL:http://localhost:8080/realms/meditrack/protocol/openid-connect/token}"
