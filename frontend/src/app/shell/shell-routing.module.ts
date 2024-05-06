@@ -5,6 +5,7 @@ import {
   DepartmentManagerDashboardComponent
 } from "../components/department-manager-dashboard/department-manager-dashboard.component";
 import {EmployeeDashboardComponent} from "../components/employee-dashboard/employee-dashboard.component";
+import {AccountSettingsComponent} from "../components/account-settings/account-settings.component";
 
 @NgModule({
   imports: [RouterModule.forChild([{
@@ -20,6 +21,10 @@ import {EmployeeDashboardComponent} from "../components/employee-dashboard/emplo
     {
       path: 'employee-dashboard',
       component: EmployeeDashboardComponent,
+    },
+    {
+      path: 'account-settings',
+      component: AccountSettingsComponent,
     },
     ]
   )],

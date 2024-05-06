@@ -8,6 +8,9 @@ import { DepartmentManagerDashboardComponent } from './components/department-man
 import { RouterModule } from '@angular/router';
 import { EmployeeDashboardComponent } from './components/employee-dashboard/employee-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
+import { AccountSettingsComponent } from './components/account-settings/account-settings.component';
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import {ButtonModule} from "primeng/button";
 
 @NgModule({
   declarations: [
@@ -15,13 +18,16 @@ import { LoginComponent } from './components/login/login.component';
     LangComponent,
     DepartmentManagerDashboardComponent,
     EmployeeDashboardComponent,
-    LoginComponent
+    LoginComponent,
+    AccountSettingsComponent,
+    ToolbarComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    RouterModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        RouterModule,
+        ButtonModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })
