@@ -6,6 +6,10 @@ Run `docker compose --profile keycloak --profile backend --profile frontend buil
 Run `docker compose --profile keycloak --profile backend --profile frontend up -d` to start all containers.  
 Run `docker compose --profile keycloak --profile backend --profile frontend down` to stop all containers.
 
+The frontend can be accessed at http://localhost:4200/.  
+The backend can be accessed at http://localhost:8081/.  
+The backend's API documentation can be accessed at http://localhost:8081/swagger-ui/index.html.
+
 Depending on which services you want to run you can leave out profiles. For example to run the backend locally and the
 rest in docker do: `docker compose --profile keycloak --profile frontend up -d`
 
@@ -70,7 +74,7 @@ The following configuration can be used for authentication:
 }
 ```
 
-To make calls to the backend you can use Postman with `OAuth 2.0`. 
-Set `Grant type` to `Authorization Code (With PKCE)` and enter the above values. 
+To make calls to the backend you can use Postman with `OAuth 2.0`.
+Set `Grant type` to `Authorization Code (With PKCE)` and enter the above values.
 Once you click `Get New Access Token` a window should open where you can enter credentials.
 The default credentials are username `admin` and password `admin`.
