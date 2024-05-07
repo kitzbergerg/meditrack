@@ -2,9 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.mapper.UserMapper;
-import ase.meditrack.service.UserService;
+import ase.meditrack.model.dto.ShiftSwapDto;
+import ase.meditrack.model.mapper.ShiftSwapMapper;
+import ase.meditrack.service.ShiftSwapService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -21,49 +21,49 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/shiftswap")
 @Slf4j
-public class UserController {
-    private final UserService service;
-    private final UserMapper mapper;
+public class ShiftSwapController {
+    private final ShiftSwapService service;
+    private final ShiftSwapMapper mapper;
 
-    public UserController(UserService service, UserMapper mapper) {
+    public ShiftSwapController(ShiftSwapService service, ShiftSwapMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public List<UserDto> findAll() {
-        log.info("Fetching users");
+    public List<ShiftSwapDto> findAll() {
+        log.info("Fetching shift swaps");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
-    public UserDto findById(@PathVariable UUID id) {
-        log.info("Fetching user {}", id);
+    public ShiftSwapDto findById(@PathVariable UUID id) {
+        log.info("Fetching shift swap {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
-        log.info("Creating user {}", dto.username());
+    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto) {
+        log.info("Creating shift swap for user {}", dto.swapRequestingUser());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
-    public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
-        log.info("Updating user {}", dto.username());
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #dto.id().toString()")
+    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto) {
+        log.info("Updating shift swap {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public void delete(@PathVariable UUID id) {
-        log.info("Deleting user with id {}", id);
+        log.info("Deleting shift swap with id {}", id);
         service.delete(id);
     }
 }

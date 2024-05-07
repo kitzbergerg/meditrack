@@ -2,9 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.mapper.UserMapper;
-import ase.meditrack.service.UserService;
+import ase.meditrack.model.dto.HardConstraintsDto;
+import ase.meditrack.model.mapper.HardConstraintsMapper;
+import ase.meditrack.service.HardConstraintsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -21,49 +21,49 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/hardconstraints")
 @Slf4j
-public class UserController {
-    private final UserService service;
-    private final UserMapper mapper;
+public class HardConstraintsController {
+    private final HardConstraintsService service;
+    private final HardConstraintsMapper mapper;
 
-    public UserController(UserService service, UserMapper mapper) {
+    public HardConstraintsController(HardConstraintsService service, HardConstraintsMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public List<UserDto> findAll() {
-        log.info("Fetching users");
+    public List<HardConstraintsDto> findAll() {
+        log.info("Fetching hard constraints");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
-    public UserDto findById(@PathVariable UUID id) {
-        log.info("Fetching user {}", id);
+    public HardConstraintsDto findById(@PathVariable UUID id) {
+        log.info("Fetching hard constraints {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
-        log.info("Creating user {}", dto.username());
+    public HardConstraintsDto create(@Validated(CreateValidator.class) @RequestBody HardConstraintsDto dto) {
+        log.info("Creating hard constraints");
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
-    public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
-        log.info("Updating user {}", dto.username());
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #dto.id().toString()")
+    public HardConstraintsDto update(@Validated(UpdateValidator.class) @RequestBody HardConstraintsDto dto) {
+        log.info("Updating hard constraints {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public void delete(@PathVariable UUID id) {
-        log.info("Deleting user with id {}", id);
+        log.info("Deleting hard constraints with id {}", id);
         service.delete(id);
     }
 }
