@@ -23,7 +23,8 @@
     "angular-oauth2-oidc": "^17.0.2",
     "keycloak-angular": "^15.2.1",
     "keycloak-js": "^24.0.3",
-    "primeng": "^17.15.0",
+    "primeicons": "^7.0.0",
+    "primeng": "^17.16.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.5"

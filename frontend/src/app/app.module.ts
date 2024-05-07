@@ -14,6 +14,9 @@ import { OAuthModule} from 'angular-oauth2-oidc';
 import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
 import { ButtonModule } from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
+import {AccountSettingsComponent} from './shell/account-settings/account-settings.component';
+import {EmployeesComponent} from './components/employees/employees.component';
+
 
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -42,6 +45,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     DepartmentManagerDashboardComponent,
     EmployeeDashboardComponent,
     LoginComponent,
+    AccountSettingsComponent,
+    EmployeesComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,6 +72,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
       deps: [KeycloakService],
     },
     ],
+  exports: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

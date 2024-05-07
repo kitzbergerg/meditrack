@@ -1,0 +1,39 @@
+/* Add a black background color to the top navigation */
+
+@import '../../../styles/spacing';
+@import '../../../styles/colors';
+
+.top-toolbar {
+  height: $top-toolbar-height;
+  background: $surface-container-low;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.top-item {
+  padding-top: 4em;
+}
+
+.account-button {
+  position: fixed;
+  left: 90%;
+}
+
+.side-toolbar {
+  margin-top: $top-toolbar-height;
+  background: $surface-container-low;
+  position: absolute;
+  height: 100%; /* Full-height: remove this if you want "auto" height */
+  width: $side-toolbar-width /*- $side-toolbar-inner-padding*/;
+  padding-left: 0 /*$side-toolbar-inner-padding*/;
+  list-style-type: none;
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 20px;
+  text-align: center;
+}
+li {
+  margin:0 0 10px 0;
+}
