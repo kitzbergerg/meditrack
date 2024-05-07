@@ -10,7 +10,6 @@ import { RouterModule } from '@angular/router';
 import { EmployeeDashboardComponent } from './components/employee-dashboard/employee-dashboard.component';
 import { LoginComponent } from './components/login/login.component';
 import { HttpClientModule } from '@angular/common/http';
-import { OAuthModule} from 'angular-oauth2-oidc';
 import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
 import { ButtonModule } from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
@@ -55,12 +54,6 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RouterModule,
     HttpClientModule,
     KeycloakAngularModule,
-    OAuthModule.forRoot({
-      resourceServer: {
-        allowedUrls: ['localhost:8081/api/user'],
-        sendAccessToken: true,
-      },
-    }),
     FormsModule,
     StyleClassModule
   ],
@@ -72,7 +65,6 @@ function initializeKeycloak(keycloak: KeycloakService) {
       deps: [KeycloakService],
     },
     ],
-  exports: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {

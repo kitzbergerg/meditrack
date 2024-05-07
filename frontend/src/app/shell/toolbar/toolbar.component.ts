@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {AuthenticationService} from "../../services/authentication/authentication.service";
 import {Router} from "@angular/router";
+import {AuthorizationService} from "../../services/authentication/authorization.service";
 
 @Component({
   selector: 'app-toolbar',
@@ -11,7 +12,7 @@ export class ToolbarComponent {
   workgroupName = "Workgroup Name"
 
   constructor(private authenticationService: AuthenticationService,
-              private router: Router) {
+              private router: Router, private authorizationService: AuthorizationService) {
     this.workgroupName = "workgroupName todo";
   }
 
@@ -40,5 +41,9 @@ export class ToolbarComponent {
 
   getCurrentRoute() {
     return this.router.url
+  }
+
+  logout() {
+    this.authorizationService.logout();
   }
 }

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
-
-import { JwksValidationHandler, OAuthService } from 'angular-oauth2-oidc';
 import {AuthorizationService} from "../../services/authentication/authorization.service";
+import { Router } from '@angular/router';
+import { AuthenticationService } from 'src/app/services/authentication/authentication.service';
 
 @Component({
   selector: 'app-login',
@@ -11,29 +11,9 @@ import {AuthorizationService} from "../../services/authentication/authorization.
 export class LoginComponent {
 
 
-  constructor(private oauthService: OAuthService, private authorizationService: AuthorizationService) {
+  constructor(private authorizationService: AuthorizationService, private router: Router, private authenticationService: AuthenticationService) {
   }
 
-  ngOnInit(): void {
-    if (this.authorizationService.isLoggedIn()) {
-      console.log(this.authorizationService.parsedToken().sub)
-    }
-  }
-
-  logout() {
-    this.authorizationService.logout();
-    //this.oauthService.logOut();
-  }
-
-  get userName() {
-    const claims = this.oauthService.getIdentityClaims();
-    if (!claims) return null;
-    return claims['preferred_username'];
-  }
-
-  get isLoggedIn() {
-    return this.oauthService.hasValidAccessToken();
-  /*
   loginStub(role: string) {
     console.log('loginStub')
     this.authenticationService.login(role)
@@ -43,6 +23,18 @@ export class LoginComponent {
         } else if (role == 'employee') {
           void this.router.navigate(['employee-dashboard'],)
         }
-      });*/
+      });
+    }
+
+  ngOnInit(): void {
+    if (this.authorizationService.isLoggedIn()) {
+      console.log(this.authorizationService.parsedToken().sub);
+    }else{
+      console.log("not logged in");
+    }
+  }
+
+  logout() {
+    this.authorizationService.logout();
   }
 }

@@ -1,14 +1,23 @@
-import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot,} from "@angular/router";
+import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot} from "@angular/router";
 import {inject, Injectable} from "@angular/core";
 import {AuthenticationService} from "../services/authentication/authentication.service";
+import {KeycloakAuthGuard, KeycloakService} from "keycloak-angular";
 
 @Injectable({providedIn: 'root'})
-export class AuthenticationGuard {
+export class AuthenticationGuard extends KeycloakAuthGuard {
 
-  constructor(private router: Router,
-              private authenticationService: AuthenticationService,) {}
+  constructor(override readonly router: Router, protected readonly keycloak: KeycloakService, private authenticationService: AuthenticationService,)
+  {
+    super(router, keycloak);
+  }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+  public async isAccessAllowed(route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+
+    if (!this.authenticated) {
+      await this.keycloak.login({
+        redirectUri: window.location.origin + state.url
+      });
+    }
     //todo: if not authenticated, redirect to login page
     console.log('route-auth-guard', route)
     console.log('state-auth-guard', state)
@@ -24,11 +33,10 @@ export class AuthenticationGuard {
    }
     void this.router.navigate(['login']);
     //else is authenticated
-    return false  ;
-
+    return false ;
   }
 }
 
-export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot)=> {
   return inject(AuthenticationGuard).canActivate(next, state);
 }
