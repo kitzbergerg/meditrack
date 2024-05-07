@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {AuthenticationService} from "../../services/authentication/authentication.service";
+import {Router} from "@angular/router";
+
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
@@ -7,26 +9,36 @@ import {AuthenticationService} from "../../services/authentication/authenticatio
 })
 export class ToolbarComponent {
   workgroupName = "Workgroup Name"
-  isEmployer = false;
-  isEmployee = false;
 
-  constructor(authenticationService: AuthenticationService,) {
+  constructor(private authenticationService: AuthenticationService,
+              private router: Router) {
     this.workgroupName = "workgroupName todo";
-    if (authenticationService.isAuthenticated()) {
-      if (authenticationService.hasAuthority('employer')) {
-        this.isEmployer = true;
-      } else if(authenticationService.hasAuthority('employee')) {
-        this.isEmployee = true;
-      }
+  }
+
+  isEmployer() {
+    if (this.authenticationService.isAuthenticated()) {
+      return this.authenticationService.hasAuthority('employer')
     }
+    return false;
+  }
+
+  isEmployee() {
+    if (this.authenticationService.isAuthenticated()) {
+      return this.authenticationService.hasAuthority('employee');
+    }
+    return false;
   }
 
   getDashboard() {
-    if (this.isEmployer) {
+    if (this.isEmployer()) {
       return 'department-manager-dashboard'
-    } else if (this.isEmployee) {
+    } else if (this.isEmployee()) {
       return 'employee-dashboard'
     }
     return ''
+  }
+
+  getCurrentRoute() {
+    return this.router.url
   }
 }

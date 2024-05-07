@@ -5,7 +5,7 @@ import {
   DepartmentManagerDashboardComponent
 } from "../components/department-manager-dashboard/department-manager-dashboard.component";
 import {EmployeeDashboardComponent} from "../components/employee-dashboard/employee-dashboard.component";
-import {AccountSettingsComponent} from "../components/account-settings/account-settings.component";
+import {AccountSettingsComponent} from "./account-settings/account-settings.component";
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
 
@@ -22,10 +22,6 @@ const routes: Routes = [
     path: 'employees',
     component: EmployeesComponent,
   },
-  {
-    path: 'account-settings',
-    component: AccountSettingsComponent,
-  },
 ]
 
 @NgModule({
@@ -35,13 +31,16 @@ const routes: Routes = [
       canActivate: [ShellRedirectGuard],
       children: routes
     },
-
-    {
-      path: '',
-      component: ShellComponent,
-      data: {reuse: false}, // Reuse ShellComponent instance when navigating between child views
-      children: routes
-    },
+      {
+        path: 'account-settings',
+        component: AccountSettingsComponent,
+      },
+      {
+        path: '',
+        component: ShellComponent,
+        data: {reuse: false}, // Reuse ShellComponent instance when navigating between child views
+        children: routes
+      },
     ]
   )],
 })
