@@ -153,7 +153,7 @@ public class UserService {
                 "admin",
                 "admin",
                 List.of("admin"),
-                "DOCTOR",
+                null,
                 1.0f,
                 0,
                 null,

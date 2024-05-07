@@ -8,6 +8,7 @@ import {EmployeeDashboardComponent} from "../components/employee-dashboard/emplo
 import {AccountSettingsComponent} from "./account-settings/account-settings.component";
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
+import {RolesComponent} from "../components/roles/roles.component";
 
 const routes: Routes = [
   {
@@ -21,6 +22,10 @@ const routes: Routes = [
   {
     path: 'employees',
     component: EmployeesComponent,
+  },
+  {
+    path: 'roles',
+    component: RolesComponent,
   },
 ]
 

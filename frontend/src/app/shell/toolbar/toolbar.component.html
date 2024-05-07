@@ -11,7 +11,7 @@
   <li [routerLink]="getDashboard()">Calendar</li>
   <li [hidden]="!isEmployer()" [routerLink]="'employees'">Employees</li>
   <li [hidden]="!isEmployer()">Shift Types</li>
-  <li [hidden]="!isEmployer()">Roles</li>
+  <li [hidden]="!isEmployer()" [routerLink]="'roles'">Roles</li>
   <li>Holidays</li>
   <li [hidden]="!isEmployer()">Rules</li>
   <li [hidden]="!isEmployee()">Shift Swapping</li>
