@@ -34,6 +34,10 @@ export class LoginComponent {
     }
   }
 
+  isLoggedIn() {
+    return this.authorizationService.isLoggedIn()
+  }
+
   logout() {
     this.authorizationService.logout();
   }

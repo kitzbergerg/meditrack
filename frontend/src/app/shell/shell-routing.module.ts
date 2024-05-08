@@ -30,12 +30,13 @@ const routes: Routes = [
 ]
 
 @NgModule({
-  imports: [RouterModule.forChild([{
-      path: '',
-      pathMatch: 'full',
-      canActivate: [ShellRedirectGuard],
-      children: routes
-    },
+  imports: [RouterModule.forChild([
+      {
+        path: '',
+        pathMatch: 'full',
+        canActivate: [ShellRedirectGuard],
+        children: routes
+      },
       {
         path: 'account-settings',
         component: AccountSettingsComponent,
