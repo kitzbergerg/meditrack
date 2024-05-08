@@ -16,6 +16,7 @@ import {StyleClassModule} from "primeng/styleclass";
 import {AccountSettingsComponent} from './shell/account-settings/account-settings.component';
 import {EmployeesComponent} from './components/employees/employees.component';
 import {RolesComponent} from './components/roles/roles.component';
+import {CreateRolesComponent} from "./components/create-roles/create-roles.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -47,7 +48,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     LoginComponent,
     AccountSettingsComponent,
     EmployeesComponent,
-    RolesComponent
+    RolesComponent,
+    CreateRolesComponent
   ],
   imports: [
     BrowserModule,

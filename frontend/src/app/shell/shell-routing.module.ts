@@ -9,6 +9,7 @@ import {AccountSettingsComponent} from "./account-settings/account-settings.comp
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
 import {RolesComponent} from "../components/roles/roles.component";
+import {CreateRolesComponent} from "../components/create-roles/create-roles.component";
 
 const routes: Routes = [
   {
@@ -26,6 +27,10 @@ const routes: Routes = [
   {
     path: 'roles',
     component: RolesComponent,
+  },
+  {
+    path: 'roles/create',
+    component: CreateRolesComponent,
   },
 ]
 
