@@ -23,4 +23,17 @@ export class RolesService {
 
     return this.http.post<Role>(this.apiUrl, role, httpOptions);
   }
+
+  updateRole(role: Role): Observable<Role> {
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+    };
+
+    return this.http.put<Role>(this.apiUrl, role, httpOptions);
+  }
+
+  deleteRole(id: number) {
+    console.log(this.apiUrl+`/${id}`)
+    return this.http.delete(this.apiUrl+`/${id}`);
+  }
 }

@@ -1,12 +1,35 @@
-<p>roles works!</p>
-
-<div class="container">
+<div class="roles-container">
   <h1>Roles</h1>
 
+  <ul>
+    <li *ngFor="let role of roles">
+      <ng-container *ngIf="role !== editedRole; else editRole">
+        <div name="roleName">
+             {{ role.name }}
+        </div>
+        <button (click)="startEditing(role)">Edit</button>
+      </ng-container>
 
-  <a [routerLink]="'create'">
-    <button>
-      <i class="material-icons">  +  </i>
+      <div>
+        <ng-template #editRole>
+          <input type="text" [(ngModel)]="editedRole.name">
+          <button (click)="updateRole(role)">Save</button>
+          <button (click)="cancelEditing()">Cancel</button>
+        </ng-template>
+
+        <button (click)="deleteRole(role)">Delete</button>
+      </div>
+    </li>
+  </ul>
+
+  <div class="plusButtonContainer">
+    <button name="createButton" (click)="showNewRoleInputField = !showNewRoleInputField">
+      {{ showNewRoleInputField ? '-' : '+' }}
     </button>
-  </a>
+  </div>
+
+  <div class="inputContainer" *ngIf="showNewRoleInputField">
+    <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">
+    <button name="addButton" (click)="createRole()" [disabled]="!newRoleName">Add</button>
+  </div>
 </div>
