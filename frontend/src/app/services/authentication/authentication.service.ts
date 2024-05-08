@@ -40,8 +40,6 @@ export class AuthenticationService {
   }
 
   hasAuthority(authority: string) {
-    console.log( authority );
-    console.log(this.userAuth?.roles)
 
     if (!authority || !this.isAuthenticated() || !this.userAuth?.roles) {
       return false
