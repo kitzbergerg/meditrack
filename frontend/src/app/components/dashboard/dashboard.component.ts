@@ -1,16 +1,14 @@
 import { Component } from '@angular/core';
 import {AuthorizationService} from "../../services/authentication/authorization.service";
-import {Observable} from "rxjs";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {UserService} from "../../services/user.service";
 
 @Component({
-  selector: 'app-department-manager-dashboard',
-  templateUrl: './department-manager-dashboard.component.html',
-  styleUrls: ['./department-manager-dashboard.component.scss']
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.scss'
 })
-export class DepartmentManagerDashboardComponent {
-
+export class DashboardComponent {
   data: any;
   userId = '';
 
