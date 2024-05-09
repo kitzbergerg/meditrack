@@ -20,6 +20,10 @@ export class AuthorizationService {
     return this.keycloakService.login({redirectUri: "http://localhost:4200/dashboard"});
   }
 
+  changePassword() {
+    return this.keycloakService.login({action: "UPDATE_PASSWORD"})
+  }
+
   isLoggedIn(): boolean {
     return this.keycloakService.isLoggedIn();
   }

@@ -18,8 +18,8 @@ export class ToolbarComponent {
   }
 
   ngOnInit(): void {
-    this.isEmployee = this.authorizationService.hasAuthority(["employee"]);
-    this.isDM = this.authorizationService.hasAuthority(["dm"]);
+    this.isEmployee = this.authorizationService.hasAuthority(["admin","employee"]);
+    this.isDM = this.authorizationService.hasAuthority(["admin", "dm"]);
   }
 
   getDashboard() {

@@ -20,13 +20,10 @@ export class AccountSettingsComponent {
   data: any;
   userId = '';
 
-
-
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser()
   }
-
 
   constructor(private authorizationService: AuthorizationService, private http: HttpClient, private userService: UserService, private route: ActivatedRoute, private router: Router) {
     this.workgroupName = "workgroupName todo";
@@ -41,6 +38,14 @@ export class AccountSettingsComponent {
 
   routeBasedOnRole() {
     return '..' + this.routerRedirect
+  }
+
+  logout() {
+    this.authorizationService.logout();
+  }
+
+  changePassword() {
+    this.authorizationService.changePassword().then();
   }
 
   getUser(): void {
