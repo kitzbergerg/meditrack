@@ -14,16 +14,13 @@ import java.util.UUID;
 @Slf4j
 public class HardConstraintsService {
     private final HardConstraintsRepository repository;
-    private final TeamService teamService;
 
-    public HardConstraintsService(HardConstraintsRepository repository, TeamService teamService) {
+    public HardConstraintsService(HardConstraintsRepository repository) {
         this.repository = repository;
-        this.teamService = teamService;
     }
 
     public HardConstraints findById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     public List<HardConstraints> findAll() {
@@ -31,8 +28,6 @@ public class HardConstraintsService {
     }
 
     public HardConstraints create(HardConstraints hardConstraints) {
-        //get the team from the hardConstraints id
-        hardConstraints.setTeam(teamService.findById(hardConstraints.getId()));
         return repository.save(hardConstraints);
     }
 

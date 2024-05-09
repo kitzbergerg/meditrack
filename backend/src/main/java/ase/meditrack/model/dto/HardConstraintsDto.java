@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public record HardConstraintsDto(
-        @NotNull(groups = { CreateValidator.class, UpdateValidator.class }) UUID id,
+        @NotNull(groups = UpdateValidator.class) UUID id,
         @NotNull(groups = CreateValidator.class) Map<ShiftOffShiftIdListDto, UUID> shiftOffShift,
         @NotNull(groups = CreateValidator.class) Map<Role, Integer> daytimeRequiredRoles,
         @NotNull(groups = CreateValidator.class) Map<Role, Integer> nighttimeRequiredRoles,
