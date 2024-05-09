@@ -11,14 +11,11 @@ export class UserService {
 
   private apiUrl = 'http://localhost:8081/api/user';
   private userinfoUrl = 'http://localhost:8080/realms/meditrack/protocol/openid-connect/userinfo';
-  private accessToken = '';
+  private realmUrl = "http://localhost:8080/realms/meditrack";
 
 
   getAllUsers(): Observable<any> {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.accessToken}`
-    });
-    return this.http.get<any>(this.apiUrl, { headers });
+    return this.http.get<any>(this.apiUrl);
   }
   getUserById(id: string) {
     return this.http.get(this.apiUrl+`/${id}`);
