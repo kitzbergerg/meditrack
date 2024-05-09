@@ -24,7 +24,7 @@ const routes: Routes = [
     path: 'roles',
     canActivate: [dmGuard],
     component: RolesComponent,
-  },
+  }
 ]
 
 @NgModule({
