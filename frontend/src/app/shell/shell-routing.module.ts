@@ -1,30 +1,28 @@
 import {RouterModule, Routes} from "@angular/router";
 import {NgModule} from "@angular/core";
 import {ShellRedirectGuard} from "../guard/shell-redirection.guard";
-import {
-  DepartmentManagerDashboardComponent
-} from "../components/department-manager-dashboard/department-manager-dashboard.component";
-import {EmployeeDashboardComponent} from "../components/employee-dashboard/employee-dashboard.component";
 import {AccountSettingsComponent} from "./account-settings/account-settings.component";
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
 import {RolesComponent} from "../components/roles/roles.component";
+import {DashboardComponent} from "../components/dashboard/dashboard.component";
+import {employeeGuard} from "../guard/employee.guard";
+import {dmGuard} from "../guard/dm.guard";
 
 const routes: Routes = [
   {
-    path: 'department-manager-dashboard',
-    component: DepartmentManagerDashboardComponent,
-  },
-  {
-    path: 'employee-dashboard',
-    component: EmployeeDashboardComponent,
+    path: 'dashboard',
+    canActivate: [employeeGuard],
+    component: DashboardComponent,
   },
   {
     path: 'employees',
+    canActivate: [dmGuard],
     component: EmployeesComponent,
   },
   {
     path: 'roles',
+    canActivate: [dmGuard],
     component: RolesComponent,
   },
 ]

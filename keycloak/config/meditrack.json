@@ -7,7 +7,10 @@
         "name": "admin"
       },
       {
-        "name": "user"
+        "name": "dm"
+      },
+      {
+        "name": "employee"
       }
     ]
   },
@@ -19,10 +22,18 @@
       ]
     },
     {
-      "clientScope": "user",
+      "clientScope": "dm",
       "roles": [
         "admin",
-        "user"
+        "dm"
+      ]
+    },
+    {
+      "clientScope": "employee",
+      "roles": [
+        "admin",
+        "dm",
+        "employee"
       ]
     }
   ],
@@ -71,7 +82,14 @@
       }
     },
     {
-      "name": "user",
+      "name": "dm",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true"
+      }
+    },
+    {
+      "name": "employee",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true"
@@ -80,6 +98,7 @@
   ],
   "defaultDefaultClientScopes": [
     "admin",
-    "user"
+    "dm",
+    "employee"
   ]
 }

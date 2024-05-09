@@ -1,4 +1,13 @@
 <ul class="d-flex justify-content-center top-toolbar"><!--top toolbar-->
   <div class="top-item">{{ workgroupName }}</div>
 </ul>
-<button [routerLink]="routeBasedOnRole()">back</button><p>account-settings works!</p>
+
+<button [routerLink]="routeBasedOnRole()">back</button>
+
+
+<div *ngIf="data" style="text-align: center;">
+  <h2>User Overview</h2>
+  <p>Username: {{ data.username }}</p>
+  <p>Role: {{ data.roles[0] }}</p>
+  <p>Email: {{ data.email }}</p>
+</div>

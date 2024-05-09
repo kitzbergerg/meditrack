@@ -3,8 +3,7 @@
     <div class="login-container">
         <h2>Welcome to MediTrack</h2>
         <p>Please login to access the application</p>
-      <button (click)="loginStub('employer')">login employer</button>
-      <button (click)="loginStub('employee')">login employee</button>
+      <button (click)="login()">Login</button>
     </div>
 
     <div *ngIf="isLoggedIn()" class="logout-container">

@@ -1,6 +1,9 @@
 import {Component} from '@angular/core';
-import {AuthenticationService} from "../../services/authentication/authentication.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {HttpClient} from "@angular/common/http";
+import {UserService} from "../../services/user.service";
+
 
 @Component({
   selector: 'app-account-settings',
@@ -14,18 +17,22 @@ export class AccountSettingsComponent {
   isEmployer = false;
   isEmployee = false;
   routerRedirect = ''
+  data: any;
+  userId = '';
 
-  constructor(private authenticationService: AuthenticationService,
-              private route: ActivatedRoute,
-              private router: Router) {
+
+
+  ngOnInit(): void {
+    this.userId = this.authorizationService.parsedToken().sub;
+    this.getUser()
+  }
+
+
+  constructor(private authorizationService: AuthorizationService, private http: HttpClient, private userService: UserService, private route: ActivatedRoute, private router: Router) {
     this.workgroupName = "workgroupName todo";
-    if (authenticationService.isAuthenticated()) {
-      if (authenticationService.hasAuthority('employer')) {
-        this.isEmployer = true;
-      } else if (authenticationService.hasAuthority('employee')) {
-        this.isEmployee = true;
-      }
-    }
+
+    this.isEmployer = true;
+    this.isEmployee = true;
 
     this.route.queryParams.subscribe(params => {
       this.routerRedirect = params['from'];
@@ -34,5 +41,16 @@ export class AccountSettingsComponent {
 
   routeBasedOnRole() {
     return '..' + this.routerRedirect
+  }
+
+  getUser(): void {
+    this.userService.getUserById(this.userId).subscribe(
+      (response) => {
+        this.data = response;
+      },
+      (error) => {
+        console.error('Error fetching data:', error);
+      }
+    );
   }
 }

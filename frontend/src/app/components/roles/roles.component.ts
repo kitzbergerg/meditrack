@@ -19,6 +19,5 @@ export class RolesComponent {
         this.roles = fetchedRoles;
       });
 
-    console.log(this.roles);
   }
 }
