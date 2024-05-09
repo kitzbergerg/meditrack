@@ -23,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/user")
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class UserController {
     private final UserService service;
     private final UserMapper mapper;

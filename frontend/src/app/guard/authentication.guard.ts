@@ -1,34 +1,33 @@
-import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot,} from "@angular/router";
+import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot} from "@angular/router";
 import {inject, Injectable} from "@angular/core";
-import {AuthenticationService} from "../services/authentication/authentication.service";
+import {KeycloakAuthGuard, KeycloakService} from "keycloak-angular";
+
 
 @Injectable({providedIn: 'root'})
-export class AuthenticationGuard {
+export class AuthenticationGuard extends KeycloakAuthGuard {
 
-  constructor(private router: Router,
-              private authenticationService: AuthenticationService,) {}
-
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
-    //todo: if not authenticated, redirect to login page
-    console.log('route-auth-guard', route)
-    console.log('state-auth-guard', state)
-
-   if ( this.authenticationService.isAuthenticated()) {
-     console.log('authenticated-auth-guard', this.authenticationService.isAuthenticated())
-     if (this.authenticationService.hasAuthority('employer') || this.authenticationService.hasAuthority('employee')) {
-       return true // user has the required authorities
-     } else {
-       console.log(`required role not granted on path ${route.pathFromRoot}: ${route.data['requiredAuth']}`)
-       return false
-     }
-   }
-    void this.router.navigate(['login']);
-    //else is authenticated
-    return false  ;
-
+  constructor(override readonly router: Router, protected readonly keycloak: KeycloakService)
+  {
+    super(router, keycloak);
   }
+
+  public async isAccessAllowed (route: ActivatedRouteSnapshot, state: RouterStateSnapshot){
+
+    if (!this.authenticated) {
+      console.log("State:" + state.url)
+        await this.keycloak.login();
+    }
+    return true;
+  }
+
+  public isAuthenticated(): boolean {
+    return this.authenticated;
+  }
+
 }
 
-export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+// Guard checks whether user is logged in
+export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot)=> {
   return inject(AuthenticationGuard).canActivate(next, state);
 }
+

@@ -8,7 +8,7 @@ import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
-import ase.meditrack.model.enums.Role;
+import ase.meditrack.model.entity.Role;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -47,7 +47,7 @@ public abstract class UserMapper {
                         // default-roles-meditrack is keycloak internal, users shouldn't see it
                         .filter(role -> !role.equals("default-roles-meditrack"))
                         .toList(),
-                user.getRole().toString(),
+                user.getRole() != null ? user.getRole().getId() : null,
                 user.getWorkingHoursPercentage(),
                 user.getCurrentOverTime(),
                 user.getSpecialSkills(),
@@ -94,10 +94,15 @@ public abstract class UserMapper {
 
         user.setUserRepresentation(userRepresentation);
 
-        user.setRole(Role.valueOf(dto.role()));
         user.setWorkingHoursPercentage(dto.workingHoursPercentage());
         user.setCurrentOverTime(dto.currentOverTime());
         user.setSpecialSkills(dto.specialSkills());
+
+        if (dto.role() != null) {
+            Role role = new Role();
+            role.setId(dto.role());
+            user.setRole(role);
+        }
 
         if (dto.team() != null) {
             Team team = new Team();

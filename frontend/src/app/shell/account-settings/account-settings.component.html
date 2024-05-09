@@ -1,0 +1,21 @@
+<ul class="d-flex justify-content-center top-toolbar"><!--top toolbar-->
+  <div class="top-item">{{ workgroupName }}</div>
+  <p-button (onClick)="logout()" class="logout-button top-item">
+    Logout</p-button>
+</ul>
+
+<button [routerLink]="routeBasedOnRole()">back</button>
+
+<div class="d-flex justify-content-center">
+  <div>
+  <div *ngIf="data" style="text-align: center;">
+    <h2>User Overview</h2>
+    <p>Username: {{ data.username }}</p>
+    <p>First Name: {{ data.firstName }}</p>
+    <p>Role: {{ data.role }}</p>
+    <p>Email: {{ data.email }}</p>
+  </div>
+
+  <button (click)="changePassword()"> Update password</button>
+  </div>
+</div>
