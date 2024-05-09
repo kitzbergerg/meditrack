@@ -9,8 +9,8 @@ import java.util.List;
  * (rather than one, that is imposed by the current data in the system).
  * Contains a list of all validations that failed when validating the piece of data in question.
  */
-public class ValidationException extends ErrorListException {
-    public ValidationException(String messageSummary, List<String> errors) {
-        super("Failed validations", messageSummary, errors);
+public class ValidationException extends RuntimeException {
+    public ValidationException(String messageSummary) {
+        super(messageSummary);
     }
 }

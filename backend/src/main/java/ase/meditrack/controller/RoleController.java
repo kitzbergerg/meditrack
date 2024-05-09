@@ -48,8 +48,8 @@ public class RoleController {
         try {
             return mapper.toDto(service.create(mapper.fromDto(dto)));
         } catch (ValidationException e) {
-            LOGGER.error("ValidationException: PUT /api/role/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during editing horse: " + e.getMessage(), e);
+            LOGGER.error("ValidationException: POST /api/role/{} {}", dto.id(), dto, e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating role: " + e.getMessage(), e);
         }
     }
 
@@ -62,7 +62,7 @@ public class RoleController {
             return mapper.toDto(service.update(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             LOGGER.error("ValidationException: PUT /api/role/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during editing horse: " + e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during editing role: " + e.getMessage(), e);
         }
     }
 

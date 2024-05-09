@@ -9,8 +9,9 @@ import java.util.List;
  * (rather than an invariant).
  * Contains a list of all conflict checks that failed when validating the piece of data in question.
  */
-public class ConflictException extends ErrorListException {
-    public ConflictException(String messageSummary, List<String> errors) {
-        super("Conflicts", messageSummary, errors);
+public class ConflictException extends RuntimeException {
+    public ConflictException(String messageSummary) {
+
+        super(messageSummary);
     }
 }
