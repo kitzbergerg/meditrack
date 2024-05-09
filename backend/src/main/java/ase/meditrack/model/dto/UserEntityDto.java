@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record UserEntityDto(
         UUID id,
-        String role,
+        RoleDto role,
         Float workingHoursPercentage,
         Integer currentOverTime,
         List<String> specialSkills,
