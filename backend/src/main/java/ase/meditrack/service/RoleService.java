@@ -44,9 +44,7 @@ public class RoleService {
      * @return the created role
      */
     public Role create(Role role) throws ValidationException {
-        if (!validator.validateCreate(role.getName())) {
-            throw new ValidationException("Role creation failed.");
-        };
+        validator.roleCreateValidation(role);
         return repository.save(role);
     }
 
@@ -57,14 +55,8 @@ public class RoleService {
      * @return the updated role
      */
     public Role update(Role roleToUpdate) throws ValidationException {
-        Optional<Role> currentRole = repository.findById(roleToUpdate.getId());
-        Role role = null;
-        if (currentRole.isPresent()) {
-            role = currentRole.get();
-        };
-        if (!validator.validateUpdate(role.getName(), roleToUpdate.getName())) {
-            throw new ValidationException("Role updating failed.");
-        };
+        validator.roleUpdateValidation(roleToUpdate);
+
         Role updatedRole = new Role();
         updatedRole.setId(roleToUpdate.getId());
         updatedRole.setName(roleToUpdate.getName());
