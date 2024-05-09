@@ -8,6 +8,7 @@ import {RolesComponent} from "../components/roles/roles.component";
 import {DashboardComponent} from "../components/dashboard/dashboard.component";
 import {employeeGuard} from "../guard/employee.guard";
 import {dmGuard} from "../guard/dm.guard";
+import {ShiftTypesComponent} from "../components/shift-types/shift-types.component";
 
 const routes: Routes = [
   {
@@ -24,6 +25,11 @@ const routes: Routes = [
     path: 'roles',
     canActivate: [dmGuard],
     component: RolesComponent,
+  },
+  {
+    path: 'shift-types',
+    canActivate: [dmGuard],
+    component: ShiftTypesComponent,
   }
 ]
 
