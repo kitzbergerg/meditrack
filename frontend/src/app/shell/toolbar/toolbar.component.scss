@@ -3,24 +3,34 @@
 @import '../../../styles/spacing';
 @import '../../../styles/colors';
 
+@layer reset, primeng;
+
 .top-toolbar {
   height: $top-toolbar-height;
   background: $surface-container-low;
+  align-items: center;
   margin-top: 0;
   margin-bottom: 0;
+  list-style-type: none;
+
+  display: grid;
+  grid-template-columns: 1fr repeat(1, auto) 1fr;
+  justify-items: center;
+}
+
+/* Order */
+.workgroup-name {
+  grid-column-start: 2;
+}
+
+.account-buttons {
+  justify-self: flex-end;
+  grid-column-start: 3;
+  margin-right: 3em;
 }
 
 .top-item {
-  padding-top: 4em;
-}
-
-.account-button {
-  position: fixed;
-  left: 85%;
-}
-.logout-button {
-  position: fixed;
-  left: 90%;
+  vertical-align: middle;
 }
 
 .side-toolbar {
@@ -38,6 +48,7 @@
   padding-top: 20px;
   text-align: center;
 }
+
 li {
   margin:0 0 10px 0;
 }

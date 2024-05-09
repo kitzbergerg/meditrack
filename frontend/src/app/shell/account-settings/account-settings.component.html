@@ -1,21 +1,43 @@
-<ul class="d-flex justify-content-center top-toolbar"><!--top toolbar-->
-  <div class="top-item">{{ workgroupName }}</div>
-  <p-button (onClick)="logout()" class="logout-button top-item">
-    Logout</p-button>
+<ul class="justify-content-center top-toolbar"><!--top toolbar-->
+  <li class="workgroup-name">
+    <button class="workgroup-name-button p-button">{{ workgroupName }}</button>
+  </li>
+  <li class="account-buttons">
+    <span class="mr-1"></span>
+    <button
+      pButton
+      pRipple
+      (click)="logout()"
+      class="p-button-sm logout-button top-item light-button"
+    >
+      Logout
+    </button>
+  </li>
 </ul>
 
-<button [routerLink]="routeBasedOnRole()">back</button>
+<button pButton
+        pRipple
+        [routerLink]="routeBasedOnRole()"
+        class="p-button-sm light-button mt-1 ml-1"
+>
+  back
+</button>
 
 <div class="d-flex justify-content-center">
   <div>
-  <div *ngIf="data" style="text-align: center;">
-    <h2>User Overview</h2>
-    <p>Username: {{ data.username }}</p>
-    <p>First Name: {{ data.firstName }}</p>
-    <p>Role: {{ data.role }}</p>
-    <p>Email: {{ data.email }}</p>
-  </div>
+    <div *ngIf="data" style="text-align: center;">
+      <h2>User Overview</h2>
+      <p>Username: {{ data.username }}</p>
+      <p>First Name: {{ data.firstName }}</p>
+      <p>Role: {{ data.role }}</p>
+      <p>Email: {{ data.email }}</p>
+    </div>
 
-  <button (click)="changePassword()"> Update password</button>
+    <button pButton
+            pRipple
+            (click)="changePassword()"
+            class="p-button-sm light-button"
+    > Update password
+    </button>
   </div>
 </div>

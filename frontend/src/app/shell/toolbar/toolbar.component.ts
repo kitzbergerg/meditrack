@@ -15,10 +15,8 @@ export class ToolbarComponent {
 
   constructor(private router: Router, private authorizationService: AuthorizationService ) {
     this.workgroupName = "workgroupName todo";
-  }
 
-  ngOnInit(): void {
-    this.isEmployee = this.authorizationService.hasAuthority(["admin","employee"]);
+    this.isEmployee = this.authorizationService.hasAuthority(["employee"]);
     this.isDM = this.authorizationService.hasAuthority(["admin", "dm"]);
   }
 
