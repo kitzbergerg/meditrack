@@ -30,6 +30,7 @@
 
   <div class="inputContainer" *ngIf="showNewRoleInputField">
     <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">
-    <button name="addButton" (click)="createRole()" [disabled]="!newRoleName">Add</button>
+    <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>
   </div>
+  <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>
 </div>

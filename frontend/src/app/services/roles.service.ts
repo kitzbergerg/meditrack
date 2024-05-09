@@ -33,7 +33,6 @@ export class RolesService {
   }
 
   deleteRole(id: number) {
-    console.log(this.apiUrl+`/${id}`)
     return this.http.delete(this.apiUrl+`/${id}`);
   }
 }

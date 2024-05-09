@@ -10,8 +10,8 @@
 .roles-container input[type="text"] {
   margin-top: 5px;
   padding: 5px 10px;
-  padding-left: 0;
-  border: none;
+  padding-left: 2px;
+  border: 1px solid #ddd;
   border-radius: 4px;
   cursor: text;
   align-items: center;
@@ -83,8 +83,16 @@ button[name="createButton"] {
 button[name="addButton"] {
   width: 70px;
   font-size: 13px;
+  margin-top: 5px;
 }
 
 .toggle-button {
   margin-top: 10px;
+}
+
+.warning {
+  color: red;
+  font-size: 12px;
+  margin-left: 15px;
+  margin-top: 5px;
 }

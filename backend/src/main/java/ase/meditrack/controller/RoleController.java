@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.bind.ValidationException;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,14 +36,14 @@ public class RoleController {
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto) throws ValidationException {
         log.info("Creating role {}", dto.name());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) throws ValidationException {
         log.info("Updating role {}", dto.name());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }

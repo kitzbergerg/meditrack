@@ -38,7 +38,7 @@ export class RolesComponent {
   }
 
   createRole() {
-    if (this.newRoleName) {
+    if (this.isRoleNameUnique(this.newRoleName) && this.newRoleName) {
       const newRole: RoleCreate = {
         name: this.newRoleName
       };
@@ -51,6 +51,8 @@ export class RolesComponent {
           console.error('Error creating role:', error);
         });
       this.showNewRoleInputField = false;
+    } else {
+      console.error('Role name must be unique.');
     }
   }
 
@@ -59,21 +61,30 @@ export class RolesComponent {
   }
 
   updateRole(role: Role) {
-    const roleToUpdate: Role = {
-      id: role.id,
-      name: role.name,
-      users: role.users
-    };
+    if (this.isRoleNameUnique(role.name)) {
+      const roleToUpdate: Role = {
+        id: role.id,
+        name: role.name,
+        users: role.users
+      };
 
-    this.rolesService.updateRole(roleToUpdate)
-      .subscribe(response => {
-        this.editedRole = {id: 0, name: '', users: []};
-        console.log('Role updated successfully:', response);
-        this.loadRoles();
-      }, error => {
-        this.editedRole = {id: 0, name: '', users: []};
-        console.error('Error updating role:', error);
-      });
+      this.rolesService.updateRole(roleToUpdate)
+        .subscribe(response => {
+          this.editedRole = {id: 0, name: '', users: []};
+          console.log('Role updated successfully:', response);
+          this.loadRoles();
+        }, error => {
+          this.editedRole = {id: 0, name: '', users: []};
+          console.error('Error updating role:', error);
+        });
+    } else {
+      this.editedRole = {id: 0, name: '', users: []};
+      console.error('Role name must be unique.');
+    }
+  }
+
+  isRoleNameUnique(name: string): boolean {
+    return !this.roles.some(role => role.name === name);
   }
 
   cancelEditing() {
