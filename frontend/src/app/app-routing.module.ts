@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {AuthGuard} from "./guard/authentication.guard";
 import {LoginComponent} from "./components/login/login.component";
-import { DepartmentManagerDashboardComponent } from './components/department-manager-dashboard/department-manager-dashboard.component';
+import {ErrorPageComponent} from "./components/error-page/error-page.component";
 
 const routes: Routes = [
 
@@ -11,14 +11,14 @@ const routes: Routes = [
     component: LoginComponent
   },
   {
-    path: 'test',
-    component: DepartmentManagerDashboardComponent
-  },
-  {
     path: '',
     canActivate: [AuthGuard],
     loadChildren: () => import('./shell/shell.module').then((m) => m.ShellModule),
   },
+  {
+    path: '**',
+    component: ErrorPageComponent
+  }
 ];
 
 @NgModule({
