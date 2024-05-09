@@ -13,10 +13,10 @@ import java.util.UUID;
 public record ShiftDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @FutureOrPresent(groups = { CreateValidator.class, UpdateValidator.class }) LocalDate date,
-        UUID monthlyPlan,
-        UUID shiftType,
-        List<UUID> users,
-        List<UUID> suggestedShiftSwaps,
-        List<UUID> requestedShiftSwaps
+        @NotNull(groups = CreateValidator.class) MonthlyPlanDto monthlyPlan,
+        @NotNull(groups = CreateValidator.class) ShiftTypeDto shiftType,
+        @NotNull(groups = CreateValidator.class) List<UserEntityDto> users,
+        List<ShiftSwapDto> suggestedShiftSwaps,
+        List<ShiftSwapDto> requestedShiftSwaps
 ) {
 }

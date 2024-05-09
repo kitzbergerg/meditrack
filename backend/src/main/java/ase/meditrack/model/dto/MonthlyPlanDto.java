@@ -16,8 +16,8 @@ public record MonthlyPlanDto(
                 groups = { CreateValidator.class, UpdateValidator.class }) Integer month,
         @NotNull(groups = CreateValidator.class) @Min(MIN_YEAR) Integer year,
         @NotNull(groups = CreateValidator.class) Boolean published,
-        UUID team,
-        List<UUID> shifts
+        @NotNull(groups = CreateValidator.class) TeamDto team,
+        List<ShiftDto> shifts
 ) {
     private static final int MIN_MONTH = 1;
     private static final int MAX_MONTH = 12;

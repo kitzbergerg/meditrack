@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public record ShiftSwapDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
-        UUID swapRequestingUser,
-        UUID requestedShift,
-        List<UUID> swapSuggestingUsers,
-        List<UUID> suggestedShifts
+        @NotNull(groups = CreateValidator.class) UserEntityDto swapRequestingUser,
+        @NotNull(groups = CreateValidator.class) ShiftDto requestedShift,
+        List<UserEntityDto> swapSuggestingUsers,
+        List<ShiftDto> suggestedShifts
 ) {
 }

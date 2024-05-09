@@ -16,9 +16,9 @@ public record ShiftTypeDto(
         @NotBlank(groups = CreateValidator.class) String name,
         @FutureOrPresent(groups = { CreateValidator.class, UpdateValidator.class }) LocalTime startTime,
         @FutureOrPresent(groups = { CreateValidator.class, UpdateValidator.class }) LocalTime endTime,
-        UUID team,
-        List<UUID> shifts,
-        List<UUID> workUsers,
-        List<UUID> preferUsers
+        @NotNull(groups = CreateValidator.class) TeamDto team,
+        List<ShiftDto> shifts,
+        List<UserEntityDto> workUsers,
+        List<UserEntityDto> preferUsers
 ) {
 }

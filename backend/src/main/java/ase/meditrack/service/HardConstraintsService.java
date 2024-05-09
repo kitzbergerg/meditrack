@@ -14,9 +14,11 @@ import java.util.UUID;
 @Slf4j
 public class HardConstraintsService {
     private final HardConstraintsRepository repository;
+    private final TeamService teamService;
 
-    public HardConstraintsService(HardConstraintsRepository repository) {
+    public HardConstraintsService(HardConstraintsRepository repository, TeamService teamService) {
         this.repository = repository;
+        this.teamService = teamService;
     }
 
     public HardConstraints findById(UUID id) {
@@ -29,6 +31,8 @@ public class HardConstraintsService {
     }
 
     public HardConstraints create(HardConstraints hardConstraints) {
+        //get the team from the hardConstraints id
+        hardConstraints.setTeam(teamService.findById(hardConstraints.getId()));
         return repository.save(hardConstraints);
     }
 
@@ -56,9 +60,6 @@ public class HardConstraintsService {
         }
         if (hardConstraints.getAllowedFlextimePerMonth() != null) {
             existing.setAllowedFlextimePerMonth(hardConstraints.getAllowedFlextimePerMonth());
-        }
-        if (hardConstraints.getTeam() != null) {
-            existing.setTeam(hardConstraints.getTeam());
         }
 
         return repository.save(existing);

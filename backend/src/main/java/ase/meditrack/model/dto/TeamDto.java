@@ -14,9 +14,9 @@ public record TeamDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotBlank(groups = CreateValidator.class) String name,
         @PositiveOrZero(groups = { CreateValidator.class, UpdateValidator.class }) Integer workingHours,
-        List<UUID> users,
-        UUID hardConstraints,
-        List<UUID> monthlyPlans,
-        List<UUID> shiftTypes
+        List<UserEntityDto> users,
+        HardConstraintsDto hardConstraints,
+        List<MonthlyPlanDto> monthlyPlans,
+        List<ShiftTypeDto> shiftTypes
 ) {
 }

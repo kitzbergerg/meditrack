@@ -16,6 +16,6 @@ public interface ShiftSwapMapper {
 
     ShiftSwap fromDto(ShiftSwapDto dto);
 
-    @IterableMapping
+    @IterableMapping(qualifiedByName = "toDto")
     List<ShiftSwapDto> toDtoList(List<ShiftSwap> entityList);
 }
