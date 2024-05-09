@@ -33,4 +33,12 @@ export class AuthorizationService {
   hasAuthority(roles:string[]) : boolean {
     return roles.some(role =>this.keycloakService.getKeycloakInstance().hasRealmRole(role));
   }
+  async getUsername(): Promise<string> {
+    this.keycloakService.getKeycloakInstance().loadUserInfo().then(userInfo => {
+      console.log('User Info:', userInfo);
+    }).catch(error => {
+      console.error('Failed to load user info', error);
+    });
+    return "test";
+  }
 }

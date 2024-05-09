@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public List<UserDto> findAll() {
         log.info("Fetching users");
         return mapper.toDtoList(service.findAll());
@@ -41,21 +41,21 @@ public class UserController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
         log.info("Updating user {}", dto.username());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || authentication.name == #id.toString()")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting user with id {}", id);
         service.delete(id);
