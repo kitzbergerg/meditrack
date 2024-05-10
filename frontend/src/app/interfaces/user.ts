@@ -1,3 +1,5 @@
+import {Team} from "./team";
+
 export interface User {
   id?: string;
   username?: string; // Nullable in UpdateValidator class

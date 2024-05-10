@@ -53,6 +53,7 @@ export class EmployeesComponent {
     console.log("Creating Team");
     this.teamService.createTeam(this.newTeam).subscribe(
       (response) => {
+        this.user.team = response.id;
         this.team = response;
         console.log(response)
       },
@@ -72,7 +73,10 @@ export class EmployeesComponent {
       (response) => {
         this.user = response;
         console.log(response)
-        this.getTeam()
+        if (response.team != null) {
+          console.log("here")
+          this.getTeam();
+        }
       },
       (error) => {
         console.error('Error fetching data:', error);

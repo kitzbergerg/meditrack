@@ -1,20 +1,19 @@
-<div class="newEmployeeContainer">
-  <button class="btn btn-primary mr-3" [routerLink]="'create'">
-    New Employee
-  </button>
-</div>
-
 <div class="d-flex justify-content-center" *ngIf="user">
   <div *ngIf="user.team !== null">
       <h3>Welcome to the Team: {{team.name}}</h3>
+      <div class="newEmployeeContainer">
+        <button class="btn btn-primary mr-3" [routerLink]="'create'">
+          New Employee
+        </button>
+      </div>
   </div>
   <div *ngIf="user.team === null">
     <h2>Create a Team first before you can add employees!</h2>
     <div class="d-flex justify-content-center">
       <div>
       <div class="inputContainer" >
-        <input name="inputField" type="text" [(ngModel)]="team.name" placeholder="Enter team name">
-        <button name="addButton" (click)="createTeam()" [disabled]="!team.name || isTeamNameSet()">Add</button>
+        <input name="inputField" type="text" [(ngModel)]="newTeam.name" placeholder="Enter team name">
+        <button name="addButton" (click)="createTeam()" [disabled]="!newTeam.name || isTeamNameSet()">Add</button>
       </div>
       </div>
     </div>
