@@ -1,5 +1,7 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.ValidationException;
+import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
@@ -28,11 +30,13 @@ public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final UserValidator validator;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper, UserValidator validator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.mapper = mapper;
+        this.validator = validator;
     }
 
     @PostConstruct
@@ -74,7 +78,9 @@ public class UserService {
      * @param user, the user to create
      * @return the created user
      */
-    public User create(User user) {
+    public User create(User user) throws ValidationException {
+
+        validator.createValidate(user);
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user = repository.save(user);

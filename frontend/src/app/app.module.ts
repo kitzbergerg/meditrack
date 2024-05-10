@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
 import {AccountSettingsComponent} from './shell/account-settings/account-settings.component';
 import {EmployeesComponent} from './components/employees/employees.component';
+import {EmployeesCreateComponent} from './components/employees/employees-create/employees-create.component';
 import {RolesComponent} from './components/roles/roles.component';
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {from} from "rxjs";
@@ -46,6 +47,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     LoginComponent,
     AccountSettingsComponent,
     EmployeesComponent,
+    EmployeesCreateComponent,
     RolesComponent,
     DashboardComponent,
   ],

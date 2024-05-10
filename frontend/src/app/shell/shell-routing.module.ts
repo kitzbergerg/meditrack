@@ -4,6 +4,7 @@ import {ShellRedirectGuard} from "../guard/shell-redirection.guard";
 import {AccountSettingsComponent} from "./account-settings/account-settings.component";
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
+import {EmployeesCreateComponent} from "../components/employees/employees-create/employees-create.component";
 import {RolesComponent} from "../components/roles/roles.component";
 import {DashboardComponent} from "../components/dashboard/dashboard.component";
 import {employeeGuard} from "../guard/employee.guard";
@@ -19,6 +20,11 @@ const routes: Routes = [
     path: 'employees',
     canActivate: [dmGuard],
     component: EmployeesComponent,
+  },
+  {
+    path: 'employees/create',
+    canActivate: [dmGuard],
+    component: EmployeesCreateComponent,
   },
   {
     path: 'roles',

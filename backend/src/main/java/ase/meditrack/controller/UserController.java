@@ -6,10 +6,16 @@ import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import ase.meditrack.exception.ValidationException;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +26,7 @@ import java.util.UUID;
 public class UserController {
     private final UserService service;
     private final UserMapper mapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public UserController(UserService service, UserMapper mapper) {
         this.service = service;
@@ -41,10 +48,16 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
         log.info("Creating user {}", dto.username());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+        try {
+            return mapper.toDto(service.create(mapper.fromDto(dto)));
+        } catch (ValidationException e) {
+            LOGGER.error("ValidationException: POST /api/user/{} {}", dto.id(), dto, e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating user: " + e.getMessage(), e);
+        }
     }
 
     @PutMapping
