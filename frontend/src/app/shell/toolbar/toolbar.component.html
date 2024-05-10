@@ -1,19 +1,50 @@
-<ul class="d-flex justify-content-center top-toolbar"><!--top toolbar-->
-  <div class="top-item">{{ workgroupName }}</div>
-  <div>
-  <p-button [routerLink]="'account-settings'" [queryParams]="{from: getCurrentRoute()}" class="account-button top-item">
-    Account <i class="pi pi-cog"></i></p-button><!--todo change both to li-->
-  <p-button (onClick)="logout()" class="logout-button top-item">
-    Logout</p-button>
-  </div>
+<ul class="justify-content-center top-toolbar"><!--top toolbar-->
+  <li class="workgroup-name">
+    <button class="workgroup-name-button p-button">{{ workgroupName }}</button>
+  </li>
+  <li class="account-buttons">
+    <button
+      pButton
+      pRipple
+      [routerLink]="'account-settings'"
+      [queryParams]="{from: getCurrentRoute()}"
+      class="p-button-sm account-button top-item light-button"
+    >
+      Account
+      <span class="mr-0_5"></span>
+      <i class="pi pi-cog"></i>
+    </button>
+    <span class="mr-1"></span>
+    <button
+      pButton
+      pRipple
+      (click)="logout()"
+      class="p-button-sm logout-button top-item light-button"
+    >
+      Logout
+    </button>
+  </li>
 </ul>
 <ul class="side-toolbar"><!--side toolbar-->
-  <li [routerLink]="getDashboard()">Dashboard</li>
-  <li>Calendar</li>
-  <li [hidden]="!isDM" [routerLink]="'employees'">Employees</li>
-  <li [hidden]="!isDM">Shift Types</li>
-  <li [hidden]="!isDM" [routerLink]="'roles'">Roles</li>
-  <li>Holidays</li>
-  <li [hidden]="!isDM">Rules</li>
-  <li [hidden]="!isEmployee">Shift Swapping</li>
+  <li [routerLink]="getDashboard()">
+    <button pButton pRipple class="light-button mb-1">Dashboard</button>
+  </li>
+  <li [hidden]="!isDM" [routerLink]="'employees'">
+    <button pButton pRipple class="light-button mb-1">Employees</button>
+  </li>
+  <li [hidden]="!isDM">
+    <button pButton pRipple class="light-button mb-1">Shift Types</button>
+  </li>
+  <li [hidden]="!isDM" [routerLink]="'roles'">
+    <button pButton pRipple class="light-button mb-1">Roles</button>
+  </li>
+  <li>
+    <button pButton pRipple class="light-button mb-1">Holidays</button>
+  </li>
+  <li [hidden]="!isDM">
+    <button pButton pRipple class="light-button mb-1">Rules</button>
+  </li>
+  <li [hidden]="!isEmployee">
+    <button pButton pRipple class="light-button mb-1">Shift Swapping</button>
+  </li>
 </ul>

@@ -14,8 +14,7 @@ import {AccountSettingsComponent} from './shell/account-settings/account-setting
 import {EmployeesComponent} from './components/employees/employees.component';
 import {RolesComponent} from './components/roles/roles.component';
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
-import {from} from "rxjs";
-import {AuthorizationService} from "./services/authentication/authorization.service";
+import {RippleModule} from "primeng/ripple";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -49,16 +48,17 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RolesComponent,
     DashboardComponent,
   ],
-  imports: [
-    BrowserModule,
-    ButtonModule,
-    AppRoutingModule,
-    RouterModule,
-    HttpClientModule,
-    KeycloakAngularModule,
-    FormsModule,
-    StyleClassModule
-  ],
+    imports: [
+        BrowserModule,
+        ButtonModule,
+        AppRoutingModule,
+        RouterModule,
+        HttpClientModule,
+        KeycloakAngularModule,
+        FormsModule,
+        StyleClassModule,
+        RippleModule
+    ],
   providers: [
     {
       provide: APP_INITIALIZER,
