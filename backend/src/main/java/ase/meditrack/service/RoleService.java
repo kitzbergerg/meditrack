@@ -1,8 +1,6 @@
 package ase.meditrack.service;
 
-import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.Role;
-import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -50,14 +48,17 @@ public class RoleService {
      * @return the updated role
      */
     public Role update(Role role) {
-        Role updatedRole = new Role();
-        updatedRole.setId(role.getId());
-        updatedRole.setName(role.getName());
-        updatedRole.setUsers(role.getUsers());
+        Role existing = repository.findById(role.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        repository.save(updatedRole);
+        if (role.getName() != null) {
+            existing.setName(role.getName());
+        }
+        if (role.getUsers() != null) {
+            existing.setUsers(role.getUsers());
+        }
 
-        return updatedRole;
+        return repository.save(existing);
     }
 
     /**

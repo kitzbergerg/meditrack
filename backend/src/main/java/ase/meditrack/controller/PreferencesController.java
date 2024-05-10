@@ -2,9 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.MonthlyPlanDto;
-import ase.meditrack.model.mapper.MonthlyPlanMapper;
-import ase.meditrack.service.MonthlyPlanService;
+import ase.meditrack.model.dto.PreferencesDto;
+import ase.meditrack.model.mapper.PreferencesMapper;
+import ase.meditrack.service.PreferencesService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,50 +22,51 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/monthlyplan")
+@RequestMapping("/api/preferences")
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
-public class MonthlyPlanController {
-    private final MonthlyPlanService service;
-    private final MonthlyPlanMapper mapper;
+public class PreferencesController {
+    private final PreferencesService service;
+    private final PreferencesMapper mapper;
 
-    public MonthlyPlanController(MonthlyPlanService service, MonthlyPlanMapper mapper) {
+    public PreferencesController(PreferencesService service, PreferencesMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public List<MonthlyPlanDto> findAll() {
-        log.info("Fetching monthly plans");
+    public List<PreferencesDto> findAll() {
+        log.info("Fetching preferences");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public MonthlyPlanDto findById(@PathVariable UUID id) {
-        log.info("Fetching monthly plan {}", id);
+    public PreferencesDto findById(@PathVariable UUID id) {
+        log.info("Fetching preferences {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public MonthlyPlanDto create(@Validated(CreateValidator.class) @RequestBody MonthlyPlanDto dto) {
-        log.info("Creating monthly plan for team {}", dto.team());
+    public PreferencesDto create(@Validated(CreateValidator.class) @RequestBody PreferencesDto dto) {
+        log.info("Creating preferences");
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public MonthlyPlanDto update(@Validated(UpdateValidator.class) @RequestBody MonthlyPlanDto dto) {
-        log.info("Updating monthly plan {}", dto.id());
+    public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto) {
+        log.info("Updating preferences {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public void delete(@PathVariable UUID id) {
-        log.info("Deleting monthly plan with id {}", id);
+        log.info("Deleting preferences with id {}", id);
         service.delete(id);
     }
 }
+

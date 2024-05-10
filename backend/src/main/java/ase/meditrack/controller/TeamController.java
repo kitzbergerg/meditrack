@@ -8,6 +8,7 @@ import ase.meditrack.service.TeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/team")
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class TeamController {
     private final TeamService service;
     private final TeamMapper mapper;
@@ -40,7 +42,7 @@ public class TeamController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public TeamDto findById(@PathVariable UUID id) {
         log.info("Fetching team {}", id);
         return mapper.toDto(service.findById(id));
@@ -54,14 +56,14 @@ public class TeamController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #dto.id().toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) {
         log.info("Updating team {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting team with id {}", id);
         service.delete(id);

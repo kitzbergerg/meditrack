@@ -2,9 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.MonthlyPlanDto;
-import ase.meditrack.model.mapper.MonthlyPlanMapper;
-import ase.meditrack.service.MonthlyPlanService;
+import ase.meditrack.model.dto.ShiftSwapDto;
+import ase.meditrack.model.mapper.ShiftSwapMapper;
+import ase.meditrack.service.ShiftSwapService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,50 +22,50 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/monthlyplan")
+@RequestMapping("/api/shiftswap")
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
-public class MonthlyPlanController {
-    private final MonthlyPlanService service;
-    private final MonthlyPlanMapper mapper;
+public class ShiftSwapController {
+    private final ShiftSwapService service;
+    private final ShiftSwapMapper mapper;
 
-    public MonthlyPlanController(MonthlyPlanService service, MonthlyPlanMapper mapper) {
+    public ShiftSwapController(ShiftSwapService service, ShiftSwapMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public List<MonthlyPlanDto> findAll() {
-        log.info("Fetching monthly plans");
+    public List<ShiftSwapDto> findAll() {
+        log.info("Fetching shift swaps");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public MonthlyPlanDto findById(@PathVariable UUID id) {
-        log.info("Fetching monthly plan {}", id);
+    public ShiftSwapDto findById(@PathVariable UUID id) {
+        log.info("Fetching shift swap {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public MonthlyPlanDto create(@Validated(CreateValidator.class) @RequestBody MonthlyPlanDto dto) {
-        log.info("Creating monthly plan for team {}", dto.team());
+    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto) {
+        log.info("Creating shift swap for user {}", dto.swapRequestingUser());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public MonthlyPlanDto update(@Validated(UpdateValidator.class) @RequestBody MonthlyPlanDto dto) {
-        log.info("Updating monthly plan {}", dto.id());
+    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto) {
+        log.info("Updating shift swap {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public void delete(@PathVariable UUID id) {
-        log.info("Deleting monthly plan with id {}", id);
+        log.info("Deleting shift swap with id {}", id);
         service.delete(id);
     }
 }

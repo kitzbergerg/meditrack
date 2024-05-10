@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.PreferencesRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,9 +15,11 @@ import java.util.UUID;
 @Slf4j
 public class PreferencesService {
     private final PreferencesRepository repository;
+    private final UserService userService;
 
-    public PreferencesService(PreferencesRepository repository) {
+    public PreferencesService(PreferencesRepository repository, UserService userService) {
         this.repository = repository;
+        this.userService = userService;
     }
 
     public Preferences findById(UUID id) {
@@ -29,6 +32,9 @@ public class PreferencesService {
     }
 
     public Preferences create(Preferences preferences) {
+        //if the user (mapped id) does not exist an error will be thrown
+        User user = userService.findById(preferences.getId());
+        preferences.setUser(user);
         return repository.save(preferences);
     }
 

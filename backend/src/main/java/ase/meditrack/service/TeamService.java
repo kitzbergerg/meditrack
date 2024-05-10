@@ -14,11 +14,9 @@ import java.util.UUID;
 @Slf4j
 public class TeamService {
     private final TeamRepository repository;
-    private final HardConstraintsService hardConstraintsService;
 
-    public TeamService(TeamRepository repository, HardConstraintsService hardConstraintsService) {
+    public TeamService(TeamRepository repository) {
         this.repository = repository;
-        this.hardConstraintsService = hardConstraintsService;
     }
 
     public Team findById(UUID id) {
@@ -49,8 +47,7 @@ public class TeamService {
             existing.setUsers(team.getUsers());
         }
         if (team.getHardConstraints() != null) {
-            //use hardConstraintsService to partially update the hard constraints
-            existing.setHardConstraints(hardConstraintsService.update(team.getHardConstraints()));
+            existing.setHardConstraints(team.getHardConstraints());
         }
         if (team.getMonthlyPlans() != null) {
             existing.setMonthlyPlans(team.getMonthlyPlans());

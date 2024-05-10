@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.HardConstraintsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,9 +15,11 @@ import java.util.UUID;
 @Slf4j
 public class HardConstraintsService {
     private final HardConstraintsRepository repository;
+    private final TeamService teamService;
 
-    public HardConstraintsService(HardConstraintsRepository repository) {
+    public HardConstraintsService(HardConstraintsRepository repository, TeamService teamService) {
         this.repository = repository;
+        this.teamService = teamService;
     }
 
     public HardConstraints findById(UUID id) {
@@ -28,6 +31,9 @@ public class HardConstraintsService {
     }
 
     public HardConstraints create(HardConstraints hardConstraints) {
+        //if the team (mapped id) does not exist an error will be thrown
+        Team team = teamService.findById(hardConstraints.getId());
+        hardConstraints.setTeam(team);
         return repository.save(hardConstraints);
     }
 

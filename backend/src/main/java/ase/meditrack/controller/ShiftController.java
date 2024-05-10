@@ -8,6 +8,7 @@ import ase.meditrack.service.ShiftService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/shift")
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class ShiftController {
     private final ShiftService service;
     private final ShiftMapper mapper;
@@ -40,7 +42,7 @@ public class ShiftController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftDto findById(@PathVariable UUID id) {
         log.info("Fetching shift {}", id);
         return mapper.toDto(service.findById(id));
@@ -54,14 +56,14 @@ public class ShiftController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #dto.id().toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftDto update(@Validated(UpdateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Updating shift {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting shift with id {}", id);
         service.delete(id);

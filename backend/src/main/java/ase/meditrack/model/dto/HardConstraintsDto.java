@@ -3,13 +3,14 @@ package ase.meditrack.model.dto;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.Map;
 import java.util.UUID;
 
 public record HardConstraintsDto(
-        @NotNull(groups = UpdateValidator.class) UUID id,
+        @NotNull(groups = { CreateValidator.class, UpdateValidator.class} ) UUID id,
         @NotNull(groups = CreateValidator.class) Map<ShiftOffShiftIdListDto, UUID> shiftOffShift,
         @NotNull(groups = CreateValidator.class) Map<RoleDto, Integer> daytimeRequiredRoles,
         @NotNull(groups = CreateValidator.class) Map<RoleDto, Integer> nighttimeRequiredRoles,
@@ -20,6 +21,7 @@ public record HardConstraintsDto(
         @NotNull(groups = CreateValidator.class) @PositiveOrZero(
                 groups = { CreateValidator.class, UpdateValidator.class }) Integer allowedFlextimeTotal,
         @NotNull(groups = CreateValidator.class) @PositiveOrZero(
-                groups = { CreateValidator.class, UpdateValidator.class }) Integer allowedFlextimePerMonth
+                groups = { CreateValidator.class, UpdateValidator.class }) Integer allowedFlextimePerMonth,
+        @Null(groups = CreateValidator.class) TeamDto team
 ) {
 }
