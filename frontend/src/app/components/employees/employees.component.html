@@ -1,16 +1,210 @@
+<div class="newEmployeeContainer">
+  <button class="btn btn-primary mr-3" (click)="toggleNewUserForm()">
+    {{ showNewUserForm ? 'Cancel Creation' : 'New Employee' }}
+  </button>
+</div>
 
-<div class="d-flex justify-content-center" *ngIf="user">
-  <div *ngIf="user.team !== null">
-      <h3>Welcome to the Team: {{team.name}}</h3>
-  </div>
-  <div *ngIf="user.team === null">
-    <h2>Create a Team first before you can add employees!</h2>
-    <div class="d-flex justify-content-center">
-      <div>
-      <div class="inputContainer" >
-        <input name="inputField" type="text" [(ngModel)]="team.name" placeholder="Enter team name">
-        <button name="addButton" (click)="createTeam()" [disabled]="!team.name || isTeamNameSet()">Add</button>
+<!-- two column view can be removed after DM role user is created-->
+<div class="two-column-container">
+  <div class="column">
+    <div class="d-flex justify-content-center" *ngIf="user">
+      <div *ngIf="user.team !== null">
+          <h3>Welcome to the Team: {{team.name}}</h3>
       </div>
+      <div *ngIf="user.team === null">
+        <h2>Create a Team first before you can add employees!</h2>
+        <div class="d-flex justify-content-center">
+          <div>
+          <div class="inputContainer" >
+            <input name="inputField" type="text" [(ngModel)]="team.name" placeholder="Enter team name">
+            <button name="addButton" (click)="createTeam()" [disabled]="!team.name || isTeamNameSet()">Add</button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New User Form -->
+  <div class="column">
+    <div class="card" *ngIf="showNewUserForm">
+      <div class="card-header">
+        <h3>Add New Employee</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="employeeForm" (ngSubmit)="createUser()">
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" formControlName="username" class="form-control" id="username" placeholder="Enter username" required>
+            <div
+              *ngIf="submitted && employeeForm.controls['username'].errors"
+              class="error"
+            >
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['username'].errors['required']"
+              >Username is required.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.get('username')?.hasError('minlength')
+                    "
+              >Username is too short.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.get('username')?.hasError('maxlength')
+                    "
+              >Username is too long.
+              </small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" formControlName="password" class="form-control" id="password" placeholder="Enter password" required>
+            <div
+              *ngIf="submitted && employeeForm.controls['password'].errors"
+              class="error"
+            >
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['password'].errors['required']"
+              >Password is required.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['password'].errors['minlength']"
+              >
+                Password must be at least 8 characters.
+              </small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" formControlName="email" class="form-control" id="email" placeholder="Enter email" required>
+            <div
+              *ngIf="submitted && employeeForm.controls['email'].errors"
+              class="error"
+            >
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['email'].errors['required']"
+              >Email is required.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['email'].errors['pattern']"
+              >Email does not match the regular email format.
+              </small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" formControlName="firstName" class="form-control" id="firstName" placeholder="Enter first name" required>
+            <div
+              *ngIf="submitted && employeeForm.controls['firstName'].errors"
+              class="error"
+            >
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['firstName'].errors['required']"
+              >First name is required.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.get('firstName')?.hasError('minlength')
+                    "
+              >First name is too short.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.get('firstName')?.hasError('maxlength')
+                    "
+              >First name is too long.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.controls['firstName'].errors['pattern'] &&
+                      !employeeForm.get('firstName')?.hasError('minlength')
+                    "
+              >First name has to start with an upper case letter
+                followed by lower case letters and cannot have special
+                characters.
+              </small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" formControlName="lastName" class="form-control" id="lastName" placeholder="Enter last name" required>
+            <div
+              *ngIf="submitted && employeeForm.controls['lastName'].errors"
+              class="error"
+            >
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['lastName'].errors['required']"
+              >Last name is required.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.get('lastName')?.hasError('minlength')
+                    "
+              >Last name is too short.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.get('lastName')?.hasError('maxlength')
+                    "
+              >Last name is too long.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="
+                      employeeForm.controls['lastName'].errors['pattern'] &&
+                      !employeeForm.get('lastName')?.hasError('minlength')
+                    "
+              >Last name has to start with an upper case letter
+                followed by lower case letters and cannot have special
+                characters.
+              </small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="workingHoursPercentage">Working Percentage:</label>
+            <input type="number" formControlName="workingHoursPercentage" class="form-control" id="workingHoursPercentage" placeholder="Enter working percentage" required>
+            <div
+              *ngIf="submitted && employeeForm.controls['workingHoursPercentage'].errors"
+              class="error"
+            >
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['workingHoursPercentage'].errors['required']"
+              >Working hours percentage is required.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['workingHoursPercentage'].errors['min']"
+              >
+                Working hours percentage must be larger than 0.
+              </small>
+              <small
+                class="form-text text-warning"
+                *ngIf="employeeForm.controls['workingHoursPercentage'].errors['max']"
+              >
+                Working hours percentage cannot be larger than 100.
+              </small>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Create User</button>
+        </form>
       </div>
     </div>
   </div>

@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  id?: string;
   username?: string; // Nullable in UpdateValidator class
   password: string; // Not nullable in CreateValidator class
   email: string;
