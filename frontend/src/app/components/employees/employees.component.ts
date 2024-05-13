@@ -37,6 +37,7 @@ export class EmployeesComponent {
   team: Team = {
     name: '',
   }
+  usersFromTeam: User[] =[];
 
   constructor(private authorizationService: AuthorizationService,
               private userService: UserService,
@@ -47,15 +48,15 @@ export class EmployeesComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser()
+    this.loadUsersFromTeam()
   }
 
   createTeam() {
     console.log("Creating Team");
     this.teamService.createTeam(this.newTeam).subscribe(
       (response) => {
-        this.user.team = response.id;
+        this.user.team= response.id;
         this.team = response;
-        console.log(response)
       },
       (error) => {
         console.error('Error fetching team:', error);
@@ -72,9 +73,7 @@ export class EmployeesComponent {
     this.userService.getUserById(this.userId).subscribe(
       (response) => {
         this.user = response;
-        console.log(response)
         if (response.team != null) {
-          console.log("here")
           this.getTeam();
         }
       },
@@ -85,11 +84,10 @@ export class EmployeesComponent {
   }
 
   getTeam(): void {
-    if (this.user.team !== undefined) {
+    if (this.user.team !== undefined ) {
       this.teamService.getTeamById(this.user.team).subscribe(
         (response) => {
           this.team = response;
-          console.log(response)
         },
         (error) => {
           console.error('Error fetching data:', error);
@@ -97,4 +95,12 @@ export class EmployeesComponent {
       );
     }
   }
+
+  loadUsersFromTeam(): void {
+    this.userService.getAllUserFromTeam()
+      .subscribe(users => {
+        this.usersFromTeam = users;
+      });
+  }
+
 }

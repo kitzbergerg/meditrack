@@ -17,7 +17,7 @@ export class AuthorizationService {
   }
 
   login() {
-    return this.keycloakService.login({redirectUri: "http://localhost:4200/dashboard"});
+    return this.keycloakService.login({redirectUri: "http://localhost:4200/dashboard", });
   }
 
   changePassword() {
@@ -28,11 +28,18 @@ export class AuthorizationService {
     return this.keycloakService.isLoggedIn();
   }
   logout(): void {
+    sessionStorage.removeItem('currentUser');
     this.keycloakService.logout("http://localhost:4200/login");
   }
   hasAuthority(roles:string[]) : boolean {
     return roles.some(role =>this.keycloakService.getKeycloakInstance().hasRealmRole(role));
   }
+
+  getCurrentUser(): any {
+    const currentUser = sessionStorage.getItem('currentUser');
+    return currentUser ? JSON.parse(currentUser) : null;
+  }
+
   async getUsername(): Promise<string> {
     this.keycloakService.getKeycloakInstance().loadUserInfo().then(userInfo => {
       console.log('User Info:', userInfo);

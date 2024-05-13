@@ -19,15 +19,15 @@ export class UserService {
     return this.http.get<any>(this.apiUrl);
   }
 
+  getAllUserFromTeam(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/team`);
+  }
+
   getUserById(id: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
   createUser(user: User): Observable<User> {
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
-
-    return this.http.post<User>(this.apiUrl, user, httpOptions);
+    return this.http.post<User>(this.apiUrl, user);
   }
 }

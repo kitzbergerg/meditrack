@@ -24,6 +24,8 @@ export class DashboardComponent {
     this.userService.getUserById(this.userId).subscribe(
       (response) => {
         this.data = response;
+        const user = { firstName: response.firstName, userName: response.username, email: response.email, roles: response.roles, team: response.team};
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
       },
       (error) => {
         console.error('Error fetching data:', error);

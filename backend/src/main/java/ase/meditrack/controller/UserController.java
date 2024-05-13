@@ -2,6 +2,7 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
+import ase.meditrack.model.dto.TeamDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.service.UserService;
@@ -16,7 +17,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ase.meditrack.exception.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.security.Principal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @RestController
@@ -40,6 +43,18 @@ public class UserController {
         return mapper.toDtoList(service.findAll());
     }
 
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm')")
+    public List<UserDto> findByTeam(Principal principal) {
+        log.info("Fetching users from dm team");
+        try {
+            return mapper.toDtoList(service.findByTeam(principal));
+        } catch (NoSuchElementException e) {
+            LOGGER.error("NoSuchElementException: GET /api/user/team", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during getting users by team: " + e.getMessage(), e);
+        }
+    }
+
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public UserDto findById(@PathVariable UUID id) {
@@ -50,10 +65,10 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Creating user {}", dto.username());
         try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
+            return mapper.toDto(service.create(mapper.fromDto(dto), principal));
         } catch (ValidationException e) {
             LOGGER.error("ValidationException: POST /api/user/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating user: " + e.getMessage(), e);

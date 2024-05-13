@@ -1,10 +1,22 @@
 <div class="d-flex justify-content-center" *ngIf="user">
   <div *ngIf="user.team !== null">
       <h3>Welcome to the Team: {{team.name}}</h3>
+    <div>
       <div class="newEmployeeContainer">
-        <button class="btn btn-primary mr-3" [routerLink]="'create'">
-          New Employee
-        </button>
+
+        <div *ngIf="usersFromTeam && usersFromTeam.length > 0">
+          <div class="card" *ngFor="let user of usersFromTeam">
+            <div class="card-body">
+              <h5 class="card-title">Name: {{ user.firstName }}</h5>
+              <h5 class="card-title">System Role: {{ user.roles }}</h5>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-primary mr-3" [routerLink]="'create'">
+            New Employee
+          </button>
+        </div>
       </div>
   </div>
   <div *ngIf="user.team === null">

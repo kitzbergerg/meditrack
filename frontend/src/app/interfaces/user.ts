@@ -1,4 +1,5 @@
 import {Team} from "./team";
+import {Role} from "./roles/rolesInterface";
 
 export interface User {
   id?: string;
@@ -10,7 +11,7 @@ export interface User {
   roles: string[];
   role?: string; // Nullable in CreateValidator class
   workingHoursPercentage: number;
-  currentOverTime?: number; // Nullable in CreateValidator class
+  currentOverTime?: number | null; // Nullable in CreateValidator class
   specialSkills: string[];
   team?: string; // Nullable
   holidays: string[]; // List of UUIDs

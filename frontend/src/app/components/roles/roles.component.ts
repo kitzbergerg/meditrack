@@ -11,8 +11,8 @@ export class RolesComponent {
 
   roles: Role[] = [];
   editedRole: Role = {id: 0, name: '', users: []};
-  newRoleName: string = '';
-  showNewRoleInputField: boolean = false;
+  newRoleName = '';
+  showNewRoleInputField = false;
 
   constructor(private rolesService: RolesService) { }
 

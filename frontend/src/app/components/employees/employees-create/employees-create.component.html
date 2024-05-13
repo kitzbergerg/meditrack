@@ -77,13 +77,13 @@
           </small>
         </div>
       </div>
+
       <div class="form-group">
         <label for="workingHoursPercentage">Working Percentage:</label>
-        <input type="number" formControlName="workingHoursPercentage" class="form-control" id="workingHoursPercentage" placeholder="Enter working percentage" required>
+        <input type="number" formControlName="workingHoursPercentage" class="form-control" id="workingHoursPercentage" placeholder="Enter working percentage" min="0.1" max="1.0" step="0.01" required>
         <div
           *ngIf="submitted && employeeForm.controls['workingHoursPercentage'].errors"
-          class="error"
-        >
+          class="error">
           <small
             class="form-text text-warning"
             *ngIf="employeeForm.controls['workingHoursPercentage'].errors?.['required']"
@@ -92,34 +92,12 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="roles">Roles:</label>
-        <input type="text" formControlName="roles" class="form-control" id="roles" placeholder="Enter roles">
-      </div>
 
       <div class="form-group">
         <label for="role">Role:</label>
-        <input type="text" formControlName="role" class="form-control" id="role" placeholder="Enter role">
-      </div>
-
-      <div class="form-group">
-        <label for="specialSkills">Special Skills:</label>
-        <input type="text" formControlName="specialSkills" class="form-control" id="specialSkills" placeholder="Enter special skills">
-      </div>
-
-      <div class="form-group">
-        <label for="team">Team:</label>
-        <input type="text" formControlName="team" class="form-control" id="team" placeholder="Enter team">
-      </div>
-
-      <div class="form-group">
-        <label for="shifts">Shifts:</label>
-        <input type="text" formControlName="shifts" class="form-control" id="shifts" placeholder="Enter shifts">
-      </div>
-
-      <div class="form-group">
-        <label for="canWorkShiftTypes">Can Work Shift Types:</label>
-        <input type="text" formControlName="canWorkShiftTypes" class="form-control" id="canWorkShiftTypes" placeholder="Enter can work shift types">
+        <select formControlName="role" class="form-control" id="role">
+          <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.name }}</option>
+        </select>
       </div>
 
       <button type="submit" class="btn btn-primary">Create User</button>
