@@ -19,48 +19,62 @@ public class ShiftTypeService {
         this.repository = repository;
     }
 
-    public ShiftType findById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
+    /**
+     * Fetches all shift types from the database.
+     *
+     * @return List of all shift types
+     */
     public List<ShiftType> findAll() {
         return repository.findAll();
     }
 
+    /**
+     * Fetches a shift type by id from the database.
+     *
+     * @param id, the id of the shift type
+     * @return the shift type
+     */
+    public ShiftType findById(UUID id) {
+        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * Creates a shift type in the database.
+     *
+     * @param shiftType, the shift type to create
+     * @return the created shift type
+     */
     public ShiftType create(ShiftType shiftType) {
         return repository.save(shiftType);
     }
 
+    /**
+     * Updates a shift type in the database.
+     *
+     * @param shiftType, the shift type to update
+     * @return the updated shift type
+     */
     public ShiftType update(ShiftType shiftType) {
-        ShiftType existing = repository.findById(shiftType.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        ShiftType updatedShiftType = new ShiftType();
+        updatedShiftType.setId(shiftType.getId());
+        updatedShiftType.setName(shiftType.getName());
+        updatedShiftType.setStartTime(shiftType.getStartTime());
+        updatedShiftType.setEndTime(shiftType.getEndTime());
+        updatedShiftType.setTeam(shiftType.getTeam());
+        updatedShiftType.setShifts(shiftType.getShifts());
+        updatedShiftType.setWorkUsers(shiftType.getWorkUsers());
+        updatedShiftType.setPreferUsers(shiftType.getPreferUsers());
 
-        if (shiftType.getName() != null) {
-            existing.setName(shiftType.getName());
-        }
-        if (shiftType.getStartTime() != null) {
-            existing.setStartTime(shiftType.getStartTime());
-        }
-        if (shiftType.getEndTime() != null) {
-            existing.setEndTime(shiftType.getEndTime());
-        }
-        if (shiftType.getTeam() != null) {
-            existing.setTeam(shiftType.getTeam());
-        }
-        if (shiftType.getShifts() != null) {
-            existing.setShifts(shiftType.getShifts());
-        }
-        if (shiftType.getWorkUsers() != null) {
-            existing.setWorkUsers(shiftType.getWorkUsers());
-        }
-        if (shiftType.getPreferUsers() != null) {
-            existing.setPreferUsers(shiftType.getPreferUsers());
-        }
+        repository.save(updatedShiftType);
 
-        return repository.save(existing);
+        return updatedShiftType;
     }
 
+    /**
+     * Deletes a shift type from the database.
+     *
+     * @param id, the id of the shift type to delete
+     */
     public void delete(UUID id) {
         repository.deleteById(id);
     }

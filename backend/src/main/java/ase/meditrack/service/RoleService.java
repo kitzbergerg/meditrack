@@ -1,14 +1,18 @@
 package ase.meditrack.service;
 
+import ase.meditrack.model.RoleValidator;
+import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
+import org.springframework.stereotype.Service;
+
+import javax.xml.bind.ValidationException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -16,10 +20,12 @@ import java.util.UUID;
 public class RoleService {
     private final RoleRepository repository;
     private final RoleMapper mapper;
+    private final RoleValidator validator;
 
-    public RoleService(RoleRepository repository, RoleMapper mapper) {
+    public RoleService(RoleRepository repository, RoleMapper mapper, RoleValidator validator) {
         this.repository = repository;
         this.mapper = mapper;
+        this.validator = validator;
     }
 
     /**
@@ -37,28 +43,28 @@ public class RoleService {
      * @param role, the role to create
      * @return the created role
      */
-    public Role create(Role role) {
+    public Role create(Role role) throws ValidationException {
+        validator.roleCreateValidation(role);
         return repository.save(role);
     }
 
     /**
      * Updates a role in the database.
      *
-     * @param role, the role to update
+     * @param roleToUpdate, the role to update
      * @return the updated role
      */
-    public Role update(Role role) {
-        Role existing = repository.findById(role.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public Role update(Role roleToUpdate) throws ValidationException {
+        validator.roleUpdateValidation(roleToUpdate);
 
-        if (role.getName() != null) {
-            existing.setName(role.getName());
-        }
-        if (role.getUsers() != null) {
-            existing.setUsers(role.getUsers());
-        }
+        Role updatedRole = new Role();
+        updatedRole.setId(roleToUpdate.getId());
+        updatedRole.setName(roleToUpdate.getName());
+        updatedRole.setUsers(roleToUpdate.getUsers());
 
-        return repository.save(existing);
+        repository.save(updatedRole);
+
+        return updatedRole;
     }
 
     /**

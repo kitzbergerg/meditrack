@@ -7,7 +7,7 @@ import { LangComponent } from './lang/lang.component';
 import { RouterModule } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { HttpClientModule } from '@angular/common/http';
-import {KeycloakAngularModule, KeycloakEvent, KeycloakEventType, KeycloakService} from "keycloak-angular";
+import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
 import { ButtonModule } from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
 import {AccountSettingsComponent} from './shell/account-settings/account-settings.component';
@@ -16,6 +16,7 @@ import {RolesComponent} from './components/roles/roles.component';
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {from} from "rxjs";
 import {AuthorizationService} from "./services/authentication/authorization.service";
+import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -48,6 +49,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     EmployeesComponent,
     RolesComponent,
     DashboardComponent,
+    ShiftTypesComponent,
   ],
   imports: [
     BrowserModule,
