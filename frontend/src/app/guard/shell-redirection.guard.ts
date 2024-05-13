@@ -15,12 +15,12 @@ export class ShellRedirectionGuard {
     const isEmployee = true
 
 
-    if (/*authenticationService.*/isEmployer/*()*/) {
-      this.router.navigate(['department-manager-dashboard']).catch();
-    } else if (isEmployee) {
-      this.router.navigate(['employee-dashboard']).catch();
-    }
-
+    //if (/*authenticationService.*/isEmployer/*()*/) {
+     // this.router.navigate(['department-manager-dashboard']).catch();
+    //} else if (isEmployee) {
+    //  this.router.navigate(['employee-dashboard']).catch();
+    //}
+    
     return true;
   }
 }

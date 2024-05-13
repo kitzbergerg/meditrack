@@ -1,0 +1,18 @@
+@import '../../../styles/spacing';
+@import '../../../styles/colors';
+
+.top-toolbar {
+  height: $top-toolbar-height;
+  background: $surface-container-low;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.top-item {
+  padding-top: 4em;
+}
+
+.logout-button {
+  position: fixed;
+  left: 90%;
+}

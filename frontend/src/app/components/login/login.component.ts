@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
-import {AuthenticationService} from "../../services/authentication/authentication.service";
-import {Router} from "@angular/router";
+import { Router } from '@angular/router';
+import {AuthorizationService} from "../../services/authentication/authorization.service";
+
 
 @Component({
   selector: 'app-login',
@@ -9,20 +10,27 @@ import {Router} from "@angular/router";
 })
 export class LoginComponent {
 
-  constructor(
-    private router: Router,
-    private authenticationService: AuthenticationService) {
+  constructor(private authorizationService: AuthorizationService, private router: Router) {
   }
 
-  loginStub(role: string) {
-    console.log('loginStub')
-    this.authenticationService.login(role)
-      .subscribe(res => {
-        if (role == 'employer') {
-          void this.router.navigate(['department-manager-dashboard'])
-        } else if (role == 'employee') {
-          void this.router.navigate(['employee-dashboard'],  )
-        }
-      });
+
+  login() {
+    this.authorizationService.login().then();
+  }
+
+  ngOnInit(): void {
+    if (this.authorizationService.isLoggedIn()) {
+      console.log(this.authorizationService.parsedToken().sub);
+    }else{
+      console.log("not logged in");
+    }
+  }
+
+  isLoggedIn() {
+    return this.authorizationService.isLoggedIn()
+  }
+
+  logout() {
+    this.authorizationService.logout();
   }
 }

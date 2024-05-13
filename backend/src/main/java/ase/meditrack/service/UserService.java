@@ -1,6 +1,8 @@
 package ase.meditrack.service;
 
+import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
@@ -9,7 +11,6 @@ import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.http.HttpStatus;
@@ -26,17 +27,19 @@ import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
+    private final UserMapper mapper;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
+        this.mapper = mapper;
     }
 
     @PostConstruct
     private void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
             log.info("Creating default admin user...");
-            this.createKeycloakUser(adminUserRepresentation());
+            this.create(defaultAdminUser());
         }
     }
 
@@ -54,6 +57,7 @@ public class UserService {
 
     /**
      * Fetches a user by id from the database and matches additional attributes from keycloak.
+     *
      * @param id, the id of the user
      * @return the user
      */
@@ -66,6 +70,7 @@ public class UserService {
 
     /**
      * Creates a user in the database and in keycloak.
+     *
      * @param user, the user to create
      * @return the created user
      */
@@ -92,6 +97,7 @@ public class UserService {
 
     /**
      * Updates a user in the database and in keycloak.
+     *
      * @param user, the user to update
      * @return the updated user
      */
@@ -111,6 +117,7 @@ public class UserService {
 
     /**
      * Deletes a user from the database and from keycloak.
+     *
      * @param id, the id of the user to delete
      */
     public void delete(UUID id) {
@@ -137,17 +144,29 @@ public class UserService {
         user.roles().realmLevel().add(userRoles);
     }
 
-    private static UserRepresentation adminUserRepresentation() {
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setUsername("admin");
-        userRepresentation.setEnabled(true);
-        CredentialRepresentation credentialRepresentation = new CredentialRepresentation();
-        credentialRepresentation.setType(CredentialRepresentation.PASSWORD);
-        credentialRepresentation.setValue("admin");
-        credentialRepresentation.setTemporary(true);
-        userRepresentation.setCredentials(List.of(credentialRepresentation));
-        userRepresentation.setRealmRoles(List.of("admin"));
-        return userRepresentation;
+    private User defaultAdminUser() {
+        UserDto user = new UserDto(
+                null,
+                "admin",
+                "admin",
+                "admin@meditrack.com",
+                "admin",
+                "admin",
+                List.of("admin"),
+                null,
+                1.0f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        return mapper.fromDto(user);
     }
 
     private User updateChangedAttributes(User user) {
