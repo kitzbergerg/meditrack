@@ -7,7 +7,7 @@ public record AlgorithmInput(
         List<ShiftTypeInfo> shiftTypes,
         List<DayInfo> days,
 
-        List<HardConstraintInfo> hardConstraints
+        HardConstraintInfo hardConstraints
 
         // TODO: add more fields for other constraints
 ) {

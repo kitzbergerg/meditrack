@@ -54,7 +54,7 @@ public class AlgorithmMapper {
             employeeInfos.add(new EmployeeInfo(employee.getId(), worksShifts ,workingHours));
         }
 
-        List<HardConstraintInfo> constraintInfos = new ArrayList<>();
+        HardConstraintInfo constraintInfos = new HardConstraintInfo();
 
         return new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, constraintInfos);
     }
