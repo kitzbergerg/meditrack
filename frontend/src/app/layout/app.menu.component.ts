@@ -1,6 +1,5 @@
 import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { LayoutService } from './service/app.layout.service';
 import {AuthorizationService} from "../services/authentication/authorization.service";
 
 @Component({
@@ -13,7 +12,7 @@ export class AppMenuComponent implements OnInit {
     isEmployee = false;
     isDM = false;
 
-    constructor(public layoutService: LayoutService,  private authorizationService: AuthorizationService ) {
+    constructor(private authorizationService: AuthorizationService ) {
       this.isEmployee = this.authorizationService.hasAuthority(["employee"]);
       this.isDM = this.authorizationService.hasAuthority(["admin", "dm"]);
 

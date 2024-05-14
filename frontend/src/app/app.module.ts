@@ -15,13 +15,7 @@ import {RolesComponent} from './components/roles/roles.component';
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {RippleModule} from "primeng/ripple";
 import {AppLayoutModule} from "./layout/app.layout.module";
-import {RadioButtonModule} from "primeng/radiobutton";
-import {DialogModule} from "primeng/dialog";
-import {DropdownModule} from "primeng/dropdown";
-import {ToastModule} from "primeng/toast";
-import {ToolbarModule} from "primeng/toolbar";
-import {TableModule} from "primeng/table";
-import {InputNumberModule} from "primeng/inputnumber";
+
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -65,13 +59,6 @@ function initializeKeycloak(keycloak: KeycloakService) {
     StyleClassModule,
     RippleModule,
     AppLayoutModule,
-    RadioButtonModule,
-    DialogModule,
-    DropdownModule,
-    ToastModule,
-    ToolbarModule,
-    TableModule,
-    InputNumberModule
   ],
   providers: [
     {
