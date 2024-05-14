@@ -1,7 +1,5 @@
 package ase.meditrack.exception;
 
-import java.util.List;
-
 /**
  * Exception that signals, that data,
  * that came from outside the backend, is invalid.
