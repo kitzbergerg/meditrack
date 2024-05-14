@@ -1,0 +1,24 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+        <div class="p-d-flex p-flex-column p-ai-center">
+          <div *ngIf="data" class="p-text-center">
+            <h2>User Overview</h2>
+            <p>Username: {{ data.username }}</p>
+            <p>First Name: {{ data.firstName }}</p>
+            <p>Last Name: {{ data.lastName }}</p>
+            <p>Email: {{ data.email }}</p>
+          </div>
+
+          <button pButton
+                  pRipple
+                  (click)="changePassword()"
+                  class="p-button-sm p-button-light mt-3"
+          >Change Password
+          </button>
+        </div>
+    </div>
+  </div>
+</div>
+
+

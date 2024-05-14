@@ -20,10 +20,6 @@ export class AuthenticationGuard extends KeycloakAuthGuard {
     return true;
   }
 
-  public isAuthenticated(): boolean {
-    return this.authenticated;
-  }
-
 }
 
 // Guard checks whether user is logged in
