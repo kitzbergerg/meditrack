@@ -1,5 +1,6 @@
 package ase.meditrack.model.mapper;
 
+import ase.meditrack.model.dto.MockUserDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.Preferences;
@@ -64,6 +65,19 @@ public abstract class UserMapper {
                 user.getPreferredShiftTypes() != null
                         ? user.getPreferredShiftTypes().stream().map(ShiftType::getId).toList() : null
         );
+    }
+
+    // TODO: Remove mockDtos
+    public MockUserDto toMockedUserDto(User user) {
+        return new MockUserDto(user.getId());
+    }
+
+    public MockUserDto toMockedUserDto(List<User> user) {
+        return new MockUserDto(user.get(0).getId());
+    }
+
+    public UserDto map(List<User> value) {
+        return toDto(value.get(0));
     }
 
     public User fromDto(UserDto dto) {

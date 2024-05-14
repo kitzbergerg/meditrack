@@ -1,0 +1,15 @@
+package ase.meditrack.model.dto;
+
+import ase.meditrack.model.CreateValidator;
+import ase.meditrack.model.UpdateValidator;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Positive;
+
+import java.util.List;
+import java.util.UUID;
+
+public record MockUserDto(@Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id) {
+}
