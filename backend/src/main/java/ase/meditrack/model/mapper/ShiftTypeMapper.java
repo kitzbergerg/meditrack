@@ -1,6 +1,7 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.ShiftTypeDto;
+import ase.meditrack.model.dto.SimpleShiftTypeDto;
 import ase.meditrack.model.entity.*;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
@@ -22,6 +23,15 @@ public abstract class ShiftTypeMapper {
                 shiftType.getShifts() != null ? shiftType.getShifts().stream().map(Shift::getId).toList() : null,
                 shiftType.getWorkUsers() != null ? shiftType.getWorkUsers().stream().map(User::getId).toList() : null,
                 shiftType.getPreferUsers() != null ? shiftType.getPreferUsers().stream().map(User::getId).toList() : null
+        );
+    }
+
+    public SimpleShiftTypeDto toSimpleDto(ShiftType shiftType) {
+        return new SimpleShiftTypeDto(
+                shiftType.getId(),
+                shiftType.getName(),
+                shiftType.getStartTime(),
+                shiftType.getEndTime()
         );
     }
 
