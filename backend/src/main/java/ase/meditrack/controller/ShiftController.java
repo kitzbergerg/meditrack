@@ -67,8 +67,8 @@ public class ShiftController {
             return mapper.toDto(service.create(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: POST /api/shift/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Shift with id: " + dto.id() +
-                    " not found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during creating shift: " + e.getMessage(), e);
         }
     }
 
@@ -81,8 +81,8 @@ public class ShiftController {
             return mapper.toDto(service.update(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: PUT /api/shift/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Shift with id: " + dto.id() + " not " +
-                    "found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during updating shift: " + e.getMessage(), e);
         } catch (NotFoundException e) {
             log.error("NotFoundException: PUT /api/shift/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shift with id: " + dto.id() + " not found", e);

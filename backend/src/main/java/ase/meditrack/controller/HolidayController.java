@@ -67,7 +67,8 @@ public class HolidayController {
             return mapper.toDto(service.create(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: POST /api/holiday/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Holiday with id: " + dto.id() + " not found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during creating holiday: " + e.getMessage(), e);
         }
     }
 
@@ -80,7 +81,8 @@ public class HolidayController {
             return mapper.toDto(service.update(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: PUT /api/holiday/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Holiday with id: " + dto.id() + " not found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during updating holiday: " + e.getMessage(), e);
         } catch (NotFoundException e) {
             log.error("NotFoundException: PUT /api/holiday/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Holiday with id: " + dto.id() + " not found", e);

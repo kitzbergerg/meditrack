@@ -67,8 +67,8 @@ public class MonthlyPlanController {
             return mapper.toDto(service.create(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: POST /api/monthly-plan/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Monthly plan with id: " + dto.id() +
-                    " not found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during creating monthly-plan: " + e.getMessage(), e);
         }
     }
 
@@ -81,9 +81,8 @@ public class MonthlyPlanController {
             return mapper.toDto(service.update(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: PUT /api/monthly-plan/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Monthly plan with id: " + dto.id() +
-                    " not " +
-                    "found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during updating monthly-plan: " + e.getMessage(), e);
         } catch (NotFoundException e) {
             log.error("NotFoundException: PUT /api/monthly-plan/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Monthly plan with id: " + dto.id() + " not found",

@@ -76,5 +76,5 @@ public abstract class ShiftMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<ShiftDto> toDtoList(Iterable<Shift> shifts);
+    public abstract List<ShiftDto> toDtoList(List<Shift> shifts);
 }

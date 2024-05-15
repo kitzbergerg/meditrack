@@ -67,8 +67,8 @@ public class TeamController {
             return mapper.toDto(service.create(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: POST /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Team with id: " + dto.id() +
-                    " not found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during creating team: " + e.getMessage(), e);
         }
     }
 
@@ -81,8 +81,8 @@ public class TeamController {
             return mapper.toDto(service.update(mapper.fromDto(dto)));
         } catch (ValidationException e) {
             log.error("ValidationException: PUT /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Team with id: " + dto.id() + " not " +
-                    "found", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error during updating team: " + e.getMessage(), e);
         } catch (NotFoundException e) {
             log.error("NotFoundException: PUT /api/team/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team with id: " + dto.id() + " not found", e);

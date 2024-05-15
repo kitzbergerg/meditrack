@@ -4,9 +4,9 @@ import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.PreferencesDto;
-import ase.meditrack.model.mapper.PreferencesMapper;
-import ase.meditrack.service.PreferencesService;
+import ase.meditrack.model.dto.ShiftSwapDto;
+import ase.meditrack.model.mapper.ShiftSwapMapper;
+import ase.meditrack.service.ShiftSwapService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,65 +27,66 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/preferences")
+@RequestMapping("/api/shift-swap")
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
-public class PreferencesController {
-    private final PreferencesService service;
-    private final PreferencesMapper mapper;
+public class ShiftSwapController {
+    private final ShiftSwapService service;
+    private final ShiftSwapMapper mapper;
 
-    public PreferencesController(PreferencesService service, PreferencesMapper mapper) {
+    public ShiftSwapController(ShiftSwapService service, ShiftSwapMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public List<PreferencesDto> findAll() {
-        log.info("Fetching preferences");
+    public List<ShiftSwapDto> findAll() {
+        log.info("Fetching shift-swaps");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public PreferencesDto findById(@PathVariable UUID id) {
-        log.info("Fetching preferences with id: {}", id);
+    public ShiftSwapDto findById(@PathVariable UUID id) {
+        log.info("Fetching shift-swap with id: {}", id);
         try {
             return mapper.toDto(service.findById(id));
         } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/preferences/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences with id: " + id + " not found", e);
+            log.error("NotFoundException: GET /api/shift-swap/{}", id, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shift-swap with id: " + id + " not found", e);
         }
     }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.CREATED)
-    public PreferencesDto create(@Validated(CreateValidator.class) @RequestBody PreferencesDto dto) {
-        log.info("Creating preferences {}", dto.id());
+    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto) {
+        log.info("Creating shift-swap {}", dto.id());
         try {
             return mapper.toDto(service.create(mapper.fromDto(dto)));
         } catch (ValidationException e) {
-            log.error("ValidationException: POST /api/preferences/{} {}", dto.id(), dto, e);
+            log.error("ValidationException: PUT /api/shift-swap/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during creating preferences: " + e.getMessage(), e);
+                    "Error during creating shift-swap: " + e.getMessage(), e);
         }
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.OK)
-    public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto) {
-        log.info("Updating preferences {}", dto.id());
+    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto) {
+        log.info("Updating shift-swap {}", dto.id());
         try {
             return mapper.toDto(service.update(mapper.fromDto(dto)));
         } catch (ValidationException e) {
-            log.error("ValidationException: PUT /api/preferences/{} {}", dto.id(), dto, e);
+            log.error("ValidationException: PUT /api/shift-swap/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during updating preferences: " + e.getMessage(), e);
+                    "Error during updating shift-swap: " + e.getMessage(), e);
         } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/preferences/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences with id: " + dto.id() + " not found", e);
+            log.error("NotFoundException: PUT /api/shift-swap/{} {}", dto.id(), dto, e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shift-swap with id: " + dto.id() + " not found",
+                    e);
         }
     }
 
@@ -93,7 +94,7 @@ public class PreferencesController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        log.info("Deleting preferences with id {}", id);
+        log.info("Deleting shift-swap with id {}", id);
         service.delete(id);
     }
 }
