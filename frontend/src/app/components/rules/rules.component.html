@@ -1,0 +1,59 @@
+<div class="grid">
+  <div class="col-12 ">
+    <div class="card px-6 py-6">
+      <h1>Rules</h1>
+
+      <ul>
+        <li *ngIf="rules?.mandatoryOffDays">
+          <ng-container *ngIf="editMandatoryOffDays; else editMandatoryOffDaysTemplate">
+            <div name="roleName">
+              MandatoryOffDays
+            </div>
+            <button (click)="editMandatoryOffDays = true">Edit</button>
+          </ng-container>
+          <div>
+            <ng-template #editMandatoryOffDaysTemplate>
+              <button (click)="updateRules(); editMandatoryOffDays = false">Save</button>
+              <button (click)="editMandatoryOffDays = false">Cancel</button>
+            </ng-template>
+
+            <button (click)="rules!.mandatoryOffDays = null; updateRules()">Delete</button>
+          </div>
+          <button (click)="editRule('mandatoryOffDays')">Edit</button>
+        </li>
+        <li *ngIf="rules?.minRestPeriod">
+          <button (click)="editRule('minRestPeriod')">Edit</button>
+        </li>
+        <li *ngIf="rules?.maximumShiftLengths">
+          <button (click)="editRule('maximumShiftLengths')">Edit</button>
+        </li>
+      </ul>
+
+      <div class="plusButtonContainer">
+        <button name="createButton" (click)="showAvailbleRules = true" *ngIf="anyRulesNotSet()">
+          +
+        </button>
+      </div>
+      <div class="">
+        <button name="createButton" (click)="showAvailbleRules = false"
+                *ngIf="!rules?.mandatoryOffDays && showAvailbleRules">
+          mandatoryOffDays
+        </button>
+        <button name="createButton" (click)="showAvailbleRules = false"
+                *ngIf="!rules?.minRestPeriod && showAvailbleRules">
+          minRestPeriod
+        </button>
+        <button name="createButton" (click)="showAvailbleRules = false"
+                *ngIf="!rules?.maximumShiftLengths && showAvailbleRules ">
+          maximumShiftLengths
+        </button>
+      </div>
+
+<!--      <div class="inputContainer" *ngIf="showNewRoleInputField">-->
+<!--        <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">-->
+<!--        <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>-->
+<!--      </div>-->
+<!--      <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>-->
+    </div>
+  </div>
+</div>
