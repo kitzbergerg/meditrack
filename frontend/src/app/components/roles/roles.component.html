@@ -1,36 +1,45 @@
-<div class="roles-container">
-  <h1>Roles</h1>
+<div class="grid">
+  <div class="col-12 ">
+    <div class="card px-6 py-6">
+        <h1>Roles</h1>
 
-  <ul>
-    <li *ngFor="let role of roles">
-      <ng-container *ngIf="role !== editedRole; else editRole">
-        <div name="roleName">
-             {{ role.name }}
-        </div>
-        <button (click)="startEditing(role)">Edit</button>
-      </ng-container>
+      <ul>
+        <li *ngFor="let role of roles">
+          <ng-container *ngIf="role !== editedRole; else editRole">
+            <div name="roleName">
+              {{ role.name }}
+            </div>
+            <button (click)="startEditing(role)">Edit</button>
+          </ng-container>
 
-      <div>
-        <ng-template #editRole>
-          <input type="text" [(ngModel)]="editedRole.name">
-          <button (click)="updateRole(role)">Save</button>
-          <button (click)="cancelEditing()">Cancel</button>
-        </ng-template>
+          <div>
+            <ng-template #editRole>
+              <input type="text" [(ngModel)]="editedRole.name">
+              <button (click)="updateRole(role)">Save</button>
+              <button (click)="cancelEditing()">Cancel</button>
+            </ng-template>
 
-        <button (click)="deleteRole(role)">Delete</button>
+            <button (click)="deleteRole(role)">Delete</button>
+          </div>
+        </li>
+      </ul>
+
+      <div class="plusButtonContainer">
+        <button name="createButton" (click)="showNewRoleInputField = !showNewRoleInputField">
+          {{ showNewRoleInputField ? '-' : '+' }}
+        </button>
       </div>
-    </li>
-  </ul>
 
-  <div class="plusButtonContainer">
-    <button name="createButton" (click)="showNewRoleInputField = !showNewRoleInputField">
-      {{ showNewRoleInputField ? '-' : '+' }}
-    </button>
-  </div>
+      <div class="inputContainer" *ngIf="showNewRoleInputField">
+        <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">
+        <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>
+      </div>
+      <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>
+    </div>
 
-  <div class="inputContainer" *ngIf="showNewRoleInputField">
-    <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">
-    <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>
+    <div class="card px-6 py-6">
+      <h1>Special Skills</h1>
+
+    </div>
   </div>
-  <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>
 </div>
