@@ -1,7 +1,6 @@
 import {RouterModule, Routes} from "@angular/router";
 import {NgModule} from "@angular/core";
-import {ShellRedirectGuard} from "../guard/shell-redirection.guard";
-import {AccountSettingsComponent} from "./account-settings/account-settings.component";
+import {AccountSettingsComponent} from "../components/account-settings/account-settings.component";
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
 import {RolesComponent} from "../components/roles/roles.component";
@@ -30,6 +29,10 @@ const routes: Routes = [
     path: 'shift-types',
     canActivate: [dmGuard],
     component: ShiftTypesComponent,
+  },
+  {
+    path: 'account-settings',
+    component: AccountSettingsComponent,
   }
 ]
 
@@ -38,12 +41,7 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        canActivate: [ShellRedirectGuard],
         children: routes
-      },
-      {
-        path: 'account-settings',
-        component: AccountSettingsComponent,
       },
       {
         path: '',

@@ -27,9 +27,11 @@ export class AuthorizationService {
   isLoggedIn(): boolean {
     return this.keycloakService.isLoggedIn();
   }
+
   logout(): void {
     this.keycloakService.logout("http://localhost:4200/login");
   }
+
   hasAuthority(roles:string[]) : boolean {
     return roles.some(role =>this.keycloakService.getKeycloakInstance().hasRealmRole(role));
   }
