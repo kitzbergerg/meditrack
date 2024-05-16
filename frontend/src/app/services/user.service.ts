@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from "rxjs";
+import {User} from "../interfaces/user";
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +18,16 @@ export class UserService {
   getAllUsers(): Observable<any> {
     return this.http.get<any>(this.apiUrl);
   }
-  getUserById(id: string) {
-    return this.http.get(this.apiUrl+`/${id}`);
+
+  getAllUserFromTeam(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/team`);
   }
 
+  getUserById(id: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
+  }
+
+  createUser(user: User): Observable<User> {
+    return this.http.post<User>(this.apiUrl, user);
+  }
 }

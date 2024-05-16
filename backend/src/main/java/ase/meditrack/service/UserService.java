@@ -1,5 +1,7 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.ValidationException;
+import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
@@ -17,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
@@ -28,18 +32,20 @@ public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final UserValidator validator;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper, UserValidator validator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.mapper = mapper;
+        this.validator = validator;
     }
 
     @PostConstruct
     private void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
             log.info("Creating default admin user...");
-            this.create(defaultAdminUser());
+            this.create(defaultAdminUser(), null);
         }
     }
 
@@ -51,6 +57,19 @@ public class UserService {
     public List<User> findAll() {
         return repository.findAll()
                 .stream()
+                .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
+                .toList();
+    }
+
+    /**
+     * Fetches all users from the team of the dm from the database and matches additional attributes from keycloak.
+     *
+     * @param principal, the dm of the team
+     * @return List of all users from the team of the dm
+     */
+    public List<User> findByTeam(Principal principal) throws NoSuchElementException {
+        User dm = validator.getTeamValidate(principal);
+        return repository.findAllByTeam(dm.getTeam()).stream()
                 .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
                 .toList();
     }
@@ -72,9 +91,12 @@ public class UserService {
      * Creates a user in the database and in keycloak.
      *
      * @param user, the user to create
+     * @param principal, creator of the user
      * @return the created user
      */
-    public User create(User user) {
+    public User create(User user, Principal principal) throws ValidationException {
+
+        validator.createValidate(user, principal);
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user = repository.save(user);

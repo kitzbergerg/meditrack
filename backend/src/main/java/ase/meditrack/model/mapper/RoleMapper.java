@@ -1,15 +1,13 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.dto.UserDto;
+
 import ase.meditrack.model.entity.*;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-
 @Mapper
 public abstract class RoleMapper {
 

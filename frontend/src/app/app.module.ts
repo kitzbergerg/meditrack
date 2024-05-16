@@ -1,6 +1,6 @@
 import {APP_INITIALIZER, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LangComponent } from './lang/lang.component';
@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
 import {AccountSettingsComponent} from './shell/account-settings/account-settings.component';
 import {EmployeesComponent} from './components/employees/employees.component';
+import {EmployeesCreateComponent} from './components/employees/employees-create/employees-create.component';
 import {RolesComponent} from './components/roles/roles.component';
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {from} from "rxjs";
@@ -47,20 +48,22 @@ function initializeKeycloak(keycloak: KeycloakService) {
     LoginComponent,
     AccountSettingsComponent,
     EmployeesComponent,
+    EmployeesCreateComponent,
     RolesComponent,
     DashboardComponent,
     ShiftTypesComponent,
   ],
-  imports: [
-    BrowserModule,
-    ButtonModule,
-    AppRoutingModule,
-    RouterModule,
-    HttpClientModule,
-    KeycloakAngularModule,
-    FormsModule,
-    StyleClassModule
-  ],
+    imports: [
+        BrowserModule,
+        ButtonModule,
+        AppRoutingModule,
+        RouterModule,
+        HttpClientModule,
+        KeycloakAngularModule,
+        FormsModule,
+        StyleClassModule,
+        ReactiveFormsModule
+    ],
   providers: [
     {
       provide: APP_INITIALIZER,
