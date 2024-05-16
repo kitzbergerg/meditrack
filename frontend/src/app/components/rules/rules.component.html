@@ -3,23 +3,26 @@
     <div class="card px-6 py-6">
       <h1>Rules</h1>
 
-      <ul>
+      <ul class="currentRulesList">
         <li *ngIf="rules?.mandatoryOffDays">
-          <ng-container *ngIf="editMandatoryOffDays; else editMandatoryOffDaysTemplate">
-            <div name="roleName">
-              MandatoryOffDays
-            </div>
-            <button (click)="editMandatoryOffDays = true">Edit</button>
-          </ng-container>
-          <div>
+          <div class="ruleName">
+            <ng-container *ngIf="!editMandatoryOffDays; else editMandatoryOffDaysTemplate">
+              <span>Mandatory Off Days</span>
+              <button pButton pRipple (click)="editMandatoryOffDays = true">Edit</button>
+            </ng-container>
             <ng-template #editMandatoryOffDaysTemplate>
-              <button (click)="updateRules(); editMandatoryOffDays = false">Save</button>
-              <button (click)="editMandatoryOffDays = false">Cancel</button>
-            </ng-template>
+              Days in a Month: <p-inputNumber
+              [(ngModel)]="rules!.mandatoryOffDays!.numberOfDaysInMonth"
+              inputId="minmax"
+              mode="decimal"
+              [min]="0"
+              [max]="31" />
 
-            <button (click)="rules!.mandatoryOffDays = null; updateRules()">Delete</button>
+              <button pButton pRipple (click)="updateRules(); editMandatoryOffDays = false">Save</button>
+              <button pButton pRipple (click)="editMandatoryOffDays = false">Cancel</button>
+              <button pButton pRipple (click)="rules!.mandatoryOffDays = null; updateRules()">Delete</button>
+            </ng-template>
           </div>
-          <button (click)="editRule('mandatoryOffDays')">Edit</button>
         </li>
         <li *ngIf="rules?.minRestPeriod">
           <button (click)="editRule('minRestPeriod')">Edit</button>
@@ -30,30 +33,32 @@
       </ul>
 
       <div class="plusButtonContainer">
-        <button name="createButton" (click)="showAvailbleRules = true" *ngIf="anyRulesNotSet()">
-          +
+        <button name="createButton" pButton (click)="showAvailbleRules = !showAvailbleRules" *ngIf="anyRulesNotSet()">
+          {{ showAvailbleRules ? '-' : '+' }}
         </button>
       </div>
-      <div class="">
-        <button name="createButton" (click)="showAvailbleRules = false"
+      <ul class="createRuleList">
+        <button pButton name="createButton"
+                (click)="showAvailbleRules = false;
+                createMandatoryOffDaysRule()"
                 *ngIf="!rules?.mandatoryOffDays && showAvailbleRules">
           mandatoryOffDays
         </button>
-        <button name="createButton" (click)="showAvailbleRules = false"
+        <button pButton name="createButton" (click)="showAvailbleRules = false"
                 *ngIf="!rules?.minRestPeriod && showAvailbleRules">
           minRestPeriod
         </button>
-        <button name="createButton" (click)="showAvailbleRules = false"
+        <button pButton name="createButton" (click)="showAvailbleRules = false"
                 *ngIf="!rules?.maximumShiftLengths && showAvailbleRules ">
           maximumShiftLengths
         </button>
-      </div>
+      </ul>
 
-<!--      <div class="inputContainer" *ngIf="showNewRoleInputField">-->
-<!--        <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">-->
-<!--        <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>-->
-<!--      </div>-->
-<!--      <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>-->
+      <!--      <div class="inputContainer" *ngIf="showNewRoleInputField">-->
+      <!--        <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">-->
+      <!--        <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>-->
+      <!--      </div>-->
+      <!--      <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>-->
     </div>
   </div>
 </div>

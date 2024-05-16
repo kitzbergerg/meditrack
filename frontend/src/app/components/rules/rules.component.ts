@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
 import {PaginatorModule} from "primeng/paginator";
-import {MaximumShiftLength, Rules} from "../../interfaces/rules/rulesInterface";
+import {MandatoryOffDays, Rules} from "../../interfaces/rules/rulesInterface";
 import {RulesService} from "../../services/rules.service";
+import {ButtonModule} from "primeng/button";
+import {RippleModule} from "primeng/ripple";
 
 @Component({
   selector: 'app-rules',
@@ -10,7 +12,9 @@ import {RulesService} from "../../services/rules.service";
   imports: [
     NgForOf,
     NgIf,
-    PaginatorModule
+    PaginatorModule,
+    ButtonModule,
+    RippleModule
   ],
   templateUrl: './rules.component.html',
   styleUrl: './rules.component.scss'
@@ -41,5 +45,10 @@ export class RulesComponent {
 
   updateRules() {
     console.log("updateRules");
+  }
+
+  createMandatoryOffDaysRule() {
+    this.rules!.mandatoryOffDays =  {numberOfDaysInMonth: 1};
+    this.editMandatoryOffDays = true;
   }
 }
