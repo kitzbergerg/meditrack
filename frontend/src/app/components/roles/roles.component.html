@@ -1,7 +1,7 @@
 <div class="grid">
   <div class="col-12 md:col-6">
+    <h2 style="text-align: center;">Roles</h2>
     <div class="card px-6 py-6">
-      <h1>Roles</h1>
       <ul class="list-none p-0 m-0">
         <li *ngFor="let role of roles" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
           <ng-container *ngIf="role !== editedRole">
@@ -10,11 +10,12 @@
                 <span class="text-xl font-medium mr-2 md:mb-0">{{ role.name }}</span>
               </div>
               <div>
-                <button (click)="startEditing(role)" pbutton="" pripple="" label="Edit" icon="pi pi-pencil" class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px;">
+                <button (click)="startEditing(role)" pbutton="" pripple="" label="Edit" icon="pi pi-pencil" class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px; margin-left: 10px; margin-right: 10px;">
                   <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
                   <span class="p-button-label">Edit</span>
                   <span class="p-ink" aria-hidden="true" role="presentation"></span>
                 </button>
+                <!-- TODO: add confirm dialog -->
                 <button (click)="deleteRole(role)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
                   <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
                   <span class="p-button-label">Delete</span>
@@ -30,7 +31,7 @@
                 <input class="p-inputtext p-component p-element" type="text" [(ngModel)]="role.name">
               </div>
               <div>
-                <button (click)="updateRole(role)" pbutton="" pripple="" label="Save" icon="pi pi-check" class="p-element p-ripple p-button p-component" style="height: 35px;">
+                <button (click)="updateRole(role)" pbutton="" pripple="" label="Save" icon="pi pi-check" class="p-element p-ripple p-button p-component" style="height: 35px; margin-left: 10px; margin-right: 10px;">
                     <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
                     <span class="p-button-label">Save</span>
                     <span class="p-ink" aria-hidden="true" role="presentation"></span>
@@ -57,6 +58,7 @@
       </ul>
     </div>
 
+    <!-- use toggle button of primeng -->
     <div class="plusButtonContainer">
       <button (click)="showNewRoleInputField = !showNewRoleInputField" pbutton="" pripple="" type="button" icon="pi pi-plus" class="p-element p-ripple p-button-rounded p-button p-button p-component p-button-icon-only">
         <span *ngIf="!showNewRoleInputField" class="p-button-icon pi pi-plus" aria-hidden="true"></span>
@@ -67,8 +69,8 @@
   </div>
 
   <div class="col-12 md:col-6">
+    <h2 style="text-align: center;">Special Skills</h2>
       <div class="card px-6 py-6">
-        <h1>Special Skills</h1>
       </div>
   </div>
 </div>
