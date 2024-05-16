@@ -1,23 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
-@import 'styles/colors';
-@import 'styles/spacing';
-@import "primeicons/primeicons.css";
+@import "primeng/resources/themes/lara-light-blue/theme.css";
 
-//example
-.menu-button {
-  width: $button-width-standard;
-  height: $button-width-standard;
-  color: $primary-container;
+@import "assets/layout/styles/layout/layout.scss";
+@import "../node_modules/primeng/resources/primeng.min.css";
+@import "../node_modules/primeflex/primeflex.scss";
+@import "../node_modules/primeicons/primeicons.css";
+
+/* Reset CSS */
+@layer reset {
+  button,
+  input {
+    /* CSS to Reset */
+  }
 }
 
-.d-flex{
-  display: flex;
-}
-
-.justify-content-center{
-  justify-content: center;
-}
-
-body {
-  margin: 0;
-}
