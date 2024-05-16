@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.xml.bind.ValidationException;
 import java.lang.invoke.MethodHandles;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -43,10 +44,10 @@ public class RoleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Creating role {}", dto.name());
         try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
+            return mapper.toDto(service.create(mapper.fromDto(dto), principal));
         } catch (ValidationException e) {
             LOGGER.error("ValidationException: POST /api/role/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating role: " + e.getMessage(), e);
@@ -56,10 +57,10 @@ public class RoleController {
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Updating role {}", dto.name());
         try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
+            return mapper.toDto(service.update(mapper.fromDto(dto), principal));
         } catch (ValidationException e) {
             LOGGER.error("ValidationException: PUT /api/role/{} {}", dto.id(), dto, e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during editing role: " + e.getMessage(), e);

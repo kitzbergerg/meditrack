@@ -36,6 +36,9 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private List<User> users;
 
+    @OneToMany(mappedBy = "team")
+    private List<Role> roles;
+
     @OneToOne(mappedBy = "team", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private HardConstraints hardConstraints;
