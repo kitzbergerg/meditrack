@@ -16,6 +16,12 @@ import {RolesComponent} from './components/roles/roles.component';
 import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {RippleModule} from "primeng/ripple";
 import {AppLayoutModule} from "./layout/app.layout.module";
+import {ToolbarModule} from "primeng/toolbar";
+import {TableModule} from "primeng/table";
+import {DialogModule} from "primeng/dialog";
+import {DropdownModule} from "primeng/dropdown";
+import {InputTextModule} from "primeng/inputtext";
+import {ImageModule} from "primeng/image";
 
 
 
@@ -50,19 +56,25 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RolesComponent,
     DashboardComponent,
   ],
-  imports: [
-    BrowserModule,
-    ButtonModule,
-    AppRoutingModule,
-    RouterModule,
-    HttpClientModule,
-    KeycloakAngularModule,
-    FormsModule,
-    StyleClassModule,
-    RippleModule,
-    AppLayoutModule,
-    ReactiveFormsModule,
-  ],
+    imports: [
+        BrowserModule,
+        ButtonModule,
+        AppRoutingModule,
+        RouterModule,
+        HttpClientModule,
+        KeycloakAngularModule,
+        FormsModule,
+        StyleClassModule,
+        RippleModule,
+        AppLayoutModule,
+        ReactiveFormsModule,
+        ToolbarModule,
+        TableModule,
+        DialogModule,
+        DropdownModule,
+        InputTextModule,
+        ImageModule,
+    ],
   providers: [
     {
       provide: APP_INITIALIZER,

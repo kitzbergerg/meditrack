@@ -1,33 +1,180 @@
-<div class="d-flex justify-content-center" *ngIf="user">
-  <div *ngIf="user.team !== null">
-      <h3>Welcome to the Team: {{team.name}}</h3>
-    <div>
-      <div class="newEmployeeContainer">
-
-        <div *ngIf="usersFromTeam && usersFromTeam.length > 0">
-          <div class="card" *ngFor="let user of usersFromTeam">
-            <div class="card-body">
-              <h5 class="card-title">Name: {{ user.firstName }}</h5>
-              <h5 class="card-title">System Role: {{ user.roles }}</h5>
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <div *ngIf="user.team !== null && user.team !== '' && user.team != undefined">
+        <p-toolbar styleClass="mb-4">
+          <h3>Welcome to the Team: {{team.name}}</h3>
+          <ng-template pTemplate="left">
+            <div class="my-2">
+              <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+              <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length"></button>
             </div>
+          </ng-template>
+        </p-toolbar>
+
+        <div *ngIf="usersFromTeam.length > 0">
+
+        <p-table #dt [value]="usersFromTeam" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['username']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedUsers" selectionMode="multiple" [rowHover]="true" dataKey="id">
+          <ng-template pTemplate="caption">
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+              <h5 class="m-0">Users</h5>
+              <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
+                </span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 3rem">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
+              <th pSortableColumn="username">Name <p-sortIcon field="username"></p-sortIcon></th>
+              <th pSortableColumn="firstName">FirstName<p-sortIcon field="firstName"></p-sortIcon></th>
+              <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
+              <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+              <th pSortableColumn="roles">Role <p-sortIcon field="roles"></p-sortIcon></th>
+              <th pSortableColumn="workingHoursPercentage">Work % <p-sortIcon field="workingHoursPercentage"></p-sortIcon></th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-user>
+            <tr>
+              <td>
+                <p-tableCheckbox [value]="user"></p-tableCheckbox>
+              <td style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Name</span>
+                {{user.username}}
+              </td>
+              <td style="width:14%; min-width:8rem;">
+                <span class="p-column-title">First Name</span>
+                {{user.firstName}}
+              </td>
+              <td style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Last Name</span>
+                {{user.lastName}}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Email</span>
+                {{user.email}}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Role</span>
+                {{user.roles[0]}}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Work %</span>
+                {{user.workingHoursPercentage}}
+              </td>
+              <td>
+                <div class="flex">
+                  <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editUser(user)"></button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteUser(user)"></button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        </div>
+
+        <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true" class="p-fluid">
+          <ng-template pTemplate="content">
+            <div class="field">
+              <label for="username">Username</label>
+              <input type="text" pInputText id="username" [(ngModel)]="newUser.username" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !newUser.username}"/>
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.username">Name is required.</small>
+            </div>
+
+
+            <div class="field">
+              <label for="password">Password:</label>
+              <input type="password" pInputText id="password" [(ngModel)]="newUser.password" required
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.password}" placeholder="Enter password" />
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.password">Password is required.</small>
+            </div>
+
+            <div class="field">
+              <label for="email">Email:</label>
+              <input type="email" pInputText id="email" [(ngModel)]="newUser.email" required
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.email}" placeholder="Enter email" />
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.email">Email is required.</small>
+            </div>
+
+            <div class="field">
+              <label for="firstName">First Name:</label>
+              <input type="text" pInputText id="firstName" [(ngModel)]="newUser.firstName" required
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.firstName}" placeholder="Enter first name" />
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.firstName">First name is required.</small>
+            </div>
+
+            <div class="field">
+              <label for="lastName">Last Name:</label>
+              <input type="text" pInputText id="lastName" [(ngModel)]="newUser.lastName" required
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.lastName}" placeholder="Enter last name" />
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.lastName">Last name is required.</small>
+            </div>
+
+            <div class="field">
+              <label for="workingHoursPercentage">Working Percentage:</label>
+              <input type="number" pInputText id="workingHoursPercentage" [(ngModel)]="newUser.workingHoursPercentage"
+                     min="0.1" max="1.0" step="0.01" required
+                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.workingHoursPercentage}"
+                     placeholder="Enter working percentage" />
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.workingHoursPercentage">
+                Working hours percentage is required.
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="role">Role:</label>
+              <select pInputText id="role" [(ngModel)]="newUser.role" required
+                      [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.role}">
+                <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.name }}</option>
+              </select>
+              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.role">Role is required.</small>
+            </div>
+
+
+          </ng-template>
+
+          <ng-template pTemplate="footer">
+            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+            <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createUser()"></button>
+          </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteUserDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+          <div class="flex align-items-center justify-content-center">
+            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+            <span *ngIf="newUser">Are you sure you want to delete <b>{{newUser.username}}</b>?</span>
           </div>
+          <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteUserDialog = false"></button>
+            <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+          </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteUsersDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+          <div class="flex align-items-center justify-content-center">
+            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+            <span>Are you sure you want to delete selected users?</span>
+          </div>
+          <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteUsersDialog = false"></button>
+            <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
+          </ng-template>
+        </p-dialog>
+      </div>
+
+    <div *ngIf="user.team === null">
+      <h2>Create a Team first before you can add employees!</h2>
+        <div class="field">
+          <input placeholder="Enter Team Name" type="text" pInputText id="teamName" [(ngModel)]="newTeam.name" required [ngClass]="{'ng-invalid ng-dirty' : !newTeam.name || isTeamNameSet()}"/>
         </div>
-        <div>
-          <button class="btn btn-primary mr-3" [routerLink]="'create'">
-            New Employee
-          </button>
-        </div>
-      </div>
-  </div>
-  <div *ngIf="user.team === null">
-    <h2>Create a Team first before you can add employees!</h2>
-    <div class="d-flex justify-content-center">
-      <div>
-      <div class="inputContainer" >
-        <input name="inputField" type="text" [(ngModel)]="newTeam.name" placeholder="Enter team name">
-        <button name="addButton" (click)="createTeam()" [disabled]="!newTeam.name || isTeamNameSet()">Add</button>
-      </div>
-      </div>
+      <p-button name="addButton" (click)="createTeam()" [disabled]="!newTeam.name || isTeamNameSet()">Add</p-button>
+
+    </div>
     </div>
   </div>
 </div>
+
