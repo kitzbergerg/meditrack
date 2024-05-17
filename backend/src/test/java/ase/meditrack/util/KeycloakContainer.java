@@ -21,17 +21,6 @@ import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 public class KeycloakContainer<SELF extends KeycloakContainer<SELF>> extends GenericContainer<SELF> {
 
     private final Network network = Network.newNetwork();
-    private final GenericContainer<?> keycloakConfigContainer = new GenericContainer<>(DockerImageName.parse("adorsys/keycloak-config-cli:latest-24.0.1"))
-            .withEnv(Map.of(
-                    "KEYCLOAK_URL", "http://keycloak:8080/",
-                    "KEYCLOAK_USER", "admin",
-                    "KEYCLOAK_PASSWORD", "admin",
-                    "KEYCLOAK_AVAILABILITYCHECK_ENABLED", "true",
-                    "KEYCLOAK_AVAILABILITYCHECK_TIMEOUT", "120s",
-                    "IMPORT_FILES_LOCATIONS", "/config/meditrack.json"
-            ))
-            .withCopyFileToContainer(MountableFile.forHostPath("../keycloak/config"), "/config")
-            .withNetwork(network);
 
     public KeycloakContainer() {
         super(new ImageFromDockerfile().withFileFromPath(".", Paths.get("../keycloak")));
@@ -57,11 +46,25 @@ public class KeycloakContainer<SELF extends KeycloakContainer<SELF>> extends Gen
     @Override
     public void start() {
         super.start();
-        keycloakConfigContainer.start();
 
-        // wait for keycloak config to be loaded
-        while (keycloakConfigContainer.isRunning()) {
-            Thread.sleep(500);
+        try (
+                GenericContainer<?> keycloakConfigContainer = new GenericContainer<>(DockerImageName.parse("adorsys/keycloak-config-cli:latest-24.0.1"))
+                        .withEnv(Map.of(
+                                "KEYCLOAK_URL", "http://keycloak:8080/",
+                                "KEYCLOAK_USER", "admin",
+                                "KEYCLOAK_PASSWORD", "admin",
+                                "KEYCLOAK_AVAILABILITYCHECK_ENABLED", "true",
+                                "KEYCLOAK_AVAILABILITYCHECK_TIMEOUT", "120s",
+                                "IMPORT_FILES_LOCATIONS", "/config/meditrack.json"
+                        ))
+                        .withCopyFileToContainer(MountableFile.forHostPath("../keycloak/config"), "/config")
+                        .withNetwork(network)
+        ) {
+            keycloakConfigContainer.start();
+            // wait for keycloak config to be loaded
+            while (keycloakConfigContainer.isRunning()) {
+                Thread.sleep(250);
+            }
         }
 
         createTestClient();
