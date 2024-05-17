@@ -33,8 +33,6 @@ public class AlgorithmMapper {
     private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
     public AlgorithmInput mapToAlgorithmInput(int month, int year, List<User> employees, List<ShiftType> shiftTypes, List<Role> roles, HardConstraints constraints, Team team) {
 
-        // Potentially complex mapping logic goes here
-
         List<DayInfo> dayInfos = new ArrayList<>();
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate date = yearMonth.atDay(1);
@@ -59,12 +57,12 @@ public class AlgorithmMapper {
         for (int i = 0; i < dayTimeRoles.size(); i++) {
             Role role = (Role) dayTimeRoles.keySet().toArray()[i];
             int index = roleUuidToIndex.get(role.getId());
-            dayTimeRolesMap.put(i, index);
+            dayTimeRolesMap.put(index, dayTimeRoles.get(role));
         }
         for (int i = 0; i < nightTimeRoles.size(); i++) {
             Role role = (Role) dayTimeRoles.keySet().toArray()[i];
             int index = roleUuidToIndex.get(role.getId());
-            nightTimeRolesMap.put(i, index);
+            nightTimeRolesMap.put(index, nightTimeRoles.get(role));
         }
 
         HardConstraintInfo constraintInfo = new HardConstraintInfo(dayTimeRolesMap, nightTimeRolesMap, constraints.getDaytimeRequiredPeople(), constraints.getNighttimeRequiredPeople(), constraints.getAllowedFlextimeTotal(), constraints.getAllowedFlextimePerMonth());
