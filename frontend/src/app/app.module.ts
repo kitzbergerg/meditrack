@@ -16,6 +16,7 @@ import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {RippleModule} from "primeng/ripple";
 import {AppLayoutModule} from "./layout/app.layout.module";
 import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
+import {CalendarModule} from "primeng/calendar";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -60,6 +61,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     StyleClassModule,
     RippleModule,
     AppLayoutModule,
+    CalendarModule,
   ],
   providers: [
     {
