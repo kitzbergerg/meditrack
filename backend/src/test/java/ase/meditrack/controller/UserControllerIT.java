@@ -115,7 +115,7 @@ class UserControllerIT {
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         UserDto created = objectMapper.readValue(response, UserDto.class);
 

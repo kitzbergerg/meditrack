@@ -6,6 +6,7 @@ import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,7 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
         log.info("Creating user {}", dto.username());
@@ -55,6 +57,7 @@ public class UserController {
     }
 
     @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting user with id {}", id);
