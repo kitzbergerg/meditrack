@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {ShiftType, ShiftTypeCreate} from "../../interfaces/shiftTypeInterface";
+import {ShiftType, ShiftTypeCreate, TypeEnum} from "../../interfaces/shiftTypeInterface";
 import {ShiftService} from "../../services/shift.service";
 
 @Component({
@@ -10,8 +10,15 @@ import {ShiftService} from "../../services/shift.service";
 export class ShiftTypesComponent {
 
     shiftTypes: ShiftType[] = [];
-    newShiftType: ShiftTypeCreate = { name: '', startTime: '', endTime: '' };
-    currentShiftType: ShiftType = { id: 0, name: '', startTime: '', endTime: '' };
+    newShiftType: ShiftTypeCreate = { name: '', startTime: '', endTime: '', breakStartTime: '', breakEndTime: '', type: TypeEnum.Default,  color: '', abbreviation: ''};
+    currentShiftType: ShiftType = { id: 0, name: '', startTime: '', endTime: '', breakStartTime: '', breakEndTime: '', type: TypeEnum.Default,  color: '', abbreviation: '' };
+    dropdownOptions: { name: string }[] = [
+      { name: 'Choose Type' },
+      { name: 'Day' },
+      { name: 'Night' }
+    ];
+    selectedOption: { name: string } | null = this.dropdownOptions[0];
+
     showOneTypeContainer: boolean = false;
     formTitle: string = '';
     formAction: string = '';
@@ -21,6 +28,7 @@ export class ShiftTypesComponent {
 
     ngOnInit(): void {
         this.loadShiftTypes();
+        this.getShiftType(this.shiftTypes[0].id);
     }
 
     loadShiftTypes(): void {
@@ -53,6 +61,8 @@ export class ShiftTypesComponent {
     }
 
     createShiftType() {
+      this.formatTime(this.newShiftType.startTime, "startTime");
+      this.formatTime(this.newShiftType.endTime, "endTime")
         this.shiftService.createShiftType(this.newShiftType)
           .subscribe(response => {
             console.log('Shift Type created successfully:', response);
@@ -64,12 +74,27 @@ export class ShiftTypesComponent {
         this.resetForm();
     }
 
-    updateShiftType() {
+    formatTime(selectedTime: string, field: string) {
+      const formattedTime = new Date(selectedTime).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+      if (field === 'startTime') {
+        this.newShiftType.startTime = formattedTime;
+      }
+      if (field === 'endTime') {
+        this.newShiftType.endTime = formattedTime;
+      }
+    }
+
+  updateShiftType() {
         const shiftTypeToUpdate: ShiftType = {
             id: this.currentShiftType.id,
             name: this.currentShiftType.name,
             startTime: this.currentShiftType.startTime,
-            endTime: this.currentShiftType.endTime
+            endTime: this.currentShiftType.endTime,
+            breakStartTime: this.currentShiftType.breakStartTime,
+            breakEndTime: this.currentShiftType.breakEndTime,
+            type: this.currentShiftType.type,
+            color: this.currentShiftType.color,
+            abbreviation: this.currentShiftType.abbreviation
         };
 
         this.shiftService.updateShiftType(shiftTypeToUpdate)
@@ -125,6 +150,6 @@ export class ShiftTypesComponent {
     }
 
     resetForm() {
-        this.newShiftType = { name: '', startTime: '', endTime: '' };
+        this.newShiftType = { name: '', startTime: '', endTime: '', breakStartTime: '', breakEndTime: '', type: TypeEnum.Default, color: '', abbreviation: '' };
     }
 }

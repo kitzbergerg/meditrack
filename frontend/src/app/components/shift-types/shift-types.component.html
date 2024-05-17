@@ -19,45 +19,135 @@
 
   <div class="col-12 md:col-6">
     <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
-    <div *ngIf="formMode === 'create'" class="card p-fluid">
+    <div class="card p-fluid">
       <div class="field grid">
         <label htmlfor="nameshift" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
-        <div class="col-12 md:col-10" style="padding: 0;">
-          <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element" [(ngModel)]="newShiftType.name">
+        <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+          <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"
+                 [(ngModel)]="formMode === 'create' ? newShiftType.name : currentShiftType.name"
+                 [disabled]="formMode === 'details'"
+          >
         </div>
       </div>
       <div class="field grid">
         <label htmlfor="startshift" class="col-12 mb-2 md:col-2 md:mb-0">Start Time</label>
-        <span class="p-input-icon-right" style="max-width: 200px;">
+        <span class="p-input-icon-right">
           <p-calendar
             inputId="calendar-timeonly"
-            [(ngModel)]="newShiftType.startTime"
-            [timeOnly]="true"/>
+            [(ngModel)]="formMode === 'create' ? newShiftType.startTime : currentShiftType.startTime"
+            [timeOnly]="true"
+            [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
         </span>
       </div>
       <div class="field grid">
         <label htmlfor="endshift" class="col-12 mb-2 md:col-2 md:mb-0">End Time</label>
-        <span class="p-input-icon-right" style="max-width: 200px;">
+        <span class="p-input-icon-right">
           <p-calendar
           inputId="calendar-timeonly"
-          [(ngModel)]="newShiftType.endTime"
-          [timeOnly]="true"/>
+          [(ngModel)]="formMode === 'create' ? newShiftType.endTime : currentShiftType.endTime"
+          [timeOnly]="true"
+          [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
         </span>
       </div>
-      <button (click)="createOrUpdateShiftType()" pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
-        <span class="p-button-label">{{ formAction }}</span>
-        <span class="p-ink" aria-hidden="true" role="presentation"></span>
-      </button>
-    </div>
+      <div class="field grid">
+        <label htmlfor="startshiftbreak" class="col-12 mb-2 md:col-2 md:mb-0">Break Start Time</label>
+        <span class="p-input-icon-right">
+          <p-calendar
+            inputId="calendar-timeonly"
+            [(ngModel)]="formMode === 'create' ? newShiftType.breakStartTime : currentShiftType.breakStartTime"
+            [timeOnly]="true"
+            [disabled]="formMode === 'details'"/>
+          <i class="pi pi-clock"></i>
+        </span>
+      </div>
+      <div class="field grid">
+        <label htmlfor="endshiftbreak" class="col-12 mb-2 md:col-2 md:mb-0">Break End Time</label>
+        <span class="p-input-icon-right">
+          <p-calendar
+            inputId="calendar-timeonly"
+            [(ngModel)]="formMode === 'create' ? newShiftType.breakEndTime : currentShiftType.breakEndTime"
+            [timeOnly]="true"
+            [disabled]="formMode === 'details'"/>
+          <i class="pi pi-clock"></i>
+        </span>
+      </div>
+      <div class="field grid">
+        <label htmlfor="typeshift" class="col-12 mb-2 md:col-2 md:mb-0">Type</label>
+        <span class="p-label">
+          <p-dropdown inputid="dropdown" optionlabel="name" class="p-element p-inputwrapper ng-pristine ng-valid ng-touched"
+                      [options]="dropdownOptions"
+                      [(ngModel)]="selectedOption"
+                      [disabled]="formMode === 'details'">
+            <ng-template let-item pTemplate="selectedItem">
+                <span>{{ selectedOption ? selectedOption.name : ' ' }}</span>
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+              <span>{{ item.name }}</span>
+            </ng-template>
+            <div id="pn_id_1089" class="p-dropdown p-component p-inputwrapper">
+              <span role="combobox" pautofocus="" class="p-element p-dropdown-label p-inputtext p-dropdown-label-empty ng-star-inserted" aria-disabled="false" id="dropdown" aria-haspopup="listbox" aria-controls="pn_id_1089_list" tabindex="0" aria-expanded="false">&nbsp;
+              </span>
+              <div role="button" aria-label="dropdown trigger" aria-haspopup="listbox" class="p-dropdown-trigger" data-pc-section="trigger" aria-expanded="false">
+                <i class="pi pi-chevron-down"></i>
+              </div>
+              <p-overlay class="p-element ng-tns-c3177733119-184 ng-star-inserted"></p-overlay>
+            </div>
+          </p-dropdown>
+        </span>
+      </div>
+      <div class="field grid">
+        <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Color</label>
+        <span class="p-input-icon-right">
+          <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"
+                         [(ngModel)]="formMode === 'create' ? newShiftType.color : currentShiftType.color"
+                         [disabled]="formMode === 'details'">
+            <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
+              <input type="text" readonly="readonly" class="p-colorpicker-preview p-inputtext ng-tns-c3668516956-541 ng-star-inserted" data-pc-section="input" style="background-color: rgb(60, 90, 120);">
+            </div>
+          </p-colorPicker>
+        </span>
+      </div>
+      <div class="field grid">
+        <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Abbreviation</label>
+        <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
+          <input pinputtext="" id="abbreviationshift" type="text" class="p-inputtext p-component p-element"
+                 [(ngModel)]="newShiftType.abbreviation"
+                 [disabled]="formMode === 'details'">
+        </div>
+      </div>
+      <div class="button-container">
+        <button *ngIf="formMode !== 'details'"
+                (click)="createOrUpdateShiftType()"
+                style="width: 100px;"
+                pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
+          <span class="p-button-label">{{ formAction }}</span>
+          <span class="p-ink" aria-hidden="true" role="presentation"></span>
+        </button>
+      </div>
 
+      <div class="buttonset" *ngIf="formMode === 'details'">
+        <button (click)="editShiftType()" pbutton="" pripple="" label="Edit" icon="pi pi-pencil" class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px; margin-left: 10px; margin-right: 10px;">
+          <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
+          <span class="p-button-label">Edit</span>
+          <span class="p-ink" aria-hidden="true" role="presentation"></span>
+        </button>
+
+        <button (click)="deleteShiftType(currentShiftType.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
+          <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
+          <span class="p-button-label">Delete</span>
+          <span class="p-ink" aria-hidden="true" role="presentation"></span>
+        </button>
+      </div>
+    </div>
+<!--
     <div *ngIf="formMode !== 'create'" class="card p-fluid">
       <div class="field grid">
         <label htmlfor="name2shift" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
-        <div class="col-12 md:col-10" style="padding: 0;">
+        <div class="col-12 md:col-10" style="padding-left: 20px">
           <input pinputtext="" id="name2shift" type="text" class="p-inputtext p-component p-element"
-                 [(ngModel)]="newShiftType.name"
+                 [(ngModel)]="currentShiftType.name"
                  [disabled]="formMode === 'details'">
         </div>
       </div>
@@ -66,7 +156,7 @@
         <span class="p-input-icon-right" style="max-width: 200px;">
           <p-calendar
             inputId="calendar-timeonly"
-            [(ngModel)]="newShiftType.startTime"
+            [(ngModel)]="currentShiftType.startTime"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -77,19 +167,53 @@
         <span class="p-input-icon-right" style="max-width: 200px;">
           <p-calendar
             inputId="calendar-timeonly"
-            [(ngModel)]="newShiftType.endTime"
+            [(ngModel)]="currentShiftType.endTime"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
         </span>
       </div>
-
-      <div class="col-12 md:col-6"><h5>Choose Color</h5>
-        <p-colorpicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted">
-          <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
-            <input type="text" readonly="readonly" class="p-colorpicker-preview p-inputtext ng-tns-c3668516956-541 ng-star-inserted" data-pc-section="input" style="background-color: rgb(66, 66, 66);">
-          </div>
-        </p-colorpicker>
+      <div class="field grid">
+        <label htmlfor="typeshift" class="col-12 mb-2 md:col-2 md:mb-0">Type</label>
+        <span class="p-label">
+          <p-dropdown inputid="dropdown" optionlabel="name" class="p-element p-inputwrapper ng-pristine ng-valid ng-touched"
+                      [options]="dropdownOptions"
+                      [(ngModel)]="selectedOption"
+                      [disabled]="formMode === 'details'">
+            <ng-template let-item pTemplate="selectedItem">
+                <span>{{ selectedOption ? selectedOption.name : ' ' }}</span>
+            </ng-template>
+            <ng-template let-item pTemplate="item">
+              <span>{{ item.name }}</span>
+            </ng-template>
+            <div id="pn_id_1089_2" class="p-dropdown p-component p-inputwrapper">
+              <span role="combobox" pautofocus="" class="p-element p-dropdown-label p-inputtext p-dropdown-label-empty ng-star-inserted" aria-disabled="false" id="dropdown_2" aria-haspopup="listbox" aria-controls="pn_id_1089_list" tabindex="0" aria-expanded="false">&nbsp;
+              </span>
+              <div role="button" aria-label="dropdown trigger" aria-haspopup="listbox" class="p-dropdown-trigger" data-pc-section="trigger" aria-expanded="false">
+                <i class="pi pi-chevron-down"></i>
+              </div>
+              <p-overlay class="p-element ng-tns-c3177733119-184 ng-star-inserted"></p-overlay>
+            </div>
+          </p-dropdown>
+        </span>
+      </div>
+      <div class="field grid">
+        <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Color</label>
+        <span class="p-input-icon-right" style="max-width: 200px;">
+          <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"
+                         [(ngModel)]="currentShiftType.color"
+                         [disabled]="formMode === 'details'">
+            <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
+              <input type="text" readonly="readonly" class="p-colorpicker-preview p-inputtext ng-tns-c3668516956-541 ng-star-inserted" data-pc-section="input" style="background-color: rgb(60, 90, 120);">
+            </div>
+          </p-colorPicker>
+        </span>
+      </div>
+      <div class="field grid">
+        <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Abbreviation</label>
+        <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
+          <input pinputtext="" id="abbreviation2shift" type="text" class="p-inputtext p-component p-element" [(ngModel)]="currentShiftType.abbreviation">
+        </div>
       </div>
 
       <button *ngIf="formMode !== 'details'" (click)="createOrUpdateShiftType()" pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
@@ -97,17 +221,20 @@
         <span class="p-ink" aria-hidden="true" role="presentation"></span>
       </button>
 
-      <span *ngIf="formMode === 'details'" class="p-buttonset">
-        <button (click)="editShiftType()" pbutton="" pripple="" label="Save" icon="pi pi-check" class="p-element p-ripple p-button p-component">
+      <div class="buttonset" *ngIf="formMode === 'details'">
+        <button (click)="editShiftType()" pbutton="" pripple="" label="Edit" icon="pi pi-pencil" class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px; margin-left: 10px; margin-right: 10px;">
           <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
-          <span class="p-button-label">Edit</span><span class="p-ink" aria-hidden="true" role="presentation"></span>
+          <span class="p-button-label">Edit</span>
+          <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
-        <button (click)="deleteShiftType(currentShiftType.id)" pbutton="" pripple="" label="Delete" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component">
+
+        <button (click)="deleteShiftType(currentShiftType.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
           <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
           <span class="p-button-label">Delete</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
-      </span>
+      </div>
     </div>
+    -->
   </div>
 </div>

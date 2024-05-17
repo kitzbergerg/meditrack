@@ -8,3 +8,28 @@ li {
   align-items: center;
   justify-content: center;
 }
+
+.p-input-icon-right,
+.p-label {
+  padding-left: 20px;
+  max-width: 200px;
+}
+
+.field label {
+  width: 120px;
+}
+
+.buttonset {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.buttonset button {
+  width: 100px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
