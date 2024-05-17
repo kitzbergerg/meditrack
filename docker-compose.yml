@@ -20,6 +20,7 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
+    image: meditrack-backend
     ports:
       - "8081:8081"
     environment:
@@ -44,6 +45,7 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
+    image: meditrack-frontend
     ports:
       - "4200:80"
 
@@ -72,10 +74,6 @@ services:
       KEYCLOAK_AVAILABILITYCHECK_ENABLED: true
       KEYCLOAK_AVAILABILITYCHECK_TIMEOUT: "120s"
       IMPORT_FILES_LOCATIONS: "/config/meditrack.json"
-
-  maven:
-    image: maven:3-openjdk-17
-    command: mvn test
 
 volumes:
   kc_config:
