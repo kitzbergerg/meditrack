@@ -1,5 +1,7 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.ValidationException;
+import ase.meditrack.model.ShiftTypeValidator;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.repository.ShiftTypeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +16,11 @@ import java.util.UUID;
 @Slf4j
 public class ShiftTypeService {
     private final ShiftTypeRepository repository;
+    private final ShiftTypeValidator validator;
 
-    public ShiftTypeService(ShiftTypeRepository repository) {
+    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator) {
         this.repository = repository;
+        this.validator = validator;
     }
 
     /**
@@ -44,7 +48,8 @@ public class ShiftTypeService {
      * @param shiftType, the shift type to create
      * @return the created shift type
      */
-    public ShiftType create(ShiftType shiftType) {
+    public ShiftType create(ShiftType shiftType) throws ValidationException {
+        validator.shiftTypeCreateValidation(shiftType);
         return repository.save(shiftType);
     }
 

@@ -18,6 +18,11 @@ public abstract class ShiftTypeMapper {
                 shiftType.getName(),
                 shiftType.getStartTime(),
                 shiftType.getEndTime(),
+                shiftType.getBreakStartTime(),
+                shiftType.getBreakEndTime(),
+                shiftType.getType(),
+                shiftType.getColor(),
+                shiftType.getAbbreviation(),
                 shiftType.getTeam() != null ? shiftType.getTeam().getId() : null,
                 shiftType.getShifts() != null ? shiftType.getShifts().stream().map(Shift::getId).toList() : null,
                 shiftType.getWorkUsers() != null ? shiftType.getWorkUsers().stream().map(User::getId).toList() : null,
@@ -44,6 +49,26 @@ public abstract class ShiftTypeMapper {
 
         if (dto.endTime() != null) {
             shiftType.setEndTime(dto.endTime());
+        }
+
+        if (dto.breakStartTime() != null) {
+            shiftType.setBreakStartTime(dto.breakStartTime());
+        }
+
+        if (dto.breakEndTime() != null) {
+            shiftType.setBreakEndTime(dto.breakEndTime());
+        }
+
+        if (dto.type() != null) {
+            shiftType.setType(dto.type());
+        }
+
+        if (dto.color() != null) {
+            shiftType.setColor(dto.color());
+        }
+
+        if (dto.abbreviation() != null) {
+            shiftType.setAbbreviation(dto.abbreviation());
         }
 
         if (dto.team() != null) {
