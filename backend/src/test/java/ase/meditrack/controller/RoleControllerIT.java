@@ -37,12 +37,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RoleControllerIT {
 
     @Container
-    static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
+    private final static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
     @Container
-    static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
+    private final static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
 
     @DynamicPropertySource
-    static void startContainers(DynamicPropertyRegistry registry) {
+    private static void startContainers(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
@@ -53,9 +53,9 @@ class RoleControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    RealmResource meditrackRealm;
+    private RealmResource meditrackRealm;
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +73,7 @@ class RoleControllerIT {
     void test_getRoles_succeeds() throws Exception {
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/role")
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("admin", "admin"))
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
                 )
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -94,7 +94,7 @@ class RoleControllerIT {
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/role")
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("admin", "admin"))
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )

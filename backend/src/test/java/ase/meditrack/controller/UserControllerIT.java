@@ -37,12 +37,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerIT {
 
     @Container
-    static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
+    private final static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
     @Container
-    static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
+    private final static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
 
     @DynamicPropertySource
-    static void startContainers(DynamicPropertyRegistry registry) {
+    private static void startContainers(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
         registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
         registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
@@ -53,9 +53,9 @@ class UserControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    RealmResource meditrackRealm;
+    private RealmResource meditrackRealm;
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +73,7 @@ class UserControllerIT {
     void test_getUsers_succeeds() throws Exception {
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/user")
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("admin", "admin"))
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
                 )
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -111,7 +111,7 @@ class UserControllerIT {
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/user")
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("admin", "admin"))
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -128,7 +128,7 @@ class UserControllerIT {
         // execute request as user test
         String responseGetTestUser = mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/user/{id}", created.id())
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("test", "testpass"))
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("test", "testpass"))
                 )
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();

@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 public class AuthHelper {
 
-    public static String obtainAccessToken(String username, String password) {
+    public static String getAccessToken(String username, String password) {
         RestTemplate restTemplate = new RestTemplate();
         String authUrl = "http://localhost:8080/realms/meditrack/protocol/openid-connect/token";
 

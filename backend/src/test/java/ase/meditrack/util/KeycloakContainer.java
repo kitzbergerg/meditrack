@@ -7,7 +7,6 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.InternetProtocol;
 import org.testcontainers.containers.Network;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.DockerImageName;
@@ -30,16 +29,7 @@ public class KeycloakContainer<SELF extends KeycloakContainer<SELF>> extends Gen
                 "KEYCLOAK_ADMIN", "admin",
                 "KEYCLOAK_ADMIN_PASSWORD", "admin"
         ));
-        this.withFixedExposedPort(8080, 8080);
-    }
-
-    public SELF withFixedExposedPort(int hostPort, int containerPort) {
-        return this.withFixedExposedPort(hostPort, containerPort, InternetProtocol.TCP);
-    }
-
-    public SELF withFixedExposedPort(int hostPort, int containerPort, InternetProtocol protocol) {
-        super.addFixedExposedPort(hostPort, containerPort, protocol);
-        return this.self();
+        this.addFixedExposedPort(8080, 8080);
     }
 
     @SneakyThrows
