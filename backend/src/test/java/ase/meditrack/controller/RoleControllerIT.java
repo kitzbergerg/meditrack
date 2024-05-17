@@ -1,6 +1,6 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.model.dto.UserDto;
+import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
 import ase.meditrack.util.KeycloakContainer;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class UserControllerIT {
+class RoleControllerIT {
 
     @Container
     static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
@@ -70,72 +70,41 @@ class UserControllerIT {
     }
 
     @Test
-    void test_getUsers_succeeds() throws Exception {
+    void test_getRoles_succeeds() throws Exception {
         String response = mockMvc.perform(
-                        MockMvcRequestBuilders.get("/api/user")
+                        MockMvcRequestBuilders.get("/api/role")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("admin", "admin"))
                 )
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        List<UserDto> users = objectMapper.readValue(response, new TypeReference<>() {
+        List<RoleDto> roles = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals("admin", users.get(0).username());
+        assertNotNull(roles);
+        assertEquals(0, roles.size());
     }
 
     @Test
-    void test_createUser_succeeds() throws Exception {
-        UserDto dto = new UserDto(
+    void test_createRole_succeeds() throws Exception {
+        RoleDto dto = new RoleDto(
                 null,
-                "test",
-                "testpass",
-                "test@test.test",
-                "test",
-                "test",
-                List.of("employee"),
-                null,
-                1f,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
+                "testRole",
                 null
         );
 
         String response = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/user")
+                        MockMvcRequestBuilders.post("/api/role")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("admin", "admin"))
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
-        UserDto created = objectMapper.readValue(response, UserDto.class);
+        RoleDto created = objectMapper.readValue(response, RoleDto.class);
 
         assertNotNull(created);
         assertNotNull(created.id());
-        assertEquals(dto.username(), created.username());
-        assertEquals(2, userService.findAll().size());
-
-
-        // execute request as user test
-        String responseGetTestUser = mockMvc.perform(
-                        MockMvcRequestBuilders.get("/api/user/{id}", created.id())
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.obtainAccessToken("test", "testpass"))
-                )
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        UserDto testUser = objectMapper.readValue(responseGetTestUser, UserDto.class);
-
-        assertNotNull(testUser);
-        assertEquals(created.id(), testUser.id());
-        assertEquals(created.username(), testUser.username());
+        assertEquals(dto.name(), created.name());
+        assertEquals(1, userService.findAll().size());
     }
 }
