@@ -59,17 +59,23 @@ public class ShiftTypeService {
      * @param shiftType, the shift type to update
      * @return the updated shift type
      */
-    public ShiftType update(ShiftType shiftType) {
+    public ShiftType update(ShiftType shiftType) throws ValidationException {
         ShiftType updatedShiftType = new ShiftType();
         updatedShiftType.setId(shiftType.getId());
         updatedShiftType.setName(shiftType.getName());
         updatedShiftType.setStartTime(shiftType.getStartTime());
         updatedShiftType.setEndTime(shiftType.getEndTime());
+        updatedShiftType.setBreakStartTime(shiftType.getBreakStartTime());
+        updatedShiftType.setBreakEndTime(shiftType.getBreakEndTime());
+        updatedShiftType.setType(shiftType.getType());
+        updatedShiftType.setColor(shiftType.getColor());
+        updatedShiftType.setAbbreviation(shiftType.getAbbreviation());
         updatedShiftType.setTeam(shiftType.getTeam());
         updatedShiftType.setShifts(shiftType.getShifts());
         updatedShiftType.setWorkUsers(shiftType.getWorkUsers());
         updatedShiftType.setPreferUsers(shiftType.getPreferUsers());
 
+        validator.shiftTypeUpdateValidation(shiftType);
         repository.save(updatedShiftType);
 
         return updatedShiftType;

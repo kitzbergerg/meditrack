@@ -63,7 +63,12 @@ public class ShiftTypeController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) {
         log.info("Updating shift type {}", dto.name());
-        return mapper.toDto(service.update(mapper.fromDto(dto)));
+        try {
+            return mapper.toDto(service.update(mapper.fromDto(dto)));
+        } catch (ValidationException e) {
+            LOGGER.error("ValidationException: PUT /api/shift-type/{} {}", dto.id(), dto, e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during updating shift type: " + e.getMessage(), e);
+        }
     }
 
     @DeleteMapping("{id}")

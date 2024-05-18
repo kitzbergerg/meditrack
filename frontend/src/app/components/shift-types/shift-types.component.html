@@ -34,7 +34,7 @@
         <span class="p-input-icon-right">
           <p-calendar
             inputId="calendar-timeonly"
-            [(ngModel)]="formMode === 'create' ? newShiftType.startTime : currentShiftType.startTime"
+            [(ngModel)]="startTimeDate"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -45,7 +45,7 @@
         <span class="p-input-icon-right">
           <p-calendar
           inputId="calendar-timeonly"
-          [(ngModel)]="formMode === 'create' ? newShiftType.endTime : currentShiftType.endTime"
+          [(ngModel)]="endTimeDate"
           [timeOnly]="true"
           [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -56,7 +56,7 @@
         <span class="p-input-icon-right">
           <p-calendar
             inputId="calendar-timeonly"
-            [(ngModel)]="formMode === 'create' ? newShiftType.breakStartTime : currentShiftType.breakStartTime"
+            [(ngModel)]="breakStartTimeDate"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -67,7 +67,7 @@
         <span class="p-input-icon-right">
           <p-calendar
             inputId="calendar-timeonly"
-            [(ngModel)]="formMode === 'create' ? newShiftType.breakEndTime : currentShiftType.breakEndTime"
+            [(ngModel)]="breakEndTimeDate"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -113,30 +113,46 @@
         <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Abbreviation</label>
         <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
           <input pinputtext="" id="abbreviationshift" type="text" class="p-inputtext p-component p-element"
-                 [(ngModel)]="newShiftType.abbreviation"
+                 [(ngModel)]="formMode === 'create' ? newShiftType.abbreviation : currentShiftType.abbreviation"
                  [disabled]="formMode === 'details'">
         </div>
       </div>
       <div class="button-container">
-        <button *ngIf="formMode !== 'details'"
+        <button *ngIf="formMode === 'create'"
                 (click)="createOrUpdateShiftType()"
-                style="width: 100px;"
+                style="height: 35px; width: 150px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
           <span class="p-button-label">{{ formAction }}</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
       </div>
 
-      <div class="buttonset" *ngIf="formMode === 'details'">
-        <button (click)="editShiftType()" pbutton="" pripple="" label="Edit" icon="pi pi-pencil" class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px; margin-left: 10px; margin-right: 10px;">
+      <div class="buttonset" *ngIf="formMode !== 'create'">
+        <button *ngIf="formMode === 'details'" (click)="editShiftType()" pbutton="" pripple="" label="Edit" icon="pi pi-pencil" class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px;">
           <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
           <span class="p-button-label">Edit</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
-        <button (click)="deleteShiftType(currentShiftType.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
+        <button *ngIf="formMode === 'details'" (click)="deleteShiftType(currentShiftType.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
           <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
           <span class="p-button-label">Delete</span>
+          <span class="p-ink" aria-hidden="true" role="presentation"></span>
+        </button>
+
+        <button *ngIf="formMode === 'edit'"
+                (click)="createOrUpdateShiftType()"
+                style="height: 35px;"
+                pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
+          <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
+          <span class="p-button-label">{{ formAction }}</span>
+          <span class="p-ink" aria-hidden="true" role="presentation"></span>
+        </button>
+
+        <button *ngIf="formMode === 'edit'" (click)="cancelEditing()" pbutton="" pripple="" label="Cancel" icon="pi pi-times" class="p-element p-ripple p-button-raised p-button-secondary p-button p-component"
+                style="height: 35px;">
+          <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true"></span>
+          <span class="p-button-label">Cancel</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
       </div>

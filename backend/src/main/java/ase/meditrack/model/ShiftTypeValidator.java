@@ -2,12 +2,14 @@ package ase.meditrack.model;
 
 import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.ShiftTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,13 +29,77 @@ public class ShiftTypeValidator {
         if (shiftType.getId() != null) {
             throw new ValidationException("Id should not be set");
         }
+
         validateStringInput(shiftType.getName(), "name");
         validateStringInput(shiftType.getType(), "type");
         validateStringInput(shiftType.getColor(), "color");
         validateStringInput(shiftType.getAbbreviation(), "abbreviation");
 
+        validateTimes(shiftType);
+    }
+
+    public void shiftTypeUpdateValidation(ShiftType shiftTypeToUpdate) throws ValidationException {
+        LOGGER.trace("Makes update validation for {}", shiftTypeToUpdate);
+
+        UUID id = shiftTypeToUpdate.getId();
+
+        if (id == null) {
+            throw new ValidationException("Id should be set");
+        }
+        if (!repository.existsById(id)){
+            throw new ValidationException("Id is not correct");
+        }
+
+        ShiftType mergedShiftType = repository.getById(id);
+
+        if (shiftTypeToUpdate.getName() != null) {
+            if (!(mergedShiftType.getName().equals(shiftTypeToUpdate.getName()))) {
+                validateStringInput(shiftTypeToUpdate.getName(), "name");
+            }
+            mergedShiftType.setName(shiftTypeToUpdate.getName());
+        }
+        if (shiftTypeToUpdate.getStartTime() != null) {
+            mergedShiftType.setStartTime(shiftTypeToUpdate.getStartTime());
+        }
+        if (shiftTypeToUpdate.getEndTime() != null) {
+            mergedShiftType.setEndTime(shiftTypeToUpdate.getEndTime());
+        }
+        if (shiftTypeToUpdate.getBreakStartTime() != null) {
+            mergedShiftType.setBreakStartTime(shiftTypeToUpdate.getBreakStartTime());
+        }
+        if (shiftTypeToUpdate.getBreakEndTime() != null) {
+            mergedShiftType.setBreakEndTime(shiftTypeToUpdate.getBreakEndTime());
+        }
+        if (shiftTypeToUpdate.getType() != null) {
+            if (!(mergedShiftType.getType().equals(shiftTypeToUpdate.getType()))) {
+                validateStringInput(shiftTypeToUpdate.getType(), "type");
+            }
+            mergedShiftType.setType(shiftTypeToUpdate.getType());
+        }
+        if (shiftTypeToUpdate.getColor() != null) {
+            if (!(mergedShiftType.getColor().equals(shiftTypeToUpdate.getColor()))) {
+                validateStringInput(shiftTypeToUpdate.getColor(), "color");
+            }
+            mergedShiftType.setColor(shiftTypeToUpdate.getColor());
+        }
+        if (shiftTypeToUpdate.getAbbreviation() != null) {
+            if (!(mergedShiftType.getAbbreviation().equals(shiftTypeToUpdate.getAbbreviation()))) {
+                validateStringInput(shiftTypeToUpdate.getAbbreviation(), "abbreviation");
+            }
+            mergedShiftType.setAbbreviation(shiftTypeToUpdate.getAbbreviation());
+        }
+
+        validateTimes(mergedShiftType);
+    }
+
+    public void validateTimes(ShiftType shiftType) {
         // TODO: validate duration of shift
-        // TODO: validate color (?)
+        // TODO: validate duration of break
+
+        // TODO: validation for overnight break times?
+        if (shiftType.getBreakStartTime().isAfter(shiftType.getBreakEndTime())) {
+            throw new ValidationException("Break Starting Time has to be before Break Ending Time");
+        }
 
         boolean isOvernightShift = shiftType.getEndTime().isBefore(shiftType.getStartTime());
         if (isOvernightShift) {
@@ -53,40 +119,24 @@ public class ShiftTypeValidator {
         }
     }
 
-    public void shiftTypeUpdateValidation(ShiftType shiftTypeToUpdate) throws ValidationException {
-        LOGGER.trace("Makes update validation for {}", shiftTypeToUpdate);
-
-        String name = shiftTypeToUpdate.getName();
-        UUID id = shiftTypeToUpdate.getId();
-
-        if (!repository.existsById(id)){
-            throw new ValidationException("Id is not correct");
-        }
-        if (name == null || name.isBlank()) {
-            throw new ValidationException("Role has to have a name");
-        }
-        if (!isUnique(shiftTypeToUpdate.getName(), "name")) {
-            throw new ValidationException("Role with this name already exists");
-        }
-        if (name.length() >= 40) {
-            throw new ValidationException("Name is too long");
-        }
-    }
-
     public boolean isUnique(String input, String attribute) {
         List<ShiftType> allShiftTypes = repository.findAll();
         for (ShiftType shiftType : allShiftTypes) {
-            if (attribute.equals("name")) {
-                if (shiftType.getName().equals(input)) {
-                    return false;
+            switch (attribute) {
+                case "name" -> {
+                    if (shiftType.getName().equals(input)) {
+                        return false;
+                    }
                 }
-            } else if (attribute.equals("abbreviation")) {
-                if (shiftType.getAbbreviation().equals(input)) {
-                    return false;
+                case "abbreviation" -> {
+                    if (shiftType.getAbbreviation().equals(input)) {
+                        return false;
+                    }
                 }
-            } else if (attribute.equals("color")) {
-                if (shiftType.getColor().equals(input)) {
-                    return false;
+                case "color" -> {
+                    if (shiftType.getColor().equals(input)) {
+                        return false;
+                    }
                 }
             }
         }
@@ -101,7 +151,7 @@ public class ShiftTypeValidator {
             throw new ValidationException("Shift Type " + attribute + " is too long");
         }
         if (attribute.equals("abbreviation")) {
-            if (input.length() >= 4) {
+            if (input.length() > 4) {
                 throw new ValidationException("Shift Type " + attribute + " is too long");
             }
             if (input.matches(".*\\d.*")) {
@@ -120,6 +170,8 @@ public class ShiftTypeValidator {
         if (attribute.equals("color") && !isUnique(input, "color")) {
             throw new ValidationException("Shift Type with this color already exists");
         }
+
+        // TODO: validate color (?)
     }
 
 }
