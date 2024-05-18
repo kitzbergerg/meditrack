@@ -3,12 +3,15 @@ package ase.meditrack.service;
 import ase.meditrack.model.RoleValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.xml.bind.ValidationException;
 import java.util.List;
@@ -38,6 +41,16 @@ public class RoleService {
     }
 
     /**
+     * Fetches a role by id from the database.
+     *
+     * @param id, the id of the role
+     * @return the role
+     */
+    public Role findById(UUID id) {
+        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    /**
      * Creates a role in the database.
      *
      * @param role, the role to create
@@ -55,13 +68,14 @@ public class RoleService {
      * @return the updated role
      */
     public Role update(Role roleToUpdate) throws ValidationException {
-        validator.roleUpdateValidation(roleToUpdate);
-
         Role updatedRole = new Role();
         updatedRole.setId(roleToUpdate.getId());
         updatedRole.setName(roleToUpdate.getName());
         updatedRole.setUsers(roleToUpdate.getUsers());
+        updatedRole.setColor(roleToUpdate.getColor());
+        updatedRole.setAbbreviation(roleToUpdate.getAbbreviation());
 
+        validator.roleUpdateValidation(roleToUpdate);
         repository.save(updatedRole);
 
         return updatedRole;

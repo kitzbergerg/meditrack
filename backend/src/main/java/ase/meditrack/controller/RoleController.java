@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.RoleDto;
+import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.service.RoleService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,13 @@ public class RoleController {
     public List<RoleDto> findAll() {
         log.info("Fetching roles");
         return mapper.toDtoList(service.findAll());
+    }
+
+    @GetMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    public RoleDto findById(@PathVariable UUID id) {
+        log.info("Fetching role {}", id);
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping

@@ -10,6 +10,8 @@ import java.util.UUID;
 public record RoleDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotBlank(groups = CreateValidator.class) @NotBlank(groups = UpdateValidator.class) String name,
+        @NotBlank(groups = CreateValidator.class) String color,
+        @NotBlank(groups = CreateValidator.class) String abbreviation,
         List<UUID> users
 ) {
 }

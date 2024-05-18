@@ -27,6 +27,10 @@ public class Role {
 
     private String name;
 
+    private String color;
+
+    private String abbreviation;
+
     @OneToMany(mappedBy = "role")
     private List<User> users;
 

@@ -18,6 +18,8 @@ public abstract class RoleMapper {
         return new RoleDto(
                 role.getId(),
                 role.getName(),
+                role.getColor(),
+                role.getAbbreviation(),
                 role.getUsers() != null ? role.getUsers().stream().map(User::getId).toList() : null
         );
     }
@@ -32,6 +34,14 @@ public abstract class RoleMapper {
             role.setId(dto.id());
         }
         role.setName(dto.name());
+
+        if (dto.color() != null) {
+            role.setColor(dto.color());
+        }
+
+        if (dto.abbreviation() != null) {
+            role.setAbbreviation(dto.abbreviation());
+        }
 
         if (dto.users() != null) {
             role.setUsers(dto.users().stream().map(id -> {

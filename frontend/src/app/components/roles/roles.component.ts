@@ -10,9 +10,14 @@ import {Role, RoleCreate} from "../../interfaces/roles/rolesInterface";
 export class RolesComponent {
 
   roles: Role[] = [];
-  editedRole: Role = {id: 0, name: '', users: []};
-  newRoleName: string = '';
-  showNewRoleInputField: boolean = false;
+  newRole: RoleCreate = { name: '', color: '', abbreviation: ''};
+  currentRole: Role = { id: -1, name: '',  color: '', abbreviation: '' };
+
+  initialLoad: boolean = false;
+
+  formTitle: string = '';
+  formAction: string = '';
+  formMode: 'create' | 'edit' | 'details' = 'details';
 
   constructor(private rolesService: RolesService) { }
 
@@ -20,74 +25,117 @@ export class RolesComponent {
     this.loadRoles();
   }
 
+
   loadRoles(): void {
     this.rolesService.getAllRoles()
       .subscribe(fetchedRoles => {
         this.roles = fetchedRoles;
+        if (this.roles.length === 0) {
+          this.formMode = 'create';
+        }
+        if (this.roles.length > 0 && !this.initialLoad) {
+          this.initialLoad = true;
+          this.selectRole(this.roles[0]);
+        }
       });
   }
 
-  deleteRole(role: Role): void {
-    this.rolesService.deleteRole(role.id)
+  deleteRole(id: number): void {
+    this.rolesService.deleteRole(id)
       .subscribe(response => {
-        console.log('Role deleted successfully:', response);
+        console.log('Role deleted successfully');
         this.loadRoles();
+        this.resetForm();
       }, error => {
         console.error('Error deleting role:', error);
       });
   }
 
+  getRole(id: number) {
+    this.rolesService.getRole(id)
+      .subscribe((response: Role) => {
+        console.log('Role retrieved successfully:', response);
+        this.currentRole = response;
+        this.loadRoles();
+      }, error => {
+        console.error('Error retrieving Role:', error);
+      });
+  }
+
   createRole() {
-    if (this.isRoleNameUnique(this.newRoleName) && this.newRoleName) {
-      const newRole: RoleCreate = {
-        name: this.newRoleName
-      };
-      this.rolesService.createRole(newRole)
-        .subscribe(response => {
-          console.log('Role created successfully:', response);
-          this.loadRoles();
-          this.newRoleName = '';
-        }, error => {
-          console.error('Error creating role:', error);
-        });
-      this.showNewRoleInputField = false;
+    this.rolesService.createRole(this.newRole)
+      .subscribe(response => {
+        console.log('Role created successfully:', response);
+        this.loadRoles();
+        this.resetForm();
+      }, error => {
+        console.error('Error creating role:', error);
+      });
+  }
+
+  updateRole() {
+    const roleToUpdate: Role = {
+      id: this.currentRole.id,
+      name: this.currentRole.name,
+      color: this.currentRole.color,
+      abbreviation: this.currentRole.abbreviation
+    };
+
+    this.rolesService.updateRole(roleToUpdate)
+      .subscribe(response => {
+        console.log('Role updated successfully:', response);
+        this.resetForm();
+        // update shown shift type and list (case: name was changed)
+        this.selectRole(this.currentRole);
+      }, error => {
+        console.error('Error updating role:', error);
+      });
+  }
+
+  showCreateForm() {
+    this.resetForm();
+    this.formMode = 'create';
+  }
+
+  selectRole(role: Role) {
+    this.getRole(role.id);
+    this.formMode = 'details';
+  }
+
+  editRole() {
+    this.formMode = 'edit';
+  }
+
+  getFormTitle(): string {
+    if (this.formMode === 'create') {
+      this.formTitle = 'Create Role';
+      this.formAction = 'Create';
+    } else if (this.formMode === 'edit') {
+      this.formTitle = 'Edit Role';
+      this.formAction = 'Save';
     } else {
-      console.error('Role name must be unique.');
+      this.formTitle = 'Role Details';
+      this.formAction = 'Edit';
     }
+    return this.formTitle;
   }
 
-  startEditing(role: Role) {
-    this.editedRole = role;
-  }
-
-  updateRole(role: Role) {
-    if (this.isRoleNameUnique(role.name)) {
-      const roleToUpdate: Role = {
-        id: role.id,
-        name: role.name,
-        users: role.users
-      };
-
-      this.rolesService.updateRole(roleToUpdate)
-        .subscribe(response => {
-          this.editedRole = {id: 0, name: '', users: []};
-          console.log('Role updated successfully:', response);
-          this.loadRoles();
-        }, error => {
-          this.editedRole = {id: 0, name: '', users: []};
-          console.error('Error updating role:', error);
-        });
-    } else {
-      this.editedRole = {id: 0, name: '', users: []};
-      console.error('Role name must be unique.');
+  createOrUpdateRole() {
+    if (this.formMode === 'create') {
+      this.createRole();
+    } else if (this.formMode === 'edit') {
+      this.updateRole();
+      this.getFormTitle();
+      this.loadRoles();
     }
-  }
-
-  isRoleNameUnique(name: string): boolean {
-    return !this.roles.some(role => role.name === name);
   }
 
   cancelEditing() {
-    this.editedRole = {id: 0, name: '', users: []};
+    this.resetForm();
+    this.selectRole(this.currentRole);
+  }
+
+  resetForm() {
+    this.newRole = { name: '', color: '', abbreviation: '' };
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {Observable} from "rxjs";
+import {map, Observable} from "rxjs";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Role, RoleCreate} from "../interfaces/roles/rolesInterface";
 
@@ -14,6 +14,13 @@ export class RolesService {
 
   getAllRoles(): Observable<any> {
     return this.http.get(this.apiUrl);
+  }
+
+  getRole(id: number): Observable<Role> {
+    return this.http.get<Role>(this.apiUrl+`/${id}`).pipe(
+      map((role) => {
+        return role;
+      }));
   }
 
   createRole(role: RoleCreate): Observable<Role> {
