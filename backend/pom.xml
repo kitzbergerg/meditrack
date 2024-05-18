@@ -103,6 +103,9 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <profiles>
+                        <profile>generate-data</profile>
+                    </profiles>
                 </configuration>
             </plugin>
             <plugin>
@@ -186,5 +189,14 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>generate-data</id>
+            <properties>
+                <spring.profiles.active>generate-data</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
