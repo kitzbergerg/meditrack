@@ -13,6 +13,9 @@ The backend's API documentation can be accessed at http://localhost:8081/swagger
 Depending on which services you want to run you can leave out profiles. For example to run the backend locally and the
 rest in docker do: `docker compose --profile keycloak --profile frontend up -d`
 
+To insert sample data into the database, you can use the docker profile `backend-dev` or start the application with 
+`mvn spring-boot:run -Pgenerate-data`.
+
 ## Development Environment
 
 Checkstyle (Sun) is implemented and runs with every build. Initially only as information during the setup phase,
