@@ -5,27 +5,32 @@
 
       <ul class="currentRulesList">
         <li *ngIf="rules?.mandatoryOffDays">
-          <div class="ruleName">
+          <div class="ruleName display-table">
             <ng-container *ngIf="!editMandatoryOffDays; else editMandatoryOffDaysTemplate">
-              <span>Mandatory Off Days</span>
-              <button pButton pRipple (click)="editMandatoryOffDays = true">Edit</button>
+              <span class="display-table-cell va-middle">Mandatory Off Days</span>
+              <button pButton pRipple (click)="editMandatoryOffDays = true" class="ml-0_5">Edit</button>
             </ng-container>
             <ng-template #editMandatoryOffDaysTemplate>
-              Days in a Month: <p-inputNumber
+              Days in a Month:
+              <p-inputNumber
               [(ngModel)]="rules!.mandatoryOffDays!.numberOfDaysInMonth"
               inputId="minmax"
               mode="decimal"
-              [min]="0"
-              [max]="31" />
-
-              <button pButton pRipple (click)="updateRules(); editMandatoryOffDays = false">Save</button>
-              <button pButton pRipple (click)="editMandatoryOffDays = false">Cancel</button>
-              <button pButton pRipple (click)="rules!.mandatoryOffDays = null; updateRules()">Delete</button>
+              [min]="0" [max]="31" class="mr-0_5 ml-0_5" />
+              <button pButton pRipple (click)="updateRules(); editMandatoryOffDays = false" class="mr-0_5 ml-0_5">
+                Save
+              </button>
+              <button pButton pRipple (click)="editMandatoryOffDays = false" class="mr-0_5 ml-0_5">
+                Cancel
+              </button>
+              <button pButton pRipple (click)="rules!.mandatoryOffDays = null; updateRules()" class="mr-0_5 ml-0_5">
+                Delete
+              </button>
             </ng-template>
           </div>
         </li>
         <li *ngIf="rules?.minRestPeriod">
-          <button (click)="editRule('minRestPeriod')">Edit</button>
+          <button pButton pRipple (click)="editRule('minRestPeriod')">Edit</button>
         </li>
         <li *ngIf="rules?.maximumShiftLengths">
           <button (click)="editRule('maximumShiftLengths')">Edit</button>
@@ -39,12 +44,12 @@
       </div>
       <ul class="createRuleList">
         <button pButton name="createButton"
-                (click)="showAvailbleRules = false;
-                createMandatoryOffDaysRule()"
+                (click)="createMandatoryOffDaysRule()"
                 *ngIf="!rules?.mandatoryOffDays && showAvailbleRules">
           mandatoryOffDays
         </button>
-        <button pButton name="createButton" (click)="showAvailbleRules = false"
+        <button pButton name="createButton"
+                (click)="createMinRestRule()"
                 *ngIf="!rules?.minRestPeriod && showAvailbleRules">
           minRestPeriod
         </button>

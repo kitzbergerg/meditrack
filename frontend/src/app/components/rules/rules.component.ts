@@ -48,7 +48,14 @@ export class RulesComponent {
   }
 
   createMandatoryOffDaysRule() {
+    this.showAvailbleRules = false;
     this.rules!.mandatoryOffDays =  {numberOfDaysInMonth: 1};
     this.editMandatoryOffDays = true;
+  }
+
+  createMinRestRule() {
+    this.showAvailbleRules = false;
+    this.rules!.minRestPeriod =  {duration: 1};
+    this.editMinRestPeriod = true;
   }
 }

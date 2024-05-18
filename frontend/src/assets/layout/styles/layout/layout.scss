@@ -10,3 +10,30 @@
 @import "./_responsive";
 @import "./_utils";
 @import "./_typography";
+
+.display-table-cell {
+  display: table-cell;
+}
+
+.display-table {
+  display: table;
+}
+
+.va-middle {
+  vertical-align: middle;
+}
+
+.mr-0_5 {
+  margin-right: 0.5em;
+}
+.ml-0_5 {
+  margin-left: 0.5em;
+}
+
+.mt-0_5 {
+  margin-top: 0.5em;
+}
+
+.mb-0_5 {
+  margin-bottom: 0.5em;
+}
