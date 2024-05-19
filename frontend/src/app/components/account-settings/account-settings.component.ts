@@ -1,5 +1,4 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
 import {HttpClient} from "@angular/common/http";
 import {UserService} from "../../services/user.service";
@@ -12,11 +11,6 @@ import {UserService} from "../../services/user.service";
 })
 export class AccountSettingsComponent {
 
-  workgroupName = "Workgroup Name"
-
-  isEmployer = false;
-  isEmployee = false;
-  routerRedirect = ''
   data: any;
   userId = '';
 
@@ -25,20 +19,9 @@ export class AccountSettingsComponent {
     this.getUser()
   }
 
-  constructor(private authorizationService: AuthorizationService, private http: HttpClient, private userService: UserService, private route: ActivatedRoute, private router: Router) {
-    this.workgroupName = "workgroupName todo";
-
-    this.isEmployer = true;
-    this.isEmployee = true;
-
-    this.route.queryParams.subscribe(params => {
-      this.routerRedirect = params['from'];
-    });
+  constructor(private authorizationService: AuthorizationService, private http: HttpClient, private userService: UserService) {
   }
 
-  routeBasedOnRole() {
-    return '..' + this.routerRedirect
-  }
 
   logout() {
     this.authorizationService.logout();
