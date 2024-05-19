@@ -1,6 +1,7 @@
 package ase.meditrack.controller;
 
 import ase.meditrack.model.dto.RoleDto;
+import ase.meditrack.service.RoleService;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
 import ase.meditrack.util.KeycloakContainer;
@@ -56,6 +57,8 @@ class RoleControllerIT {
     private RealmResource meditrackRealm;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleService roleService;
 
     @BeforeEach
     void setUp() {
@@ -105,6 +108,6 @@ class RoleControllerIT {
         assertNotNull(created);
         assertNotNull(created.id());
         assertEquals(dto.name(), created.name());
-        assertEquals(1, userService.findAll().size());
+        assertEquals(1, roleService.findAll().size());
     }
 }
