@@ -1,7 +1,12 @@
+import {Role} from "../roles/rolesInterface";
+
 export interface Rules {
   minRestPeriod: MinRestPeriod | null,
   maxShiftLengths: MaxShiftLength | null,
   mandatoryOffDays: MandatoryOffDays | null,
+  dayTimeRequiredRoles: [Role, number][] | null,
+  nightTimeRequiredRoles: [Role, number][] | null,
+
 }
 
 export interface MinRestPeriod {

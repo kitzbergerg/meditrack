@@ -8,6 +8,8 @@ import {RippleModule} from "primeng/ripple";
 import {MandatoryOffDaysRuleComponent} from "./mandatory-offdays-rule/mandatory-off-days-rule.component";
 import {MinRestPeriodRuleComponent} from "./min-rest-period-rule/min-rest-period-rule.component";
 import {MaxShiftLengthsComponent} from "./max-shift-lengths/max-shift-lengths.component";
+import {DayTimeRequiredRolesComponent} from "./day-time-required-roles/day-time-required-roles.component";
+import {NightTimeRequiredRolesComponent} from "./night-time-required-roles/night-time-required-roles.component";
 
 @Component({
   selector: 'app-rules',
@@ -20,7 +22,9 @@ import {MaxShiftLengthsComponent} from "./max-shift-lengths/max-shift-lengths.co
     RippleModule,
     MandatoryOffDaysRuleComponent,
     MinRestPeriodRuleComponent,
-    MaxShiftLengthsComponent
+    MaxShiftLengthsComponent,
+    DayTimeRequiredRolesComponent,
+    NightTimeRequiredRolesComponent
   ],
   templateUrl: './rules.component.html',
   styleUrl: './rules.component.scss'
@@ -32,6 +36,8 @@ export class RulesComponent {
   showMandatoryOffDaysRule = false;
   showMinRestPeriod = false;
   showMaxShiftLengths= false;
+  showDayTimeRequiredRoles = false;
+  showNightTimeRequiredRoles = false;
 
   constructor(rulesService: RulesService) {
     rulesService.getRules().subscribe((x: Rules) => this.rules = x)

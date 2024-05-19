@@ -1,0 +1,36 @@
+<div class="ruleName display-table">
+  <ng-container *ngIf="!editMode">
+    <span class="display-table-cell va-middle">
+<!--      {{roleNumber[0]?.name}}-->
+
+    </span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5">Edit</button>
+  </ng-container>
+  <ng-container *ngIf="editMode">
+    Day time required roles:
+    <div *ngFor="let roleNumber of dayTimeRequiredRoles">
+      roleName:
+      <p-dropdown
+        [options]="availableRoles"
+        [(ngModel)]="roleNumber[0]"
+        optionLabel="name"
+        placeholder="Select a Role"/>
+      number of people:
+        <p-inputNumber
+          [(ngModel)]="roleNumber[1]"
+          inputId="minmax"
+          mode="decimal"
+          [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
+    </div>
+    <button pButton pRipple (click)="addRole()" class="mr-0_5 ml-0_5">Add Role</button>
+    <button pButton pRipple (click)="update()" class="mr-0_5 ml-0_5">
+      Save
+    </button>
+    <button pButton pRipple (click)="editMode = false" class="mr-0_5 ml-0_5">
+      Cancel
+    </button>
+    <button pButton pRipple (click)="delete()" class="mr-0_5 ml-0_5">
+      Delete
+    </button>
+  </ng-container>
+</div>

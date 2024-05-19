@@ -22,6 +22,18 @@
             (deleteMaxShiftLength)="deleteMaxShiftLengthRule()">
           </app-max-shift-lengths>
         </li>
+        <li *ngIf="showDayTimeRequiredRoles">
+          <app-day-time-required-roles
+            [dayTimeRequiredRoles]="rules!.dayTimeRequiredRoles"
+            (deleteDayTimeRequiredRoles)="deleteMaxShiftLengthRule()">
+          </app-day-time-required-roles>
+        </li>
+        <li *ngIf="showNightTimeRequiredRoles">
+          <app-night-time-required-roles
+            [nightTimeRequiredRoles]="rules!.nightTimeRequiredRoles"
+            (deleteNightTimeRequiredRoles)="deleteMaxShiftLengthRule()">
+          </app-night-time-required-roles>
+        </li>
       </ul>
 
       <div class="plusButtonContainer">
@@ -30,20 +42,30 @@
         </button>
       </div>
       <ul class="createRuleList">
-        <button pButton name="createButton"
+        <button pButton
                 (click)="showMandatoryOffDaysRule = true; showAvailableRules = false"
                 *ngIf="!showMandatoryOffDaysRule && showAvailableRules">
-          mandatoryOffDays
+          mandatory off days
         </button>
-        <button pButton name="createButton"
+        <button pButton
                 (click)="showMinRestPeriod = true; showAvailableRules = false"
                 *ngIf="!showMinRestPeriod && showAvailableRules">
-          minRestPeriod
+          min rest period
         </button>
-        <button pButton name="createButton"
+        <button pButton
                 (click)="showMaxShiftLengths = true; showAvailableRules = false"
                 *ngIf="!showMaxShiftLengths && showAvailableRules ">
-          maximumShiftLengths
+          maximum shift lengths
+        </button>
+        <button pButton
+                (click)="showDayTimeRequiredRoles = true; showAvailableRules = false"
+                *ngIf="!showDayTimeRequiredRoles && showAvailableRules ">
+          day time required roles
+        </button>
+        <button pButton
+                (click)="showNightTimeRequiredRoles = true; showAvailableRules = false"
+                *ngIf="!showNightTimeRequiredRoles && showAvailableRules ">
+          night time required roles
         </button>
       </ul>
 
