@@ -1,6 +1,6 @@
 export interface Rules {
   minRestPeriod: MinRestPeriod | null,
-  maximumShiftLengths: MaximumShiftLength | null,
+  maxShiftLengths: MaxShiftLength | null,
   mandatoryOffDays: MandatoryOffDays | null,
 }
 
@@ -8,7 +8,7 @@ export interface MinRestPeriod {
   duration: number;
 }
 
-export interface MaximumShiftLength {
+export interface MaxShiftLength {
   duration: number;
 }
 

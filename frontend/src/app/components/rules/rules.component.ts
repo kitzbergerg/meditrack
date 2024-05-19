@@ -1,10 +1,13 @@
 import {Component} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
 import {PaginatorModule} from "primeng/paginator";
-import {MandatoryOffDays, Rules} from "../../interfaces/rules/rulesInterface";
+import {Rules} from "../../interfaces/rules/rulesInterface";
 import {RulesService} from "../../services/rules.service";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
+import {MandatoryOffDaysRuleComponent} from "./mandatory-offdays-rule/mandatory-off-days-rule.component";
+import {MinRestPeriodRuleComponent} from "./min-rest-period-rule/min-rest-period-rule.component";
+import {MaxShiftLengthsComponent} from "./max-shift-lengths/max-shift-lengths.component";
 
 @Component({
   selector: 'app-rules',
@@ -14,48 +17,44 @@ import {RippleModule} from "primeng/ripple";
     NgIf,
     PaginatorModule,
     ButtonModule,
-    RippleModule
+    RippleModule,
+    MandatoryOffDaysRuleComponent,
+    MinRestPeriodRuleComponent,
+    MaxShiftLengthsComponent
   ],
   templateUrl: './rules.component.html',
   styleUrl: './rules.component.scss'
 })
 export class RulesComponent {
   rules: Rules | null = null;
-  editMode = false;
-  editedRule = ''
-  editMinRestPeriod = false;
-  editMaximumShiftLength = false;
-  editMandatoryOffDays = false;
-  showAvailbleRules = false;
+
+  showAvailableRules = false;
+  showMandatoryOffDaysRule = false;
+  showMinRestPeriod = false;
+  showMaxShiftLengths= false;
 
   constructor(rulesService: RulesService) {
     rulesService.getRules().subscribe((x: Rules) => this.rules = x)
   }
 
-  editRule(rule: string) {
-    this.editedRule = rule;
-    this.editMode = true;
-  }
-
   anyRulesNotSet() {
     return this.rules?.minRestPeriod == null
-      || this.rules?.maximumShiftLengths == null
+      || this.rules?.maxShiftLengths == null
       || this.rules?.mandatoryOffDays == null;
   }
-
-  updateRules() {
-    console.log("updateRules");
+  deleteMandatoryOffDaysRule() {
+    this.showMandatoryOffDaysRule = false;
+    this.rules!.mandatoryOffDays = null;
+    //update()
   }
 
-  createMandatoryOffDaysRule() {
-    this.showAvailbleRules = false;
-    this.rules!.mandatoryOffDays =  {numberOfDaysInMonth: 1};
-    this.editMandatoryOffDays = true;
+  deleteMinRestPeriodRule() {
+    this.showMandatoryOffDaysRule = false;
+    this.rules!.minRestPeriod = null;
   }
 
-  createMinRestRule() {
-    this.showAvailbleRules = false;
-    this.rules!.minRestPeriod =  {duration: 1};
-    this.editMinRestPeriod = true;
+  deleteMaxShiftLengthRule() {
+    this.showMandatoryOffDaysRule = false;
+    this.rules!.maxShiftLengths = null;
   }
 }

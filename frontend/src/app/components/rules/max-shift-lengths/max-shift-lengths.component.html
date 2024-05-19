@@ -1,0 +1,24 @@
+<div class="ruleName display-table">
+  <ng-container *ngIf="!editMode">
+    <span class="display-table-cell va-middle">Max shift length: {{duration}} mins</span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5">Edit</button>
+  </ng-container>
+  <ng-container *ngIf="editMode">
+    Maximum amount of shift length in minutes between shifts:
+    <p-inputNumber
+      [(ngModel)]="duration"
+      inputId="minmax"
+      mode="decimal"
+      [min]="0" [max]="31" class="mr-0_5 ml-0_5" />
+    <button pButton pRipple  (click)="update()" class="mr-0_5 ml-0_5">
+      Save
+    </button>
+    <button pButton pRipple (click)="editMode = false" class="mr-0_5 ml-0_5">
+      Cancel
+    </button>
+    <button pButton pRipple (click)="delete()" class="mr-0_5 ml-0_5">
+      Delete
+    </button>
+  </ng-container>
+</div>
+

@@ -4,66 +4,49 @@
       <h1>Rules</h1>
 
       <ul class="currentRulesList">
-        <li *ngIf="rules?.mandatoryOffDays">
-          <div class="ruleName display-table">
-            <ng-container *ngIf="!editMandatoryOffDays; else editMandatoryOffDaysTemplate">
-              <span class="display-table-cell va-middle">Mandatory Off Days</span>
-              <button pButton pRipple (click)="editMandatoryOffDays = true" class="ml-0_5">Edit</button>
-            </ng-container>
-            <ng-template #editMandatoryOffDaysTemplate>
-              Days in a Month:
-              <p-inputNumber
-              [(ngModel)]="rules!.mandatoryOffDays!.numberOfDaysInMonth"
-              inputId="minmax"
-              mode="decimal"
-              [min]="0" [max]="31" class="mr-0_5 ml-0_5" />
-              <button pButton pRipple (click)="updateRules(); editMandatoryOffDays = false" class="mr-0_5 ml-0_5">
-                Save
-              </button>
-              <button pButton pRipple (click)="editMandatoryOffDays = false" class="mr-0_5 ml-0_5">
-                Cancel
-              </button>
-              <button pButton pRipple (click)="rules!.mandatoryOffDays = null; updateRules()" class="mr-0_5 ml-0_5">
-                Delete
-              </button>
-            </ng-template>
-          </div>
+        <li *ngIf="showMandatoryOffDaysRule">
+          <app-mandatory-off-days-rule
+            [mandatoryOffDays]="rules!.mandatoryOffDays"
+            (deleteMandatoryOffDaysRule)="deleteMandatoryOffDaysRule()">
+          </app-mandatory-off-days-rule>
         </li>
-        <li *ngIf="rules?.minRestPeriod">
-          <button pButton pRipple (click)="editRule('minRestPeriod')">Edit</button>
+        <li *ngIf="showMinRestPeriod">
+          <app-min-rest-period-rule
+            [minRestPeriod]="rules!.minRestPeriod"
+            (deleteMinRestPeriod)="deleteMinRestPeriodRule()">
+          </app-min-rest-period-rule>
         </li>
-        <li *ngIf="rules?.maximumShiftLengths">
-          <button (click)="editRule('maximumShiftLengths')">Edit</button>
+        <li *ngIf="showMaxShiftLengths">
+          <app-max-shift-lengths
+            [maxShiftLength]="rules!.maxShiftLengths"
+            (deleteMaxShiftLength)="deleteMaxShiftLengthRule()">
+          </app-max-shift-lengths>
         </li>
       </ul>
 
       <div class="plusButtonContainer">
-        <button name="createButton" pButton (click)="showAvailbleRules = !showAvailbleRules" *ngIf="anyRulesNotSet()">
-          {{ showAvailbleRules ? '-' : '+' }}
+        <button name="createButton" pButton (click)="showAvailableRules = !showAvailableRules" *ngIf="anyRulesNotSet()">
+          {{ showAvailableRules ? '-' : '+' }}
         </button>
       </div>
       <ul class="createRuleList">
         <button pButton name="createButton"
-                (click)="createMandatoryOffDaysRule()"
-                *ngIf="!rules?.mandatoryOffDays && showAvailbleRules">
+                (click)="showMandatoryOffDaysRule = true; showAvailableRules = false"
+                *ngIf="!showMandatoryOffDaysRule && showAvailableRules">
           mandatoryOffDays
         </button>
         <button pButton name="createButton"
-                (click)="createMinRestRule()"
-                *ngIf="!rules?.minRestPeriod && showAvailbleRules">
+                (click)="showMinRestPeriod = true; showAvailableRules = false"
+                *ngIf="!showMinRestPeriod && showAvailableRules">
           minRestPeriod
         </button>
-        <button pButton name="createButton" (click)="showAvailbleRules = false"
-                *ngIf="!rules?.maximumShiftLengths && showAvailbleRules ">
+        <button pButton name="createButton"
+                (click)="showMaxShiftLengths = true; showAvailableRules = false"
+                *ngIf="!showMaxShiftLengths && showAvailableRules ">
           maximumShiftLengths
         </button>
       </ul>
 
-      <!--      <div class="inputContainer" *ngIf="showNewRoleInputField">-->
-      <!--        <input name="inputField" type="text" [(ngModel)]="newRoleName" placeholder="Enter role name">-->
-      <!--        <button name="addButton" (click)="createRole()" [disabled]="!newRoleName || !isRoleNameUnique(newRoleName)">Add</button>-->
-      <!--      </div>-->
-      <!--      <div *ngIf="!isRoleNameUnique(newRoleName)" class="warning">Role name must be unique.</div>-->
     </div>
   </div>
 </div>
