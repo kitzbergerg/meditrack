@@ -12,8 +12,7 @@ import java.util.UUID;
 
 public record MonthlyPlanDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
-        @NotNull(groups = CreateValidator.class) @Range(min = MIN_MONTH, max = MAX_MONTH,
-                groups = { CreateValidator.class, UpdateValidator.class }) Integer month,
+        @NotNull(groups = CreateValidator.class) @Range(min = MIN_MONTH, max = MAX_MONTH) Integer month,
         @NotNull(groups = CreateValidator.class) @Min(MIN_YEAR) Integer year,
         @NotNull(groups = CreateValidator.class) Boolean published,
         @NotNull(groups = CreateValidator.class) UUID team,
