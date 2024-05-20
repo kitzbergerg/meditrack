@@ -1,9 +1,9 @@
-<div class="ruleName display-flex space-evenly">
+<div class="ruleName display-flex space-between">
   <ng-container *ngIf="!editMode">
     <span class="align-self-center">
       Day time required roles:
     </span>
-    <span>
+    <span class="align-self-center">
       <div *ngFor="let roleNumber of dayTimeRequiredRoles">
         roleName: {{ roleNumber[0]?.name }}
         required people: {{ roleNumber[1] }}
@@ -13,7 +13,7 @@
   </ng-container>
   <ng-container *ngIf="editMode">
     <span class="align-self-center">Day time required roles:</span>
-    <span>
+    <span class="align-self-center">
       <div *ngFor="let roleNumber of dayTimeRequiredRoles">
         roleName:
         <p-dropdown
