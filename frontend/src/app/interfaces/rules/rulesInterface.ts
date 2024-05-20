@@ -6,7 +6,8 @@ export interface Rules {
   mandatoryOffDays: MandatoryOffDays | null,
   dayTimeRequiredRoles: [Role, number][] | null,
   nightTimeRequiredRoles: [Role, number][] | null,
-
+  allowedFlexTimeTotal: number | null,
+  allowedFlexTimePerMonth: number | null
 }
 
 export interface MinRestPeriod {

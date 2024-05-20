@@ -10,6 +10,8 @@ import {MinRestPeriodRuleComponent} from "./min-rest-period-rule/min-rest-period
 import {MaxShiftLengthsComponent} from "./max-shift-lengths/max-shift-lengths.component";
 import {DayTimeRequiredRolesComponent} from "./day-time-required-roles/day-time-required-roles.component";
 import {NightTimeRequiredRolesComponent} from "./night-time-required-roles/night-time-required-roles.component";
+import {AllowedFlexTimeTotalComponent} from "./allowed-flex-time-total/allowed-flex-time-total.component";
+import {AllowedFlexTimePerMonthComponent} from "./allowed-flex-time-per-month/allowed-flex-time-per-month.component";
 
 @Component({
   selector: 'app-rules',
@@ -24,7 +26,9 @@ import {NightTimeRequiredRolesComponent} from "./night-time-required-roles/night
     MinRestPeriodRuleComponent,
     MaxShiftLengthsComponent,
     DayTimeRequiredRolesComponent,
-    NightTimeRequiredRolesComponent
+    NightTimeRequiredRolesComponent,
+    AllowedFlexTimeTotalComponent,
+    AllowedFlexTimePerMonthComponent
   ],
   templateUrl: './rules.component.html',
   styleUrl: './rules.component.scss'
@@ -38,6 +42,8 @@ export class RulesComponent {
   showMaxShiftLengths= false;
   showDayTimeRequiredRoles = false;
   showNightTimeRequiredRoles = false;
+  showAllowedFlexTimeTotal = false;
+  showAllowedFlexTimePerMonth = false;
 
   constructor(rulesService: RulesService) {
     rulesService.getRules().subscribe((x: Rules) => this.rules = x)
@@ -81,6 +87,18 @@ export class RulesComponent {
   deleteNightTimeRequiredRolesRule() {
     this.showNightTimeRequiredRoles = false;
     this.rules!.nightTimeRequiredRoles = null;
+    this.save()
+  }
+
+  deleteAllowedFlexTimeTotalRule() {
+    this.showAllowedFlexTimeTotal = false;
+    this.rules!.allowedFlexTimeTotal = null;
+    this.save()
+  }
+
+  deleteAllowedFlexTimePerMonthRule() {
+    this.showAllowedFlexTimePerMonth = false;
+    this.rules!.allowedFlexTimePerMonth = null;
     this.save()
   }
 }

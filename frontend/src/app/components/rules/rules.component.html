@@ -34,6 +34,18 @@
             (deleteNightTimeRequiredRoles)="deleteNightTimeRequiredRolesRule()">
           </app-night-time-required-roles>
         </li>
+        <li *ngIf="showAllowedFlexTimeTotal">
+          <app-allowed-flex-time-total
+            [allowedFlexTimeTotal]="rules!.allowedFlexTimeTotal"
+            (deleteAllowedFlexTimeTotal)="deleteAllowedFlexTimeTotalRule()">
+          </app-allowed-flex-time-total>
+        </li>
+        <li *ngIf="showAllowedFlexTimePerMonth">
+          <app-allowed-flex-time-per-month
+            [allowedFlexTimePerMonth]="rules!.allowedFlexTimePerMonth"
+            (deleteAllowedFlexTimePerMonth)="deleteAllowedFlexTimePerMonthRule()">
+          </app-allowed-flex-time-per-month>
+        </li>
       </ul>
 
       <div class="plusButtonContainer">
@@ -65,6 +77,16 @@
         <button pButton
                 (click)="showNightTimeRequiredRoles = true; showAvailableRules = false"
                 *ngIf="!showNightTimeRequiredRoles && showAvailableRules ">
+          night time required roles
+        </button>
+        <button pButton
+                (click)="showAllowedFlexTimeTotal = true; showAvailableRules = false"
+                *ngIf="!showAllowedFlexTimeTotal && showAvailableRules ">
+          night time required roles
+        </button>
+        <button pButton
+                (click)="showAllowedFlexTimePerMonth = true; showAvailableRules = false"
+                *ngIf="!showAllowedFlexTimePerMonth && showAvailableRules ">
           night time required roles
         </button>
       </ul>
