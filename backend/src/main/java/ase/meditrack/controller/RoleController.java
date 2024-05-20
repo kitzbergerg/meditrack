@@ -17,6 +17,7 @@ import javax.xml.bind.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.UUID;
+
 import org.slf4j.Logger;
 
 @RestController
@@ -54,7 +55,6 @@ public class RoleController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
         log.info("Updating role {}", dto.name());
