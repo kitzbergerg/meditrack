@@ -60,7 +60,6 @@ public class RoleController {
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
         log.info("Updating role {}", dto.name());

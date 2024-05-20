@@ -57,6 +57,7 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
         log.info("Creating user {}", dto.username());
@@ -76,6 +77,7 @@ public class UserController {
     }
 
     @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting user with id {}", id);
