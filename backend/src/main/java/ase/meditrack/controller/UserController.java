@@ -45,6 +45,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
+        // TODO: make sure that team has to be the same as dm's team and roles cannot be more than dm's roles
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
@@ -52,6 +53,7 @@ public class UserController {
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
+        // TODO: make sure that team has to be the same as dm's team and roles cannot be more than dm's roles
         log.info("Updating user {}", dto.username());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
