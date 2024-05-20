@@ -3,53 +3,32 @@ package ase.meditrack.model.mapper;
 import ase.meditrack.model.dto.MonthlyPlanDto;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.Team;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Mapper
 public interface MonthlyPlanMapper {
 
     @Named("toDto")
-    default MonthlyPlanDto toDto(MonthlyPlan monthlyPlan) {
-        return new MonthlyPlanDto(
-                monthlyPlan.getId(),
-                monthlyPlan.getMonth(),
-                monthlyPlan.getYear(),
-                monthlyPlan.getPublished(),
-                monthlyPlan.getTeam() != null ? monthlyPlan.getTeam().getId() : null,
-                monthlyPlan.getShifts() != null ? monthlyPlan.getShifts().stream()
-                        .map(Shift::getId).collect(Collectors.toList()) : null
-        );
+    @Mapping(source = "team.id", target = "team")
+    MonthlyPlanDto toDto(MonthlyPlan monthlyPlan);
+
+    default UUID shiftToId(Shift entity) {
+        return entity != null ? entity.getId() : null;
     }
 
-    default MonthlyPlan fromDto(MonthlyPlanDto dto) {
-        MonthlyPlan monthlyPlan = new MonthlyPlan();
+    @Mapping(source = "team", target = "team.id")
+    MonthlyPlan fromDto(MonthlyPlanDto dto);
 
-        monthlyPlan.setId(dto.id());
-        monthlyPlan.setMonth(dto.month());
-        monthlyPlan.setYear(dto.year());
-        monthlyPlan.setPublished(dto.published());
-
-        if (dto.team() != null) {
-            Team team = new Team();
-            team.setId(dto.team());
-            monthlyPlan.setTeam(team);
-        }
-
-        if (dto.shifts() != null) {
-            monthlyPlan.setShifts(dto.shifts().stream().map(id -> {
-                Shift shift = new Shift();
-                shift.setId(id);
-                return shift;
-            }).collect(Collectors.toList()));
-        }
-
-        return monthlyPlan;
+    default Shift idToShift(UUID id) {
+        Shift entity = new Shift();
+        entity.setId(id);
+        return entity;
     }
 
     @IterableMapping(qualifiedByName = "toDto")

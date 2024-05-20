@@ -6,61 +6,42 @@ import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.User;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Mapper
 public interface ShiftSwapMapper {
 
     @Named("toDto")
-    default ShiftSwapDto toDto(ShiftSwap shiftSwap) {
-        return new ShiftSwapDto(
-                shiftSwap.getId(),
-                shiftSwap.getSwapRequestingUser() != null ? shiftSwap.getSwapRequestingUser().getId() : null,
-                shiftSwap.getRequestedShift() != null ? shiftSwap.getRequestedShift().getId() : null,
-                shiftSwap.getSwapSuggestingUsers() != null ?
-                        shiftSwap.getSwapSuggestingUsers().stream().map(User::getId).collect(Collectors.toList()) : null,
-                shiftSwap.getSuggestedShifts() != null ?
-                        shiftSwap.getSuggestedShifts().stream().map(Shift::getId).collect(Collectors.toList()) : null
-        );
+    @Mapping(source = "requestedShift.id", target = "requestedShift")
+    @Mapping(source = "swapRequestingUser.id", target = "swapRequestingUser")
+    ShiftSwapDto toDto(ShiftSwap shiftSwap);
+
+    default UUID userToId(User entity) {
+        return entity != null ? entity.getId() : null;
     }
 
-    default ShiftSwap fromDto(ShiftSwapDto shiftSwapDto) {
-        ShiftSwap shiftSwap = new ShiftSwap();
+    default UUID shiftToId(Shift entity) {
+        return entity != null ? entity.getId() : null;
+    }
 
-        shiftSwap.setId(shiftSwapDto.id());
+    @Mapping(source = "requestedShift", target = "requestedShift.id")
+    @Mapping(source = "swapRequestingUser", target = "swapRequestingUser.id")
+    ShiftSwap fromDto(ShiftSwapDto shiftSwapDto);
 
-        if (shiftSwapDto.requestedShift() != null) {
-            Shift shift = new Shift();
-            shift.setId(shiftSwapDto.requestedShift());
-            shiftSwap.setRequestedShift(shift);
-        }
+    default User idToUser(UUID id) {
+        User entity = new User();
+        entity.setId(id);
+        return entity;
+    }
 
-        if (shiftSwapDto.swapRequestingUser() != null) {
-            User user = new User();
-            user.setId(shiftSwapDto.swapRequestingUser());
-            shiftSwap.setSwapRequestingUser(user);
-        }
-
-        if (shiftSwapDto.swapSuggestingUsers() != null) {
-            shiftSwap.setSwapSuggestingUsers(shiftSwapDto.swapSuggestingUsers().stream().map(id -> {
-                User user = new User();
-                user.setId(id);
-                return user;
-            }).collect(Collectors.toList()));
-        }
-
-        if (shiftSwapDto.suggestedShifts() != null) {
-            shiftSwap.setSuggestedShifts(shiftSwapDto.suggestedShifts().stream().map(id -> {
-                Shift shift = new Shift();
-                shift.setId(id);
-                return shift;
-            }).collect(Collectors.toList()));
-        }
-
-        return shiftSwap;
+    default Shift idToShift(UUID id) {
+        Shift entity = new Shift();
+        entity.setId(id);
+        return entity;
     }
 
     @IterableMapping(qualifiedByName = "toDto")

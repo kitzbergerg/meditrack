@@ -1,74 +1,53 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.TeamDto;
-import ase.meditrack.model.entity.HardConstraints;
-import ase.meditrack.model.entity.MonthlyPlan;
-import ase.meditrack.model.entity.ShiftType;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.*;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Mapper
 public interface TeamMapper {
 
     @Named("toDto")
-    default TeamDto toDto(Team team) {
-        return new TeamDto(
-                team.getId(),
-                team.getName(),
-                team.getWorkingHours(),
-                team.getUsers() != null ? team.getUsers().stream().map(User::getId).collect(Collectors.toList()) : null,
-                team.getHardConstraints() != null ? team.getHardConstraints().getId() : null,
-                team.getMonthlyPlans() != null ? team.getMonthlyPlans().stream().map(MonthlyPlan::getId)
-                        .collect(Collectors.toList()) : null,
-                team.getShiftTypes() != null ?
-                        team.getShiftTypes().stream().map(ShiftType::getId).collect(Collectors.toList()) : null
-        );
+    @Mapping(source = "hardConstraints.id", target = "hardConstraints")
+    TeamDto toDto(Team team);
+
+    default UUID userToId(User entity) {
+        return entity != null ? entity.getId() : null;
     }
 
-    default Team fromDto(TeamDto dto) {
-        Team team = new Team();
+    default UUID monthlyPlanToId(MonthlyPlan entity) {
+        return entity != null ? entity.getId() : null;
+    }
 
-        team.setId(dto.id());
-        team.setName(dto.name());
-        team.setWorkingHours(dto.workingHours());
+    default UUID shiftTypesToId(ShiftType entity) {
+        return entity != null ? entity.getId() : null;
+    }
 
-        if (dto.users() != null) {
-            team.setUsers(dto.users().stream().map(id -> {
-                User user = new User();
-                user.setId(id);
-                return user;
-            }).collect(Collectors.toList()));
-        }
+    @Mapping(source = "hardConstraints", target = "hardConstraints.id")
+    Team fromDto(TeamDto dto);
 
-        if (dto.hardConstraints() != null) {
-            HardConstraints hardConstraints = new HardConstraints();
-            hardConstraints.setId(dto.hardConstraints());
-            team.setHardConstraints(hardConstraints);
-        }
+    default User idToUser(UUID id) {
+        User user = new User();
+        user.setId(id);
+        return user;
+    }
 
-        if (dto.monthlyPlans() != null) {
-            team.setMonthlyPlans(dto.monthlyPlans().stream().map(id -> {
-                MonthlyPlan monthlyPlan = new MonthlyPlan();
-                monthlyPlan.setId(id);
-                return monthlyPlan;
-            }).collect(Collectors.toList()));
-        }
+    default MonthlyPlan idToMonthlyPlan(UUID id) {
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setId(id);
+        return monthlyPlan;
+    }
 
-        if (dto.shiftTypes() != null) {
-            team.setShiftTypes(dto.shiftTypes().stream().map(id -> {
-                ShiftType shiftType = new ShiftType();
-                shiftType.setId(id);
-                return shiftType;
-            }).collect(Collectors.toList()));
-        }
-
-        return team;
+    default ShiftType idToShiftTypes(UUID id) {
+        ShiftType shiftType = new ShiftType();
+        shiftType.setId(id);
+        return shiftType;
     }
 
     @IterableMapping(qualifiedByName = "toDto")

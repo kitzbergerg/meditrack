@@ -8,39 +8,24 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
 import java.util.List;
+import java.util.UUID;
 
 @Mapper
 public interface RoleMapper {
 
     @Named("toDto")
-    default RoleDto toDto(Role role) {
-        return new RoleDto(
-                role.getId(),
-                role.getName(),
-                role.getUsers() != null ? role.getUsers().stream().map(User::getId).toList() : null
-        );
+    RoleDto toDto(Role role);
+
+    default UUID userToId(User entity) {
+        return entity != null ? entity.getId() : null;
     }
 
-    default Role fromDto(RoleDto dto) {
-        Role role = new Role();
+    Role fromDto(RoleDto dto);
 
-        if (dto.id() == null) {
-            // id is only null on creation
-            // userRepresentation.setEnabled(true);
-        } else {
-            role.setId(dto.id());
-        }
-        role.setName(dto.name());
-
-        if (dto.users() != null) {
-            role.setUsers(dto.users().stream().map(id -> {
-                User user = new User();
-                user.setId(id);
-                return user;
-            }).toList());
-        }
-
-        return role;
+    default User idToUser(UUID id) {
+        User entity = new User();
+        entity.setId(id);
+        return entity;
     }
 
     @IterableMapping(qualifiedByName = "toDto")
