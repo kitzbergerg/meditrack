@@ -1,7 +1,5 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.PreferencesDto;
@@ -50,12 +48,7 @@ public class PreferencesController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public PreferencesDto findById(@PathVariable UUID id) {
         log.info("Fetching preferences with id: {}", id);
-        try {
-            return mapper.toDto(service.findById(id));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/preferences/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences with id: " + id + " not found", e);
-        }
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
@@ -63,13 +56,7 @@ public class PreferencesController {
     @ResponseStatus(HttpStatus.CREATED)
     public PreferencesDto create(@Validated(CreateValidator.class) @RequestBody PreferencesDto dto) {
         log.info("Creating preferences {}", dto.id());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: POST /api/preferences/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during creating preferences: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
@@ -77,16 +64,7 @@ public class PreferencesController {
     @ResponseStatus(HttpStatus.OK)
     public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto) {
         log.info("Updating preferences {}", dto.id());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: PUT /api/preferences/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during updating preferences: " + e.getMessage(), e);
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/preferences/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences with id: " + dto.id() + " not found", e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")

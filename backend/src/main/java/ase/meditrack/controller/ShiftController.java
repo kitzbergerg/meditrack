@@ -1,7 +1,5 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.ShiftDto;
@@ -50,12 +48,7 @@ public class ShiftController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftDto findById(@PathVariable UUID id) {
         log.info("Fetching shift with id: {}", id);
-        try {
-            return mapper.toDto(service.findById(id));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/shift/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shift with id: " + id + " not found", e);
-        }
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
@@ -63,13 +56,7 @@ public class ShiftController {
     @ResponseStatus(HttpStatus.CREATED)
     public ShiftDto create(@Validated(CreateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Creating shift {}", dto.id());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: POST /api/shift/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during creating shift: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
@@ -77,16 +64,7 @@ public class ShiftController {
     @ResponseStatus(HttpStatus.OK)
     public ShiftDto update(@Validated(UpdateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Updating shift {}", dto.id());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: PUT /api/shift/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during updating shift: " + e.getMessage(), e);
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/shift/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shift with id: " + dto.id() + " not found", e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")

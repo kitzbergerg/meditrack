@@ -1,6 +1,5 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.UserDto;
@@ -10,16 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,12 +38,7 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public UserDto findById(@PathVariable UUID id) {
         log.info("Fetching user {}", id);
-        try {
-            return mapper.toDto(service.findById(id));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/user/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id: " + id + " not found", e);
-        }
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
@@ -68,12 +53,7 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
         log.info("Updating user {}", dto.username());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/user/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id: " + dto.id() + " not found", e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
@@ -81,11 +61,6 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || authentication.name == #id.toString()")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting user with id {}", id);
-        try {
-            service.delete(id);
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/user/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id: " + id + " not found", e);
-        }
+        service.delete(id);
     }
 }

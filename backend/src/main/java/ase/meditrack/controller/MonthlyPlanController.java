@@ -1,7 +1,5 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.MonthlyPlanDto;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,12 +47,7 @@ public class MonthlyPlanController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public MonthlyPlanDto findById(@PathVariable UUID id) {
         log.info("Fetching monthly-plan with id: {}", id);
-        try {
-            return mapper.toDto(service.findById(id));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/monthly-plan/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Monthly plan with id: " + id + " not found", e);
-        }
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
@@ -63,13 +55,7 @@ public class MonthlyPlanController {
     @ResponseStatus(HttpStatus.CREATED)
     public MonthlyPlanDto create(@Validated(CreateValidator.class) @RequestBody MonthlyPlanDto dto) {
         log.info("Creating monthly-plan {}", dto.id());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: POST /api/monthly-plan/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during creating monthly-plan: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
@@ -77,17 +63,7 @@ public class MonthlyPlanController {
     @ResponseStatus(HttpStatus.OK)
     public MonthlyPlanDto update(@Validated(UpdateValidator.class) @RequestBody MonthlyPlanDto dto) {
         log.info("Updating monthly-plan {}", dto.id());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: PUT /api/monthly-plan/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during updating monthly-plan: " + e.getMessage(), e);
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/monthly-plan/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Monthly plan with id: " + dto.id() + " not found",
-                    e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
