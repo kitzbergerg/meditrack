@@ -19,6 +19,10 @@
   display: table;
 }
 
+.display-flex {
+  display: flex;
+}
+
 .va-middle {
   vertical-align: middle;
 }
@@ -36,4 +40,12 @@
 
 .mb-0_5 {
   margin-bottom: 0.5em;
+}
+
+.space-around {
+  justify-content: space-around;
+}
+
+.space-evenly {
+  justify-content: space-evenly;
 }

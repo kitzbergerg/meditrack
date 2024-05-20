@@ -58,4 +58,8 @@ export class DayTimeRequiredRolesComponent {
     console.log(this.dayTimeRequiredRoles)
     this.dayTimeRequiredRoles?.push([null, 0])
   }
+
+  deleteRoleNumber(roleNumber: [Role | null, number]) {
+    this.dayTimeRequiredRoles = this.dayTimeRequiredRoles!.filter(x => x !== roleNumber)
+  }
 }

@@ -1,27 +1,37 @@
-<div class="ruleName display-table">
+<div class="ruleName display-flex space-evenly">
   <ng-container *ngIf="!editMode">
-    <span class="display-table-cell va-middle">
-<!--      {{roleNumber[0]?.name}}-->
-
+    <span class="align-self-center">
+      Day time required roles:
+    </span>
+    <span>
+      <div *ngFor="let roleNumber of dayTimeRequiredRoles">
+        roleName: {{ roleNumber[0]?.name }}
+        required people: {{ roleNumber[1] }}
+      </div>
     </span>
     <button pButton pRipple (click)="editMode = true" class="ml-0_5">Edit</button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    Day time required roles:
-    <div *ngFor="let roleNumber of dayTimeRequiredRoles">
-      roleName:
-      <p-dropdown
-        [options]="availableRoles"
-        [(ngModel)]="roleNumber[0]"
-        optionLabel="name"
-        placeholder="Select a Role"/>
-      number of people:
-        <p-inputNumber
-          [(ngModel)]="roleNumber[1]"
-          inputId="minmax"
-          mode="decimal"
-          [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
-    </div>
+    <span class="align-self-center">Day time required roles:</span>
+    <span>
+      <div *ngFor="let roleNumber of dayTimeRequiredRoles">
+        roleName:
+        <p-dropdown
+          [options]="availableRoles"
+          [(ngModel)]="roleNumber[0]"
+          optionLabel="name"
+          placeholder="Select a Role"/>
+        number of people:
+          <p-inputNumber
+            [(ngModel)]="roleNumber[1]"
+            inputId="minmax"
+            mode="decimal"
+            [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
+        <button pButton pRipple (click)="deleteRoleNumber(roleNumber)">Delete</button>
+      </div>
+    </span>
+
+    <span class="align-self-center">
     <button pButton pRipple (click)="addRole()" class="mr-0_5 ml-0_5">Add Role</button>
     <button pButton pRipple (click)="update()" class="mr-0_5 ml-0_5">
       Save
@@ -32,5 +42,6 @@
     <button pButton pRipple (click)="delete()" class="mr-0_5 ml-0_5">
       Delete
     </button>
+    </span>
   </ng-container>
 </div>
