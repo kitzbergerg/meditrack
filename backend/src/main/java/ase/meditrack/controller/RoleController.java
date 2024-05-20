@@ -5,6 +5,7 @@ import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.service.RoleService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +38,7 @@ public class RoleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto create(@Valid @Validated(CreateValidator.class) @RequestBody RoleDto dto) {
         log.info("Creating role {}", dto.name());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
