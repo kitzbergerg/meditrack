@@ -1,23 +1,28 @@
-<div class="ruleName display-table">
+<div class="ruleName display-flex center">
   <ng-container *ngIf="!editMode">
-    <span class="display-table-cell va-middle">Mandatory Off Days: {{numberOfDaysInMonth}} days</span>
-    <button pButton pRipple (click)="editMode = true" class="ml-0_5">Edit</button>
+    <span class="va-middle align-self-center mr-auto">Mandatory off days: </span>
+    <span class="align-self-center">{{ numberOfDaysInMonth }} days</span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    Days in a Month:
-    <p-inputNumber
-      [(ngModel)]="numberOfDaysInMonth"
-      inputId="minmax"
-      mode="decimal"
-      [min]="0" [max]="31" class="mr-0_5 ml-0_5" />
-    <button pButton pRipple  (click)="update()" class="mr-0_5 ml-0_5">
-      Save
-    </button>
-    <button pButton pRipple (click)="editMode = false" class="mr-0_5 ml-0_5">
-      Cancel
-    </button>
-    <button pButton pRipple (click)="delete()" class="mr-0_5 ml-0_5">
-      Delete
-    </button>
+    <div class="align-self-center mr-auto">Days in a Month:</div>
+    <div class="align-self-center">
+      <p-inputNumber
+        [(ngModel)]="numberOfDaysInMonth"
+        inputId="minmax"
+        mode="decimal"
+        [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
+    </div>
+    <div class="align-self-center ml-auto">
+      <button pButton pRipple (click)="update()" class="mr-0_5 ml-0_5">
+        Save
+      </button>
+      <button pButton pRipple (click)="editMode = false" class="mr-0_5 ml-0_5">
+        Cancel
+      </button>
+      <button pButton pRipple (click)="delete()" class="mr-0_5 ml-0_5">
+        Delete
+      </button>
+    </div>
   </ng-container>
 </div>

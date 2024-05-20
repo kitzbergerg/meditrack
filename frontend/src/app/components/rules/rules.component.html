@@ -25,13 +25,13 @@
         <li *ngIf="showDayTimeRequiredRoles">
           <app-day-time-required-roles
             [dayTimeRequiredRoles]="rules!.dayTimeRequiredRoles"
-            (deleteDayTimeRequiredRoles)="deleteMaxShiftLengthRule()">
+            (deleteDayTimeRequiredRoles)="deleteDayTimeRequiredRolesRule()">
           </app-day-time-required-roles>
         </li>
         <li *ngIf="showNightTimeRequiredRoles">
           <app-night-time-required-roles
             [nightTimeRequiredRoles]="rules!.nightTimeRequiredRoles"
-            (deleteNightTimeRequiredRoles)="deleteMaxShiftLengthRule()">
+            (deleteNightTimeRequiredRoles)="deleteNightTimeRequiredRolesRule()">
           </app-night-time-required-roles>
         </li>
       </ul>

@@ -48,19 +48,39 @@ export class RulesComponent {
       || this.rules?.maxShiftLengths == null
       || this.rules?.mandatoryOffDays == null;
   }
+
+  save() {
+    console.log("save") //TODO
+  }
+
+
   deleteMandatoryOffDaysRule() {
     this.showMandatoryOffDaysRule = false;
     this.rules!.mandatoryOffDays = null;
-    //update()
+    this.save()
   }
 
   deleteMinRestPeriodRule() {
     this.showMandatoryOffDaysRule = false;
     this.rules!.minRestPeriod = null;
+    this.save()
   }
 
   deleteMaxShiftLengthRule() {
-    this.showMandatoryOffDaysRule = false;
+    this.showMaxShiftLengths = false;
     this.rules!.maxShiftLengths = null;
+    this.save()
+  }
+
+  deleteDayTimeRequiredRolesRule() {
+    this.showDayTimeRequiredRoles = false;
+    this.rules!.dayTimeRequiredRoles = null;
+    this.save()
+  }
+
+  deleteNightTimeRequiredRolesRule() {
+    this.showNightTimeRequiredRoles = false;
+    this.rules!.nightTimeRequiredRoles = null;
+    this.save()
   }
 }

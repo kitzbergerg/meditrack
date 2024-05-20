@@ -1,18 +1,18 @@
-<div class="ruleName display-flex space-between">
+<div class="ruleName display-flex center">
   <ng-container *ngIf="!editMode">
-    <span class="align-self-center">
+    <span class="align-self-center mr-auto flex-1">
       Day time required roles:
     </span>
-    <span class="align-self-center">
+    <span class="align-self-center  flex-1">
       <div *ngFor="let roleNumber of dayTimeRequiredRoles">
         roleName: {{ roleNumber[0]?.name }}
         required people: {{ roleNumber[1] }}
       </div>
     </span>
-    <button pButton pRipple (click)="editMode = true" class="ml-0_5">Edit</button>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    <span class="align-self-center">Day time required roles:</span>
+    <span class="align-self-center mr-auto  flex-1">Day time required roles:</span>
     <span class="align-self-center">
       <div *ngFor="let roleNumber of dayTimeRequiredRoles">
         roleName:
@@ -20,6 +20,7 @@
           [options]="availableRoles"
           [(ngModel)]="roleNumber[0]"
           optionLabel="name"
+          class="mr-0_5"
           placeholder="Select a Role"/>
         number of people:
           <p-inputNumber
@@ -31,7 +32,7 @@
       </div>
     </span>
 
-    <span class="align-self-center">
+    <span class="align-self-center ml-auto">
     <button pButton pRipple (click)="addRole()" class="mr-0_5 ml-0_5">Add Role</button>
     <button pButton pRipple (click)="update()" class="mr-0_5 ml-0_5">
       Save
