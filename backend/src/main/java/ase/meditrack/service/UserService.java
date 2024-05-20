@@ -1,5 +1,6 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
@@ -29,7 +30,8 @@ public class UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository,
+                       UserMapper mapper) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.mapper = mapper;
@@ -65,7 +67,7 @@ public class UserService {
         return repository.findById(id).map(u -> {
             u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
             return u;
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        }).orElseThrow(() -> new NotFoundException("Could not find user with id: " + id + "!"));
     }
 
     /**
@@ -125,7 +127,7 @@ public class UserService {
             if (response.getStatusInfo().toEnum().getFamily() != SUCCESSFUL) {
                 log.error("Error deleting user: {}", response.getStatusInfo().getReasonPhrase());
                 if (response.getStatusInfo().getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    throw new NotFoundException("Could not find user with id: " + id + "!");
                 } else {
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
@@ -171,9 +173,9 @@ public class UserService {
 
     private User updateChangedAttributes(User user) {
         User dbUser = repository.findById(user.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Could not find user with id: " + user.getId() + "!"));
 
-        if (user.getRole() != null) {
+        if (user.getRole() != null && user.getRole().getId() != null) {
             dbUser.setRole(user.getRole());
         }
         if (user.getWorkingHoursPercentage() != null) {

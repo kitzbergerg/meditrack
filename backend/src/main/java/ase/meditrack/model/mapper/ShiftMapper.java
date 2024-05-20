@@ -1,7 +1,7 @@
 package ase.meditrack.model.mapper;
 
-import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.dto.ShiftDto;
+import ase.meditrack.model.entity.Shift;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
@@ -9,13 +9,13 @@ import org.mapstruct.Named;
 import java.util.List;
 
 @Mapper(uses = EntityUuidMapper.class)
-public interface RoleMapper {
+public interface ShiftMapper {
 
     @Named("toDto")
-    RoleDto toDto(Role role);
+    ShiftDto toDto(Shift shift);
 
-    Role fromDto(RoleDto dto);
+    Shift fromDto(ShiftDto shiftDto);
 
     @IterableMapping(qualifiedByName = "toDto")
-    List<RoleDto> toDtoList(List<Role> roles);
+    List<ShiftDto> toDtoList(List<Shift> shifts);
 }
