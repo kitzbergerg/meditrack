@@ -10,17 +10,17 @@ import org.mapstruct.Named;
 import java.util.List;
 
 @Mapper
-public abstract class PreferencesMapper {
+public interface PreferencesMapper {
 
     @Named("toDto")
-    public PreferencesDto toDto(Preferences preferences) {
+    default PreferencesDto toDto(Preferences preferences) {
         return new PreferencesDto(
                 preferences.getId(),
                 preferences.getOffDays()
         );
     }
 
-    public Preferences fromDto(PreferencesDto dto) {
+    default Preferences fromDto(PreferencesDto dto) {
         Preferences preferences = new Preferences();
 
         preferences.setId(dto.id());
@@ -34,5 +34,5 @@ public abstract class PreferencesMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<PreferencesDto> toDtoList(List<Preferences> preferences);
+    List<PreferencesDto> toDtoList(List<Preferences> preferences);
 }

@@ -10,10 +10,10 @@ import org.mapstruct.Named;
 import java.util.List;
 
 @Mapper
-public abstract class HolidayMapper {
+public interface HolidayMapper {
 
     @Named("toDto")
-    public HolidayDto toDto(Holiday holiday) {
+    default HolidayDto toDto(Holiday holiday) {
         return new HolidayDto(
                 holiday.getId(),
                 holiday.getStartDate(),
@@ -23,7 +23,7 @@ public abstract class HolidayMapper {
         );
     }
 
-    public Holiday fromDto(HolidayDto dto) {
+    default Holiday fromDto(HolidayDto dto) {
         Holiday holiday = new Holiday();
 
         holiday.setId(dto.id());
@@ -41,5 +41,5 @@ public abstract class HolidayMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<HolidayDto> toDtoList(List<Holiday> holidays);
+    List<HolidayDto> toDtoList(List<Holiday> holidays);
 }

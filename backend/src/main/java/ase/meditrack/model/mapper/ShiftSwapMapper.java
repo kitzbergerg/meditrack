@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
-public abstract class ShiftSwapMapper {
+public interface ShiftSwapMapper {
 
     @Named("toDto")
-    public ShiftSwapDto toDto(ShiftSwap shiftSwap) {
+    default ShiftSwapDto toDto(ShiftSwap shiftSwap) {
         return new ShiftSwapDto(
                 shiftSwap.getId(),
                 shiftSwap.getSwapRequestingUser() != null ? shiftSwap.getSwapRequestingUser().getId() : null,
@@ -27,7 +27,7 @@ public abstract class ShiftSwapMapper {
         );
     }
 
-    public ShiftSwap fromDto(ShiftSwapDto shiftSwapDto) {
+    default ShiftSwap fromDto(ShiftSwapDto shiftSwapDto) {
         ShiftSwap shiftSwap = new ShiftSwap();
 
         shiftSwap.setId(shiftSwapDto.id());
@@ -64,5 +64,5 @@ public abstract class ShiftSwapMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<ShiftSwapDto> toDtoList(List<ShiftSwap> shiftSwaps);
+    List<ShiftSwapDto> toDtoList(List<ShiftSwap> shiftSwaps);
 }

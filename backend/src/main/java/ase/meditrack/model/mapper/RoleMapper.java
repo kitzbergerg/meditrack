@@ -1,20 +1,19 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.*;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.User;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @Mapper
-public abstract class RoleMapper {
+public interface RoleMapper {
 
     @Named("toDto")
-    public RoleDto toDto(Role role) {
+    default RoleDto toDto(Role role) {
         return new RoleDto(
                 role.getId(),
                 role.getName(),
@@ -22,7 +21,7 @@ public abstract class RoleMapper {
         );
     }
 
-    public Role fromDto(RoleDto dto) {
+    default Role fromDto(RoleDto dto) {
         Role role = new Role();
 
         if (dto.id() == null) {
@@ -45,5 +44,5 @@ public abstract class RoleMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<RoleDto> toDtoList(List<Role> roles);
+    List<RoleDto> toDtoList(List<Role> roles);
 }

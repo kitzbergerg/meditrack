@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
-public abstract class TeamMapper {
+public interface TeamMapper {
 
     @Named("toDto")
-    public TeamDto toDto(Team team) {
+    default TeamDto toDto(Team team) {
         return new TeamDto(
                 team.getId(),
                 team.getName(),
@@ -31,7 +31,7 @@ public abstract class TeamMapper {
         );
     }
 
-    public Team fromDto(TeamDto dto) {
+    default Team fromDto(TeamDto dto) {
         Team team = new Team();
 
         team.setId(dto.id());
@@ -72,5 +72,5 @@ public abstract class TeamMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<TeamDto> toDtoList(List<Team> teams);
+    List<TeamDto> toDtoList(List<Team> teams);
 }

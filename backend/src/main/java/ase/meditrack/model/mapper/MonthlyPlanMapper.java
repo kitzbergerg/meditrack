@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
-public abstract class MonthlyPlanMapper {
+public interface MonthlyPlanMapper {
 
     @Named("toDto")
-    public MonthlyPlanDto toDto(MonthlyPlan monthlyPlan) {
+    default MonthlyPlanDto toDto(MonthlyPlan monthlyPlan) {
         return new MonthlyPlanDto(
                 monthlyPlan.getId(),
                 monthlyPlan.getMonth(),
@@ -27,7 +27,7 @@ public abstract class MonthlyPlanMapper {
         );
     }
 
-    public MonthlyPlan fromDto(MonthlyPlanDto dto) {
+    default MonthlyPlan fromDto(MonthlyPlanDto dto) {
         MonthlyPlan monthlyPlan = new MonthlyPlan();
 
         monthlyPlan.setId(dto.id());
@@ -53,5 +53,5 @@ public abstract class MonthlyPlanMapper {
     }
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<MonthlyPlanDto> toDtoList(List<MonthlyPlan> monthlyPlans);
+    List<MonthlyPlanDto> toDtoList(List<MonthlyPlan> monthlyPlans);
 }
