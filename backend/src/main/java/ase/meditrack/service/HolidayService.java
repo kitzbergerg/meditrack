@@ -1,11 +1,10 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.repository.HolidayRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,39 +18,66 @@ public class HolidayService {
         this.repository = repository;
     }
 
-    public Holiday findById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
+    /**
+     * Fetches all holidays from the database.
+     *
+     * @return List of all holidays
+     */
     public List<Holiday> findAll() {
         return repository.findAll();
     }
 
+    /**
+     * Fetches a holiday by id from the database.
+     *
+     * @param id, the id of the holiday
+     * @return the holiday
+     */
+    public Holiday findById(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Could not find holiday with id: " + id + "!"));
+    }
+
+    /**
+     * Creates a holiday in the database.
+     *
+     * @param holiday, the holiday to create
+     * @return the created holiday
+     */
     public Holiday create(Holiday holiday) {
         return repository.save(holiday);
     }
 
+    /**
+     * Updates a holiday in the database.
+     *
+     * @param holiday, the holiday to update
+     * @return the updated holiday
+     */
     public Holiday update(Holiday holiday) {
-        Holiday existing = repository.findById(holiday.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Holiday dbHoliday = findById(holiday.getId());
 
         if (holiday.getStartDate() != null) {
-            existing.setStartDate(holiday.getStartDate());
+            dbHoliday.setStartDate(holiday.getStartDate());
         }
         if (holiday.getEndDate() != null) {
-            existing.setEndDate(holiday.getEndDate());
+            dbHoliday.setEndDate(holiday.getEndDate());
         }
         if (holiday.getIsApproved() != null) {
-            existing.setIsApproved(holiday.getIsApproved());
+            dbHoliday.setIsApproved(holiday.getIsApproved());
         }
         if (holiday.getUser() != null) {
-            existing.setUser(holiday.getUser());
+            dbHoliday.setUser(holiday.getUser());
         }
 
-        return repository.save(existing);
+        return repository.save(dbHoliday);
     }
 
+    /**
+     * Deletes a holiday from the database.
+     *
+     * @param id, the id of the holiday
+     */
     public void delete(UUID id) {
         repository.deleteById(id);
     }

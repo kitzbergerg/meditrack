@@ -6,17 +6,17 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 
-import java.time.Month;
-import java.time.Year;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public record MonthlyPlanDto(
+public record ShiftDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
-        @NotNull(groups = CreateValidator.class) Month month,
-        @NotNull(groups = CreateValidator.class) @FutureOrPresent Year year,
-        @NotNull(groups = CreateValidator.class) Boolean published,
-        @NotNull(groups = CreateValidator.class) UUID team,
-        List<UUID> shifts
+        @FutureOrPresent(groups = CreateValidator.class) LocalDate date,
+        UUID monthlyPlan,
+        UUID shiftType,
+        List<UUID> users,
+        List<UUID> suggestedShiftSwaps,
+        UUID requestedShiftSwap
 ) {
 }

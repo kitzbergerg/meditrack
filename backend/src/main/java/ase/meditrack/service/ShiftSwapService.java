@@ -1,11 +1,10 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.repository.ShiftSwapRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,39 +18,66 @@ public class ShiftSwapService {
         this.repository = repository;
     }
 
-    public ShiftSwap findById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
+    /**
+     * Fetches all shift swaps from the database.
+     *
+     * @return List of all shift swaps
+     */
     public List<ShiftSwap> findAll() {
         return repository.findAll();
     }
 
+    /**
+     * Fetches a shift swap by id from the database.
+     *
+     * @param id, the id of the shift swap
+     * @return the shift swap
+     */
+    public ShiftSwap findById(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Could not find shift swap with id: " + id + "!"));
+    }
+
+    /**
+     * Creates a shift swap in the database.
+     *
+     * @param shiftSwap, the shift swap to create
+     * @return the created shift swap
+     */
     public ShiftSwap create(ShiftSwap shiftSwap) {
         return repository.save(shiftSwap);
     }
 
+    /**
+     * Updates a shift swap in the database.
+     *
+     * @param shiftSwap, the shift swap to update
+     * @return the updated shift swap
+     */
     public ShiftSwap update(ShiftSwap shiftSwap) {
-        ShiftSwap existing = repository.findById(shiftSwap.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        ShiftSwap dbShiftSwap = findById(shiftSwap.getId());
 
         if (shiftSwap.getSwapRequestingUser() != null) {
-            existing.setSwapRequestingUser(shiftSwap.getSwapRequestingUser());
+            dbShiftSwap.setSwapRequestingUser(shiftSwap.getSwapRequestingUser());
         }
         if (shiftSwap.getSwapSuggestingUsers() != null) {
-            existing.setSwapSuggestingUsers(shiftSwap.getSwapSuggestingUsers());
+            dbShiftSwap.setSwapSuggestingUsers(shiftSwap.getSwapSuggestingUsers());
         }
         if (shiftSwap.getRequestedShift() != null) {
-            existing.setRequestedShift(shiftSwap.getRequestedShift());
+            dbShiftSwap.setRequestedShift(shiftSwap.getRequestedShift());
         }
-        if (shiftSwap.getSuggestedShift() != null) {
-            existing.setSuggestedShift(shiftSwap.getSuggestedShift());
+        if (shiftSwap.getSuggestedShifts() != null) {
+            dbShiftSwap.setSuggestedShifts(shiftSwap.getSuggestedShifts());
         }
 
-        return repository.save(existing);
+        return repository.save(shiftSwap);
     }
 
+    /**
+     * Deletes a shift swap from the database.
+     *
+     * @param id, the id of the shift swap to delete
+     */
     public void delete(UUID id) {
         repository.deleteById(id);
     }

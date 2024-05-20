@@ -1,11 +1,10 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,42 +18,69 @@ public class MonthlyPlanService {
         this.repository = repository;
     }
 
-    public MonthlyPlan findById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
+    /**
+     * Fetches all monthly plans from the database.
+     *
+     * @return List of all monthly plans
+     */
     public List<MonthlyPlan> findAll() {
         return repository.findAll();
     }
 
+    /**
+     * Fetches a monthly plan by id from the database.
+     *
+     * @param id, the id of the monthly plan
+     * @return the monthly plan
+     */
+    public MonthlyPlan findById(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Could not find monthly plan with id: " + id + "!"));
+    }
+
+    /**
+     * Creates a monthly plan in the database.
+     *
+     * @param monthlyPlan, the monthly plan to create
+     * @return the created monthly plan
+     */
     public MonthlyPlan create(MonthlyPlan monthlyPlan) {
         return repository.save(monthlyPlan);
     }
 
+    /**
+     * Updates a monthly plan in the database.
+     *
+     * @param monthlyPlan, the monthly plan to update
+     * @return the updated monthly plan
+     */
     public MonthlyPlan update(MonthlyPlan monthlyPlan) {
-        MonthlyPlan existing = repository.findById(monthlyPlan.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        MonthlyPlan dbPlan = findById(monthlyPlan.getId());
 
         if (monthlyPlan.getMonth() != null) {
-            existing.setMonth(monthlyPlan.getMonth());
+            dbPlan.setMonth(monthlyPlan.getMonth());
         }
         if (monthlyPlan.getYear() != null) {
-            existing.setYear(monthlyPlan.getYear());
+            dbPlan.setYear(monthlyPlan.getYear());
         }
         if (monthlyPlan.getPublished() != null) {
-            existing.setPublished(monthlyPlan.getPublished());
+            dbPlan.setPublished(monthlyPlan.getPublished());
         }
         if (monthlyPlan.getTeam() != null) {
-            existing.setTeam(monthlyPlan.getTeam());
+            dbPlan.setTeam(monthlyPlan.getTeam());
         }
         if (monthlyPlan.getShifts() != null) {
-            existing.setShifts(monthlyPlan.getShifts());
+            dbPlan.setShifts(monthlyPlan.getShifts());
         }
 
-        return repository.save(existing);
+        return repository.save(dbPlan);
     }
 
+    /**
+     * Deletes a monthly plan from the database.
+     *
+     * @param id, the id of the monthly plan to delete
+     */
     public void delete(UUID id) {
         repository.deleteById(id);
     }

@@ -1,7 +1,7 @@
 package ase.meditrack.model.mapper;
 
-import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.dto.HolidayDto;
+import ase.meditrack.model.entity.Holiday;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
@@ -9,13 +9,13 @@ import org.mapstruct.Named;
 import java.util.List;
 
 @Mapper(uses = EntityUuidMapper.class)
-public interface RoleMapper {
+public interface HolidayMapper {
 
     @Named("toDto")
-    RoleDto toDto(Role role);
+    HolidayDto toDto(Holiday holiday);
 
-    Role fromDto(RoleDto dto);
+    Holiday fromDto(HolidayDto dto);
 
     @IterableMapping(qualifiedByName = "toDto")
-    List<RoleDto> toDtoList(List<Role> roles);
+    List<HolidayDto> toDtoList(List<Holiday> holidays);
 }

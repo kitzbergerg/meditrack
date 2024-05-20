@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
-import ase.meditrack.exception.ValidationException;
-import ase.meditrack.model.UserValidator;
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
@@ -19,9 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
@@ -32,20 +29,19 @@ public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
     private final UserMapper mapper;
-    private final UserValidator validator;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserMapper mapper, UserValidator validator) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository,
+                       UserMapper mapper) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.mapper = mapper;
-        this.validator = validator;
     }
 
     @PostConstruct
-    private void createAdminUser() {
+    public void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
             log.info("Creating default admin user...");
-            this.create(defaultAdminUser(), null);
+            this.create(defaultAdminUser());
         }
     }
 
@@ -62,19 +58,6 @@ public class UserService {
     }
 
     /**
-     * Fetches all users from the team of the dm from the database and matches additional attributes from keycloak.
-     *
-     * @param principal, the dm of the team
-     * @return List of all users from the team of the dm
-     */
-    public List<User> findByTeam(Principal principal) throws NoSuchElementException {
-        User dm = validator.getTeamValidate(principal);
-        return repository.findAllByTeam(dm.getTeam()).stream()
-                .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
-                .toList();
-    }
-
-    /**
      * Fetches a user by id from the database and matches additional attributes from keycloak.
      *
      * @param id, the id of the user
@@ -84,19 +67,16 @@ public class UserService {
         return repository.findById(id).map(u -> {
             u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
             return u;
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        }).orElseThrow(() -> new NotFoundException("Could not find user with id: " + id + "!"));
     }
 
     /**
      * Creates a user in the database and in keycloak.
      *
      * @param user, the user to create
-     * @param principal, creator of the user
      * @return the created user
      */
-    public User create(User user, Principal principal) throws ValidationException {
-
-        validator.createValidate(user, principal);
+    public User create(User user) {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user = repository.save(user);
@@ -147,7 +127,7 @@ public class UserService {
             if (response.getStatusInfo().toEnum().getFamily() != SUCCESSFUL) {
                 log.error("Error deleting user: {}", response.getStatusInfo().getReasonPhrase());
                 if (response.getStatusInfo().getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+                    throw new NotFoundException("Could not find user with id: " + id + "!");
                 } else {
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
                 }
@@ -193,9 +173,9 @@ public class UserService {
 
     private User updateChangedAttributes(User user) {
         User dbUser = repository.findById(user.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Could not find user with id: " + user.getId() + "!"));
 
-        if (user.getRole() != null) {
+        if (user.getRole() != null && user.getRole().getId() != null) {
             dbUser.setRole(user.getRole());
         }
         if (user.getWorkingHoursPercentage() != null) {

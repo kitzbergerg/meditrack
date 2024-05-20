@@ -1,11 +1,10 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.repository.ShiftRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,45 +18,72 @@ public class ShiftService {
         this.repository = repository;
     }
 
-    public Shift findById(UUID id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
+    /**
+     * Fetches all shifts from the database.
+     *
+     * @return List of all shift
+     */
     public List<Shift> findAll() {
         return repository.findAll();
     }
 
+    /**
+     * Fetches a shift by id from the database.
+     *
+     * @param id, the id of the shift
+     * @return the shift
+     */
+    public Shift findById(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Could not find shift with id: " + id + "!"));
+    }
+
+    /**
+     * Creates a shift in the database.
+     *
+     * @param shift, the shift to create
+     * @return the created shift
+     */
     public Shift create(Shift shift) {
         return repository.save(shift);
     }
 
+    /**
+     * Updates a shift in the database.
+     *
+     * @param shift, the shift to update
+     * @return the updated shift
+     */
     public Shift update(Shift shift) {
-        Shift existing = repository.findById(shift.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Shift dbShift = findById(shift.getId());
 
         if (shift.getDate() != null) {
-            existing.setDate(shift.getDate());
+            dbShift.setDate(shift.getDate());
         }
         if (shift.getMonthlyPlan() != null) {
-            existing.setMonthlyPlan(shift.getMonthlyPlan());
+            dbShift.setMonthlyPlan(shift.getMonthlyPlan());
         }
         if (shift.getShiftType() != null) {
-            existing.setShiftType(shift.getShiftType());
+            dbShift.setShiftType(shift.getShiftType());
         }
         if (shift.getUsers() != null) {
-            existing.setUsers(shift.getUsers());
+            dbShift.setUsers(shift.getUsers());
         }
         if (shift.getSuggestedShiftSwaps() != null) {
-            existing.setSuggestedShiftSwaps(shift.getSuggestedShiftSwaps());
+            dbShift.setSuggestedShiftSwaps(shift.getSuggestedShiftSwaps());
         }
         if (shift.getRequestedShiftSwap() != null) {
-            existing.setRequestedShiftSwap(shift.getRequestedShiftSwap());
+            dbShift.setRequestedShiftSwap(shift.getRequestedShiftSwap());
         }
 
-        return repository.save(existing);
+        return repository.save(dbShift);
     }
 
+    /**
+     * Deletes a shift from the database.
+     *
+     * @param id, the id of the shift to delete
+     */
     public void delete(UUID id) {
         repository.deleteById(id);
     }
