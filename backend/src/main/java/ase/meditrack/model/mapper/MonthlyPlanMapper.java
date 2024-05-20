@@ -13,9 +13,11 @@ import java.util.List;
 public interface MonthlyPlanMapper {
 
     @Named("toDto")
+    @Mapping(target = "month", expression = "java(Month.of(monthlyPlan.getMonth()))")
     @Mapping(target = "year", expression = "java(Year.of(monthlyPlan.getYear()))")
     MonthlyPlanDto toDto(MonthlyPlan monthlyPlan);
 
+    @Mapping(target = "month", expression = "java(dto.month().getValue())")
     @Mapping(target = "year", expression = "java(dto.year().getValue())")
     MonthlyPlan fromDto(MonthlyPlanDto dto);
 
