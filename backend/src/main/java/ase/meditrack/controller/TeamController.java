@@ -2,10 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.mapper.RoleMapper;
-import ase.meditrack.service.RoleService;
-import jakarta.validation.Valid;
+import ase.meditrack.model.dto.TeamDto;
+import ase.meditrack.model.mapper.TeamMapper;
+import ase.meditrack.service.TeamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,45 +15,53 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/role")
+@RequestMapping("/api/team")
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
-public class RoleController {
-    private final RoleService service;
-    private final RoleMapper mapper;
+public class TeamController {
+    private final TeamService service;
+    private final TeamMapper mapper;
 
-    public RoleController(RoleService service, RoleMapper mapper) {
+    public TeamController(TeamService service, TeamMapper mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public List<RoleDto> findAll() {
-        log.info("Fetching roles");
+    public List<TeamDto> findAll() {
+        log.info("Fetching teams");
         return mapper.toDtoList(service.findAll());
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto create(@Valid @Validated(CreateValidator.class) @RequestBody RoleDto dto) {
-        log.info("Creating role {}", dto.name());
+    public TeamDto findById(@PathVariable UUID id) {
+        log.info("Fetching team with id: {}", id);
+        return mapper.toDto(service.findById(id));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public TeamDto create(@Validated(CreateValidator.class) @RequestBody TeamDto dto) {
+        log.info("Creating team {}", dto.id());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
-        log.info("Updating role {}", dto.name());
+    @ResponseStatus(HttpStatus.OK)
+    public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) {
+        log.info("Updating team {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        log.info("Deleting role with id {}", id);
+        log.info("Deleting team with id {}", id);
         service.delete(id);
     }
 }
