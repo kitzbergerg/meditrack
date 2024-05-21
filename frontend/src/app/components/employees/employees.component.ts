@@ -7,6 +7,7 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {Role} from "../../interfaces/roles/rolesInterface";
 
 @Component({
   selector: 'app-employees',
@@ -16,7 +17,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 export class EmployeesComponent {
 
   userDialog = false;
-  userHeader = "Create User";
+  userHeader = "";
 
   deleteUserDialog= false;
 
@@ -37,7 +38,7 @@ export class EmployeesComponent {
     preferences: "",
     preferredShiftTypes: [],
     requestedShiftSwaps: [],
-    role: null,
+    role: {name: ""},
     roles: [],
     shifts: [],
     specialSkills: [],
@@ -64,6 +65,7 @@ export class EmployeesComponent {
     specialSkills: [],
     holidays: [],
     shifts: [],
+    role: {name: ""},
     team: undefined,
     requestedShiftSwaps: [],
     suggestedShiftSwaps: [],
@@ -87,12 +89,12 @@ export class EmployeesComponent {
               private formBuilder: FormBuilder,
   ) {
     this.newUserForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      username: ['', this.usernameValidator.bind(this)],
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      workingHoursPercentage: ['1', [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
-      role: ['', Validators.required]
+      workingHoursPercentage: ["1", [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
+      role: [null, Validators.required]
     });
   }
 
@@ -111,11 +113,22 @@ export class EmployeesComponent {
     ];
   }
 
+  usernameValidator(control: any): { [key: string]: any } | null {
+    if (this.userHeader === "Edit User" && control.value === null) {
+      return null;
+    }
+    return Validators.required(control);
+  }
+
   loadRoles(): void {
     this.rolesService.getAllRoles()
       .subscribe(fetchedRoles => {
         this.roles = fetchedRoles;
       });
+  }
+
+  compareRoles(role1: Role, role2: Role): boolean {
+    return role1 && role2 ? role1.id === role2.id : role1 === role2;
   }
 
   createTeam() {
@@ -184,8 +197,16 @@ export class EmployeesComponent {
   }
 
   editUser(user: User) {
+    this.newUserForm.patchValue({
+      username: null,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      workingHoursPercentage: user.workingHoursPercentage,
+      role: user.role
+    });
     this.newUser = { ...user };
-    this.userHeader = "Edit User"
+    this.userHeader = "Edit User";
     this.userDialog = true;
   }
 
@@ -218,8 +239,12 @@ export class EmployeesComponent {
 
   createUser() {
     this.submitted = true;
+
     if (!this.newUserForm.invalid) {
         if (this.newUser.id) {
+          console.log(this.newUser);
+          this.newUser = { ...this.newUser, ...this.newUserForm.value };
+          console.log(this.newUser)
           this.userService.updateUser(this.newUser).subscribe({
             next: (user) => {
               console.log("Successfully updated user", user);
@@ -235,25 +260,25 @@ export class EmployeesComponent {
           this.newUser = this.newUserForm.value;
           this.newUser.roles = ['employee']
           this.newUser.team = this.team.id
-          if (this.newUser.username != null) {
-            this.newUser.password = this.newUser.username;
-          }
-          this.usersFromTeam = [...this.usersFromTeam];
-          this.userDialog = false;
+          this.newUser.password = <string>this.newUser.username;
           console.log(this.newUser)
           this.userService.createUser(this.newUser)
             .subscribe({
               next: (response) => {
+                this.userDialog = false;
                 console.log('User created successfully:', response);
+                this.usersFromTeam = [...this.usersFromTeam];
                 this.usersFromTeam.push(response);
-                this.newUserForm.reset();
                 this.resetUser()
               },
               error: (error) => {
                 console.error('Error creating user:', error);
+                //this.resetUser()
               }}
             );
       }
+    } else {
+      console.log("invalid")
     }
   }
 
@@ -281,7 +306,7 @@ export class EmployeesComponent {
       preferences: "",
       preferredShiftTypes: [],
       requestedShiftSwaps: [],
-      role: null,
+      role: {name: ""},
       roles: [],
       shifts: [],
       specialSkills: [],
@@ -290,6 +315,7 @@ export class EmployeesComponent {
       username: "",
       workingHoursPercentage: 1
     };
+    this.newUserForm.reset()
   }
 
   onGlobalFilter(table: Table, event: Event) {

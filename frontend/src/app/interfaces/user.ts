@@ -10,7 +10,7 @@ export interface User {
   lastName: string;
   roles: string[];
 
-  role?: Role | null;
+  role: Role ;
   workingHoursPercentage: number;
   currentOverTime?: number | null; // Nullable in CreateValidator class
   specialSkills: string[];
