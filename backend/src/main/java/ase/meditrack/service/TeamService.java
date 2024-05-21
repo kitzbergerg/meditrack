@@ -18,6 +18,12 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.repository.TeamRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -73,8 +79,7 @@ public class TeamService {
      * @return the created team
      */
     @Transactional
-    public Team create(Team team, Principal principal) throws ValidationException {
-        //validator.teamCreateValidation(team);
+    public Team create(Team team, Principal principal) {
         UUID creatorId = UUID.fromString(principal.getName());
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -88,20 +93,32 @@ public class TeamService {
     /**
      * Updates a team in the database.
      *
-     * @param teamToUpdate, the team to update
+     * @param team, the team to update
      * @return the updated team
      */
-    public Team update(Team teamToUpdate) throws ValidationException {
-        //validator.teamUpdateValidation(teamToUpdate);
+    public Team update(Team team) {
+        Team dbTeam = findById(team.getId());
 
-        Team updatedTeam = new Team();
-        updatedTeam.setId(teamToUpdate.getId());
-        updatedTeam.setName(teamToUpdate.getName());
-        updatedTeam.setUsers(teamToUpdate.getUsers());
-        // update other parts of team
-        repository.save(updatedTeam);
+        if (team.getName() != null) {
+            dbTeam.setName(team.getName());
+        }
+        if (team.getWorkingHours() != null) {
+            dbTeam.setWorkingHours(team.getWorkingHours());
+        }
+        if (team.getUsers() != null) {
+            dbTeam.setUsers(team.getUsers());
+        }
+        if (team.getHardConstraints() != null) {
+            dbTeam.setHardConstraints(team.getHardConstraints());
+        }
+        if (team.getMonthlyPlans() != null) {
+            dbTeam.setMonthlyPlans(team.getMonthlyPlans());
+        }
+        if (team.getShiftTypes() != null) {
+            dbTeam.setShiftTypes(team.getShiftTypes());
+        }
 
-        return updatedTeam;
+        return repository.save(dbTeam);
     }
 
     /**

@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import ase.meditrack.exception.ValidationException;
 import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.List;
@@ -67,12 +66,7 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Creating user {}", dto.username());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto), principal));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: POST /api/user/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating user: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping

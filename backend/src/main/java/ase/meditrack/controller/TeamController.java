@@ -28,7 +28,6 @@ import java.util.UUID;
 public class TeamController {
     private final TeamService service;
     private final TeamMapper mapper;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public TeamController(TeamService service, TeamMapper mapper) {
         this.service = service;
@@ -36,7 +35,7 @@ public class TeamController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public List<TeamDto> findAll() {
         log.info("Fetching teams");
         return mapper.toDtoList(service.findAll());
@@ -50,34 +49,24 @@ public class TeamController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public TeamDto create(@Validated({CreateValidator.class}) @RequestBody TeamDto dto, Principal principal) {
-        log.info("Creating team {}", dto.name());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto), principal));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: POST /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating team: " + e.getMessage(), e);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public TeamDto create(@Validated(CreateValidator.class) @RequestBody TeamDto dto, Principal principal) {
+        log.info("Creating team {}", dto.id());
+        return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) {
-        log.info("Updating team {}", dto.name());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: PUT /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during editing team: " + e.getMessage(), e);
-        }
+        log.info("Updating team {}", dto.id());
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting team with id {}", id);
         service.delete(id);
