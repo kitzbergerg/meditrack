@@ -1,6 +1,7 @@
 import {KeycloakEventType, KeycloakService} from "keycloak-angular";
 
 import {Injectable} from "@angular/core";
+import {User} from "../../interfaces/user";
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,7 @@ export class AuthorizationService {
   }
 
   login() {
-    return this.keycloakService.login({redirectUri: "http://localhost:4200/dashboard", });
+    return this.keycloakService.login({redirectUri: "http://localhost:4200/dashboard",});
   }
 
   changePassword() {
@@ -33,21 +34,16 @@ export class AuthorizationService {
     this.keycloakService.logout("http://localhost:4200/login");
   }
 
-  hasAuthority(roles:string[]) : boolean {
-    return roles.some(role =>this.keycloakService.getKeycloakInstance().hasRealmRole(role));
+  hasAuthority(roles: string[]): boolean {
+    return roles.some(role => this.keycloakService.getKeycloakInstance().hasRealmRole(role));
   }
 
-  getCurrentUser(): any {
-    const currentUser = sessionStorage.getItem('currentUser');
-    return currentUser ? JSON.parse(currentUser) : null;
+
+
+  getUserName(): string {
+    const tokenParsed = this.keycloakService.getKeycloakInstance().tokenParsed;
+    console.log(tokenParsed)
+    return tokenParsed ? tokenParsed['preferred_username'] : '';
   }
 
-  async getUsername(): Promise<string> {
-    this.keycloakService.getKeycloakInstance().loadUserInfo().then(userInfo => {
-      console.log('User Info:', userInfo);
-    }).catch(error => {
-      console.error('Failed to load user info', error);
-    });
-    return "test";
-  }
 }

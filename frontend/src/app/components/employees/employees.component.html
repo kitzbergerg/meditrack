@@ -1,7 +1,7 @@
 <div class="grid">
   <div class="col-12">
     <div class="card px-6 py-6">
-      <div *ngIf="user.team !== null && user.team !== '' && user.team != undefined">
+      <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team != undefined">
         <p-toolbar styleClass="mb-4">
           <h3>Welcome to the Team: {{team.name}}</h3>
           <ng-template pTemplate="left">
@@ -60,7 +60,7 @@
               </td>
               <td style="width:14%; min-width: 10rem;">
                 <span class="p-column-title">Role</span>
-                {{user.roles[0]}}
+                {{user.role.name}}
               </td>
               <td style="width:14%; min-width: 10rem;">
                 <span class="p-column-title">Work %</span>
@@ -79,69 +79,60 @@
 
         <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true" class="p-fluid">
           <ng-template pTemplate="content">
-            <div class="field">
-              <label for="username">Username</label>
-              <input type="text" pInputText id="username" [(ngModel)]="newUser.username" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !newUser.username}"/>
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.username">Name is required.</small>
-            </div>
+            <form [formGroup]="newUserForm" novalidate (ngSubmit)="createUser()">
+              <div class="field">
+                <label for="username">Username</label>
+                <input pInputText id="username" type="text" formControlName="username" />
+                <small *ngIf="submitted && newUserForm.controls['username'].errors?.['required']">Username is required.</small>
+              </div>
 
+              <div class="field">
+                <label for="email">Email:</label>
+                <input pInputText id="email" type="email" formControlName="email"  />
+                <small *ngIf="submitted && newUserForm.controls['email'].errors?.['required']">Email is required.</small>
+                <small *ngIf="submitted && newUserForm.controls['email'].errors?.['email']">Invalid email format.</small>
+              </div>
 
-            <div class="field">
-              <label for="password">Password:</label>
-              <input type="password" pInputText id="password" [(ngModel)]="newUser.password" required
-                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.password}" placeholder="Enter password" />
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.password">Password is required.</small>
-            </div>
+              <div class="field">
+                <label for="firstName">First Name:</label>
+                <input pInputText id="firstName" type="text" formControlName="firstName" />
+                <small *ngIf="submitted && newUserForm.controls['firstName'].errors?.['required']">First name is required.</small>
+              </div>
 
-            <div class="field">
-              <label for="email">Email:</label>
-              <input type="email" pInputText id="email" [(ngModel)]="newUser.email" required
-                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.email}" placeholder="Enter email" />
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.email">Email is required.</small>
-            </div>
+              <div class="field">
+                <label for="lastName">Last Name:</label>
+                <input pInputText id="lastName" type="text" formControlName="lastName" />
+                <small *ngIf="submitted && newUserForm.controls['lastName'].errors?.['required']">Last name is required.</small>
+              </div>
 
-            <div class="field">
-              <label for="firstName">First Name:</label>
-              <input type="text" pInputText id="firstName" [(ngModel)]="newUser.firstName" required
-                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.firstName}" placeholder="Enter first name" />
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.firstName">First name is required.</small>
-            </div>
+              <div class="field">
+                <label for="workingHoursPercentage">Working Percentage:</label>
+                <input pInputText id="workingHoursPercentage" type="number" formControlName="workingHoursPercentage"  min="0.1" max="1.0" step="0.01"  />
+                <small *ngIf="submitted && newUserForm.controls['workingHoursPercentage'].errors?.['required']">
+                  Working hours percentage is required.
+                </small>
+              </div>
 
-            <div class="field">
-              <label for="lastName">Last Name:</label>
-              <input type="text" pInputText id="lastName" [(ngModel)]="newUser.lastName" required
-                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.lastName}" placeholder="Enter last name" />
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.lastName">Last name is required.</small>
-            </div>
+              <div class="field">
+                <label for="role">Role:</label>
+                <select pInputText id="role" formControlName="role" >
+                  <option *ngFor="let role of roles" [ngValue]="role">{{ role.name }}</option>
+                </select>
+                <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is required.</small>
+              </div>
 
-            <div class="field">
-              <label for="workingHoursPercentage">Working Percentage:</label>
-              <input type="number" pInputText id="workingHoursPercentage" [(ngModel)]="newUser.workingHoursPercentage"
-                     min="0.1" max="1.0" step="0.01" required
-                     [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.workingHoursPercentage}"
-                     placeholder="Enter working percentage" />
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.workingHoursPercentage">
-                Working hours percentage is required.
-              </small>
-            </div>
-
-            <div class="field">
-              <label for="role">Role:</label>
-              <select pInputText id="role" [(ngModel)]="newUser.role" required
-                      [ngClass]="{'ng-invalid ng-dirty': submitted && !newUser.role}">
-                <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.name }}</option>
-              </select>
-              <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.role">Role is required.</small>
-            </div>
-
-
+              <button pButton type="submit" label="Submit" ></button>
+            </form>
           </ng-template>
 
           <ng-template pTemplate="footer">
-            <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-            <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createUser()"></button>
+            <button  pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+            <button  pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"></button>
           </ng-template>
         </p-dialog>
+
+
+
 
         <p-dialog [(visible)]="deleteUserDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
           <div class="flex align-items-center justify-content-center">
@@ -166,7 +157,7 @@
         </p-dialog>
       </div>
 
-    <div *ngIf="user.team === null">
+    <div *ngIf="currentUser.team === null">
       <h2>Create a Team first before you can add employees!</h2>
         <div class="field">
           <input placeholder="Enter Team Name" type="text" pInputText id="teamName" [(ngModel)]="newTeam.name" required [ngClass]="{'ng-invalid ng-dirty' : !newTeam.name || isTeamNameSet()}"/>

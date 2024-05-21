@@ -6,6 +6,7 @@ import {TeamService} from "../../services/team.service";
 import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-employees',
@@ -21,8 +22,10 @@ export class EmployeesComponent {
 
   deleteUsersDialog = false;
   submitted = false;
+  newUserForm: FormGroup;
 
   newUser: User = {
+    username: "",
     canWorkShiftTypes: [],
     currentOverTime: undefined,
     email: "",
@@ -34,14 +37,13 @@ export class EmployeesComponent {
     preferences: "",
     preferredShiftTypes: [],
     requestedShiftSwaps: [],
-    role: "",
+    role: null,
     roles: [],
     shifts: [],
     specialSkills: [],
     suggestedShiftSwaps: [],
     team: "",
-    username: "",
-    workingHoursPercentage: 0
+    workingHoursPercentage: 1
   };
 
   selectedUsers: User[] = [];
@@ -49,7 +51,7 @@ export class EmployeesComponent {
 
   roles: any[] = [];
 
-  user: User = {
+  currentUser: User = {
     id: '',
     username: '',
     password: '',
@@ -82,7 +84,16 @@ export class EmployeesComponent {
               private userService: UserService,
               private teamService: TeamService,
               private rolesService: RolesService,
+              private formBuilder: FormBuilder,
   ) {
+    this.newUserForm = this.formBuilder.group({
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      workingHoursPercentage: ['1', [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
+      role: ['', Validators.required]
+    });
   }
 
   ngOnInit(): void {
@@ -98,7 +109,6 @@ export class EmployeesComponent {
       { field: 'roles', header: 'Role' },
       { field: 'workingHoursPercentage', header: 'WorkingHoursPercentage' },
     ];
-
   }
 
   loadRoles(): void {
@@ -112,7 +122,7 @@ export class EmployeesComponent {
     console.log("Creating Team");
     this.teamService.createTeam(this.newTeam).subscribe(
       (response) => {
-        this.user.team= response.id;
+        this.currentUser.team= response.id;
         this.team = response;
       },
       (error) => {
@@ -129,7 +139,7 @@ export class EmployeesComponent {
   getUser(): void {
     this.userService.getUserById(this.userId).subscribe(
       (response) => {
-        this.user = response;
+        this.currentUser = response;
         console.log(response)
         if (response.team != null) {
           this.getTeam();
@@ -143,9 +153,8 @@ export class EmployeesComponent {
   }
 
   getTeam(): void {
-    console.log(this.user)
-    if (this.user.team !== undefined ) {
-      this.teamService.getTeamById(this.user.team).subscribe(
+    if (this.currentUser.team !== undefined ) {
+      this.teamService.getTeamById(this.currentUser.team).subscribe(
         (response) => {
           this.team = response;
         },
@@ -159,33 +168,12 @@ export class EmployeesComponent {
   loadUsersFromTeam(): void {
       this.userService.getAllUserFromTeam()
         .subscribe(users => {
-          this.usersFromTeam = users.filter(user => user.id !== this.user.id)
+          this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id)
         });
   }
 
-
   openNew() {
-    this.newUser = {
-      canWorkShiftTypes: [],
-      currentOverTime: undefined,
-      email: "",
-      firstName: "",
-      holidays: [],
-      id: "",
-      lastName: "",
-      password: "",
-      preferences: "",
-      preferredShiftTypes: [],
-      requestedShiftSwaps: [],
-      role: "",
-      roles: [],
-      shifts: [],
-      specialSkills: [],
-      suggestedShiftSwaps: [],
-      team: "",
-      username: "",
-      workingHoursPercentage: 1.0
-    };
+    this.resetUser();
     this.submitted = false;
     this.userHeader = "Create User"
     this.userDialog = true;
@@ -228,32 +216,36 @@ export class EmployeesComponent {
 
   createUser() {
     this.submitted = true;
-    //if (valid) { // Valid input TODO
-      if (this.newUser.username?.trim()) {
+    if (!this.newUserForm.invalid) {
         if (this.newUser.id) {
           this.usersFromTeam[this.findIndexById(this.newUser.id)] = this.newUser;
           // Update User TODO
         }else {
-          console.log('Creating employee');
+          this.newUser = this.newUserForm.value;
           this.newUser.roles = ['employee']
           this.newUser.team = this.team.id
+          if (this.newUser.username != null) {
+            this.newUser.password = this.newUser.username;
+          }
           this.usersFromTeam = [...this.usersFromTeam];
           this.userDialog = false;
+          console.log(this.newUser)
           this.userService.createUser(this.newUser)
             .subscribe(
               (response) => {
                 console.log('User created successfully:', response);
                 this.usersFromTeam.push(response);
+                this.newUserForm.reset();
                 this.resetUser()
               },
               (error) => {
+                this.newUserForm.reset();
+                this.resetUser()
                 console.error('Error creating user:', error);
               }
             );
-
-        }
       }
-    //}
+    }
   }
 
   findIndexById(id: string): number {
@@ -280,14 +272,14 @@ export class EmployeesComponent {
       preferences: "",
       preferredShiftTypes: [],
       requestedShiftSwaps: [],
-      role: "",
+      role: null,
       roles: [],
       shifts: [],
       specialSkills: [],
       suggestedShiftSwaps: [],
       team: "",
       username: "",
-      workingHoursPercentage: 0
+      workingHoursPercentage: 1
     };
   }
 
