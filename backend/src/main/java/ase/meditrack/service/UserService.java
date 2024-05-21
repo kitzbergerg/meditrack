@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -39,7 +40,6 @@ public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public UserService(RealmResource meditrackRealm, UserRepository repository,
-                       UserMapper mapper) {
                        UserMapper mapper, UserValidator userValidator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
@@ -135,7 +135,9 @@ public class UserService {
      * @param user, the user to update
      * @return the updated user
      */
-    public User update(User user) {
+    public User update(User user, Principal principal) {
+        //checks if employee to delete is part of team
+        this.userValidator.teamValidate(user.getId(), principal);
         meditrackRealm.users().get(user.getUserRepresentation().getId()).update(user.getUserRepresentation());
         setUserRoles(meditrackRealm,
                 user.getUserRepresentation().getId(), user.getUserRepresentation().getRealmRoles());
@@ -147,7 +149,6 @@ public class UserService {
         user = repository.save(user);
 
         user.setUserRepresentation(userRepresentation);
-        return user;
         UUID id = user.getId();
         return repository.findById(user.getId()).map(u -> {
             u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
