@@ -30,4 +30,13 @@ export class UserService {
   createUser(user: User): Observable<User> {
     return this.http.post<User>(this.apiUrl, user);
   }
+
+  deleteUser(user: User): Observable<NonNullable<unknown>> {
+    return this.http.delete(`${this.apiUrl}/${user.id}`);
+  }
+
+  updateUser(user: User): Observable<User> {
+    user.username = undefined;
+    return this.http.put<User>(this.apiUrl, user);
+  }
 }

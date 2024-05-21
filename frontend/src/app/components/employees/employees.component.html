@@ -79,7 +79,7 @@
 
         <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true" class="p-fluid">
           <ng-template pTemplate="content">
-            <div class="field">
+            <div *ngIf="userHeader==='Create User'" class="field">
               <label for="username">Username</label>
               <input type="text" pInputText id="username" [(ngModel)]="newUser.username" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !newUser.username}"/>
               <small class="ng-dirty ng-invalid" *ngIf="submitted && !newUser.username">Name is required.</small>
