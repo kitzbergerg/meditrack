@@ -1,6 +1,5 @@
 package ase.meditrack.model;
 
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.TeamRepository;
 import org.slf4j.Logger;
