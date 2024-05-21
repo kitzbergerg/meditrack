@@ -71,15 +71,15 @@ public class UserController {
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
-    public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto) {
+    public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Updating user {}", dto.username());
-        return mapper.toDto(service.update(mapper.fromDto(dto)));
+        return mapper.toDto(service.update(mapper.fromDto(dto), principal));
     }
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || authentication.name == #id.toString()")
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting user with id {}", id);
-        service.delete(id);
+        service.delete(id, principal);
     }
 }

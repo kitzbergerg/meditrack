@@ -197,14 +197,16 @@ export class EmployeesComponent {
   confirmDeleteSelected() {
     this.deleteUsersDialog = false;
     this.usersFromTeam = this.usersFromTeam.filter(val => !this.selectedUsers.includes(val));
-    // delete TODO
     this.selectedUsers = [];
   }
 
   confirmDelete() {
     this.deleteUserDialog = false;
     this.usersFromTeam = this.usersFromTeam.filter(val => val.id !== this.newUser.id);
-    // delete TODO
+    this.userService.deleteUser(this.newUser).subscribe({
+        next: () => {console.log("User deleted successfully: ", this.newUser)},
+        error: () => {console.log("User could not be deleted: ", this.newUser)}}
+    );
     this.resetUser()
   }
 
@@ -218,8 +220,17 @@ export class EmployeesComponent {
     this.submitted = true;
     if (!this.newUserForm.invalid) {
         if (this.newUser.id) {
-          this.usersFromTeam[this.findIndexById(this.newUser.id)] = this.newUser;
-          // Update User TODO
+          this.userService.updateUser(this.newUser).subscribe({
+            next: (user) => {
+              console.log("Successfully updated user", user);
+              if(user.id) {
+                this.usersFromTeam[this.findIndexById(user.id)] = user;
+              }
+              this.userDialog = false;
+            },
+            error: () => {console.log("Error updating user", this.newUser)
+            }
+          })
         }else {
           this.newUser = this.newUserForm.value;
           this.newUser.roles = ['employee']
@@ -231,18 +242,16 @@ export class EmployeesComponent {
           this.userDialog = false;
           console.log(this.newUser)
           this.userService.createUser(this.newUser)
-            .subscribe(
-              (response) => {
+            .subscribe({
+              next: (response) => {
                 console.log('User created successfully:', response);
                 this.usersFromTeam.push(response);
                 this.newUserForm.reset();
                 this.resetUser()
               },
-              (error) => {
-                this.newUserForm.reset();
-                this.resetUser()
+              error: (error) => {
                 console.error('Error creating user:', error);
-              }
+              }}
             );
       }
     }

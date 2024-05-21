@@ -80,7 +80,7 @@
         <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true" class="p-fluid">
           <ng-template pTemplate="content">
             <form [formGroup]="newUserForm" novalidate (ngSubmit)="createUser()">
-              <div class="field">
+              <div *ngIf="userHeader==='Create User'"  class="field">
                 <label for="username">Username</label>
                 <input pInputText id="username" type="text" formControlName="username" />
                 <small *ngIf="submitted && newUserForm.controls['username'].errors?.['required']">Username is required.</small>
