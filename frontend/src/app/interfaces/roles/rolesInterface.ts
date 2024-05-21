@@ -1,7 +1,7 @@
 export interface Role {
-  id: number,
+  id?: number,
   name: string,
-  users: number[]
+  users?: number[]
 }
 
 export interface RoleCreate {

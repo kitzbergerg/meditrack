@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
@@ -14,11 +15,17 @@ import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.invoke.MethodHandles;
+import java.security.Principal;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
@@ -29,19 +36,22 @@ public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final UserValidator userValidator;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public UserService(RealmResource meditrackRealm, UserRepository repository,
-                       UserMapper mapper) {
+                       UserMapper mapper, UserValidator userValidator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.mapper = mapper;
+        this.userValidator = userValidator;
     }
 
     @PostConstruct
     public void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
             log.info("Creating default admin user...");
-            this.create(defaultAdminUser());
+            this.create(defaultAdminUser(), null);
         }
     }
 
@@ -53,6 +63,26 @@ public class UserService {
     public List<User> findAll() {
         return repository.findAll()
                 .stream()
+                .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
+                .toList();
+    }
+
+    /**
+     * Fetches all users from the team of the dm from the database and matches additional attributes from keycloak.
+     *
+     * @param principal, the dm of the team
+     * @return List of all users from the team of the dm
+     */
+    public List<User> findByTeam(Principal principal) throws NoSuchElementException {
+        UUID dmId = UUID.fromString(principal.getName());
+        Optional<User> dm = repository.findById(dmId);
+        if (dm.isEmpty()) {
+            throw new NoSuchElementException("User doesnt exist");
+        }
+        if (dm.get().getTeam() == null) {
+            throw new NoSuchElementException("Principal has no team");
+        }
+        return repository.findAllByTeam(dm.get().getTeam()).stream()
                 .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
                 .toList();
     }
@@ -74,9 +104,11 @@ public class UserService {
      * Creates a user in the database and in keycloak.
      *
      * @param user, the user to create
+     * @param principal, creator of the user
      * @return the created user
      */
-    public User create(User user) {
+    public User create(User user, Principal principal) {
+
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user = repository.save(user);
@@ -103,7 +135,9 @@ public class UserService {
      * @param user, the user to update
      * @return the updated user
      */
-    public User update(User user) {
+    public User update(User user, Principal principal) {
+        //checks if employee to delete is part of team
+        this.userValidator.teamValidate(user.getId(), principal);
         meditrackRealm.users().get(user.getUserRepresentation().getId()).update(user.getUserRepresentation());
         setUserRoles(meditrackRealm,
                 user.getUserRepresentation().getId(), user.getUserRepresentation().getRealmRoles());
@@ -113,8 +147,14 @@ public class UserService {
         //perform partial update: load user from db and update only the fields that are not null
         user = updateChangedAttributes(user);
         user = repository.save(user);
+
         user.setUserRepresentation(userRepresentation);
-        return user;
+        UUID id = user.getId();
+        return repository.findById(user.getId()).map(u -> {
+            u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
+            LOGGER.info("Updating user {}.", u);
+            return u;
+        }).orElseThrow(() -> new NotFoundException("Could not find user with id: " + id + "!"));
     }
 
     /**
@@ -122,7 +162,9 @@ public class UserService {
      *
      * @param id, the id of the user to delete
      */
-    public void delete(UUID id) {
+    public void delete(UUID id, Principal principal) {
+        //checks if employee to delete is part of dms team
+        this.userValidator.teamValidate(id, principal);
         try (Response response = meditrackRealm.users().delete(String.valueOf(id))) {
             if (response.getStatusInfo().toEnum().getFamily() != SUCCESSFUL) {
                 log.error("Error deleting user: {}", response.getStatusInfo().getReasonPhrase());
