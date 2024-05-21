@@ -1,6 +1,7 @@
 import {Role} from "../roles/rolesInterface";
 
 export interface Rules {
+  shiftOffShift: [number[], number] | null,
   minRestPeriod: number | null,
   maxShiftLengths: number | null,
   mandatoryOffDays: number | null,

@@ -40,14 +40,41 @@ export class RulesComponent {
   showAvailableRules = false;
   showMandatoryOffDaysRule = false;
   showMinRestPeriod = false;
-  showMaxShiftLengths= false;
+  showMaxShiftLengths = false;
   showDayTimeRequiredRoles = false;
   showNightTimeRequiredRoles = false;
   showAllowedFlexTimeTotal = false;
   showAllowedFlexTimePerMonth = false;
 
-  constructor(rulesService: RulesService) {
-    rulesService.getRules().subscribe((x: Rules) => this.rules = x)
+  constructor(private rulesService: RulesService) {
+    rulesService.getRules().subscribe({
+      next: (x: Rules) => {
+        if (this.rules == null) {
+          this.rules = this.emptyRules()
+        } else {
+
+          this.rules = x
+        }
+        console.log(this.rules);
+      },
+      error: (err) => {
+        console.log('Error getting role:', err)
+        this.rules = this.emptyRules()
+      }
+    })
+  }
+
+  emptyRules() {
+    return {
+      shiftOffShift: null,
+      minRestPeriod: null,
+      maxShiftLengths: null,
+      mandatoryOffDays: null,
+      dayTimeRequiredRoles: null,
+      nightTimeRequiredRoles: null,
+      allowedFlexTimeTotal: null,
+      allowedFlexTimePerMonth: null
+    }
   }
 
   anyRulesNotSet() {
@@ -57,7 +84,16 @@ export class RulesComponent {
   }
 
   save() {
-    console.log("save") //TODO
+    console.log("save", this.rules)
+    this.rulesService.saveRules(this.rules!).subscribe({
+        next: (response) => {
+          console.log('Rules created successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error creating role:', error);
+        }
+      }
+    )
   }
 
 
