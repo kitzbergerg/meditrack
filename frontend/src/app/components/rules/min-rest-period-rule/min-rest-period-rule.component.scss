@@ -1,1 +1,1 @@
-.ruleName > :not(:last-child) { flex: 1 }
+.ruleName > :nth-child(2){ position: absolute }

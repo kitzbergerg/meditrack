@@ -13,16 +13,16 @@
         [(ngModel)]="duration"
         inputId="minmax"
         mode="decimal"
-        [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
+        [min]="0" [max]="525600" class="mr-0_5 ml-0_5"/>
     </div>
     <div class="ml-auto">
       <button pButton pRipple (click)="update()" class="mr-0_5">
         Save
       </button>
-      <button pButton pRipple (click)="editMode = false" class="mr-0_5 ml-0_5">
+      <button pButton pRipple (click)="editMode = false" class="mr-0_5">
         Cancel
       </button>
-      <button pButton pRipple (click)="delete()" class="ml-0_5">
+      <button pButton pRipple (click)="delete()" class="">
         Delete
       </button>
     </div>

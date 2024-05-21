@@ -1,21 +1,23 @@
-<div class="ruleName display-flex center">
+<div class="ruleName center grid-3">
   <ng-container *ngIf="!editMode">
     <span class="align-self-center mr-auto flex-1">
       Day time required roles:
     </span>
     <span class="align-self-center  flex-1">
       <div *ngFor="let roleNumber of dayTimeRequiredRoles" class="display-flex width-30em">
-        <span>roleName: {{ roleNumber[0]?.name }}</span>
+        <span>role name: {{ roleNumber[0]?.name }}</span>
         <span class="ml-auto">required people: {{ roleNumber[1] }}</span>
       </div>
     </span>
-    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto mb-auto mt-auto">
+      Edit
+    </button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    <span class="align-self-center mr-auto  flex-1">Day time required roles:</span>
-    <span class="align-self-center">
-      <div *ngFor="let roleNumber of dayTimeRequiredRoles">
-        roleName:
+    <span class="align-self-center mr-auto flex-1">Day time required roles:</span>
+    <span class="align-self-center text-center">
+      <div *ngFor="let roleNumber of dayTimeRequiredRoles" class="mb-0_5">
+        role name:
         <p-dropdown
           [options]="availableRoles"
           [(ngModel)]="roleNumber[0]"
@@ -27,20 +29,24 @@
             [(ngModel)]="roleNumber[1]"
             inputId="minmax"
             mode="decimal"
-            [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
+            [min]="0" [max]="8760"
+            styleClass="max-width-10"
+            class="mr-0_5 ml-0_5 max-width-10"/>
         <button pButton pRipple (click)="deleteRoleNumber(roleNumber)">Delete</button>
+      </div>
+      <div class="text-center">
+        <button pButton pRipple (click)="addRole()" class="mr-0_5 ml-0_5">Add Role</button>
       </div>
     </span>
 
     <span class="align-self-center ml-auto">
-    <button pButton pRipple (click)="addRole()" class="mr-0_5 ml-0_5">Add Role</button>
-    <button pButton pRipple (click)="update()" class="mr-0_5 ml-0_5">
+    <button pButton pRipple (click)="update()" class="mr-0_5">
       Save
     </button>
-    <button pButton pRipple (click)="editMode = false" class="mr-0_5 ml-0_5">
+    <button pButton pRipple (click)="editMode = false" class="mr-0_5">
       Cancel
     </button>
-    <button pButton pRipple (click)="delete()" class="mr-0_5 ml-0_5">
+    <button pButton pRipple (click)="delete()" class="">
       Delete
     </button>
     </span>
