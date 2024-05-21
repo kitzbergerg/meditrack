@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.ShiftValidator;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.repository.ShiftRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class ShiftService {
     private final ShiftRepository repository;
-    private final ShiftValidator validator;
 
-    public ShiftService(ShiftRepository repository, ShiftValidator validator) {
+    public ShiftService(ShiftRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class ShiftService {
      * @return the created shift
      */
     public Shift create(Shift shift) {
-        validator.validateShiftOnCreate(shift);
         return repository.save(shift);
     }
 
@@ -59,8 +55,6 @@ public class ShiftService {
      * @return the updated shift
      */
     public Shift update(Shift shift) {
-        validator.validateShiftOnUpdate(shift);
-
         Shift dbShift = findById(shift.getId());
 
         if (shift.getDate() != null) {

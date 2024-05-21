@@ -38,7 +38,7 @@ public class UserService {
     }
 
     @PostConstruct
-    private void createAdminUser() {
+    public void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
             log.info("Creating default admin user...");
             this.create(defaultAdminUser());

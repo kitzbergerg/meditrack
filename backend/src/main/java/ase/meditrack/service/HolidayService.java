@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.HolidayValidator;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.repository.HolidayRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class HolidayService {
     private final HolidayRepository repository;
-    private final HolidayValidator validator;
 
-    public HolidayService(HolidayRepository repository, HolidayValidator validator) {
+    public HolidayService(HolidayRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class HolidayService {
      * @return the created holiday
      */
     public Holiday create(Holiday holiday) {
-        validator.validateHolidayOnCreate(holiday);
         return repository.save(holiday);
     }
 
@@ -59,8 +55,6 @@ public class HolidayService {
      * @return the updated holiday
      */
     public Holiday update(Holiday holiday) {
-        validator.validateHolidayOnUpdate(holiday);
-
         Holiday dbHoliday = findById(holiday.getId());
 
         if (holiday.getStartDate() != null) {

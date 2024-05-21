@@ -2,44 +2,20 @@ package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.HolidayDto;
 import ase.meditrack.model.entity.Holiday;
-import ase.meditrack.model.entity.User;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
 
 import java.util.List;
 
-@Mapper
-public abstract class HolidayMapper {
+@Mapper(uses = EntityUuidMapper.class)
+public interface HolidayMapper {
 
     @Named("toDto")
-    public HolidayDto toDto(Holiday holiday) {
-        return new HolidayDto(
-                holiday.getId(),
-                holiday.getStartDate(),
-                holiday.getEndDate(),
-                holiday.getIsApproved(),
-                holiday.getUser() != null ? holiday.getUser().getId() : null
-        );
-    }
+    HolidayDto toDto(Holiday holiday);
 
-    public Holiday fromDto(HolidayDto dto) {
-        Holiday holiday = new Holiday();
-
-        holiday.setId(dto.id());
-        holiday.setStartDate(dto.startDate());
-        holiday.setEndDate(dto.endDate());
-        holiday.setIsApproved(dto.isApproved());
-
-        if (dto.user() != null) {
-            User user = new User();
-            user.setId(dto.user());
-            holiday.setUser(user);
-        }
-
-        return holiday;
-    }
+    Holiday fromDto(HolidayDto dto);
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<HolidayDto> toDtoList(List<Holiday> holidays);
+    List<HolidayDto> toDtoList(List<Holiday> holidays);
 }

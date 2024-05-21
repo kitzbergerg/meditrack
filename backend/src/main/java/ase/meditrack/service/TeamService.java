@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.TeamValidator;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.TeamRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class TeamService {
     private final TeamRepository repository;
-    private final TeamValidator validator;
 
-    public TeamService(TeamRepository repository, TeamValidator validator) {
+    public TeamService(TeamRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class TeamService {
      * @return the created team
      */
     public Team create(Team team) {
-        validator.validateTeamOnCreate(team);
         return repository.save(team);
     }
 
@@ -59,8 +55,6 @@ public class TeamService {
      * @return the updated team
      */
     public Team update(Team team) {
-        validator.validateTeamOnUpdate(team);
-
         Team dbTeam = findById(team.getId());
 
         if (team.getName() != null) {

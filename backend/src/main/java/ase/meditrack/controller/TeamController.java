@@ -1,7 +1,5 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.TeamDto;
@@ -11,17 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,12 +38,7 @@ public class TeamController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public TeamDto findById(@PathVariable UUID id) {
         log.info("Fetching team with id: {}", id);
-        try {
-            return mapper.toDto(service.findById(id));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/team/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team with id: " + id + " not found", e);
-        }
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
@@ -63,13 +46,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.CREATED)
     public TeamDto create(@Validated(CreateValidator.class) @RequestBody TeamDto dto) {
         log.info("Creating team {}", dto.id());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: POST /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during creating team: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
@@ -77,16 +54,7 @@ public class TeamController {
     @ResponseStatus(HttpStatus.OK)
     public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) {
         log.info("Updating team {}", dto.id());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: PUT /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during updating team: " + e.getMessage(), e);
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/team/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team with id: " + dto.id() + " not found", e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")

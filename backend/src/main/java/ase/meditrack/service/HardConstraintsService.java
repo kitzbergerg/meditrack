@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.HardConstraintsValidator;
 import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.repository.HardConstraintsRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class HardConstraintsService {
     private final HardConstraintsRepository repository;
-    private final HardConstraintsValidator validator;
 
-    public HardConstraintsService(HardConstraintsRepository repository, HardConstraintsValidator validator) {
+    public HardConstraintsService(HardConstraintsRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class HardConstraintsService {
      * @return the created hard constraints
      */
     public HardConstraints create(HardConstraints hardConstraints) {
-        validator.validateHardConstraintsOnCreate(hardConstraints);
         return repository.save(hardConstraints);
     }
 
@@ -59,8 +55,6 @@ public class HardConstraintsService {
      * @return the updated hard constraints
      */
     public HardConstraints update(HardConstraints hardConstraints) {
-        validator.validateHardConstraintsOnUpdate(hardConstraints);
-
         HardConstraints dbHardConstraints = findById(hardConstraints.getId());
 
         if (hardConstraints.getShiftOffShift() != null) {

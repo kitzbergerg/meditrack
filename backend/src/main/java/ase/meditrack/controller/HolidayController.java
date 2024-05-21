@@ -1,7 +1,5 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.HolidayDto;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,12 +47,7 @@ public class HolidayController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public HolidayDto findById(@PathVariable UUID id) {
         log.info("Fetching holiday with id: {}", id);
-        try {
-            return mapper.toDto(service.findById(id));
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: GET /api/holiday/{}", id, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Holiday with id: " + id + " not found", e);
-        }
+        return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
@@ -63,13 +55,7 @@ public class HolidayController {
     @ResponseStatus(HttpStatus.CREATED)
     public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto) {
         log.info("Creating holiday {}", dto.id());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: POST /api/holiday/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during creating holiday: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
@@ -77,16 +63,8 @@ public class HolidayController {
     @ResponseStatus(HttpStatus.OK)
     public HolidayDto update(@Validated(UpdateValidator.class) @RequestBody HolidayDto dto) {
         log.info("Updating holiday {}", dto.id());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            log.error("ValidationException: PUT /api/holiday/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Error during updating holiday: " + e.getMessage(), e);
-        } catch (NotFoundException e) {
-            log.error("NotFoundException: PUT /api/holiday/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Holiday with id: " + dto.id() + " not found", e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
+
     }
 
     @DeleteMapping("{id}")

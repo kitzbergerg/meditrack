@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.MonthlyPlanValidator;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class MonthlyPlanService {
     private final MonthlyPlanRepository repository;
-    private final MonthlyPlanValidator validator;
 
-    public MonthlyPlanService(MonthlyPlanRepository repository, MonthlyPlanValidator validator) {
+    public MonthlyPlanService(MonthlyPlanRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class MonthlyPlanService {
      * @return the created monthly plan
      */
     public MonthlyPlan create(MonthlyPlan monthlyPlan) {
-        validator.validateMonthlyPlanOnCreate(monthlyPlan);
         return repository.save(monthlyPlan);
     }
 
@@ -59,8 +55,6 @@ public class MonthlyPlanService {
      * @return the updated monthly plan
      */
     public MonthlyPlan update(MonthlyPlan monthlyPlan) {
-        validator.validateMonthlyPlanOnUpdate(monthlyPlan);
-
         MonthlyPlan dbPlan = findById(monthlyPlan.getId());
 
         if (monthlyPlan.getMonth() != null) {

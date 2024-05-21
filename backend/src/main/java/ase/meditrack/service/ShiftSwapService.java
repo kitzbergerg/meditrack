@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.ShiftSwapValidator;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.repository.ShiftSwapRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class ShiftSwapService {
     private final ShiftSwapRepository repository;
-    private final ShiftSwapValidator validator;
 
-    public ShiftSwapService(ShiftSwapRepository repository, ShiftSwapValidator validator) {
+    public ShiftSwapService(ShiftSwapRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class ShiftSwapService {
      * @return the created shift swap
      */
     public ShiftSwap create(ShiftSwap shiftSwap) {
-        validator.validateShiftSwapOnCreate(shiftSwap);
         return repository.save(shiftSwap);
     }
 
@@ -59,8 +55,6 @@ public class ShiftSwapService {
      * @return the updated shift swap
      */
     public ShiftSwap update(ShiftSwap shiftSwap) {
-        validator.validateShiftSwapOnUpdate(shiftSwap);
-
         ShiftSwap dbShiftSwap = findById(shiftSwap.getId());
 
         if (shiftSwap.getSwapRequestingUser() != null) {

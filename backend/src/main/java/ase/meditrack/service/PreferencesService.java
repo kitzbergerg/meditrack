@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.PreferencesValidator;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.repository.PreferencesRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class PreferencesService {
     private final PreferencesRepository repository;
-    private final PreferencesValidator validator;
 
-    public PreferencesService(PreferencesRepository repository, PreferencesValidator validator) {
+    public PreferencesService(PreferencesRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,7 +45,6 @@ public class PreferencesService {
      * @return the created preference
      */
     public Preferences create(Preferences preference) {
-        validator.validatePreferences(preference);
         return repository.save(preference);
     }
 
@@ -59,8 +55,6 @@ public class PreferencesService {
      * @return the updated preference
      */
     public Preferences update(Preferences preference) {
-        validator.validatePreferences(preference);
-
         Preferences dbPreferences = findById(preference.getId());
 
         if (preference.getOffDays() != null) {

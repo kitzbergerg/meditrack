@@ -1,8 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.exception.ValidationException;
-import ase.meditrack.model.RoleValidator;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +13,9 @@ import java.util.UUID;
 @Slf4j
 public class RoleService {
     private final RoleRepository repository;
-    private final RoleValidator validator;
 
-    public RoleService(RoleRepository repository, RoleValidator validator) {
+    public RoleService(RoleRepository repository) {
         this.repository = repository;
-        this.validator = validator;
     }
 
     /**
@@ -48,8 +44,7 @@ public class RoleService {
      * @param role, the role to create
      * @return the created role
      */
-    public Role create(Role role) throws ValidationException {
-        validator.roleCreateValidation(role);
+    public Role create(Role role) {
         return repository.save(role);
     }
 
@@ -59,9 +54,7 @@ public class RoleService {
      * @param role, the role to update
      * @return the updated role
      */
-    public Role update(Role role) throws ValidationException {
-        validator.roleUpdateValidation(role);
-
+    public Role update(Role role) {
         Role dbRole = repository.findById(role.getId())
                 .orElseThrow(() -> new NotFoundException("Role not found"));
 

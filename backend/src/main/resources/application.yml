@@ -7,7 +7,7 @@ spring:
     password: ${POSTGRES_PASSWORD:PFtkqhXnCxFSScMY5Zh5}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   security:
     oauth2:
       resourceserver:
