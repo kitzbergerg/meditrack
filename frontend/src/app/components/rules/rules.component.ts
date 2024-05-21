@@ -12,6 +12,7 @@ import {DayTimeRequiredRolesComponent} from "./day-time-required-roles/day-time-
 import {NightTimeRequiredRolesComponent} from "./night-time-required-roles/night-time-required-roles.component";
 import {AllowedFlexTimeTotalComponent} from "./allowed-flex-time-total/allowed-flex-time-total.component";
 import {AllowedFlexTimePerMonthComponent} from "./allowed-flex-time-per-month/allowed-flex-time-per-month.component";
+import {Role} from "../../interfaces/roles/rolesInterface";
 
 @Component({
   selector: 'app-rules',
@@ -60,45 +61,60 @@ export class RulesComponent {
   }
 
 
-  deleteMandatoryOffDaysRule() {
-    this.showMandatoryOffDaysRule = false;
-    this.rules!.mandatoryOffDays = null;
+  updateMandatoryOffDaysRule(mandatoryOffDays: number | null) {
+    console.log('updated', mandatoryOffDays)
+    if (mandatoryOffDays == null) {
+      this.showMandatoryOffDaysRule = false;
+    }
+    this.rules!.mandatoryOffDays = mandatoryOffDays;
     this.save()
   }
 
-  deleteMinRestPeriodRule() {
-    this.showMandatoryOffDaysRule = false;
-    this.rules!.minRestPeriod = null;
+  updateMinRestPeriodRule(minRest: number | null) {
+    if (minRest == null) {
+      this.showMinRestPeriod = false;
+    }
+    this.rules!.minRestPeriod = minRest;
     this.save()
   }
 
-  deleteMaxShiftLengthRule() {
-    this.showMaxShiftLengths = false;
-    this.rules!.maxShiftLengths = null;
+  updateMaxShiftLengthRule(maxShift: number | null) {
+    if (maxShift == null) {
+      this.showMaxShiftLengths = false;
+    }
+    this.rules!.maxShiftLengths = maxShift;
     this.save()
   }
 
-  deleteDayTimeRequiredRolesRule() {
-    this.showDayTimeRequiredRoles = false;
-    this.rules!.dayTimeRequiredRoles = null;
+  updateDayTimeRequiredRolesRule(dayTimeRoles: [Role | null, number][] | null) {
+    if (dayTimeRoles == null) {
+      this.showDayTimeRequiredRoles = false;
+    }
+    this.rules!.dayTimeRequiredRoles = dayTimeRoles;
     this.save()
   }
 
-  deleteNightTimeRequiredRolesRule() {
-    this.showNightTimeRequiredRoles = false;
-    this.rules!.nightTimeRequiredRoles = null;
+  updateNightTimeRequiredRolesRule(nightTimeRoles: [Role | null, number][] | null) {
+    if (nightTimeRoles == null) {
+      this.showNightTimeRequiredRoles = false;
+    }
+    this.rules!.nightTimeRequiredRoles = nightTimeRoles;
     this.save()
   }
 
-  deleteAllowedFlexTimeTotalRule() {
-    this.showAllowedFlexTimeTotal = false;
-    this.rules!.allowedFlexTimeTotal = null;
+  updateAllowedFlexTimeTotalRule(flexTotal: number | null) {
+    if (flexTotal == null) {
+      this.showAllowedFlexTimeTotal = false;
+    }
+    this.rules!.allowedFlexTimeTotal = flexTotal;
     this.save()
   }
 
-  deleteAllowedFlexTimePerMonthRule() {
-    this.showAllowedFlexTimePerMonth = false;
-    this.rules!.allowedFlexTimePerMonth = null;
+  updateAllowedFlexTimePerMonthRule(flexMonth: number | null) {
+    if (flexMonth == null) {
+      this.showAllowedFlexTimePerMonth = false;
+    }
+    this.rules!.allowedFlexTimePerMonth = flexMonth;
     this.save()
   }
 }

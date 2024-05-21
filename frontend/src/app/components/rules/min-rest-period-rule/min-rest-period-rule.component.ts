@@ -3,8 +3,6 @@ import {ButtonModule} from "primeng/button";
 import {InputNumberModule} from "primeng/inputnumber";
 import {NgIf} from "@angular/common";
 import {RippleModule} from "primeng/ripple";
-import {MinRestPeriod} from "../../../interfaces/rules/rulesInterface";
-import {RulesService} from "../../../services/rules.service";
 import {FormsModule} from "@angular/forms";
 
 @Component({
@@ -21,24 +19,26 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './min-rest-period-rule.component.scss'
 })
 export class MinRestPeriodRuleComponent {
-  @Input() minRestPeriod: MinRestPeriod | null = null;
+  @Input() minRestPeriod: number | null = null;
   editMode = true;
-  @Output() deleteMinRestPeriod = new EventEmitter<void>();
-  duration: number | undefined = this.minRestPeriod?.duration;
+  @Output() updateMinRestPeriod = new EventEmitter<number | null>();
+  duration: number | null = this.minRestPeriod;
 
-  constructor(rulesService: RulesService) {
+  constructor() {
     if (this.minRestPeriod == null) {
-      this.minRestPeriod = {duration: 1};
+      //this.minRestPeriod = {duration: 1};
+      //TODO duration = 1
+      //this.duration = 1
     }
   }
 
   update() {
     this.editMode = false
-    console.log("")
+    this.updateMinRestPeriod.emit(this.duration)
   }
 
   delete() {
-    this.deleteMinRestPeriod.emit()
+    this.updateMinRestPeriod.emit(null)
   }
 
 }

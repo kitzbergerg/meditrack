@@ -7,43 +7,43 @@
         <li *ngIf="showMandatoryOffDaysRule">
           <app-mandatory-off-days-rule
             [mandatoryOffDays]="rules!.mandatoryOffDays"
-            (deleteMandatoryOffDaysRule)="deleteMandatoryOffDaysRule()">
+            (updateMandatoryOffDays)="updateMandatoryOffDaysRule($event)">
           </app-mandatory-off-days-rule>
         </li>
         <li *ngIf="showMinRestPeriod">
           <app-min-rest-period-rule
             [minRestPeriod]="rules!.minRestPeriod"
-            (deleteMinRestPeriod)="deleteMinRestPeriodRule()">
+            (updateMinRestPeriod)="updateMinRestPeriodRule($event)">
           </app-min-rest-period-rule>
         </li>
         <li *ngIf="showMaxShiftLengths">
           <app-max-shift-lengths
             [maxShiftLength]="rules!.maxShiftLengths"
-            (deleteMaxShiftLength)="deleteMaxShiftLengthRule()">
+            (updateMaxShiftLength)="updateMaxShiftLengthRule($event)">
           </app-max-shift-lengths>
         </li>
         <li *ngIf="showDayTimeRequiredRoles">
           <app-day-time-required-roles
             [dayTimeRequiredRoles]="rules!.dayTimeRequiredRoles"
-            (deleteDayTimeRequiredRoles)="deleteDayTimeRequiredRolesRule()">
+            (updateDayTimeRequiredRoles)="updateDayTimeRequiredRolesRule($event)">
           </app-day-time-required-roles>
         </li>
         <li *ngIf="showNightTimeRequiredRoles">
           <app-night-time-required-roles
             [nightTimeRequiredRoles]="rules!.nightTimeRequiredRoles"
-            (deleteNightTimeRequiredRoles)="deleteNightTimeRequiredRolesRule()">
+            (updateNightTimeRequiredRoles)="updateNightTimeRequiredRolesRule($event)">
           </app-night-time-required-roles>
         </li>
         <li *ngIf="showAllowedFlexTimeTotal">
           <app-allowed-flex-time-total
             [allowedFlexTimeTotal]="rules!.allowedFlexTimeTotal"
-            (deleteAllowedFlexTimeTotal)="deleteAllowedFlexTimeTotalRule()">
+            (updateAllowedFlexTimeTotal)="updateAllowedFlexTimeTotalRule($event)">
           </app-allowed-flex-time-total>
         </li>
         <li *ngIf="showAllowedFlexTimePerMonth">
           <app-allowed-flex-time-per-month
             [allowedFlexTimePerMonth]="rules!.allowedFlexTimePerMonth"
-            (deleteAllowedFlexTimePerMonth)="deleteAllowedFlexTimePerMonthRule()">
+            (updateAllowedFlexTimePerMonth)="updateAllowedFlexTimePerMonthRule($event)">
           </app-allowed-flex-time-per-month>
         </li>
       </ul>

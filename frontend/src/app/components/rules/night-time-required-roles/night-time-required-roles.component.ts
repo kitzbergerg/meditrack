@@ -27,7 +27,7 @@ export class NightTimeRequiredRolesComponent {
   @Input() nightTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
   editMode = true;
-  @Output() deleteNightTimeRequiredRoles = new EventEmitter<void>();
+  @Output() updateNightTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
     roleService.getAllRoles().subscribe(x => this.availableRoles = x);
@@ -35,11 +35,11 @@ export class NightTimeRequiredRolesComponent {
 
   update() {
     this.editMode = false
-    console.log("")
+    this.updateNightTimeRequiredRoles.emit(this.nightTimeRequiredRoles)
   }
 
   delete() {
-    this.deleteNightTimeRequiredRoles.emit()
+    this.updateNightTimeRequiredRoles.emit(null)
   }
 
   addRole() {

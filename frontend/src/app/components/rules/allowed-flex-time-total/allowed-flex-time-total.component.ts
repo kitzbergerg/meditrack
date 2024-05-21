@@ -22,7 +22,7 @@ import {FormsModule} from "@angular/forms";
 export class AllowedFlexTimeTotalComponent {
   @Input() allowedFlexTimeTotal: number | null = null;
   editMode = true;
-  @Output() deleteAllowedFlexTimeTotal = new EventEmitter<void>();
+  @Output() updateAllowedFlexTimeTotal = new EventEmitter<number | null>();
 
   constructor(rulesService: RulesService) {
     if (this.allowedFlexTimeTotal == null) {
@@ -32,11 +32,11 @@ export class AllowedFlexTimeTotalComponent {
 
   update() {
     this.editMode = false
-    console.log("")
+    this.updateAllowedFlexTimeTotal.emit(this.allowedFlexTimeTotal);
   }
 
   delete() {
-    this.deleteAllowedFlexTimeTotal.emit()
+    this.updateAllowedFlexTimeTotal.emit(null)
   }
 
 }

@@ -27,7 +27,7 @@ export class DayTimeRequiredRolesComponent {
   @Input() dayTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
   editMode = true;
-  @Output() deleteDayTimeRequiredRoles = new EventEmitter<void>();
+  @Output() updateDayTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
     roleService.getAllRoles().subscribe(x => {
@@ -43,11 +43,11 @@ export class DayTimeRequiredRolesComponent {
 
   update() {
     this.editMode = false
-    console.log("")
+    this.updateDayTimeRequiredRoles.emit(this.dayTimeRequiredRoles)
   }
 
   delete() {
-    this.deleteDayTimeRequiredRoles.emit()
+    this.updateDayTimeRequiredRoles.emit(null)
   }
 
   addRole() {

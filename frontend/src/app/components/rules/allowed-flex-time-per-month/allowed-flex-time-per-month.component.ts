@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {MinRestPeriod} from "../../../interfaces/rules/rulesInterface";
 import {RulesService} from "../../../services/rules.service";
 import {ButtonModule} from "primeng/button";
 import {InputNumberModule} from "primeng/inputnumber";
@@ -23,7 +22,7 @@ import {FormsModule} from "@angular/forms";
 export class AllowedFlexTimePerMonthComponent {
   @Input() allowedFlexTimePerMonth: number | null = null;
   editMode = true;
-  @Output() deleteAllowedFlexTimePerMonth = new EventEmitter<void>();
+  @Output() updateAllowedFlexTimePerMonth = new EventEmitter<number | null>();
 
   constructor(rulesService: RulesService) {
     if (this.allowedFlexTimePerMonth == null) {
@@ -33,11 +32,11 @@ export class AllowedFlexTimePerMonthComponent {
 
   update() {
     this.editMode = false
-    console.log("")
+    this.updateAllowedFlexTimePerMonth.emit(this.allowedFlexTimePerMonth)
   }
 
   delete() {
-    this.deleteAllowedFlexTimePerMonth.emit()
+    this.updateAllowedFlexTimePerMonth.emit(null)
   }
 
 }

@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {MaxShiftLength} from "../../../interfaces/rules/rulesInterface";
 import {RulesService} from "../../../services/rules.service";
 import {ButtonModule} from "primeng/button";
 import {InputNumberModule} from "primeng/inputnumber";
@@ -21,24 +20,25 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './max-shift-lengths.component.scss'
 })
 export class MaxShiftLengthsComponent {
-  @Input() maxShiftLength: MaxShiftLength | null = null;
+  @Input() maxShiftLength: number | null = null;
   editMode = true;
-  @Output() deleteMaxShiftLength = new EventEmitter<void>();
-  duration: number | undefined = this.maxShiftLength?.duration;
+  @Output() updateMaxShiftLength = new EventEmitter<number | null>();
+  duration: number | null = this.maxShiftLength;
 
-  constructor(rulesService: RulesService) {
+  constructor() {
     if (this.maxShiftLength == null) {
-      this.maxShiftLength = {duration: 1};
+      //this.maxShiftLength = {duration: 1};
+      //this.duration = 1;
     }
   }
 
   update() {
     this.editMode = false
-    console.log("")
+    this.updateMaxShiftLength.emit(this.duration)
   }
 
   delete() {
-    this.deleteMaxShiftLength.emit()
+    this.updateMaxShiftLength.emit(null)
   }
 
 }
