@@ -1,11 +1,11 @@
 <div class="ruleName display-flex center">
   <ng-container *ngIf="!editMode">
-    <span class="va-middle align-self-center mr-auto">Mandatory off days: </span>
-    <span class="align-self-center">{{ allowedFlexTimePerMonth }} days</span>
+    <span class="va-middle align-self-center mr-auto">Allowed flex time per month: </span>
+    <span class="align-self-center">{{ allowedFlexTimePerMonth }} hours</span>
     <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    <div class="align-self-center mr-auto">Days in a Month:</div>
+    <div class="align-self-center mr-auto">Hours of allowed flex time per month:</div>
     <div class="align-self-center">
       <p-inputNumber
         [(ngModel)]="allowedFlexTimePerMonth"

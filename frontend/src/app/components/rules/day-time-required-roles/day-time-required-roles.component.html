@@ -4,9 +4,9 @@
       Day time required roles:
     </span>
     <span class="align-self-center  flex-1">
-      <div *ngFor="let roleNumber of dayTimeRequiredRoles">
-        roleName: {{ roleNumber[0]?.name }}
-        required people: {{ roleNumber[1] }}
+      <div *ngFor="let roleNumber of dayTimeRequiredRoles" class="display-flex width-30em">
+        <span>roleName: {{ roleNumber[0]?.name }}</span>
+        <span class="ml-auto">required people: {{ roleNumber[1] }}</span>
       </div>
     </span>
     <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
