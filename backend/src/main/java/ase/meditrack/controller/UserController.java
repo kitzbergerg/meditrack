@@ -78,8 +78,8 @@ public class UserController {
 
     @DeleteMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || authentication.name == #id.toString()")
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting user with id {}", id);
-        service.delete(id);
+        service.delete(id, principal);
     }
 }

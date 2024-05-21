@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
@@ -14,6 +15,8 @@ import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,12 +35,16 @@ public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
     private final UserMapper mapper;
+    private final UserValidator userValidator;
+    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public UserService(RealmResource meditrackRealm, UserRepository repository,
                        UserMapper mapper) {
+                       UserMapper mapper, UserValidator userValidator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.mapper = mapper;
+        this.userValidator = userValidator;
     }
 
     @PostConstruct
@@ -138,8 +145,15 @@ public class UserService {
         //perform partial update: load user from db and update only the fields that are not null
         user = updateChangedAttributes(user);
         user = repository.save(user);
+
         user.setUserRepresentation(userRepresentation);
         return user;
+        UUID id = user.getId();
+        return repository.findById(user.getId()).map(u -> {
+            u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
+            LOGGER.info("Updating user {}.", u);
+            return u;
+        }).orElseThrow(() -> new NotFoundException("Could not find user with id: " + id + "!"));
     }
 
     /**
@@ -147,7 +161,9 @@ public class UserService {
      *
      * @param id, the id of the user to delete
      */
-    public void delete(UUID id) {
+    public void delete(UUID id, Principal principal) {
+        //checks if employee to delete is part of dms team
+        this.userValidator.teamValidate(id, principal);
         try (Response response = meditrackRealm.users().delete(String.valueOf(id))) {
             if (response.getStatusInfo().toEnum().getFamily() != SUCCESSFUL) {
                 log.error("Error deleting user: {}", response.getStatusInfo().getReasonPhrase());
