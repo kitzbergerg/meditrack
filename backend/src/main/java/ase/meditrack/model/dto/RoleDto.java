@@ -13,6 +13,7 @@ import java.util.UUID;
 public record RoleDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotBlank(groups = CreateValidator.class) @NotBlank(groups = UpdateValidator.class) @Length(max = 40) String name,
-        List<UUID> users
+        List<UUID> users,
+        UUID team
 ) {
 }

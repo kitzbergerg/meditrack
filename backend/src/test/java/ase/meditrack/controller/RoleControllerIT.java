@@ -91,6 +91,7 @@ class RoleControllerIT {
         RoleDto dto = new RoleDto(
                 null,
                 "testRole",
+                null,
                 null
         );
 

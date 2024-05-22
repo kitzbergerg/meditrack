@@ -108,7 +108,7 @@ export class EmployeesComponent {
       { field: 'firstName', header: 'First Name' },
       { field: 'lastName', header: 'Last Name' },
       { field: 'email', header: 'Email' },
-      { field: 'roles', header: 'Role' },
+      { field: 'role', header: 'Role' },
       { field: 'workingHoursPercentage', header: 'WorkingHoursPercentage' },
     ];
   }
@@ -170,6 +170,7 @@ export class EmployeesComponent {
       this.teamService.getTeamById(this.currentUser.team).subscribe(
         (response) => {
           this.team = response;
+          console.log(this.team)
         },
         (error) => {
           console.error('Error fetching data:', error);
