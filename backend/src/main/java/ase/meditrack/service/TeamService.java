@@ -43,9 +43,9 @@ public class TeamService {
     }
 
     /**
-     * Fetches a team by id from the database
+     * Fetches a team by id from the database.
      *
-     * @param id, the id of the team
+     * @param id the id of the team
      * @return the team
      */
     public Team findById(UUID id) {
@@ -56,7 +56,8 @@ public class TeamService {
     /**
      * Creates a team in the database.
      *
-     * @param team, the team to create
+     * @param team the team to create
+     * @param principal the current user's id
      * @return the created team
      */
     @Transactional
@@ -74,7 +75,7 @@ public class TeamService {
     /**
      * Updates a team in the database.
      *
-     * @param team, the team to update
+     * @param team the team to update
      * @return the updated team
      */
     public Team update(Team team) {
@@ -105,7 +106,7 @@ public class TeamService {
     /**
      * Deletes a team from the database.
      *
-     * @param id, the id of the team to delete
+     * @param id the id of the team to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

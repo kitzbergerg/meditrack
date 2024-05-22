@@ -14,7 +14,10 @@ import java.util.UUID;
 
 public record UserDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
-        @NotBlank(groups = CreateValidator.class) @Null(groups = UpdateValidator.class) @Length(max = 30) String username,
+        @NotBlank(groups = CreateValidator.class)
+        @Null(groups = UpdateValidator.class)
+        @Length(max = 30)
+        String username,
         @NotBlank(groups = CreateValidator.class) String password,
         @NotBlank(groups = CreateValidator.class) @Email String email,
         @NotBlank(groups = CreateValidator.class) @Length(max = 256) String firstName,
