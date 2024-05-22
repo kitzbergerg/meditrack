@@ -104,8 +104,8 @@
         <!--module name="JavadocVariable"/-->
         <module name="JavadocStyle"/>
         <module name="MissingJavadocMethod">
-            <property name="allowedAnnotations"
-                      value="Override, GetMapping, PostMapping, PutMapping, DeleteMapping"/>
+            <property name="allowedAnnotations" value="Override, GetMapping, PostMapping, PutMapping, DeleteMapping"/>
+            <property name="tokens" value="METHOD_DEF, ANNOTATION_FIELD_DEF"/>
         </module>
 
         <!-- Checks for Naming Conventions.                  -->
@@ -179,7 +179,6 @@
 
         <!-- Checks for class design                         -->
         <!-- See https://checkstyle.org/checks/design/index.html -->
-        <module name="DesignForExtension"/>
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
