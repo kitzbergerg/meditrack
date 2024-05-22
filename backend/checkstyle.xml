@@ -39,8 +39,6 @@
 
         <property name="basedir" value="${basedir}"/>
     -->
-    <property name="severity" value="info"/>
-
     <property name="fileExtensions" value="java, properties, xml"/>
 
     <!-- Excludes all 'module-info.java' files              -->
