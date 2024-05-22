@@ -16,6 +16,7 @@ public record RoleDto(
         @NotBlank(groups = UpdateValidator.class)
         @Length(max = 40)
         String name,
-        List<UUID> users
+        List<UUID> users,
+        UUID team
 ) {
 }

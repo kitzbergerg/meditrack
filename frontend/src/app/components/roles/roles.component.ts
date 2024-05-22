@@ -1,6 +1,9 @@
 import {Component} from '@angular/core';
 import {RolesService} from "../../services/roles.service";
 import {Role, RoleCreate} from "../../interfaces/roles/rolesInterface";
+import {UserService} from "../../services/user.service";
+import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {User} from "../../interfaces/user";
 
 @Component({
   selector: 'app-roles',
@@ -12,12 +15,49 @@ export class RolesComponent {
   roles: Role[] = [];
   editedRole: Role = {id: 0, name: '', users: []};
   newRoleName = '';
+  userId = '';
   showNewRoleInputField = false;
 
-  constructor(private rolesService: RolesService) { }
+  currentUser: User = {
+    id: '',
+    username: '',
+    password: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    roles: [],
+    workingHoursPercentage: 0,
+    currentOverTime: 0,
+    specialSkills: [],
+    holidays: [],
+    shifts: [],
+    role: {name: ""},
+    team: undefined,
+    requestedShiftSwaps: [],
+    suggestedShiftSwaps: [],
+    canWorkShiftTypes: [],
+    preferredShiftTypes: []
+  };
+
+  constructor(private rolesService: RolesService, private  userService: UserService, private authorizationService: AuthorizationService) { }
 
   ngOnInit(): void {
-    this.loadRoles();
+    this.userId = this.authorizationService.parsedToken().sub;
+    this.getUser();
+  }
+
+  getUser(): void {
+    this.userService.getUserById(this.userId).subscribe(
+      (response) => {
+        this.currentUser = response;
+        if (response.team != null) {
+          this.loadRoles()
+        }
+      },
+      (error) => {
+        console.error('Error fetching data:', error);
+      }
+    );
   }
 
   loadRoles(): void {
