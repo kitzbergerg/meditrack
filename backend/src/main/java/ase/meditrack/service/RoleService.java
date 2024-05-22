@@ -60,7 +60,7 @@ public class RoleService {
     /**
      * Fetches a role by id from the database.
      *
-     * @param id, the id of the role
+     * @param id the id of the role
      * @return the role
      */
     public Role findById(UUID id) {
@@ -71,7 +71,7 @@ public class RoleService {
     /**
      * Creates a role in the database.
      *
-     * @param role, the role to create
+     * @param role the role to create
      * @return the created role
      */
     @Transactional
@@ -90,7 +90,7 @@ public class RoleService {
     /**
      * Updates a role in the database.
      *
-     * @param role, the role to update
+     * @param role the role to update
      * @return the updated role
      */
     public Role update(Role role) {
@@ -110,7 +110,7 @@ public class RoleService {
     /**
      * Deletes a role from the database.
      *
-     * @param id, the id of the role to delete
+     * @param id the id of the role to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class SchedulingSolver {
+public final class SchedulingSolver {
     private static final int MAX_RUNTIME_IN_SECONDS = 10;
 
     static {
@@ -31,8 +31,8 @@ public class SchedulingSolver {
      */
     public static Optional<AlgorithmOutput> solve(final AlgorithmInput input) {
         final int minNumberOfDaysInMonth = 28;
-        if (input.days().size() < minNumberOfDaysInMonth || input.employees().isEmpty() ||
-                input.shiftTypes().isEmpty()) {
+        if (input.days().size() < minNumberOfDaysInMonth || input.employees().isEmpty()
+                || input.shiftTypes().isEmpty()) {
             throw new RuntimeException("invalid input");
         }
 

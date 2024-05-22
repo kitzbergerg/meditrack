@@ -2,6 +2,7 @@ package ase.meditrack;
 
 import ase.meditrack.util.KeycloakContainer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -11,12 +12,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
+@DisabledIfSystemProperty(named = "spring.profiles.active", matches = "excludeTestcontainers")
 class SmokeTestIT {
 
     @Container
-    static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
+    private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
     @Container
-    static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
+    private static final KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
 
     @DynamicPropertySource
     static void startContainers(DynamicPropertyRegistry registry) {

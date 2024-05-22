@@ -76,7 +76,10 @@ public class UserController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (authentication.name == #dto.id().toString() && #dto.roles() == null)")
+    @PreAuthorize(
+            "hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') "
+                    + "|| (authentication.name == #dto.id().toString() && #dto.roles() == null)"
+    )
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto, Principal principal) {
         // TODO: make sure that team has to be the same as dm's team and roles cannot be more than dm's roles
         log.info("Updating user {}", dto.username());
