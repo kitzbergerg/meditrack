@@ -32,6 +32,9 @@ test-backend:
     - mvn verify -Dspring.profiles.active=excludeTestcontainers
     - CODE_COVERAGE=$(cat target/site/jacoco/index.html | grep -oP '(?<=<td class="ctr2">)[^<]+(?=</td>)' | head -1)
     - echo "Executed tests successfully with $CODE_COVERAGE code coverage"
+  artifacts:
+    paths:
+      - backend/target/site/jacoco
 
 test-backend-checkstyle:
   stage: test
