@@ -7,12 +7,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 
 import java.time.LocalTime;
-import java.util.List;
 import java.util.UUID;
 
 public record SimpleShiftTypeDto(@Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
                                  @NotBlank(groups = CreateValidator.class) String name,
                                  @NotNull(groups = CreateValidator.class) LocalTime startTime,
                                  @NotNull(groups = CreateValidator.class) LocalTime endTime
-                                 ) {
+) {
 }

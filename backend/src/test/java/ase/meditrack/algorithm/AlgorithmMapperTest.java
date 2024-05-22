@@ -10,15 +10,12 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.service.algorithm.AlgorithmInput;
 import ase.meditrack.service.algorithm.AlgorithmMapper;
 import ase.meditrack.service.algorithm.AlgorithmOutput;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,7 +145,8 @@ class AlgorithmMapperTest {
         when(constraints.getAllowedFlextimeTotal()).thenReturn(10);
         when(constraints.getAllowedFlextimePerMonth()).thenReturn(5);
 
-        AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
+        AlgorithmInput input =
+                algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
 
         System.out.println(input.hardConstraints().daytimeRequiredRoles());
 
@@ -216,7 +214,8 @@ class AlgorithmMapperTest {
 
         when(output.assignmentOfEmployeesToShifts()).thenReturn(assignments);
 
-        List<Shift> shifts = algorithmMapper.mapFromAlgorithmOutput(output, shiftTypes, users, monthlyPlan, month, year);
+        List<Shift> shifts =
+                algorithmMapper.mapFromAlgorithmOutput(output, shiftTypes, users, monthlyPlan, month, year);
 
         assertNotNull(shifts);
         assertEquals(1, shifts.size());

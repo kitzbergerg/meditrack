@@ -1,7 +1,6 @@
 package ase.meditrack.algorithm;
 
 
-import ase.meditrack.model.entity.Role;
 import ase.meditrack.service.algorithm.AlgorithmInput;
 import ase.meditrack.service.algorithm.DayInfo;
 import ase.meditrack.service.algorithm.EmployeeInfo;
@@ -13,9 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 class SolverTest {
 
@@ -27,7 +24,7 @@ class SolverTest {
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
         for (int i = 0; i < 28; i++) {
-            DayInfo day = new DayInfo( "Dayname", false);
+            DayInfo day = new DayInfo("Dayname", false);
             dayInfos.add(day);
         }
         RoleInfo role = new RoleInfo("Rolename");

@@ -1,13 +1,21 @@
 package ase.meditrack.service.algorithm;
 
-import ase.meditrack.model.entity.*;
-import ase.meditrack.repository.MonthlyPlanRepository;
-import ase.meditrack.repository.TeamRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MonthlyPlanCreator {
@@ -83,7 +91,8 @@ public class MonthlyPlanCreator {
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();
 
-        AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(month, year, users, shiftTypes, roles, constraints, team);
+        AlgorithmInput input =
+                algorithmMapper.mapToAlgorithmInput(month, year, users, shiftTypes, roles, constraints, team);
 
         Optional<AlgorithmOutput> output = SchedulingSolver.solve(input);
 
@@ -94,7 +103,8 @@ public class MonthlyPlanCreator {
 
         MonthlyPlan monthlyPlan = new MonthlyPlan();
 
-        List<Shift> shifts = algorithmMapper.mapFromAlgorithmOutput(output.get(), shiftTypes, users, monthlyPlan, month, year);
+        List<Shift> shifts =
+                algorithmMapper.mapFromAlgorithmOutput(output.get(), shiftTypes, users, monthlyPlan, month, year);
 
         // TODO: create shifts and monthly plan
 

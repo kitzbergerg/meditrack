@@ -7,8 +7,6 @@ import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
-import org.eclipse.sisu.plexus.config.Roles;
-import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -21,7 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class AlgorithmMapper {
 
@@ -31,7 +28,9 @@ public class AlgorithmMapper {
     private final Map<UUID, Integer> employeeUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
     private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
-    public AlgorithmInput mapToAlgorithmInput(int month, int year, List<User> employees, List<ShiftType> shiftTypes, List<Role> roles, HardConstraints constraints, Team team) {
+
+    public AlgorithmInput mapToAlgorithmInput(int month, int year, List<User> employees, List<ShiftType> shiftTypes,
+                                              List<Role> roles, HardConstraints constraints, Team team) {
 
         List<DayInfo> dayInfos = new ArrayList<>();
         YearMonth yearMonth = YearMonth.of(year, month);
@@ -65,7 +64,10 @@ public class AlgorithmMapper {
             nightTimeRolesMap.put(index, nightTimeRoles.get(role));
         }
 
-        HardConstraintInfo constraintInfo = new HardConstraintInfo(dayTimeRolesMap, nightTimeRolesMap, constraints.getDaytimeRequiredPeople(), constraints.getNighttimeRequiredPeople(), constraints.getAllowedFlextimeTotal(), constraints.getAllowedFlextimePerMonth());
+        HardConstraintInfo constraintInfo =
+                new HardConstraintInfo(dayTimeRolesMap, nightTimeRolesMap, constraints.getDaytimeRequiredPeople(),
+                        constraints.getNighttimeRequiredPeople(), constraints.getAllowedFlextimeTotal(),
+                        constraints.getAllowedFlextimePerMonth());
 
         // Create day records for every day of month
         while (!date.isAfter(endDate)) {
@@ -84,7 +86,8 @@ public class AlgorithmMapper {
             shiftTypeUuidToIndex.put(id, i);
             indexToShiftTypeUuid.put(i, id);
 
-            shiftTypeInfos.add(new ShiftTypeInfo(type.getStartTime(), type.getEndTime(), type.getEndTime().getHour() - type.getStartTime().getHour()));
+            shiftTypeInfos.add(new ShiftTypeInfo(type.getStartTime(), type.getEndTime(),
+                    type.getEndTime().getHour() - type.getStartTime().getHour()));
         }
 
         // Map employee entities to records
@@ -95,7 +98,8 @@ public class AlgorithmMapper {
             employeeUuidToIndex.put(id, i);
             indexToEmployeeUuid.put(i, id);
 
-            int workingHours = (int) (employee.getWorkingHoursPercentage() * team.getWorkingHours()) - employee.getCurrentOverTime();
+            int workingHours = (int) (employee.getWorkingHoursPercentage() * team.getWorkingHours()) -
+                    employee.getCurrentOverTime();
             List<Integer> worksShifts = new ArrayList<>();
             for (ShiftType type : employee.getCanWorkShiftTypes()) {
                 int index = shiftTypeUuidToIndex.get(type.getId());
@@ -108,14 +112,17 @@ public class AlgorithmMapper {
         return input;
     }
 
-    public List<Shift> mapFromAlgorithmOutput(AlgorithmOutput output, List<ShiftType> shiftTypes, List<User> users, MonthlyPlan monthlyPlan, Integer month, Integer year) {
+    public List<Shift> mapFromAlgorithmOutput(AlgorithmOutput output, List<ShiftType> shiftTypes, List<User> users,
+                                              MonthlyPlan monthlyPlan, Integer month, Integer year) {
         // Create maps, key = UUID, value = entity
-        Map<UUID, ShiftType> shiftTypeMap = shiftTypes.stream().collect(Collectors.toMap(ShiftType::getId, shiftType -> shiftType));
+        Map<UUID, ShiftType> shiftTypeMap =
+                shiftTypes.stream().collect(Collectors.toMap(ShiftType::getId, shiftType -> shiftType));
         Map<UUID, User> userMap = users.stream().collect(Collectors.toMap(User::getId, user -> user));
 
         List<Shift> shifts = new ArrayList<>();
         // Iterate over EmployeeShiftAssignments: Integers representing employee index that have a list of shifts
-        for (Map.Entry<Integer, List<AlgorithmOutput.ShiftTypeDayPair>> entry : output.assignmentOfEmployeesToShifts().entrySet()) {
+        for (Map.Entry<Integer, List<AlgorithmOutput.ShiftTypeDayPair>> entry : output.assignmentOfEmployeesToShifts()
+                .entrySet()) {
             UUID userUuid = indexToEmployeeUuid.get(entry.getKey()); // map back index to uuid
             User user = userMap.get(userUuid);
 
@@ -129,7 +136,7 @@ public class AlgorithmMapper {
                         shift.setShiftType(shiftType);
                         shift.setUsers(List.of(user));
                         shift.setMonthlyPlan(monthlyPlan);
-                        shift.setDate(LocalDate.of(year, month, pair.day()+1));
+                        shift.setDate(LocalDate.of(year, month, pair.day() + 1));
                         shifts.add(shift);
                     }
                 }

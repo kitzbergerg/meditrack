@@ -43,6 +43,17 @@ public class UserService {
         this.userValidator = userValidator;
     }
 
+    private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
+        if (roles == null) return;
+        // for some reason keycloak doesn't use the roles in UserRepresentation, so we need to set them explicitly
+        List<RoleRepresentation> userRoles =
+                roles.stream().map(role -> meditrackRealm.roles().get(role).toRepresentation()).toList();
+        UserResource user = meditrackRealm.users().get(userId);
+        RoleScopeResource roleScopeResource = user.roles().realmLevel();
+        roleScopeResource.remove(roleScopeResource.listAll());
+        user.roles().realmLevel().add(userRoles);
+    }
+
     @PostConstruct
     public void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
@@ -170,16 +181,6 @@ public class UserService {
             }
             repository.deleteById(id);
         }
-    }
-
-    private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
-        if (roles == null) return;
-        // for some reason keycloak doesn't use the roles in UserRepresentation, so we need to set them explicitly
-        List<RoleRepresentation> userRoles = roles.stream().map(role -> meditrackRealm.roles().get(role).toRepresentation()).toList();
-        UserResource user = meditrackRealm.users().get(userId);
-        RoleScopeResource roleScopeResource = user.roles().realmLevel();
-        roleScopeResource.remove(roleScopeResource.listAll());
-        user.roles().realmLevel().add(userRoles);
     }
 
     private User defaultAdminUser() {

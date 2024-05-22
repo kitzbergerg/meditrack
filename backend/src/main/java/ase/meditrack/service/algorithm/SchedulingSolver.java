@@ -1,18 +1,26 @@
 package ase.meditrack.service.algorithm;
 
 import com.google.ortools.Loader;
-import com.google.ortools.sat.*;
+import com.google.ortools.sat.BoolVar;
+import com.google.ortools.sat.CpModel;
+import com.google.ortools.sat.CpSolver;
+import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.Literal;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class SchedulingSolver {
+    private static final int MAX_RUNTIME_IN_SECONDS = 10;
+
     static {
         Loader.loadNativeLibraries();
     }
-
-    private static final int MAX_RUNTIME_IN_SECONDS = 10;
 
     private SchedulingSolver() {
     }
@@ -23,7 +31,8 @@ public class SchedulingSolver {
      */
     public static Optional<AlgorithmOutput> solve(final AlgorithmInput input) {
         final int minNumberOfDaysInMonth = 28;
-        if (input.days().size() < minNumberOfDaysInMonth || input.employees().isEmpty() || input.shiftTypes().isEmpty()) {
+        if (input.days().size() < minNumberOfDaysInMonth || input.employees().isEmpty() ||
+                input.shiftTypes().isEmpty()) {
             throw new RuntimeException("invalid input");
         }
 
@@ -69,7 +78,8 @@ public class SchedulingSolver {
                 }
             }
 
-            AlgorithmOutput output = new AlgorithmOutput(assignmentOfEmployeesToShifts, status == CpSolverStatus.OPTIMAL);
+            AlgorithmOutput output =
+                    new AlgorithmOutput(assignmentOfEmployeesToShifts, status == CpSolverStatus.OPTIMAL);
             return Optional.of(output);
         }
 
@@ -81,7 +91,8 @@ public class SchedulingSolver {
         // Each nurse works at most one shift per day.
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.days().size(); d++) {
-                List<Literal> possibleShiftsOnDay = new ArrayList<>(Arrays.asList(shifts[n][d]).subList(0, input.shiftTypes().size()));
+                List<Literal> possibleShiftsOnDay =
+                        new ArrayList<>(Arrays.asList(shifts[n][d]).subList(0, input.shiftTypes().size()));
                 model.addAtMostOne(possibleShiftsOnDay);
             }
         }
