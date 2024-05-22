@@ -1,15 +1,18 @@
 server:
   port: 8081
 spring:
+  datasource:
+    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1;NON_KEYWORDS=KEY,VALUE
   jpa:
     hibernate:
       ddl-auto: create-drop
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: "http://localhost:8080/realms/meditrack/protocol/openid-connect/certs"
-spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
 
 meditrack.keycloak:
   server-url: "http://localhost:8080"

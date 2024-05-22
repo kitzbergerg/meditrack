@@ -32,14 +32,11 @@ import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
-    private final UserMapper mapper;
     private final UserValidator userValidator;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository,
-                       UserMapper mapper, UserValidator userValidator) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
-        this.mapper = mapper;
         this.userValidator = userValidator;
     }
 
@@ -52,14 +49,6 @@ public class UserService {
         RoleScopeResource roleScopeResource = user.roles().realmLevel();
         roleScopeResource.remove(roleScopeResource.listAll());
         user.roles().realmLevel().add(userRoles);
-    }
-
-    @PostConstruct
-    public void createAdminUser() {
-        if (meditrackRealm.users().count() == 0) {
-            log.info("Creating default admin user...");
-            this.create(defaultAdminUser());
-        }
     }
 
     /**
@@ -181,31 +170,6 @@ public class UserService {
             }
             repository.deleteById(id);
         }
-    }
-
-    private User defaultAdminUser() {
-        UserDto user = new UserDto(
-                null,
-                "admin",
-                "admin",
-                "admin@meditrack.com",
-                "admin",
-                "admin",
-                List.of("admin"),
-                null,
-                1.0f,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        return mapper.fromDto(user);
     }
 
     private User updateChangedAttributes(User user) {

@@ -29,7 +29,7 @@ test-backend:
   image: maven:3-openjdk-17
   script:
     - cd backend
-    - mvn package # can't run integration tests because dind doesn't work
+    - mvn verify -Dspring.profiles.active=excludeTestcontainers
 
 test-backend-checkstyle:
   stage: test
