@@ -1,6 +1,15 @@
 package ase.meditrack.model.mapper;
 
-import ase.meditrack.model.entity.*;
+import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.Holiday;
+import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftSwap;
+import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.User;
 import org.mapstruct.Mapper;
 
 import java.util.UUID;

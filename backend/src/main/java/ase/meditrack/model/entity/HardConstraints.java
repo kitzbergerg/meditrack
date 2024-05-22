@@ -1,6 +1,5 @@
 package ase.meditrack.model.entity;
 
-import ase.meditrack.model.entity.Role;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;

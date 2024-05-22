@@ -21,7 +21,7 @@ import {DialogModule} from "primeng/dialog";
 import {DropdownModule} from "primeng/dropdown";
 import {InputTextModule} from "primeng/inputtext";
 import {ImageModule} from "primeng/image";
-
+import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -53,6 +53,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     EmployeesComponent,
     RolesComponent,
     DashboardComponent,
+    ShiftTypesComponent,
   ],
     imports: [
         BrowserModule,

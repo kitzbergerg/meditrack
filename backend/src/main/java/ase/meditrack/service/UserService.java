@@ -15,13 +15,10 @@ import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -37,7 +34,6 @@ public class UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
     private final UserValidator userValidator;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public UserService(RealmResource meditrackRealm, UserRepository repository,
                        UserMapper mapper, UserValidator userValidator) {
@@ -47,11 +43,22 @@ public class UserService {
         this.userValidator = userValidator;
     }
 
+    private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
+        if (roles == null) return;
+        // for some reason keycloak doesn't use the roles in UserRepresentation, so we need to set them explicitly
+        List<RoleRepresentation> userRoles =
+                roles.stream().map(role -> meditrackRealm.roles().get(role).toRepresentation()).toList();
+        UserResource user = meditrackRealm.users().get(userId);
+        RoleScopeResource roleScopeResource = user.roles().realmLevel();
+        roleScopeResource.remove(roleScopeResource.listAll());
+        user.roles().realmLevel().add(userRoles);
+    }
+
     @PostConstruct
     public void createAdminUser() {
         if (meditrackRealm.users().count() == 0) {
             log.info("Creating default admin user...");
-            this.create(defaultAdminUser(), null);
+            this.create(defaultAdminUser());
         }
     }
 
@@ -77,10 +84,10 @@ public class UserService {
         UUID dmId = UUID.fromString(principal.getName());
         Optional<User> dm = repository.findById(dmId);
         if (dm.isEmpty()) {
-            throw new NoSuchElementException("User doesnt exist");
+            throw new NotFoundException("User doesnt exist");
         }
         if (dm.get().getTeam() == null) {
-            throw new NoSuchElementException("Principal has no team");
+            throw new NotFoundException("User has no team");
         }
         return repository.findAllByTeam(dm.get().getTeam()).stream()
                 .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
@@ -104,11 +111,9 @@ public class UserService {
      * Creates a user in the database and in keycloak.
      *
      * @param user, the user to create
-     * @param principal, creator of the user
      * @return the created user
      */
-    public User create(User user, Principal principal) {
-
+    public User create(User user) {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user = repository.save(user);
@@ -152,7 +157,7 @@ public class UserService {
         UUID id = user.getId();
         return repository.findById(user.getId()).map(u -> {
             u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
-            LOGGER.info("Updating user {}.", u);
+            log.info("Updating user {}.", u);
             return u;
         }).orElseThrow(() -> new NotFoundException("Could not find user with id: " + id + "!"));
     }
@@ -176,16 +181,6 @@ public class UserService {
             }
             repository.deleteById(id);
         }
-    }
-
-    private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
-        if (roles == null) return;
-        // for some reason keycloak doesn't use the roles in UserRepresentation, so we need to set them explicitly
-        List<RoleRepresentation> userRoles = roles.stream().map(role -> meditrackRealm.roles().get(role).toRepresentation()).toList();
-        UserResource user = meditrackRealm.users().get(userId);
-        RoleScopeResource roleScopeResource = user.roles().realmLevel();
-        roleScopeResource.remove(roleScopeResource.listAll());
-        user.roles().realmLevel().add(userRoles);
     }
 
     private User defaultAdminUser() {
