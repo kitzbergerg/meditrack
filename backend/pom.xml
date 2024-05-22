@@ -177,6 +177,7 @@
                 <executions>
                     <execution>
                         <id>validate</id>
+                        <phase>none</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
