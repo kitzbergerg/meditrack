@@ -1,37 +1,16 @@
 package ase.meditrack.service.algorithm;
 
-import ase.meditrack.model.entity.HardConstraints;
-import ase.meditrack.model.entity.MonthlyPlan;
-import ase.meditrack.model.entity.Role;
-import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.ShiftType;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-@Component
+@Service
 public class MonthlyPlanCreator {
-
-    private AlgorithmMapper algorithmMapper;
-    private TeamRepository teamRepository;
-    private MonthlyPlanRepository monthlyPlanRepository;
-
-    @Autowired
-    public MonthlyPlanCreator(TeamRepository teamRepository, MonthlyPlanRepository monthlyPlanRepository) {
-        this.teamRepository = teamRepository;
-        this.monthlyPlanRepository = monthlyPlanRepository;
-    }
 
     public MonthlyPlan createMonthlyPlan(int month, int year, UUID teamId) {
 
@@ -102,14 +81,14 @@ public class MonthlyPlanCreator {
          */
 
         // map to algorithm input
-        algorithmMapper = new AlgorithmMapper();
+        AlgorithmMapper algorithmMapper = new AlgorithmMapper();
 
         AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(month, year, users, shiftTypes, roles, constraints, team);
 
         Optional<AlgorithmOutput> output = SchedulingSolver.solve(input);
 
         // map from algorithm output
-        if(output.isEmpty()) {
+        if (output.isEmpty()) {
             throw new RuntimeException("Could not generate schedule");
         }
 

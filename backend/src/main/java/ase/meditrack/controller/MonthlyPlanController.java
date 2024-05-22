@@ -1,25 +1,18 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.MonthlyPlanDto;
 import ase.meditrack.model.mapper.MonthlyPlanMapper;
 import ase.meditrack.service.MonthlyPlanService;
+import ase.meditrack.service.algorithm.MonthlyPlanCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,10 +22,12 @@ import java.util.UUID;
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class MonthlyPlanController {
     private final MonthlyPlanService service;
+    private final MonthlyPlanCreator monthlyPlanCreator;
     private final MonthlyPlanMapper mapper;
 
-    public MonthlyPlanController(MonthlyPlanService service, MonthlyPlanMapper mapper) {
+    public MonthlyPlanController(MonthlyPlanService service, MonthlyPlanCreator monthlyPlanCreator, MonthlyPlanMapper mapper) {
         this.service = service;
+        this.monthlyPlanCreator = monthlyPlanCreator;
         this.mapper = mapper;
     }
 
@@ -53,9 +48,9 @@ public class MonthlyPlanController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.CREATED)
-    public MonthlyPlanDto create(@Validated(CreateValidator.class) @RequestBody MonthlyPlanDto dto) {
-        log.info("Creating monthly-plan {}", dto.id());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+    public MonthlyPlanDto create(@RequestParam Year year, @RequestParam Month month, @RequestParam UUID teamId) {
+        log.info("Creating monthly-plan for team {}, {} {}", teamId, year, month);
+        return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), teamId));
     }
 
     @PutMapping
