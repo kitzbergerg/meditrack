@@ -104,7 +104,7 @@
         <!--module name="JavadocVariable"/-->
         <module name="JavadocStyle"/>
         <module name="MissingJavadocMethod">
-            <property name="allowedAnnotations" value="Override, GetMapping, PostMapping, PutMapping, DeleteMapping"/>
+            <property name="allowedAnnotations" value="Override, GetMapping, PostMapping, PutMapping, DeleteMapping, Bean"/>
             <property name="tokens" value="METHOD_DEF, ANNOTATION_FIELD_DEF"/>
         </module>
 
