@@ -1,28 +1,16 @@
 package ase.meditrack.service;
 
-import ase.meditrack.model.TeamValidator;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
-import ase.meditrack.model.mapper.TeamMapper;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.ValidationException;
-import java.beans.Transient;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.repository.TeamRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -31,17 +19,13 @@ import java.util.UUID;
 public class TeamService {
     private final TeamRepository repository;
     private final UserRepository userRepository;
-    private final TeamMapper mapper;
-    private final TeamValidator validator;
 
-    public TeamService(TeamRepository repository, TeamMapper mapper, TeamValidator validator, UserRepository userRepository) {
+    public TeamService(TeamRepository repository, UserRepository userRepository) {
         this.repository = repository;
-        this.mapper = mapper;
-        this.validator = validator;
         this.userRepository = userRepository;
     }
 
-    public boolean isTeamLeader(UUID userId, UUID teamId){
+    public boolean isTeamLeader(UUID userId, UUID teamId) {
 
         List<User> users = repository.findById(teamId).get().getUsers();
         User user = userRepository.findById(userId).get();

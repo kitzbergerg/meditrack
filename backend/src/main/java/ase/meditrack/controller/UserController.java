@@ -2,20 +2,16 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
-import ase.meditrack.model.dto.TeamDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.invoke.MethodHandles;
 import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -48,7 +44,7 @@ public class UserController {
         try {
             return mapper.toDtoList(service.findByTeam(principal));
         } catch (NoSuchElementException e) {
-            LOGGER.error("NoSuchElementException: GET /api/user/team", e);
+            log.error("NoSuchElementException: GET /api/user/team", e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during getting users by team: " + e.getMessage(), e);
         }
     }
@@ -63,10 +59,10 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
         // TODO: make sure that team has to be the same as dm's team and roles cannot be more than dm's roles
         log.info("Creating user {}", dto.username());
-        return mapper.toDto(service.create(mapper.fromDto(dto), principal));
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
