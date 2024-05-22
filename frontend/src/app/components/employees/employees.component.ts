@@ -97,7 +97,6 @@ export class EmployeesComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser()
-    this.loadRoles()
 
     this.cols = [
       { field: 'username', header: 'Name' },
@@ -147,6 +146,7 @@ export class EmployeesComponent {
         if (response.team != null) {
           this.getTeam();
           this.loadUsersFromTeam()
+          this.loadRoles()
         }
       },
       (error) => {
