@@ -1,11 +1,10 @@
 package ase.meditrack.service;
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.repository.ShiftTypeRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +34,7 @@ public class ShiftTypeService {
      * @return the shift type
      */
     public ShiftType findById(UUID id) {
-        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("shiftType not found"));
     }
 
     /**
@@ -55,19 +54,17 @@ public class ShiftTypeService {
      * @return the updated shift type
      */
     public ShiftType update(ShiftType shiftType) {
-        ShiftType updatedShiftType = new ShiftType();
-        updatedShiftType.setId(shiftType.getId());
-        updatedShiftType.setName(shiftType.getName());
-        updatedShiftType.setStartTime(shiftType.getStartTime());
-        updatedShiftType.setEndTime(shiftType.getEndTime());
-        updatedShiftType.setTeam(shiftType.getTeam());
-        updatedShiftType.setShifts(shiftType.getShifts());
-        updatedShiftType.setWorkUsers(shiftType.getWorkUsers());
-        updatedShiftType.setPreferUsers(shiftType.getPreferUsers());
+        ShiftType dbShiftType = findById(shiftType.getId());
 
-        repository.save(updatedShiftType);
+        if (shiftType.getName() != null) dbShiftType.setName(shiftType.getName());
+        if (shiftType.getStartTime() != null) dbShiftType.setStartTime(shiftType.getStartTime());
+        if (shiftType.getEndTime() != null) dbShiftType.setEndTime(shiftType.getEndTime());
+        if (shiftType.getTeam() != null) dbShiftType.setTeam(shiftType.getTeam());
+        if (shiftType.getShifts() != null) dbShiftType.setShifts(shiftType.getShifts());
+        if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
+        if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
 
-        return updatedShiftType;
+        return repository.save(dbShiftType);
     }
 
     /**
