@@ -20,7 +20,7 @@ public record UserDto(
         @NotBlank(groups = CreateValidator.class) @Length(max = 256) String firstName,
         @NotBlank(groups = CreateValidator.class) @Length(max = 256) String lastName,
         List<String> roles,
-        UUID role,
+        SimpleRoleDto role,
         @NotNull(groups = CreateValidator.class) @Range(min = 0, max = 100) Float workingHoursPercentage,
         @Null(groups = CreateValidator.class) Integer currentOverTime,
         List<String> specialSkills,

@@ -1,6 +1,23 @@
 package ase.meditrack.service;
 
-import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.TeamValidator;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.User;
+import ase.meditrack.model.mapper.TeamMapper;
+import ase.meditrack.repository.TeamRepository;
+import ase.meditrack.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import javax.xml.bind.ValidationException;
+import java.beans.Transient;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.TeamRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +30,23 @@ import java.util.UUID;
 @Slf4j
 public class TeamService {
     private final TeamRepository repository;
+    private final UserRepository userRepository;
+    private final TeamMapper mapper;
+    private final TeamValidator validator;
 
-    public TeamService(TeamRepository repository) {
+    public TeamService(TeamRepository repository, TeamMapper mapper, TeamValidator validator, UserRepository userRepository) {
         this.repository = repository;
+        this.mapper = mapper;
+        this.validator = validator;
+        this.userRepository = userRepository;
+    }
+
+    public boolean isTeamLeader(UUID userId, UUID teamId){
+
+        List<User> users = repository.findById(teamId).get().getUsers();
+        User user = userRepository.findById(userId).get();
+        return users.contains(user);
+
     }
 
     /**
@@ -28,14 +59,14 @@ public class TeamService {
     }
 
     /**
-     * Fetches a team by id from the database.
+     * Fetches a team by id from the database
      *
      * @param id, the id of the team
      * @return the team
      */
     public Team findById(UUID id) {
         return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Could not find team with id: " + id + "!"));
+                .orElseThrow(() -> new NotFoundException("Team was not found"));
     }
 
     /**
@@ -44,7 +75,15 @@ public class TeamService {
      * @param team, the team to create
      * @return the created team
      */
-    public Team create(Team team) {
+    @Transactional
+    public Team create(Team team, Principal principal) {
+        UUID creatorId = UUID.fromString(principal.getName());
+        User creator = userRepository.findById(creatorId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<User> users = new ArrayList<>();
+        users.add(creator);
+        team.setUsers(users);
+        creator.setTeam(team);
         return repository.save(team);
     }
 
