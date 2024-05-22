@@ -10,6 +10,7 @@ import {AuthorizationService} from "../services/authentication/authorization.ser
 export class AppTopBarComponent {
 
     items!: MenuItem[];
+    preferredUsername = '';
 
     @ViewChild('menubutton') menuButton!: ElementRef;
 
@@ -17,5 +18,10 @@ export class AppTopBarComponent {
 
     @ViewChild('topbarmenu') menu!: ElementRef;
 
-    constructor(public layoutService: LayoutService, public authorizationService: AuthorizationService) { }
+    constructor(public layoutService: LayoutService, public authorizationService: AuthorizationService) {
+    }
+
+  ngOnInit(): void {
+    this.preferredUsername = this.authorizationService.getUserName();
+  }
 }
