@@ -1,0 +1,26 @@
+<p-table [value]="employees" class="p-mt-2" styleClass="p-datatable-gridlines" >
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Teamname</th>
+      <th *ngFor="let day of days">{{ day }}</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-employee>
+    <tr>
+      <td>
+        <div>{{ employee.name }}</div>
+        <div class="text-sm"><span class="pi pi-clock mr-1"></span>{{ employee.workingPercentage }}%</div>
+        <div class="text-sm">{{ employee.role }}</div>
+      </td>
+      <td *ngFor="let day of days; index as i" [ngStyle]="{'background-color': employee.shifts[i]?.shift.type.hexcode, 'color': 'white'}">
+
+        <ng-container *ngIf="employee.shifts[i]">
+          <div class="text-xl font-medium">{{ employee.shifts[i].shift.type.name }}</div>
+          <span class="text-sm" [ngStyle]="{'background-color': employee.shifts[i].shift.type.hexcode, 'color': '#fff'}">
+            {{ employee.shifts[i].shift.type.start_time }} - {{ employee.shifts[i].shift.type.end_time }}
+          </span>
+        </ng-container>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
