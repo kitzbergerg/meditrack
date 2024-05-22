@@ -39,8 +39,6 @@
 
         <property name="basedir" value="${basedir}"/>
     -->
-    <property name="severity" value="info"/>
-
     <property name="fileExtensions" value="java, properties, xml"/>
 
     <!-- Excludes all 'module-info.java' files              -->
@@ -51,8 +49,7 @@
 
     <!-- https://checkstyle.org/filters/suppressionfilter.html -->
     <module name="SuppressionFilter">
-        <property name="file" value="${org.checkstyle.sun.suppressionfilter.config}"
-                  default="checkstyle-suppressions.xml" />
+        <property name="file" value="checkstyle-suppressions.xml"/>
         <property name="optional" value="true"/>
     </module>
 
@@ -105,7 +102,10 @@
         <module name="JavadocType"/>
         <!--module name="JavadocVariable"/-->
         <module name="JavadocStyle"/>
-        <module name="MissingJavadocMethod"/>
+        <module name="MissingJavadocMethod">
+            <property name="allowedAnnotations" value="Override, GetMapping, PostMapping, PutMapping, DeleteMapping, Bean"/>
+            <property name="tokens" value="METHOD_DEF, ANNOTATION_FIELD_DEF"/>
+        </module>
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See https://checkstyle.org/checks/naming/index.html -->
@@ -165,7 +165,9 @@
         <!-- See https://checkstyle.org/checks/coding/index.html -->
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
-        <module name="HiddenField"/>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+        </module>
         <module name="IllegalInstantiation"/>
         <module name="InnerAssignment"/>
         <module name="MagicNumber"/>
@@ -176,7 +178,6 @@
 
         <!-- Checks for class design                         -->
         <!-- See https://checkstyle.org/checks/design/index.html -->
-        <module name="DesignForExtension"/>
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
@@ -185,14 +186,13 @@
         <!-- Miscellaneous other checks.                   -->
         <!-- See https://checkstyle.org/checks/misc/index.html -->
         <module name="ArrayTypeStyle"/>
-        <module name="FinalParameters"/>
         <module name="TodoComment"/>
         <module name="UpperEll"/>
 
         <!-- https://checkstyle.org/filters/suppressionxpathfilter.html -->
         <module name="SuppressionXpathFilter">
             <property name="file" value="${org.checkstyle.sun.suppressionxpathfilter.config}"
-                      default="checkstyle-xpath-suppressions.xml" />
+                      default="checkstyle-xpath-suppressions.xml"/>
             <property name="optional" value="true"/>
         </module>
 

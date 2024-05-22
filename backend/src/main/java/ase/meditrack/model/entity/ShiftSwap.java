@@ -52,7 +52,7 @@ public class ShiftSwap {
             joinColumns = @JoinColumn(name = "shift_swap_id"),
             inverseJoinColumns = @JoinColumn(name = "shift_id")
     )
-    private List<Shift> suggestedShift;
+    private List<Shift> suggestedShifts;
 
     @Override
     public final boolean equals(final Object o) {

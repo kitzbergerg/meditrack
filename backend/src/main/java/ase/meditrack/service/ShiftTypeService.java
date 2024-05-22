@@ -1,13 +1,10 @@
 package ase.meditrack.service;
 
-import ase.meditrack.exception.ValidationException;
-import ase.meditrack.model.ShiftTypeValidator;
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.repository.ShiftTypeRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,17 +32,17 @@ public class ShiftTypeService {
     /**
      * Fetches a shift type by id from the database.
      *
-     * @param id, the id of the shift type
+     * @param id the id of the shift type
      * @return the shift type
      */
     public ShiftType findById(UUID id) {
-        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("shiftType not found"));
     }
 
     /**
      * Creates a shift type in the database.
      *
-     * @param shiftType, the shift type to create
+     * @param shiftType the shift type to create
      * @return the created shift type
      */
     public ShiftType create(ShiftType shiftType) throws ValidationException {
@@ -56,10 +53,23 @@ public class ShiftTypeService {
     /**
      * Updates a shift type in the database.
      *
-     * @param shiftType, the shift type to update
+     * @param shiftType the shift type to update
      * @return the updated shift type
      */
-    public ShiftType update(ShiftType shiftType) throws ValidationException {
+    public ShiftType update(ShiftType shiftType) {
+        ShiftType dbShiftType = findById(shiftType.getId());
+
+        if (shiftType.getName() != null) dbShiftType.setName(shiftType.getName());
+        if (shiftType.getStartTime() != null) dbShiftType.setStartTime(shiftType.getStartTime());
+        if (shiftType.getEndTime() != null) dbShiftType.setEndTime(shiftType.getEndTime());
+        if (shiftType.getTeam() != null) dbShiftType.setTeam(shiftType.getTeam());
+        if (shiftType.getShifts() != null) dbShiftType.setShifts(shiftType.getShifts());
+        if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
+        if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
+
+        return repository.save(dbShiftType);
+
+        /*
         ShiftType updatedShiftType = new ShiftType();
         updatedShiftType.setId(shiftType.getId());
         updatedShiftType.setName(shiftType.getName());
@@ -76,15 +86,14 @@ public class ShiftTypeService {
         updatedShiftType.setPreferUsers(shiftType.getPreferUsers());
 
         validator.shiftTypeUpdateValidation(shiftType);
-        repository.save(updatedShiftType);
 
-        return updatedShiftType;
+         */
     }
 
     /**
      * Deletes a shift type from the database.
      *
-     * @param id, the id of the shift type to delete
+     * @param id the id of the shift type to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

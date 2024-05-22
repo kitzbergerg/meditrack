@@ -1,21 +1,23 @@
 package ase.meditrack.controller;
 
-import ase.meditrack.exception.ValidationException;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.mapper.ShiftTypeMapper;
 import ase.meditrack.service.ShiftTypeService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,7 +28,6 @@ import java.util.UUID;
 public class ShiftTypeController {
     private final ShiftTypeService service;
     private final ShiftTypeMapper mapper;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public ShiftTypeController(ShiftTypeService service, ShiftTypeMapper mapper) {
         this.service = service;
@@ -51,24 +52,14 @@ public class ShiftTypeController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto) {
         log.info("Creating shift type {}", dto.name());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: POST /api/shift-type/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating shift type: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) {
         log.info("Updating shift type {}", dto.name());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: PUT /api/shift-type/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during updating shift type: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")

@@ -13,10 +13,10 @@ export class RolesComponent {
   newRole: RoleCreate = { name: '', color: '', abbreviation: ''};
   currentRole: Role = { id: -1, name: '',  color: '', abbreviation: '' };
 
-  initialLoad: boolean = false;
+  initialLoad= false;
 
-  formTitle: string = '';
-  formAction: string = '';
+  formTitle= '';
+  formAction= '';
   formMode: 'create' | 'edit' | 'details' = 'details';
 
   constructor(private rolesService: RolesService) { }
@@ -24,7 +24,6 @@ export class RolesComponent {
   ngOnInit(): void {
     this.loadRoles();
   }
-
 
   loadRoles(): void {
     this.rolesService.getAllRoles()
@@ -41,14 +40,17 @@ export class RolesComponent {
   }
 
   deleteRole(id: number): void {
-    this.rolesService.deleteRole(id)
-      .subscribe(response => {
-        console.log('Role deleted successfully');
-        this.loadRoles();
-        this.resetForm();
-      }, error => {
-        console.error('Error deleting role:', error);
-      });
+    if (id != null) {
+      this.rolesService.deleteRole(id)
+        .subscribe({
+          next: (response) => {
+          console.log('Role deleted successfully:', response);
+          this.loadRoles();
+            this.resetForm();
+        }, error: (error) => {
+          console.error('Error deleting role:', error);
+        }});
+    }
   }
 
   getRole(id: number) {
@@ -63,14 +65,19 @@ export class RolesComponent {
   }
 
   createRole() {
-    this.rolesService.createRole(this.newRole)
-      .subscribe(response => {
-        console.log('Role created successfully:', response);
-        this.loadRoles();
-        this.resetForm();
-      }, error => {
-        console.error('Error creating role:', error);
-      });
+    if (this.isRoleNameUnique(this.newRole.name)) {
+      this.rolesService.createRole(this.newRole)
+        .subscribe({
+          next: (response) => {
+          console.log('Role created successfully:', response);
+          this.loadRoles();
+          this.resetForm();
+        }, error: (error) => {
+          console.error('Error creating role:', error);
+      }});
+    } else {
+      console.error('Role name must be unique.');
+    }
   }
 
   updateRole() {
@@ -80,16 +87,23 @@ export class RolesComponent {
       color: this.currentRole.color,
       abbreviation: this.currentRole.abbreviation
     };
+    if (this.isRoleNameUnique(roleToUpdate.name)) {
+      this.rolesService.updateRole(roleToUpdate)
+        .subscribe(response => {
+          console.log('Role updated successfully:', response);
+          this.resetForm();
+          // update shown shift type and list (case: name was changed)
+          this.selectRole(this.currentRole);
+        }, error => {
+          console.error('Error updating role:', error);
+        });
+    } else {
+      console.error('Role name must be unique.');
+    }
+  }
 
-    this.rolesService.updateRole(roleToUpdate)
-      .subscribe(response => {
-        console.log('Role updated successfully:', response);
-        this.resetForm();
-        // update shown shift type and list (case: name was changed)
-        this.selectRole(this.currentRole);
-      }, error => {
-        console.error('Error updating role:', error);
-      });
+  isRoleNameUnique(name: string): boolean {
+    return !this.roles.some(role => role.name === name);
   }
 
   showCreateForm() {

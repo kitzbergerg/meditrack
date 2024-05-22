@@ -1,59 +1,29 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.*;
+import ase.meditrack.model.dto.SimpleRoleDto;
+import ase.meditrack.model.entity.Role;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Mapper
-public abstract class RoleMapper {
+@Mapper(uses = EntityUuidMapper.class)
+public interface RoleMapper {
 
     @Named("toDto")
-    public RoleDto toDto(Role role) {
-        return new RoleDto(
-                role.getId(),
-                role.getName(),
-                role.getColor(),
-                role.getAbbreviation(),
-                role.getUsers() != null ? role.getUsers().stream().map(User::getId).toList() : null
-        );
-    }
+    RoleDto toDto(Role role);
 
-    public Role fromDto(RoleDto dto) {
-        Role role = new Role();
-
-        if (dto.id() == null) {
-            // id is only null on creation
-            // userRepresentation.setEnabled(true);
-        } else {
-            role.setId(dto.id());
-        }
-        role.setName(dto.name());
-
-        if (dto.color() != null) {
-            role.setColor(dto.color());
-        }
-
-        if (dto.abbreviation() != null) {
-            role.setAbbreviation(dto.abbreviation());
-        }
-
-        if (dto.users() != null) {
-            role.setUsers(dto.users().stream().map(id -> {
-                User user = new User();
-                user.setId(id);
-                return user;
-            }).toList());
-        }
-
-        return role;
-    }
+    Role fromDto(RoleDto dto);
 
     @IterableMapping(qualifiedByName = "toDto")
-    public abstract List<RoleDto> toDtoList(List<Role> roles);
+    List<RoleDto> toDtoList(List<Role> roles);
+
+    @Mapping(target = "id", source = "role.id")
+    @Mapping(target = "name", source = "role.name")
+    SimpleRoleDto toSimpleDto(Role role);
+
 }

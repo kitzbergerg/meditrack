@@ -21,7 +21,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
         );
         http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
-        http.csrf(AbstractHttpConfigurer::disable); //needed for POST requests, otherwise 403 will automatically be returned
+        // needed for POST requests, otherwise 403 will automatically be returned
+        http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

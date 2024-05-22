@@ -6,19 +6,24 @@ import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.service.RoleService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.xml.bind.ValidationException;
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.UUID;
-import org.slf4j.Logger;
 
 @RestController
 @RequestMapping("/api/role")
@@ -27,7 +32,6 @@ import org.slf4j.Logger;
 public class RoleController {
     private final RoleService service;
     private final RoleMapper mapper;
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public RoleController(RoleService service, RoleMapper mapper) {
         this.service = service;
@@ -51,27 +55,16 @@ public class RoleController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto create(@Valid @Validated(CreateValidator.class) @RequestBody RoleDto dto) {
         log.info("Creating role {}", dto.name());
-        try {
-            return mapper.toDto(service.create(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: POST /api/role/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during creating role: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
         log.info("Updating role {}", dto.name());
-        try {
-            return mapper.toDto(service.update(mapper.fromDto(dto)));
-        } catch (ValidationException e) {
-            LOGGER.error("ValidationException: PUT /api/role/{} {}", dto.id(), dto, e);
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Error during editing role: " + e.getMessage(), e);
-        }
+        return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")

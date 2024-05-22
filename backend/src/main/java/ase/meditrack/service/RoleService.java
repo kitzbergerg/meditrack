@@ -3,15 +3,12 @@ package ase.meditrack.service;
 import ase.meditrack.model.RoleValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.Role;
-import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.repository.RoleRepository;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.xml.bind.ValidationException;
 import java.util.List;
@@ -43,20 +40,21 @@ public class RoleService {
     /**
      * Fetches a role by id from the database.
      *
-     * @param id, the id of the role
+     * @param id the id of the role
      * @return the role
      */
     public Role findById(UUID id) {
-        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Could not find user with id: " + id + "!"));
     }
 
     /**
      * Creates a role in the database.
      *
-     * @param role, the role to create
+     * @param role the role to create
      * @return the created role
      */
-    public Role create(Role role) throws ValidationException {
+    public Role create(Role role) {
         validator.roleCreateValidation(role);
         return repository.save(role);
     }
@@ -64,10 +62,22 @@ public class RoleService {
     /**
      * Updates a role in the database.
      *
-     * @param roleToUpdate, the role to update
+     * @param role the role to update
      * @return the updated role
      */
-    public Role update(Role roleToUpdate) throws ValidationException {
+    public Role update(Role roleToUpdate) {
+        validator.roleUpdateValidation(roleToUpdate);
+
+        Role dbRole = repository.findById(role.getId())
+                .orElseThrow(() -> new NotFoundException("Role not found"));
+
+        if (role.getName() != null) {
+            dbRole.setName(role.getName());
+        }
+        if (role.getUsers() != null) {
+            dbRole.setUsers(role.getUsers());
+        }
+        /*
         Role updatedRole = new Role();
         updatedRole.setId(roleToUpdate.getId());
         updatedRole.setName(roleToUpdate.getName());
@@ -77,14 +87,14 @@ public class RoleService {
 
         validator.roleUpdateValidation(roleToUpdate);
         repository.save(updatedRole);
-
-        return updatedRole;
+*/
+        return repository.save(dbRole);
     }
 
     /**
      * Deletes a role from the database.
      *
-     * @param id, the id of the role to delete
+     * @param id the id of the role to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

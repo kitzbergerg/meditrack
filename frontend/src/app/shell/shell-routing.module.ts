@@ -33,7 +33,7 @@ const routes: Routes = [
   {
     path: 'account-settings',
     component: AccountSettingsComponent,
-  }
+  },
 ]
 
 @NgModule({
