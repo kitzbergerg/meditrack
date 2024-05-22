@@ -1,0 +1,59 @@
+<div class="container">
+  <div class="allTypes-container">
+    <h1>Shift Types</h1>
+
+    <ul>
+      <li *ngFor="let shiftType of shiftTypes" (click)="selectShiftType(shiftType)">
+        {{ shiftType.name }}
+      </li>
+    </ul>
+
+    <div class="plusButtonContainer">
+      <button name="createButton" (click)="showCreateForm()">+</button>
+    </div>
+  </div>
+
+  <div class="oneType-container" *ngIf="showOneTypeContainer">
+    <h1>{{ getFormTitle() }}</h1>
+
+    <form *ngIf="formMode === 'create'">
+      <div>
+        <label for="name">Name:</label>
+        <input type="text" id="nameNew" name="name" [(ngModel)]="newShiftType.name">
+      </div>
+      <div>
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTimeNew" name="startTime" [(ngModel)]="newShiftType.startTime">
+      </div>
+      <div>
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTimeNew" name="endTime" [(ngModel)]="newShiftType.endTime">
+      </div>
+      <div>
+        <button type="button" (click)="createOrUpdateShiftType()">{{ formAction }}</button>
+      </div>
+    </form>
+
+    <form *ngIf="formMode !== 'create'">
+      <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" [(ngModel)]="currentShiftType.name" [disabled]="formMode === 'details'">
+      </div>
+      <div>
+        <label for="startTime">Start Time:</label>
+        <input type="time" id="startTime" name="startTime" [(ngModel)]="currentShiftType.startTime" [disabled]="formMode === 'details'">
+      </div>
+      <div>
+        <label for="endTime">End Time:</label>
+        <input type="time" id="endTime" name="endTime" [(ngModel)]="currentShiftType.endTime" [disabled]="formMode === 'details'">
+      </div>
+      <div *ngIf="formMode !== 'details'">
+        <button type="button" (click)="createOrUpdateShiftType()">{{ formAction }}</button>
+      </div>
+    </form>
+
+    <button *ngIf="formMode === 'details'" (click)="editShiftType()">Edit</button>
+    <button *ngIf="formMode === 'details'" (click)="deleteShiftType(currentShiftType.id)">Delete</button>
+
+  </div>
+</div>

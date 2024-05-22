@@ -38,7 +38,8 @@ public class KeycloakContainer<SELF extends KeycloakContainer<SELF>> extends Gen
         super.start();
 
         try (
-                GenericContainer<?> keycloakConfigContainer = new GenericContainer<>(DockerImageName.parse("adorsys/keycloak-config-cli:latest-24.0.1"))
+                GenericContainer<?> keycloakConfigContainer = new GenericContainer<>(
+                        DockerImageName.parse("adorsys/keycloak-config-cli:latest-24.0.1"))
                         .withEnv(Map.of(
                                 "KEYCLOAK_URL", "http://keycloak:8080/",
                                 "KEYCLOAK_USER", "admin",

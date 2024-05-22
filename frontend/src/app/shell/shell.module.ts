@@ -1,7 +1,7 @@
 import {NgModule} from "@angular/core";
 import {ShellRoutingModule} from "./shell-routing.module";
 import { ShellComponent } from './shell/shell.component';
-import {RouterLink, RouterOutlet} from "@angular/router";
+import {RouterOutlet} from "@angular/router";
 import {ButtonModule} from "primeng/button";
 
 @NgModule({
@@ -12,7 +12,6 @@ import {ButtonModule} from "primeng/button";
     ShellRoutingModule,
     RouterOutlet,
     ButtonModule,
-    RouterLink,
   ],
   providers: [
   ],

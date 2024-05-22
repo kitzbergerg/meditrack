@@ -11,8 +11,8 @@ export class RolesComponent {
 
   roles: Role[] = [];
   editedRole: Role = {id: 0, name: '', users: []};
-  newRoleName: string = '';
-  showNewRoleInputField: boolean = false;
+  newRoleName = '';
+  showNewRoleInputField = false;
 
   constructor(private rolesService: RolesService) { }
 
@@ -28,13 +28,16 @@ export class RolesComponent {
   }
 
   deleteRole(role: Role): void {
-    this.rolesService.deleteRole(role.id)
-      .subscribe(response => {
-        console.log('Role deleted successfully:', response);
-        this.loadRoles();
-      }, error => {
-        console.error('Error deleting role:', error);
-      });
+    if (role.id != null) {
+      this.rolesService.deleteRole(role.id)
+        .subscribe({
+          next: (response) => {
+          console.log('Role deleted successfully:', response);
+          this.loadRoles();
+        }, error: (error) => {
+          console.error('Error deleting role:', error);
+        }});
+    }
   }
 
   createRole() {
@@ -43,13 +46,14 @@ export class RolesComponent {
         name: this.newRoleName
       };
       this.rolesService.createRole(newRole)
-        .subscribe(response => {
+        .subscribe({
+          next: (response) => {
           console.log('Role created successfully:', response);
           this.loadRoles();
           this.newRoleName = '';
-        }, error => {
+        }, error: (error) => {
           console.error('Error creating role:', error);
-        });
+      }});
       this.showNewRoleInputField = false;
     } else {
       console.error('Role name must be unique.');

@@ -39,16 +39,6 @@ public class MonthlyPlanService {
     }
 
     /**
-     * Creates a monthly plan in the database.
-     *
-     * @param monthlyPlan, the monthly plan to create
-     * @return the created monthly plan
-     */
-    public MonthlyPlan create(MonthlyPlan monthlyPlan) {
-        return repository.save(monthlyPlan);
-    }
-
-    /**
      * Updates a monthly plan in the database.
      *
      * @param monthlyPlan, the monthly plan to update

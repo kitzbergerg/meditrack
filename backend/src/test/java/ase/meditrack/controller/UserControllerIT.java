@@ -40,14 +40,6 @@ class UserControllerIT {
     private final static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
     @Container
     private final static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
-
-    @DynamicPropertySource
-    private static void startContainers(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
-        registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
-        registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
-    }
-
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -56,6 +48,13 @@ class UserControllerIT {
     private RealmResource meditrackRealm;
     @Autowired
     private UserService userService;
+
+    @DynamicPropertySource
+    private static void startContainers(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", POSTGRE_SQL_CONTAINER::getJdbcUrl);
+        registry.add("spring.datasource.username", POSTGRE_SQL_CONTAINER::getUsername);
+        registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
+    }
 
     @BeforeEach
     void setUp() {
