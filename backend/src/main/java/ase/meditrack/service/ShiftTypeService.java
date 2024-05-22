@@ -30,7 +30,7 @@ public class ShiftTypeService {
     /**
      * Fetches a shift type by id from the database.
      *
-     * @param id, the id of the shift type
+     * @param id the id of the shift type
      * @return the shift type
      */
     public ShiftType findById(UUID id) {
@@ -40,7 +40,7 @@ public class ShiftTypeService {
     /**
      * Creates a shift type in the database.
      *
-     * @param shiftType, the shift type to create
+     * @param shiftType the shift type to create
      * @return the created shift type
      */
     public ShiftType create(ShiftType shiftType) {
@@ -50,7 +50,7 @@ public class ShiftTypeService {
     /**
      * Updates a shift type in the database.
      *
-     * @param shiftType, the shift type to update
+     * @param shiftType the shift type to update
      * @return the updated shift type
      */
     public ShiftType update(ShiftType shiftType) {
@@ -70,7 +70,7 @@ public class ShiftTypeService {
     /**
      * Deletes a shift type from the database.
      *
-     * @param id, the id of the shift type to delete
+     * @param id the id of the shift type to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

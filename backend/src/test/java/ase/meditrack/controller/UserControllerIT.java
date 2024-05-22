@@ -1,5 +1,6 @@
 package ase.meditrack.controller;
 
+import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,12 +36,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DisabledIfSystemProperty(named = "spring.profiles.active", matches = "excludeTestcontainers")
 class UserControllerIT {
 
     @Container
-    private final static PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
+    private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
     @Container
-    private final static KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
+    private static final KeycloakContainer<?> KEYCLOAK_CONTAINER = new KeycloakContainer<>();
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -48,6 +51,8 @@ class UserControllerIT {
     private RealmResource meditrackRealm;
     @Autowired
     private UserService userService;
+    @Autowired
+    private KeycloakConfig.PostCostruct keycloakConfigPostCostruct;
 
     @DynamicPropertySource
     private static void startContainers(DynamicPropertyRegistry registry) {
@@ -58,7 +63,7 @@ class UserControllerIT {
 
     @BeforeEach
     void setUp() {
-        userService.createAdminUser();
+        keycloakConfigPostCostruct.createAdminUser();
     }
 
     @AfterEach

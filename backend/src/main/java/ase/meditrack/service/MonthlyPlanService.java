@@ -30,7 +30,7 @@ public class MonthlyPlanService {
     /**
      * Fetches a monthly plan by id from the database.
      *
-     * @param id, the id of the monthly plan
+     * @param id the id of the monthly plan
      * @return the monthly plan
      */
     public MonthlyPlan findById(UUID id) {
@@ -41,7 +41,7 @@ public class MonthlyPlanService {
     /**
      * Updates a monthly plan in the database.
      *
-     * @param monthlyPlan, the monthly plan to update
+     * @param monthlyPlan the monthly plan to update
      * @return the updated monthly plan
      */
     public MonthlyPlan update(MonthlyPlan monthlyPlan) {
@@ -69,7 +69,7 @@ public class MonthlyPlanService {
     /**
      * Deletes a monthly plan from the database.
      *
-     * @param id, the id of the monthly plan to delete
+     * @param id the id of the monthly plan to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

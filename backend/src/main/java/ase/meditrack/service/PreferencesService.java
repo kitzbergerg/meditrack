@@ -30,7 +30,7 @@ public class PreferencesService {
     /**
      * Fetches a preference by id from the database.
      *
-     * @param id, the id of the preference
+     * @param id the id of the preference
      * @return the preference
      */
     public Preferences findById(UUID id) {
@@ -41,7 +41,7 @@ public class PreferencesService {
     /**
      * Creates a preference in the database.
      *
-     * @param preference, the preference to create
+     * @param preference the preference to create
      * @return the created preference
      */
     public Preferences create(Preferences preference) {
@@ -51,7 +51,7 @@ public class PreferencesService {
     /**
      * Updates a preference in the database.
      *
-     * @param preference, the preference to update
+     * @param preference the preference to update
      * @return the updated preference
      */
     public Preferences update(Preferences preference) {
@@ -67,7 +67,7 @@ public class PreferencesService {
     /**
      * Deletes a preference from the database.
      *
-     * @param id, the id of the preference to delete
+     * @param id the id of the preference to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

@@ -30,7 +30,7 @@ public class ShiftService {
     /**
      * Fetches a shift by id from the database.
      *
-     * @param id, the id of the shift
+     * @param id the id of the shift
      * @return the shift
      */
     public Shift findById(UUID id) {
@@ -41,7 +41,7 @@ public class ShiftService {
     /**
      * Creates a shift in the database.
      *
-     * @param shift, the shift to create
+     * @param shift the shift to create
      * @return the created shift
      */
     public Shift create(Shift shift) {
@@ -51,7 +51,7 @@ public class ShiftService {
     /**
      * Updates a shift in the database.
      *
-     * @param shift, the shift to update
+     * @param shift the shift to update
      * @return the updated shift
      */
     public Shift update(Shift shift) {
@@ -82,7 +82,7 @@ public class ShiftService {
     /**
      * Deletes a shift from the database.
      *
-     * @param id, the id of the shift to delete
+     * @param id the id of the shift to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

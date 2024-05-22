@@ -30,7 +30,7 @@ public class ShiftSwapService {
     /**
      * Fetches a shift swap by id from the database.
      *
-     * @param id, the id of the shift swap
+     * @param id the id of the shift swap
      * @return the shift swap
      */
     public ShiftSwap findById(UUID id) {
@@ -41,7 +41,7 @@ public class ShiftSwapService {
     /**
      * Creates a shift swap in the database.
      *
-     * @param shiftSwap, the shift swap to create
+     * @param shiftSwap the shift swap to create
      * @return the created shift swap
      */
     public ShiftSwap create(ShiftSwap shiftSwap) {
@@ -51,7 +51,7 @@ public class ShiftSwapService {
     /**
      * Updates a shift swap in the database.
      *
-     * @param shiftSwap, the shift swap to update
+     * @param shiftSwap the shift swap to update
      * @return the updated shift swap
      */
     public ShiftSwap update(ShiftSwap shiftSwap) {
@@ -76,7 +76,7 @@ public class ShiftSwapService {
     /**
      * Deletes a shift swap from the database.
      *
-     * @param id, the id of the shift swap to delete
+     * @param id the id of the shift swap to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

@@ -45,7 +45,10 @@ public class TeamController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("(hasAnyAuthority('SCOPE_dm') && @teamService.isTeamLeader(authentication.name, #id)) || hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize(
+            "(hasAnyAuthority('SCOPE_dm') && @teamService.isTeamLeader(authentication.name, #id)) "
+                    + "|| hasAnyAuthority('SCOPE_admin')"
+    )
     public TeamDto findById(@PathVariable UUID id) {
         log.info("Fetching team {}", id);
         return mapper.toDto(service.findById(id));
