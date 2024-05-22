@@ -26,7 +26,7 @@ public class RoleService {
         this.userRepository = userRepository;
     }
 
-    private User getPrincipalWithTeam(Principal principal) {
+    public User getPrincipalWithTeam(Principal principal) {
         UUID dmId = UUID.fromString(principal.getName());
         Optional<User> dm = userRepository.findById(dmId);
         if (dm.isEmpty()) {
@@ -50,6 +50,7 @@ public class RoleService {
     /**
      * Fetches all roles from a team from the database.
      *
+     * @param principal the current user
      * @return List of all roles
      */
     public List<Role> findAllByTeam(Principal principal) {
@@ -71,6 +72,7 @@ public class RoleService {
     /**
      * Creates a role in the database.
      *
+     * @param principal the current user
      * @param role the role to create
      * @return the created role
      */
@@ -78,7 +80,7 @@ public class RoleService {
     public Role create(Role role, Principal principal) {
         User dm = getPrincipalWithTeam(principal);
         List<Role> roles = new ArrayList<>();
-        if (dm.getTeam().getRoles() != null){
+        if (dm.getTeam().getRoles() != null) {
             roles = dm.getTeam().getRoles();
         }
         roles.add(role);
