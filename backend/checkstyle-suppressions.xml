@@ -4,4 +4,6 @@
 
 <suppressions>
     <suppress files="model[\\/]mapper[\\/].*Mapper\.java$" checks="MissingJavadocMethod"/>
+    <suppress files="MeditrackApplication.java" checks="HideUtilityClassConstructor"/>
+    <suppress files="MeditrackApplication.java" checks="MissingJavadocMethod"/>
 </suppressions>
