@@ -30,7 +30,7 @@ public class HolidayService {
     /**
      * Fetches a holiday by id from the database.
      *
-     * @param id, the id of the holiday
+     * @param id the id of the holiday
      * @return the holiday
      */
     public Holiday findById(UUID id) {
@@ -41,7 +41,7 @@ public class HolidayService {
     /**
      * Creates a holiday in the database.
      *
-     * @param holiday, the holiday to create
+     * @param holiday the holiday to create
      * @return the created holiday
      */
     public Holiday create(Holiday holiday) {
@@ -51,7 +51,7 @@ public class HolidayService {
     /**
      * Updates a holiday in the database.
      *
-     * @param holiday, the holiday to update
+     * @param holiday the holiday to update
      * @return the updated holiday
      */
     public Holiday update(Holiday holiday) {
@@ -76,7 +76,7 @@ public class HolidayService {
     /**
      * Deletes a holiday from the database.
      *
-     * @param id, the id of the holiday
+     * @param id the id of the holiday
      */
     public void delete(UUID id) {
         repository.deleteById(id);
