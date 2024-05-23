@@ -25,6 +25,7 @@
         <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
           <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"
                  [(ngModel)]="role.name"
+                 [ngClass]="{'ng-invalid ng-dirty': submitted && role.name === ''}"
                  [disabled]="formMode === 'details'"
           >
           <small *ngIf="submitted && role.name === ''">Name is required.</small>
@@ -35,6 +36,7 @@
         <span class="p-input-icon-right">
           <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"
                          [(ngModel)]="role.color"
+                         [ngClass]="{'ng-invalid ng-dirty': submitted && role.color === ''}"
                          [disabled]="formMode === 'details'"
                          (onChange)="onColorChange($event)">
             <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
@@ -49,6 +51,7 @@
         <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
           <input pinputtext="" id="abbreviationshift" type="text" class="p-inputtext p-component p-element"
                  [(ngModel)]="role.abbreviation"
+                 [ngClass]="{'ng-invalid ng-dirty': submitted && role.abbreviation === ''}"
                  [disabled]="formMode === 'details'">
           <small *ngIf="submitted && role.abbreviation === ''">Abbreviation is required.</small>
         </div>

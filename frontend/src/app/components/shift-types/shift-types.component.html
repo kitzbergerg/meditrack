@@ -26,6 +26,7 @@
           <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"
                  [(ngModel)]="shiftType.name"
                  [disabled]="formMode === 'details'"
+                 [ngClass]="{'ng-invalid ng-dirty': submitted && shiftType.name === ''}"
           >
           <small *ngIf="submitted && shiftType.name === ''">Name is required.</small>
         </div>
@@ -36,6 +37,7 @@
           <p-calendar
             inputId="calendar-timeonly"
             [(ngModel)]="startTimeDate"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && startTimeDate === null}"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -48,6 +50,7 @@
           <p-calendar
           inputId="calendar-timeonly"
           [(ngModel)]="endTimeDate"
+          [ngClass]="{'ng-invalid ng-dirty': submitted && endTimeDate === null}"
           [timeOnly]="true"
           [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -60,6 +63,7 @@
           <p-calendar
             inputId="calendar-timeonly"
             [(ngModel)]="breakStartTimeDate"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && breakStartTimeDate === null}"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -72,6 +76,7 @@
           <p-calendar
             inputId="calendar-timeonly"
             [(ngModel)]="breakEndTimeDate"
+            [ngClass]="{'ng-invalid ng-dirty': submitted && breakEndTimeDate === null}"
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
@@ -84,6 +89,7 @@
           <p-dropdown inputid="dropdown" optionlabel="name" class="p-element p-inputwrapper ng-pristine ng-valid ng-touched"
                       [options]="dropdownOptions"
                       [(ngModel)]="selectedOption"
+                      [ngClass]="{'ng-invalid ng-dirty': submitted && selectedOption.name === 'Choose Type'}"
                       [disabled]="formMode === 'details'">
             <ng-template let-item pTemplate="selectedItem">
                 <span>{{ selectedOption ? selectedOption.name : ' ' }}</span>
@@ -108,6 +114,7 @@
         <span class="p-input-icon-right">
           <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"
                          [(ngModel)]="shiftType.color"
+                         [ngClass]="{'ng-invalid ng-dirty': submitted && shiftType.color === ''}"
                          [disabled]="formMode === 'details'"
                          (onChange)="onColorChange($event)">
             <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
@@ -122,6 +129,7 @@
         <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
           <input pinputtext="" id="abbreviationshift" type="text" class="p-inputtext p-component p-element"
                  [(ngModel)]="shiftType.abbreviation"
+                 [ngClass]="{'ng-invalid ng-dirty': submitted && shiftType.abbreviation === ''}"
                  [disabled]="formMode === 'details'">
           <small *ngIf="submitted && shiftType.abbreviation === ''">Abbreviation is required.</small>
         </div>
