@@ -14,6 +14,7 @@ public record TeamDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotBlank(groups = CreateValidator.class) String name,
         @PositiveOrZero Integer workingHours,
+        List<UUID> roles,
         List<UUID> users,
         UUID hardConstraints,
         List<UUID> monthlyPlans,

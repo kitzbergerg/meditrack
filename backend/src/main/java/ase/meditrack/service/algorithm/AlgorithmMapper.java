@@ -98,8 +98,8 @@ public class AlgorithmMapper {
             employeeUuidToIndex.put(id, i);
             indexToEmployeeUuid.put(i, id);
 
-            int workingHours = (int) (employee.getWorkingHoursPercentage() * team.getWorkingHours()) -
-                    employee.getCurrentOverTime();
+            int workingHours = (int) (employee.getWorkingHoursPercentage() * team.getWorkingHours())
+                    - employee.getCurrentOverTime();
             List<Integer> worksShifts = new ArrayList<>();
             for (ShiftType type : employee.getCanWorkShiftTypes()) {
                 int index = shiftTypeUuidToIndex.get(type.getId());

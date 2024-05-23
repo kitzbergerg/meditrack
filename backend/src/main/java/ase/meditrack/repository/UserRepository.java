@@ -11,6 +11,12 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    /**
+     * Retrieves a list of users associated with a specific team.
+     *
+     * @param team The team for which users are to be retrieved.
+     * @return A list of users associated with the specified team.
+     */
     List<User> findAllByTeam(Team team);
 
 }

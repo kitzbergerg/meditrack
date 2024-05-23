@@ -18,10 +18,7 @@ export class EmployeesComponent {
 
   userDialog = false;
   userHeader = "";
-
   deleteUserDialog= false;
-
-  deleteUsersDialog = false;
   submitted = false;
   newUserForm: FormGroup;
 
@@ -48,7 +45,6 @@ export class EmployeesComponent {
   };
 
   selectedUsers: User[] = [];
-
 
   roles: any[] = [];
 
@@ -93,7 +89,7 @@ export class EmployeesComponent {
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      workingHoursPercentage: ["1", [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
+      workingHoursPercentage: [1, [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
       role: [null, Validators.required]
     });
   }
@@ -101,14 +97,13 @@ export class EmployeesComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser()
-    this.loadRoles()
 
     this.cols = [
       { field: 'username', header: 'Name' },
       { field: 'firstName', header: 'First Name' },
       { field: 'lastName', header: 'Last Name' },
       { field: 'email', header: 'Email' },
-      { field: 'roles', header: 'Role' },
+      { field: 'role', header: 'Role' },
       { field: 'workingHoursPercentage', header: 'WorkingHoursPercentage' },
     ];
   }
@@ -127,12 +122,7 @@ export class EmployeesComponent {
       });
   }
 
-  compareRoles(role1: Role, role2: Role): boolean {
-    return role1 && role2 ? role1.id === role2.id : role1 === role2;
-  }
-
   createTeam() {
-    console.log("Creating Team");
     this.teamService.createTeam(this.newTeam).subscribe(
       (response) => {
         this.currentUser.team= response.id;
@@ -153,10 +143,10 @@ export class EmployeesComponent {
     this.userService.getUserById(this.userId).subscribe(
       (response) => {
         this.currentUser = response;
-        console.log(response)
         if (response.team != null) {
           this.getTeam();
           this.loadUsersFromTeam()
+          this.loadRoles()
         }
       },
       (error) => {
@@ -192,18 +182,16 @@ export class EmployeesComponent {
     this.userDialog = true;
   }
 
-  deleteSelectedUsers() {
-    this.deleteUsersDialog = true;
-  }
-
   editUser(user: User) {
+    const selectedRole = this.roles.find(role => role.id === user.role.id);
+
     this.newUserForm.patchValue({
       username: null,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
       workingHoursPercentage: user.workingHoursPercentage,
-      role: user.role
+      role: selectedRole
     });
     this.newUser = { ...user };
     this.userHeader = "Edit User";
@@ -213,12 +201,6 @@ export class EmployeesComponent {
   deleteUser(user: User) {
     this.deleteUserDialog = true;
     this.newUser = { ...user };
-  }
-
-  confirmDeleteSelected() {
-    this.deleteUsersDialog = false;
-    this.usersFromTeam = this.usersFromTeam.filter(val => !this.selectedUsers.includes(val));
-    this.selectedUsers = [];
   }
 
   confirmDelete() {
@@ -236,15 +218,12 @@ export class EmployeesComponent {
     this.submitted = false;
   }
 
-
   createUser() {
     this.submitted = true;
 
     if (!this.newUserForm.invalid) {
         if (this.newUser.id) {
-          console.log(this.newUser);
           this.newUser = { ...this.newUser, ...this.newUserForm.value };
-          console.log(this.newUser)
           this.userService.updateUser(this.newUser).subscribe({
             next: (user) => {
               console.log("Successfully updated user", user);
@@ -253,7 +232,8 @@ export class EmployeesComponent {
               }
               this.userDialog = false;
             },
-            error: () => {console.log("Error updating user", this.newUser)
+            error: () => {
+              console.log("Error updating user", this.newUser)
             }
           })
         }else {
@@ -261,7 +241,6 @@ export class EmployeesComponent {
           this.newUser.roles = ['employee']
           this.newUser.team = this.team.id
           this.newUser.password = <string>this.newUser.username;
-          console.log(this.newUser)
           this.userService.createUser(this.newUser)
             .subscribe({
               next: (response) => {
@@ -277,8 +256,6 @@ export class EmployeesComponent {
               }}
             );
       }
-    } else {
-      console.log("invalid")
     }
   }
 
@@ -315,7 +292,7 @@ export class EmployeesComponent {
       username: "",
       workingHoursPercentage: 1
     };
-    this.newUserForm.reset()
+    this.newUserForm.reset({workingHoursPercentage: 1});
   }
 
   onGlobalFilter(table: Table, event: Event) {
