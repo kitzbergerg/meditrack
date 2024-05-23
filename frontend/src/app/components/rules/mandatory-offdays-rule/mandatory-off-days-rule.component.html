@@ -1,11 +1,24 @@
 <div class="ruleName display-flex center">
   <ng-container *ngIf="!editMode">
-    <span class="va-middle align-self-center mr-auto">Mandatory off days: </span>
-    <span class="align-self-center">{{ numberOfDaysInMonth }} days</span>
-    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
+    <span class="va-middle align-self-center mr-auto"
+          i18n="Mandatory off days:@@rules.mandatory-off-days-rule.component.rule-name">
+      Mandatory off days:
+    </span>
+    <span class="align-self-center"
+          i18n="days count@@rules.mandatory-off-days-rule.component.days-count"
+    >
+      {numberOfDaysInMonth, plural, one {{{ numberOfDaysInMonth }} day} other {{{numberOfDaysInMonth}} days}}
+    </span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto"
+            i18n="Edit@@rules.edit">
+      Edit
+    </button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    <div class="align-self-center mr-auto">Mandatory off days in a month:</div>
+    <div class="align-self-center mr-auto"
+         i18n="Mandatory off days in a month:@@rules.mandatory-off-days-rule.component.edit-mode-text">
+      Mandatory off days in a month:
+    </div>
     <div class="align-self-center">
       <p-inputNumber
         [(ngModel)]="numberOfDaysInMonth"
@@ -14,13 +27,16 @@
         [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>
     </div>
     <div class="align-self-center ml-auto">
-      <button pButton pRipple (click)="update()" class="mr-0_5">
+      <button pButton pRipple (click)="update()" class="mr-0_5"
+              i18n="Save@@rules.save">
         Save
       </button>
-      <button pButton pRipple (click)="editMode = false" class="mr-0_5">
+      <button pButton pRipple (click)="editMode = false" class="mr-0_5"
+              i18n="Cancel@@rules.cancel">
         Cancel
       </button>
-      <button pButton pRipple (click)="delete()" class="">
+      <button pButton pRipple (click)="delete()" class=""
+              i18n="Delete@@rules.delete">
         Delete
       </button>
     </div>

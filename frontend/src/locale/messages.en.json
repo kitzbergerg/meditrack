@@ -1,3 +1,10 @@
 {
-    "test": "Resources english"
+  "rules.min-rest-period-rule.component.rule-name": " Minimal rest period: ",
+  "rules.min-rest-period-rule.component.minute-count": " {$ICU} ",
+  "2638420684838695571": "{VAR_PLURAL, plural, one {{INTERPOLATION} minute} other {{INTERPOLATION_1} minutes}}",
+  "rules.min-rest-period-rule.edit-mode-text": " Minimal amount of rest period in minutes between shifts: ",
+  "rules.edit": " Edit ",
+  "rules.save": " Save ",
+  "rules.cancel": " Cancel ",
+  "rules.delete": " Delete "
 }

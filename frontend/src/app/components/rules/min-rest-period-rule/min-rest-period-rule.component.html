@@ -1,11 +1,21 @@
 <div class="ruleName display-flex center">
   <ng-container *ngIf="!editMode">
-    <span class="va-middle align-self-center mr-auto">Minimal rest period:</span>
-    <span class="align-self-center"> {{ duration }} minutes</span>
-    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto">Edit</button>
+    <span class="va-middle align-self-center mr-auto"
+          i18n="Minimal rest period: rule@@rules.min-rest-period-rule.component.rule-name">
+      Minimal rest period:
+    </span>
+    <span class="align-self-center"
+          i18n="Minutes Count@@rules.min-rest-period-rule.component.minute-count">
+      {duration, plural, one {{{ duration }} minute} other {{{duration}} minutes}}
+    </span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto"
+            i18n="Edit@@rules.edit">
+      Edit
+    </button>
   </ng-container>
   <ng-container *ngIf="editMode">
-    <div class="align-self-center mr-auto">
+    <div class="align-self-center mr-auto"
+         i18n="Minimal Amount Rest Period@@rules.min-rest-period-rule.edit-mode-text">
       Minimal amount of rest period in minutes between shifts:
     </div>
     <div>
@@ -16,13 +26,16 @@
         [min]="0" [max]="525600" class="mr-0_5 ml-0_5"/>
     </div>
     <div class="ml-auto">
-      <button pButton pRipple (click)="update()" class="mr-0_5">
+      <button pButton pRipple (click)="update()" class="mr-0_5"
+              i18n="Save@@rules.save">
         Save
       </button>
-      <button pButton pRipple (click)="editMode = false" class="mr-0_5">
+      <button pButton pRipple (click)="editMode = false" class="mr-0_5"
+              i18n="Cancel@@rules.cancel">
         Cancel
       </button>
-      <button pButton pRipple (click)="delete()" class="">
+      <button pButton pRipple (click)="delete()" class=""
+              i18n="Delete@@rules.delete">
         Delete
       </button>
     </div>

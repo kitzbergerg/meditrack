@@ -37,6 +37,7 @@ const routes: Routes = [
   },
   {
     path: 'rules',
+    canActivate: [dmGuard],
     component: RulesComponent,
   },
 ]

@@ -1,3 +1,10 @@
 {
-    "test": "Resources deutsch"
+  "rules.min-rest-period-rule.component.rule-name": " Minimale Ruhezeit: ",
+  "rules.min-rest-period-rule.component.minute-count": " {$ICU} ",
+  "2638420684838695571": "{VAR_PLURAL, plural, one {{INTERPOLATION} Minute} other {{INTERPOLATION_1} Minuten}}",
+  "rules.min-rest-period-rule.edit-mode-text": " Minimale Ruhezeit in Minuten zwischen Schichten: ",
+  "rules.edit": " Bearbeiten ",
+  "rules.save": " Speichern ",
+  "rules.cancel": " Abbrechen ",
+  "rules.delete": " Löschen "
 }

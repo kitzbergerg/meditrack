@@ -90,7 +90,7 @@ export class RulesComponent {
           console.log('Rules created successfully:', response);
         },
         error: (error) => {
-          console.error('Error creating role:', error);
+          console.error('Error creating rule:', error);
         }
       }
     )
