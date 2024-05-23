@@ -143,6 +143,9 @@ export class RolesComponent {
           this.selectRole(this.role);
           this.resetForm();
         }, error => {
+          console.log(error.response)
+          console.log(error.errors)
+          console.log(error.message)
           console.error('Error updating role:', error);
         });
     }

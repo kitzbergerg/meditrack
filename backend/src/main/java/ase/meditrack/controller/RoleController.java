@@ -3,7 +3,6 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.RoleDto;
-import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.service.RoleService;
 import jakarta.validation.Valid;
