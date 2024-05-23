@@ -13,7 +13,7 @@ export class ScheduleService {
   // Mock method to get schedule data
   getSchedule(): Observable<any> {
     const scheduleData = {
-      "month": "June",
+      "month": 6,
       "year": 2024,
       "days": [
         {

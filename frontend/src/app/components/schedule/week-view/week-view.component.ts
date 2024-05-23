@@ -53,4 +53,22 @@ export class WeekViewComponent implements OnInit{
     console.log(this.employees);
 
   }
+
+  getFormattedDateRange(): string {
+    if (this.startDate) {
+      const endDate = new Date(this.startDate);
+      endDate.setDate(this.startDate.getDate() + 6);
+      return `${this.startDate.toLocaleDateString('en-GB')} - ${endDate.toLocaleDateString('en-GB')}`;
+    }
+    return "";
+  }
+
+  previousWeek(): void {
+    this.weekChange.emit(-1);
+  }
+
+  nextWeek(): void {
+    this.weekChange.emit(1);
+  }
+
 }

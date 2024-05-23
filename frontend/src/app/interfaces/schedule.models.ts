@@ -5,6 +5,7 @@ export interface Schedule {
 }
 
 export interface Day {
+  dayName: string;
   day: number;
   shifts: Shift[];
 }

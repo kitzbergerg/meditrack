@@ -1,23 +1,31 @@
 <p-table [value]="employees" class="p-mt-2" styleClass="p-datatable-gridlines" >
+        <h5 class="inline m-0 p-2">{{ getFormattedDateRange() }} </h5>
   <ng-template pTemplate="header">
     <tr>
-      <th>Teamname</th>
-      <th *ngFor="let day of days">{{ day }}</th>
+      <th class="font-semibold">Employees</th>
+      <!-- TODO: Weekend check should be language independent -->
+      <th [ngStyle]="{
+      'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'
+    }" class="font-semibold" *ngFor="let day of days">{{ (day.dayName) }}</th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-employee>
     <tr>
       <td>
-        <div>{{ employee.name }}</div>
-        <div class="text-sm"><span class="pi pi-clock mr-1"></span>{{ employee.workingPercentage }}%</div>
+        <div pSortableColumn="username">{{ employee.name }}</div>
+        <div class="text-sm flex align-items-center justify-content-start"><span class="pi pi-clock mr-1"></span>{{ employee.workingPercentage }}%</div>
         <div class="text-sm">{{ employee.role }}</div>
       </td>
-      <td *ngFor="let day of days; index as i" [ngStyle]="{'background-color': employee.shifts[i]?.shift.type.hexcode, 'color': 'white'}">
-
-        <ng-container *ngIf="employee.shifts[i]">
-          <div class="text-xl font-medium">{{ employee.shifts[i].shift.type.name }}</div>
-          <span class="text-sm" [ngStyle]="{'background-color': employee.shifts[i].shift.type.hexcode, 'color': '#fff'}">
-            {{ employee.shifts[i].shift.type.start_time }} - {{ employee.shifts[i].shift.type.end_time }}
+      <!-- TODO: Weekend check should be language independent -->
+      <td *ngFor="let day of days; index as i"
+          [ngStyle]="{
+    'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !employee.shifts[day.day]?.shift.type.hexcode ? 'lightgray' : employee.shifts[day.day]?.shift.type.hexcode,
+    'color': '#fff'
+  }">
+        <ng-container *ngIf="employee.shifts[day.day]">
+          <div class="text-xl font-medium">{{ employee.shifts[day.day].shift.type.name }}</div>
+          <span class="text-sm">
+            {{ employee.shifts[day.day].shift.type.start_time }} - {{ employee.shifts[day.day].shift.type.end_time }}
           </span>
         </ng-container>
       </td>
