@@ -18,6 +18,7 @@ public record RoleDto(
         String name,
         @NotBlank(groups = CreateValidator.class) String color,
         @NotBlank(groups = CreateValidator.class) String abbreviation,
-        List<UUID> users
+        List<UUID> users,
+        UUID team
 ) {
 }

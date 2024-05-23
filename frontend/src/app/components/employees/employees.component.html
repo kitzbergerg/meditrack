@@ -29,7 +29,7 @@
               <th pSortableColumn="firstName">FirstName<p-sortIcon field="firstName"></p-sortIcon></th>
               <th pSortableColumn="lastName">Last Name <p-sortIcon field="lastName"></p-sortIcon></th>
               <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
-              <th pSortableColumn="roles">Role <p-sortIcon field="roles"></p-sortIcon></th>
+              <th pSortableColumn="role.name">Role <p-sortIcon field="role"></p-sortIcon></th>
               <th pSortableColumn="workingHoursPercentage">Work % <p-sortIcon field="workingHoursPercentage"></p-sortIcon></th>
               <th></th>
             </tr>
@@ -99,6 +99,21 @@
                 <small *ngIf="submitted && newUserForm.controls['lastName'].errors?.['required']">Last name is required.</small>
               </div>
 
+
+              <div class="field">
+                <label for="role">Role:</label>
+                <p-dropdown
+                  formControlName="role"
+                  id="role"
+                  [options]="roles"
+                  optionLabel="name"
+                  [showClear]="true"
+                  [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['role']}"
+                  placeholder="Select a Role"
+                />
+                <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is required.</small>
+              </div>
+
               <div class="field">
                 <label for="workingHoursPercentage">Working Percentage:</label>
                 <input pInputText id="workingHoursPercentage" type="number" formControlName="workingHoursPercentage"  min="0.1" max="1.0" step="0.01" [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['workingHoursPercentage']}" />
@@ -107,13 +122,6 @@
                 </small>
               </div>
 
-              <div class="field">
-                <label for="role">Role:</label>
-                <select pInputText id="role" formControlName="role" [compareWith]="compareRoles" [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['role']}">
-                  <option *ngFor="let role of roles" [ngValue]="role">{{ role.name }}</option>
-                </select>
-                <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is required.</small>
-              </div>
             </form>
           </ng-template>
 
@@ -122,9 +130,6 @@
             <button  pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createUser()"></button>
           </ng-template>
         </p-dialog>
-
-
-
 
         <p-dialog [(visible)]="deleteUserDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
           <div class="flex align-items-center justify-content-center">
@@ -137,16 +142,6 @@
           </ng-template>
         </p-dialog>
 
-        <p-dialog [(visible)]="deleteUsersDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
-          <div class="flex align-items-center justify-content-center">
-            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-            <span>Are you sure you want to delete selected users?</span>
-          </div>
-          <ng-template pTemplate="footer">
-            <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteUsersDialog = false"></button>
-            <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
-          </ng-template>
-        </p-dialog>
       </div>
 
     <div *ngIf="currentUser.team === null">

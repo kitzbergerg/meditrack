@@ -1,6 +1,9 @@
 import {Component} from '@angular/core';
 import {RolesService} from "../../services/roles.service";
 import {Role, RoleCreate} from "../../interfaces/roles/rolesInterface";
+import {UserService} from "../../services/user.service";
+import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {User} from "../../interfaces/user";
 
 @Component({
   selector: 'app-roles',
@@ -11,7 +14,8 @@ export class RolesComponent {
 
   roles: Role[] = [];
   newRole: RoleCreate = { name: '', color: '', abbreviation: ''};
-  currentRole: Role = { id: -1, name: '',  color: '', abbreviation: '' };
+  currentRole: Role = { id: 0, name: '',  color: '', abbreviation: '', users: []};
+  userId = '';
 
   initialLoad= false;
 
@@ -19,10 +23,46 @@ export class RolesComponent {
   formAction= '';
   formMode: 'create' | 'edit' | 'details' = 'details';
 
-  constructor(private rolesService: RolesService) { }
+  currentUser: User = {
+    id: '',
+    username: '',
+    password: '',
+    email: '',
+    firstName: '',
+    lastName: '',
+    roles: [],
+    workingHoursPercentage: 0,
+    currentOverTime: 0,
+    specialSkills: [],
+    holidays: [],
+    shifts: [],
+    role: {name: ""},
+    team: undefined,
+    requestedShiftSwaps: [],
+    suggestedShiftSwaps: [],
+    canWorkShiftTypes: [],
+    preferredShiftTypes: []
+  };
+
+  constructor(private rolesService: RolesService, private  userService: UserService, private authorizationService: AuthorizationService) { }
 
   ngOnInit(): void {
-    this.loadRoles();
+    this.userId = this.authorizationService.parsedToken().sub;
+    this.getUser();
+  }
+
+  getUser(): void {
+    this.userService.getUserById(this.userId).subscribe(
+      (response) => {
+        this.currentUser = response;
+        if (response.team != null) {
+          this.loadRoles()
+        }
+      },
+      (error) => {
+        console.error('Error fetching data:', error);
+      }
+    );
   }
 
   loadRoles(): void {
@@ -44,12 +84,12 @@ export class RolesComponent {
       this.rolesService.deleteRole(id)
         .subscribe({
           next: (response) => {
-          console.log('Role deleted successfully:', response);
-          this.loadRoles();
+            console.log('Role deleted successfully:', response);
+            this.loadRoles();
             this.resetForm();
-        }, error: (error) => {
-          console.error('Error deleting role:', error);
-        }});
+          }, error: (error) => {
+            console.error('Error deleting role:', error);
+          }});
     }
   }
 
@@ -69,12 +109,12 @@ export class RolesComponent {
       this.rolesService.createRole(this.newRole)
         .subscribe({
           next: (response) => {
-          console.log('Role created successfully:', response);
-          this.loadRoles();
-          this.resetForm();
-        }, error: (error) => {
-          console.error('Error creating role:', error);
-      }});
+            console.log('Role created successfully:', response);
+            this.loadRoles();
+            this.resetForm();
+          }, error: (error) => {
+            console.error('Error creating role:', error);
+          }});
     } else {
       console.error('Role name must be unique.');
     }
@@ -112,8 +152,10 @@ export class RolesComponent {
   }
 
   selectRole(role: Role) {
-    this.getRole(role.id);
-    this.formMode = 'details';
+    if (role.id != undefined) {
+      this.getRole(role.id);
+      this.formMode = 'details';
+    }
   }
 
   editRole() {

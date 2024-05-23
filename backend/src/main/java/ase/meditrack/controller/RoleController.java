@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +45,12 @@ public class RoleController {
         log.info("Fetching roles");
         return mapper.toDtoList(service.findAll());
     }
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    public List<RoleDto> findAllByTeam(Principal principal) {
+        log.info("Fetching roles");
+        return mapper.toDtoList(service.findAllByTeam(principal));
+    }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
@@ -54,10 +61,10 @@ public class RoleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public RoleDto create(@Valid @Validated(CreateValidator.class) @RequestBody RoleDto dto) {
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    public RoleDto create(@Valid @Validated(CreateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Creating role {}", dto.name());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+        return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping

@@ -13,7 +13,7 @@ export class RolesService {
   private apiUrl = 'http://localhost:8081/api/role';
 
   getAllRoles(): Observable<any> {
-    return this.http.get(this.apiUrl);
+    return this.http.get(this.apiUrl + '/team');
   }
 
   getRole(id: number): Observable<Role> {
