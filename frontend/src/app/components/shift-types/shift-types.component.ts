@@ -16,7 +16,7 @@ export class ShiftTypesComponent {
     {name: 'Day'},
     {name: 'Night'}
   ];
-  selectedOption: { name: string } = this.dropdownOptions[0];
+  selectedOption = {name: 'Choose Type'};
 
   shiftType: ShiftType = {
     id: 0,
@@ -182,7 +182,7 @@ export class ShiftTypesComponent {
           minute: '2-digit',
           second: '2-digit'
         }) : this.shiftType.breakEndTime,
-        type: this.shiftType.type,
+        type: this.selectedOption.name,
         color: this.shiftType.color,
         abbreviation: this.shiftType.abbreviation
       };
@@ -227,9 +227,9 @@ export class ShiftTypesComponent {
   }
 
   createOrUpdateShiftType() {
-    this.valid = (this.shiftType.name !== '') && (this.shiftType.startTime !== '')
-      && (this.shiftType.endTime !== '') && (this.shiftType.breakStartTime !== '')
-      && (this.shiftType.breakEndTime !== '') && (this.shiftType.type !== this.dropdownOptions[0].name)
+    this.valid = (this.shiftType.name !== '') && (this.startTimeDate !== null)
+      && (this.endTimeDate !== null) && (this.breakStartTimeDate !== null)
+      && (this.breakEndTimeDate !== null) && (this.selectedOption.name !== 'Choose Type')
       && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '');
 
     if (this.formMode === 'create') {

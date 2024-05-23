@@ -96,11 +96,11 @@
               </span>
               <div role="button" aria-label="dropdown trigger" aria-haspopup="listbox" class="p-dropdown-trigger" data-pc-section="trigger" aria-expanded="false">
                 <i class="pi pi-chevron-down"></i>
-                <small *ngIf="submitted && shiftType.type === dropdownOptions[0].name">Type is either Day or Night.</small>
               </div>
               <p-overlay class="p-element ng-tns-c3177733119-184 ng-star-inserted"></p-overlay>
             </div>
           </p-dropdown>
+          <small *ngIf="submitted && selectedOption.name === 'Choose Type'">Type has to be either Day or Night.</small>
         </span>
       </div>
       <div class="field grid">
