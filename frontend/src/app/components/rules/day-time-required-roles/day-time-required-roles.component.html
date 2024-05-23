@@ -10,7 +10,7 @@
           role name: {{ roleNumber[0]?.name }}
         </span>
         <span class="ml-auto"
-              i18n="Required people@@rules.rules.day-time-required-roles.component.required-people-edit-mode">
+              i18n="Required people@@rules.rules.day-time-required-roles.component.required-people">
           required people: {{ roleNumber[1] }}</span>
       </div>
     </span>
@@ -27,7 +27,8 @@
       <div *ngFor="let roleNumber of dayTimeRequiredRoles" class="mb-0_5">
         <span
           i18n="Role Name@@rules.rules.day-time-required-roles.component.role-name-edit-mode">
-        role name:</span>
+          role name:
+        </span>
         <p-dropdown
           [options]="availableRoles"
           [(ngModel)]="roleNumber[0]"
@@ -35,9 +36,9 @@
           class="mr-0_5"
           placeholder="Select a Role"/>
         <span
-          i18n="Required people@@rules.rules.day-time-required-roles.component.required-people"
-        >
-          number of people:</span>
+          i18n="Required people@@rules.rules.day-time-required-roles.component.required-people-edit-mode">
+          number of people:
+        </span>
           <p-inputNumber
             [(ngModel)]="roleNumber[1]"
             inputId="minmax"
