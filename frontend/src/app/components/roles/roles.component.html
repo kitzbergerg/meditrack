@@ -55,7 +55,6 @@
       </div>
       <div class="button-container">
         <button *ngIf="formMode === 'create'"
-                [disabled]="!valid"
                 (click)="createOrUpdateRole()"
                 style="height: 35px; width: 150px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
@@ -78,7 +77,6 @@
         </button>
 
         <button *ngIf="formMode === 'edit'"
-                [disabled]="!valid"
                 (click)="createOrUpdateRole()"
                 style="height: 35px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
