@@ -1,57 +1,63 @@
-import {Component, OnInit} from '@angular/core';
-import {DayColumnComponent} from "../day-column/day-column.component";
-import {ScheduleService} from "../../../services/schedule.service";
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Day} from "../../../interfaces/schedule.models";
 import {NgForOf, NgIf, NgStyle} from "@angular/common";
-import {TableModule} from "primeng/table";
+import {Table, TableModule} from "primeng/table";
+import {ButtonModule} from "primeng/button";
+import {InputTextModule} from "primeng/inputtext";
+import {FormsModule} from "@angular/forms";
+import {DropdownModule} from "primeng/dropdown";
 
 @Component({
   selector: 'app-week-view',
   standalone: true,
   imports: [
-    DayColumnComponent,
     NgForOf,
     TableModule,
     NgStyle,
-    NgIf
+    NgIf,
+    ButtonModule,
+    InputTextModule,
+    FormsModule,
+    DropdownModule
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
 })
-export class WeekViewComponent implements OnInit{
+export class WeekViewComponent implements OnChanges {
 
-  days: string[] = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-  employees: any[] = [];
-  data: Day[] | undefined;
+  @Input() days: Day[] = [];
+  @Input() employees: any[] = [];
+  @Input() startDate: Date | undefined;
+  @Output() weekChange = new EventEmitter<number>();
+  roles: string[] = ['nurse', 'qualified nurse']; //TODO: fetch roles from backend
+  weekNumber: number | undefined;
 
-  constructor(private scheduleService: ScheduleService) { }
-
-  ngOnInit(): void {
-    this.scheduleService.getSchedule().subscribe(data => {
-      this.data = data;
-      this.transformData(data.days);
-      console.log(data)
-    });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.startDate) {
+      this.weekNumber = this.getWeekNumber(this.startDate);
+    }
   }
 
-  transformData(days: Day[]): void {
-    const employeeMap = new Map<string, any>();
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
 
-    days.forEach(day => {
-      day.shifts.forEach(shift => {
-        const name = `${shift.employee.firstname} ${shift.employee.lastname}`;
-        const workingPercentage = `${shift.employee.working_percentage * 100}`;
-        const role = shift.employee.role;
-        if (!employeeMap.has(name)) {
-          employeeMap.set(name, { name, role, workingPercentage, shifts: {} });
-        }
-        employeeMap.get(name).shifts[day.day] = shift;
-      });
-    });
+  getWeekNumber(date: Date): number {
+    // Copy date so that we don't modify the original date object
+    const currentDate = new Date(date.getTime());
 
-    this.employees = Array.from(employeeMap.values());
-    console.log(this.employees);
+    // Set the date to the nearest Thursday: currentDate + 4 - currentDayNumber
+    // Make Sunday (0) the last day of the week
+    currentDate.setDate(currentDate.getDate() + 4 - (currentDate.getDay() || 7));
 
+    // Get the first day of the year
+    const yearStart = new Date(currentDate.getFullYear(), 0, 1);
+
+    // Calculate the difference in milliseconds
+    const diffInMs = currentDate.getTime() - yearStart.getTime();
+
+    // Calculate full weeks to the nearest Thursday
+    return Math.ceil((((diffInMs / 86400000) + 1) / 7));
   }
 
   getFormattedDateRange(): string {
