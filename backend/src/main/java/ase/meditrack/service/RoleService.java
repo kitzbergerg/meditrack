@@ -105,7 +105,12 @@ public class RoleService {
         if (role.getUsers() != null) {
             dbRole.setUsers(role.getUsers());
         }
-
+        if (role.getColor() != null) {
+            dbRole.setColor(role.getColor());
+        }
+        if (role.getAbbreviation() != null) {
+            dbRole.setAbbreviation(role.getAbbreviation());
+        }
         return repository.save(dbRole);
     }
 

@@ -1,9 +1,9 @@
-import {Component} from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import {RolesService} from "../../services/roles.service";
-import {Role, RoleCreate} from "../../interfaces/roles/rolesInterface";
+import {Role, RoleCreate} from "../../interfaces/role";
+import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
-import {User} from "../../interfaces/user";
 
 @Component({
   selector: 'app-roles',
@@ -13,9 +13,11 @@ import {User} from "../../interfaces/user";
 export class RolesComponent {
 
   roles: Role[] = [];
-  newRole: RoleCreate = { name: '', color: '', abbreviation: ''};
-  currentRole: Role = { id: 0, name: '',  color: '', abbreviation: '', users: []};
+  role: Role = { id: 0, name: '', color: '', abbreviation: ''};
   userId = '';
+
+  submitted = false;
+  valid = false;
 
   initialLoad= false;
 
@@ -36,7 +38,7 @@ export class RolesComponent {
     specialSkills: [],
     holidays: [],
     shifts: [],
-    role: {name: ""},
+    role: {name: "", color: "", abbreviation: ""},
     team: undefined,
     requestedShiftSwaps: [],
     suggestedShiftSwaps: [],
@@ -44,11 +46,16 @@ export class RolesComponent {
     preferredShiftTypes: []
   };
 
-  constructor(private rolesService: RolesService, private  userService: UserService, private authorizationService: AuthorizationService) { }
+  constructor(private rolesService: RolesService,
+              private  userService: UserService,
+              private authorizationService: AuthorizationService,
+              private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
+    this.loadRoles()
   }
 
   getUser(): void {
@@ -79,17 +86,17 @@ export class RolesComponent {
       });
   }
 
-  deleteRole(id: number): void {
-    if (id != null) {
-      this.rolesService.deleteRole(id)
+  deleteRole(): void {
+    if (this.role.id != null) {
+      this.rolesService.deleteRole(this.role.id)
         .subscribe({
           next: (response) => {
-            console.log('Role deleted successfully:', response);
-            this.loadRoles();
-            this.resetForm();
-          }, error: (error) => {
-            console.error('Error deleting role:', error);
-          }});
+          console.log('Role deleted successfully:', response);
+          this.loadRoles();
+          this.resetForm();
+        }, error: (error) => {
+          console.error('Error deleting role:', error);
+        }});
     }
   }
 
@@ -97,7 +104,7 @@ export class RolesComponent {
     this.rolesService.getRole(id)
       .subscribe((response: Role) => {
         console.log('Role retrieved successfully:', response);
-        this.currentRole = response;
+        this.role = response;
         this.loadRoles();
       }, error => {
         console.error('Error retrieving Role:', error);
@@ -105,8 +112,15 @@ export class RolesComponent {
   }
 
   createRole() {
-    if (this.isRoleNameUnique(this.newRole.name)) {
-      this.rolesService.createRole(this.newRole)
+    this.submitted = true;
+
+    if (this.valid) {
+      const newRole: Role = {
+        name: this.role.name,
+        color: this.role.color,
+        abbreviation: this.role.abbreviation
+      }
+      this.rolesService.createRole(newRole)
         .subscribe({
           next: (response) => {
             console.log('Role created successfully:', response);
@@ -114,36 +128,24 @@ export class RolesComponent {
             this.resetForm();
           }, error: (error) => {
             console.error('Error creating role:', error);
-          }});
-    } else {
-      console.error('Role name must be unique.');
+          }
+        });
     }
   }
 
   updateRole() {
-    const roleToUpdate: Role = {
-      id: this.currentRole.id,
-      name: this.currentRole.name,
-      color: this.currentRole.color,
-      abbreviation: this.currentRole.abbreviation
-    };
-    if (this.isRoleNameUnique(roleToUpdate.name)) {
-      this.rolesService.updateRole(roleToUpdate)
+    this.submitted = true;
+
+    if (this.valid) {
+      this.rolesService.updateRole(this.role)
         .subscribe(response => {
           console.log('Role updated successfully:', response);
+          this.selectRole(this.role);
           this.resetForm();
-          // update shown shift type and list (case: name was changed)
-          this.selectRole(this.currentRole);
         }, error => {
           console.error('Error updating role:', error);
         });
-    } else {
-      console.error('Role name must be unique.');
     }
-  }
-
-  isRoleNameUnique(name: string): boolean {
-    return !this.roles.some(role => role.name === name);
   }
 
   showCreateForm() {
@@ -177,6 +179,7 @@ export class RolesComponent {
   }
 
   createOrUpdateRole() {
+    this.valid = (this.role.name !== '') && (this.role.color !== '') && (this.role.abbreviation !== '');
     if (this.formMode === 'create') {
       this.createRole();
     } else if (this.formMode === 'edit') {
@@ -187,11 +190,17 @@ export class RolesComponent {
   }
 
   cancelEditing() {
+    this.selectRole(this.role);
     this.resetForm();
-    this.selectRole(this.currentRole);
+  }
+
+  onColorChange(event: any) {
+    this.role.color = event.value;
+    this.cdr.detectChanges();
   }
 
   resetForm() {
-    this.newRole = { name: '', color: '', abbreviation: '' };
+    this.submitted = false;
+    this.role = {id: 0, name: '', color: '', abbreviation: '' };
   }
 }

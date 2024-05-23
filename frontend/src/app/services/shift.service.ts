@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {map, Observable} from "rxjs";
-import {ShiftType, ShiftTypeCreate} from "../interfaces/shiftTypeInterface";
+import {ShiftType, ShiftTypeCreate} from "../interfaces/shiftType";
 
 @Injectable({
   providedIn: 'root'

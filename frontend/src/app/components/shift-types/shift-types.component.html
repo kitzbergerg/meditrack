@@ -24,9 +24,10 @@
         <label htmlfor="nameshift" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
         <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
           <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"
-                 [(ngModel)]="formMode === 'create' ? newShiftType.name : currentShiftType.name"
+                 [(ngModel)]="shiftType.name"
                  [disabled]="formMode === 'details'"
           >
+          <small *ngIf="submitted && shiftType.name === ''">Name is required.</small>
         </div>
       </div>
       <div class="field grid">
@@ -38,6 +39,7 @@
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
+          <small *ngIf="submitted && startTimeDate === null">Start Time is required.</small>
         </span>
       </div>
       <div class="field grid">
@@ -49,6 +51,7 @@
           [timeOnly]="true"
           [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
+          <small *ngIf="submitted && endTimeDate === null">End Time is required.</small>
         </span>
       </div>
       <div class="field grid">
@@ -60,6 +63,7 @@
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
+          <small *ngIf="submitted && breakStartTimeDate === null">Break Start Time is required.</small>
         </span>
       </div>
       <div class="field grid">
@@ -71,6 +75,7 @@
             [timeOnly]="true"
             [disabled]="formMode === 'details'"/>
           <i class="pi pi-clock"></i>
+          <small *ngIf="submitted && breakEndTimeDate === null">Break End Time is required.</small>
         </span>
       </div>
       <div class="field grid">
@@ -91,6 +96,7 @@
               </span>
               <div role="button" aria-label="dropdown trigger" aria-haspopup="listbox" class="p-dropdown-trigger" data-pc-section="trigger" aria-expanded="false">
                 <i class="pi pi-chevron-down"></i>
+                <small *ngIf="submitted && shiftType.type === dropdownOptions[0].name">Type is either Day or Night.</small>
               </div>
               <p-overlay class="p-element ng-tns-c3177733119-184 ng-star-inserted"></p-overlay>
             </div>
@@ -101,10 +107,12 @@
         <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Color</label>
         <span class="p-input-icon-right">
           <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"
-                         [(ngModel)]="formMode === 'create' ? newShiftType.color : currentShiftType.color"
-                         [disabled]="formMode === 'details'">
+                         [(ngModel)]="shiftType.color"
+                         [disabled]="formMode === 'details'"
+                         (onChange)="onColorChange($event)">
             <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
               <input type="text" readonly="readonly" class="p-colorpicker-preview p-inputtext ng-tns-c3668516956-541 ng-star-inserted" data-pc-section="input" style="background-color: rgb(60, 90, 120);">
+          <small *ngIf="submitted && shiftType.color === ''">Color is required.</small>
             </div>
           </p-colorPicker>
         </span>
@@ -113,12 +121,14 @@
         <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Abbreviation</label>
         <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
           <input pinputtext="" id="abbreviationshift" type="text" class="p-inputtext p-component p-element"
-                 [(ngModel)]="formMode === 'create' ? newShiftType.abbreviation : currentShiftType.abbreviation"
+                 [(ngModel)]="shiftType.abbreviation"
                  [disabled]="formMode === 'details'">
+          <small *ngIf="submitted && shiftType.abbreviation === ''">Abbreviation is required.</small>
         </div>
       </div>
       <div class="button-container">
         <button *ngIf="formMode === 'create'"
+                [disabled]="!valid"
                 (click)="createOrUpdateShiftType()"
                 style="height: 35px; width: 150px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
@@ -134,13 +144,14 @@
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
-        <button *ngIf="formMode === 'details'" (click)="deleteShiftType(currentShiftType.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
+        <button *ngIf="formMode === 'details'" (click)="deleteShiftType(shiftType.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
           <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
           <span class="p-button-label">Delete</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
         <button *ngIf="formMode === 'edit'"
+                [disabled]="!valid"
                 (click)="createOrUpdateShiftType()"
                 style="height: 35px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">

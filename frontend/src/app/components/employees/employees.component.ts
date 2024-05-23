@@ -7,7 +7,6 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {Role} from "../../interfaces/roles/rolesInterface";
 
 @Component({
   selector: 'app-employees',
@@ -35,7 +34,7 @@ export class EmployeesComponent {
     preferences: "",
     preferredShiftTypes: [],
     requestedShiftSwaps: [],
-    role: {name: ""},
+    role: { name: "", color: "", abbreviation: ""},
     roles: [],
     shifts: [],
     specialSkills: [],
@@ -61,7 +60,7 @@ export class EmployeesComponent {
     specialSkills: [],
     holidays: [],
     shifts: [],
-    role: {name: ""},
+    role: { name: "", color: "", abbreviation: ""},
     team: undefined,
     requestedShiftSwaps: [],
     suggestedShiftSwaps: [],
@@ -283,7 +282,7 @@ export class EmployeesComponent {
       preferences: "",
       preferredShiftTypes: [],
       requestedShiftSwaps: [],
-      role: {name: ""},
+      role: { name: "", color: "", abbreviation: ""},
       roles: [],
       shifts: [],
       specialSkills: [],

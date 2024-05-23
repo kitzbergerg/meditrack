@@ -5,7 +5,7 @@ export interface ShiftType {
   endTime: string;
   breakStartTime: string;
   breakEndTime: string;
-  type: TypeEnum;
+  type: string;
   color: string;
   abbreviation: string;
 }
@@ -16,13 +16,7 @@ export interface ShiftTypeCreate {
   endTime: string;
   breakStartTime: string;
   breakEndTime: string;
-  type: TypeEnum;
+  type: string;
   color: string;
   abbreviation: string;
-}
-
-export enum TypeEnum {
-  Default = 'Choose Type',
-  Day = 'Day',
-  Night = 'Night'
 }

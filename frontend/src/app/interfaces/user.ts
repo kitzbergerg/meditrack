@@ -1,5 +1,5 @@
 import {Team} from "./team";
-import {Role} from "./roles/rolesInterface";
+import {Role} from "./role";
 
 export interface User {
   id?: string;

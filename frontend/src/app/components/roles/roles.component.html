@@ -24,19 +24,22 @@
         <label htmlfor="nameshift" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
         <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
           <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"
-                 [(ngModel)]="formMode === 'create' ? newRole.name : currentRole.name"
+                 [(ngModel)]="role.name"
                  [disabled]="formMode === 'details'"
           >
+          <small *ngIf="submitted && role.name === ''">Name is required.</small>
         </div>
       </div>
       <div class="field grid">
         <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Color</label>
         <span class="p-input-icon-right">
           <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"
-                         [(ngModel)]="formMode === 'create' ? newRole.color : currentRole.color"
-                         [disabled]="formMode === 'details'">
+                         [(ngModel)]="role.color"
+                         [disabled]="formMode === 'details'"
+                         (onChange)="onColorChange($event)">
             <div class="ng-tns-c3668516956-541 p-colorpicker p-component p-colorpicker-overlay" data-pc-name="colorpicker" data-pc-section="root">
               <input type="text" readonly="readonly" class="p-colorpicker-preview p-inputtext ng-tns-c3668516956-541 ng-star-inserted" data-pc-section="input" style="background-color: rgb(60, 90, 120);">
+          <small *ngIf="submitted && role.color === ''">Color is required.</small>
             </div>
           </p-colorPicker>
         </span>
@@ -45,12 +48,14 @@
         <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Abbreviation</label>
         <div class="col-12 md:col-10" style="padding-left: 20px; max-width: 80px">
           <input pinputtext="" id="abbreviationshift" type="text" class="p-inputtext p-component p-element"
-                 [(ngModel)]="formMode === 'create' ? newRole.abbreviation : currentRole.abbreviation"
+                 [(ngModel)]="role.abbreviation"
                  [disabled]="formMode === 'details'">
+          <small *ngIf="submitted && role.abbreviation === ''">Abbreviation is required.</small>
         </div>
       </div>
       <div class="button-container">
         <button *ngIf="formMode === 'create'"
+                [disabled]="!valid"
                 (click)="createOrUpdateRole()"
                 style="height: 35px; width: 150px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
@@ -66,13 +71,14 @@
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
-        <button *ngIf="formMode === 'details'" (click)="deleteRole(currentRole.id)" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
+        <button *ngIf="formMode === 'details'" (click)="deleteRole()" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
           <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
           <span class="p-button-label">Delete</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
         <button *ngIf="formMode === 'edit'"
+                [disabled]="!valid"
                 (click)="createOrUpdateRole()"
                 style="height: 35px;"
                 pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">

@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.ShiftTypeValidator;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.repository.ShiftTypeRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class ShiftTypeService {
      * @param shiftType the shift type to create
      * @return the created shift type
      */
-    public ShiftType create(ShiftType shiftType) throws ValidationException {
+    public ShiftType create(ShiftType shiftType) {
         validator.shiftTypeCreateValidation(shiftType);
         return repository.save(shiftType);
     }
@@ -62,32 +63,18 @@ public class ShiftTypeService {
         if (shiftType.getName() != null) dbShiftType.setName(shiftType.getName());
         if (shiftType.getStartTime() != null) dbShiftType.setStartTime(shiftType.getStartTime());
         if (shiftType.getEndTime() != null) dbShiftType.setEndTime(shiftType.getEndTime());
-        if (shiftType.getTeam() != null) dbShiftType.setTeam(shiftType.getTeam());
+        if (shiftType.getBreakStartTime() != null) dbShiftType.setBreakStartTime(shiftType.getBreakStartTime());
+        if (shiftType.getBreakEndTime() != null) dbShiftType.setBreakEndTime(shiftType.getBreakEndTime());
+        if (shiftType.getType() != null) dbShiftType.setType(shiftType.getType());
+        if (shiftType.getColor() != null) dbShiftType.setColor(shiftType.getColor());
+        if (shiftType.getAbbreviation() != null) dbShiftType.setAbbreviation(shiftType.getAbbreviation());
         if (shiftType.getShifts() != null) dbShiftType.setShifts(shiftType.getShifts());
         if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
         if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
 
+        validator.shiftTypeUpdateValidation(dbShiftType);
+
         return repository.save(dbShiftType);
-
-        /*
-        ShiftType updatedShiftType = new ShiftType();
-        updatedShiftType.setId(shiftType.getId());
-        updatedShiftType.setName(shiftType.getName());
-        updatedShiftType.setStartTime(shiftType.getStartTime());
-        updatedShiftType.setEndTime(shiftType.getEndTime());
-        updatedShiftType.setBreakStartTime(shiftType.getBreakStartTime());
-        updatedShiftType.setBreakEndTime(shiftType.getBreakEndTime());
-        updatedShiftType.setType(shiftType.getType());
-        updatedShiftType.setColor(shiftType.getColor());
-        updatedShiftType.setAbbreviation(shiftType.getAbbreviation());
-        updatedShiftType.setTeam(shiftType.getTeam());
-        updatedShiftType.setShifts(shiftType.getShifts());
-        updatedShiftType.setWorkUsers(shiftType.getWorkUsers());
-        updatedShiftType.setPreferUsers(shiftType.getPreferUsers());
-
-        validator.shiftTypeUpdateValidation(shiftType);
-
-         */
     }
 
     /**
