@@ -7,6 +7,8 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {ShiftService} from "../../services/shift.service";
+import {ShiftType} from "../../interfaces/shiftType";
 
 @Component({
   selector: 'app-employees',
@@ -46,6 +48,7 @@ export class EmployeesComponent {
   selectedUsers: User[] = [];
 
   roles: any[] = [];
+  shiftTypes: any[] = [];
 
   currentUser: User = {
     id: '',
@@ -82,6 +85,7 @@ export class EmployeesComponent {
               private teamService: TeamService,
               private rolesService: RolesService,
               private formBuilder: FormBuilder,
+              private shiftService: ShiftService,
   ) {
     this.newUserForm = this.formBuilder.group({
       username: ['', this.usernameValidator.bind(this)],
@@ -89,7 +93,8 @@ export class EmployeesComponent {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       workingHoursPercentage: [1, [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
-      role: [null, Validators.required]
+      role: [null, Validators.required],
+      canWorkShiftTypes: [[]]
     });
   }
 
@@ -104,6 +109,7 @@ export class EmployeesComponent {
       { field: 'email', header: 'Email' },
       { field: 'role', header: 'Role' },
       { field: 'workingHoursPercentage', header: 'WorkingHoursPercentage' },
+      { field: 'canWorkShiftTypes', header: 'CanWorkShiftTypes' },
     ];
   }
 
@@ -120,6 +126,20 @@ export class EmployeesComponent {
         this.roles = fetchedRoles;
       });
   }
+  loadShiftTypes() {
+    this.shiftService.getAllShiftTypes().subscribe({
+      next: (response) => {
+        this.shiftTypes = response;
+        console.log("Fetched Shift Types successfully")
+      },
+      error: (error) => {
+        console.error('Error fetching shift types:', error)
+      },
+    });
+    this.resetUser()
+  }
+
+
 
   createTeam() {
     this.teamService.createTeam(this.newTeam).subscribe(
@@ -146,6 +166,7 @@ export class EmployeesComponent {
           this.getTeam();
           this.loadUsersFromTeam()
           this.loadRoles()
+          this.loadShiftTypes()
         }
       },
       (error) => {
@@ -190,7 +211,8 @@ export class EmployeesComponent {
       firstName: user.firstName,
       lastName: user.lastName,
       workingHoursPercentage: user.workingHoursPercentage,
-      role: selectedRole
+      role: selectedRole,
+      canWorkShiftTypes: user.canWorkShiftTypes,
     });
     this.newUser = { ...user };
     this.userHeader = "Edit User";
@@ -237,9 +259,10 @@ export class EmployeesComponent {
           })
         }else {
           this.newUser = this.newUserForm.value;
-          this.newUser.roles = ['employee']
-          this.newUser.team = this.team.id
+          this.newUser.roles = ['employee'];
+          this.newUser.team = this.team.id;
           this.newUser.password = <string>this.newUser.username;
+          console.log(this.newUser);
           this.userService.createUser(this.newUser)
             .subscribe({
               next: (response) => {

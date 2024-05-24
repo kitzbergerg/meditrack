@@ -31,6 +31,7 @@
               <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
               <th pSortableColumn="role.name">Role <p-sortIcon field="role"></p-sortIcon></th>
               <th pSortableColumn="workingHoursPercentage">Work % <p-sortIcon field="workingHoursPercentage"></p-sortIcon></th>
+              <th pSortableColumn="canWorkShiftTypes">Can Work Shift<p-sortIcon field="canWorkShiftTypes"></p-sortIcon></th>
               <th></th>
             </tr>
           </ng-template>
@@ -59,6 +60,10 @@
               <td style="width:14%; min-width: 10rem;">
                 <span class="p-column-title">Work %</span>
                 {{user.workingHoursPercentage}}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Can Work Shift</span>
+                {{user.canWorkShiftTypes.join(', ') }}
               </td>
               <td>
                 <div class="flex">
@@ -99,6 +104,17 @@
                 <small *ngIf="submitted && newUserForm.controls['lastName'].errors?.['required']">Last name is required.</small>
               </div>
 
+              <div *ngIf="shiftTypes" class="field">
+                <label for="canWorkShiftTypes">Can Work</label>
+                <p-multiSelect
+                  formControlName="canWorkShiftTypes"
+                  id="canWorkShiftTypes"
+                  [options]="shiftTypes"
+                  optionLabel="name"
+                  optionValue="id"
+                  placeholder="Select Shift Types" />
+              </div>
+
 
               <div class="field">
                 <label for="role">Role:</label>
@@ -113,6 +129,8 @@
                 />
                 <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is required.</small>
               </div>
+
+
 
               <div class="field">
                 <label for="workingHoursPercentage">Working Percentage:</label>

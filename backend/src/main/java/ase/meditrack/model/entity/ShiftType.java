@@ -56,7 +56,7 @@ public class ShiftType {
     @ManyToMany(mappedBy = "canWorkShiftTypes")
     private List<User> workUsers;
 
-    @ManyToMany(mappedBy = "canWorkShiftTypes")
+    @ManyToMany(mappedBy = "preferredShiftTypes")
     private List<User> preferUsers;
 
     @Override
