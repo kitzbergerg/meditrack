@@ -25,15 +25,17 @@ public class RoleValidator {
 
         List<Role> roles = roleRepository.findAll();
 
-        for (Role st:roles) {
-            if (role.getName().equals(st.getName())) {
-                throw new ValidationException("Name has to be unique.");
-            }
-            if (role.getColor().equals(st.getColor())) {
-                throw new ValidationException("Color has to be unique.");
-            }
-            if (role.getAbbreviation().equals(st.getAbbreviation())) {
-                throw new ValidationException("Abbreviation has to be unique.");
+        for (Role r:roles) {
+            if (!role.equals(r)) {
+                if (role.getName().equals(r.getName())) {
+                    throw new ValidationException("Name has to be unique.");
+                }
+                if (role.getColor().equals(r.getColor())) {
+                    throw new ValidationException("Color has to be unique.");
+                }
+                if (role.getAbbreviation().equals(r.getAbbreviation())) {
+                    throw new ValidationException("Abbreviation has to be unique.");
+                }
             }
         }
     }

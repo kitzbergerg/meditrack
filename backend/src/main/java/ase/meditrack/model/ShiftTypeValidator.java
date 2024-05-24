@@ -68,14 +68,16 @@ public class ShiftTypeValidator {
         List<ShiftType> shiftTypes = shiftTypeRepository.findAll();
 
         for (ShiftType st:shiftTypes) {
-            if (shiftType.getName().equals(st.getName())) {
-                throw new ValidationException("Name has to be unique.");
-            }
-            if (shiftType.getColor().equals(st.getColor())) {
-                throw new ValidationException("Color has to be unique.");
-            }
-            if (shiftType.getAbbreviation().equals(st.getAbbreviation())) {
-                throw new ValidationException("Abbreviation has to be unique.");
+            if (!shiftType.equals(st)) {
+                if (shiftType.getName().equals(st.getName())) {
+                    throw new ValidationException("Name has to be unique.");
+                }
+                if (shiftType.getColor().equals(st.getColor())) {
+                    throw new ValidationException("Color has to be unique.");
+                }
+                if (shiftType.getAbbreviation().equals(st.getAbbreviation())) {
+                    throw new ValidationException("Abbreviation has to be unique.");
+                }
             }
         }
     }
