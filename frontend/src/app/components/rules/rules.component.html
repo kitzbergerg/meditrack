@@ -1,0 +1,102 @@
+<div class="grid">
+  <div class="col-12 ">
+    <div class="card px-6 py-6">
+      <h1 i18n="Rules@@rules.component.rule-title">Rules</h1>
+
+      <ul class="currentRulesList">
+        <li *ngIf="showMandatoryOffDaysRule">
+          <app-mandatory-off-days-rule
+            [mandatoryOffDays]="rules!.mandatoryOffDays"
+            (updateMandatoryOffDays)="updateMandatoryOffDaysRule($event)">
+          </app-mandatory-off-days-rule>
+        </li>
+        <li *ngIf="showMinRestPeriod">
+          <app-min-rest-period-rule
+            [minRestPeriod]="rules!.minRestPeriod"
+            (updateMinRestPeriod)="updateMinRestPeriodRule($event)">
+          </app-min-rest-period-rule>
+        </li>
+        <li *ngIf="showMaxShiftLengths">
+          <app-max-shift-lengths
+            [maxShiftLength]="rules!.maxShiftLengths"
+            (updateMaxShiftLength)="updateMaxShiftLengthRule($event)">
+          </app-max-shift-lengths>
+        </li>
+        <li *ngIf="showDayTimeRequiredRoles">
+          <app-day-time-required-roles
+            [dayTimeRequiredRoles]="rules!.dayTimeRequiredRoles"
+            (updateDayTimeRequiredRoles)="updateDayTimeRequiredRolesRule($event)">
+          </app-day-time-required-roles>
+        </li>
+        <li *ngIf="showNightTimeRequiredRoles">
+          <app-night-time-required-roles
+            [nightTimeRequiredRoles]="rules!.nightTimeRequiredRoles"
+            (updateNightTimeRequiredRoles)="updateNightTimeRequiredRolesRule($event)">
+          </app-night-time-required-roles>
+        </li>
+        <li *ngIf="showAllowedFlexTimeTotal">
+          <app-allowed-flex-time-total
+            [allowedFlexTimeTotal]="rules!.allowedFlexTimeTotal"
+            (updateAllowedFlexTimeTotal)="updateAllowedFlexTimeTotalRule($event)">
+          </app-allowed-flex-time-total>
+        </li>
+        <li *ngIf="showAllowedFlexTimePerMonth">
+          <app-allowed-flex-time-per-month
+            [allowedFlexTimePerMonth]="rules!.allowedFlexTimePerMonth"
+            (updateAllowedFlexTimePerMonth)="updateAllowedFlexTimePerMonthRule($event)">
+          </app-allowed-flex-time-per-month>
+        </li>
+      </ul>
+
+      <div class="plusButtonContainer">
+        <button name="createButton" pButton (click)="showAvailableRules = !showAvailableRules" *ngIf="anyRulesNotSet()">
+          {{ showAvailableRules ? '-' : '+' }}
+        </button>
+      </div>
+      <ul class="createRuleList">
+        <button pButton
+                (click)="showMandatoryOffDaysRule = true; showAvailableRules = false"
+                *ngIf="!showMandatoryOffDaysRule && showAvailableRules"
+                i18n="mandatory off days@@rules.component.rule-add-mandatory-off-days">
+          mandatory off days
+        </button>
+        <button pButton
+                (click)="showMinRestPeriod = true; showAvailableRules = false"
+                *ngIf="!showMinRestPeriod && showAvailableRules"
+                i18n="min rest period@@rules.component.rule-add-min-rest-period">
+          min rest period
+        </button>
+        <button pButton
+                (click)="showMaxShiftLengths = true; showAvailableRules = false"
+                *ngIf="!showMaxShiftLengths && showAvailableRules "
+                i18n="maximum shift lengths@@rules.component.rule-add-maximum-shift-lengths">
+          maximum shift lengths
+        </button>
+        <button pButton
+                (click)="showDayTimeRequiredRoles = true; showAvailableRules = false"
+                *ngIf="!showDayTimeRequiredRoles && showAvailableRules "
+                i18n="day time required roles@@rules.component.rule-add-day-time-required-roles">
+          day time required roles
+        </button>
+        <button pButton
+                (click)="showNightTimeRequiredRoles = true; showAvailableRules = false"
+                *ngIf="!showNightTimeRequiredRoles && showAvailableRules "
+                i18n="night time required roles@@rules.component.rule-add-night-time-required-roles">
+          night time required roles
+        </button>
+        <button pButton
+                (click)="showAllowedFlexTimeTotal = true; showAvailableRules = false"
+                *ngIf="!showAllowedFlexTimeTotal && showAvailableRules "
+                i18n="allowed flex time total@@rules.component.rule-add-allowed-flex-time-total">
+          allowed flex time total
+        </button>
+        <button pButton
+                (click)="showAllowedFlexTimePerMonth = true; showAvailableRules = false"
+                *ngIf="!showAllowedFlexTimePerMonth && showAvailableRules "
+                i18n="allowed flex time per month@@rules.component.rule-add-allowed-flex-time-per-month">
+          allowed flex time per month
+        </button>
+      </ul>
+    </div>
+  </div>
+</div>
