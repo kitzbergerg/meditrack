@@ -135,6 +135,7 @@
         </div>
       </div>
       <div class="button-container">
+        <p-toast></p-toast>
         <button *ngIf="formMode === 'create'"
                 (click)="createOrUpdateShiftType()"
                 style="height: 35px; width: 150px;"
@@ -151,12 +152,14 @@
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
+        <p-toast></p-toast>
         <button *ngIf="formMode === 'details'" (click)="deleteShiftType()" pbutton="" pripple="" label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component" style="height: 35px;">
           <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
           <span class="p-button-label">Delete</span>
           <span class="p-ink" aria-hidden="true" role="presentation"></span>
         </button>
 
+        <p-toast></p-toast>
         <button *ngIf="formMode === 'edit'"
                 (click)="createOrUpdateShiftType()"
                 style="height: 35px;"

@@ -1,6 +1,7 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
 import {ShiftType} from "../../interfaces/shiftType";
 import {ShiftService} from "../../services/shift.service";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-shift-types',
@@ -46,7 +47,8 @@ export class ShiftTypesComponent {
   formMode: 'create' | 'edit' | 'details' = 'details';
 
   constructor(private shiftService: ShiftService,
-              private cdr: ChangeDetectorRef
+              private cdr: ChangeDetectorRef,
+              private messageService: MessageService
   ) {
   }
 
@@ -73,10 +75,12 @@ export class ShiftTypesComponent {
       this.shiftService.deleteShiftType(this.shiftType.id)
         .subscribe(response => {
           console.log('Shift Type deleted successfully');
+          this.messageService.add({severity:'success', summary: 'Successfully Deleted Shift Type ' + this.shiftType.name});
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
           console.error('Error deleting shift type:', error);
+          this.messageService.add({severity:'error', summary: 'Deleting Shift Type Failed', detail: error.error});
         });
     }
   }
@@ -145,12 +149,16 @@ export class ShiftTypesComponent {
       this.shiftService.createShiftType(newShiftType)
         .subscribe(response => {
           console.log('Shift Type created successfully:', response);
+          this.messageService.add({severity:'success', summary: 'Successfully Created Shift Type ' + newShiftType.name});
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
           //console.log(error.error);
           console.error('Error creating shift type:', error);
+          this.messageService.add({severity:'error', summary: 'Creating Shift Type Failed', detail: error.error});
         });
+    } else {
+      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
@@ -193,11 +201,15 @@ export class ShiftTypesComponent {
       this.shiftService.updateShiftType(shiftTypeToUpdate)
         .subscribe(response => {
           console.log('Shift Type updated successfully:', response);
+          this.messageService.add({severity:'success', summary: 'Successfully Updated Shift Type ' + this.shiftType.name});
           this.resetForm();
           this.selectShiftType(shiftTypeToUpdate);
         }, error => {
           console.error('Error updating shift type:', error);
+          this.messageService.add({severity:'error', summary: 'Updating Shift Type Failed', detail: error.error});
         });
+    } else {
+      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
