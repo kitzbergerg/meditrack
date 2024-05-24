@@ -4,6 +4,7 @@ import {Role} from "../../interfaces/role";
 import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-roles',
@@ -50,6 +51,7 @@ export class RolesComponent {
               private  userService: UserService,
               private authorizationService: AuthorizationService,
               private cdr: ChangeDetectorRef,
+              private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
@@ -92,10 +94,12 @@ export class RolesComponent {
         .subscribe({
           next: (response) => {
           console.log('Role deleted successfully:', response);
+          this.messageService.add({severity:'success', summary: 'Successfully Deleted Role ' + this.role.name});
           this.loadRoles();
           this.resetForm();
         }, error: (error) => {
           console.error('Error deleting role:', error);
+          this.messageService.add({severity:'error', summary: 'Deleting Role Failed'});
         }});
     }
   }
@@ -124,13 +128,16 @@ export class RolesComponent {
         .subscribe({
           next: (response) => {
             console.log('Role created successfully:', response);
+            this.messageService.add({severity:'success', summary: 'Successfully Created Role ' + newRole.name});
             this.loadRoles();
             this.resetForm();
           }, error: (error) => {
             console.error('Error creating role:', error);
-
+            this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: error.error});
           }
         });
+    } else {
+      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
@@ -141,14 +148,15 @@ export class RolesComponent {
       this.rolesService.updateRole(this.role)
         .subscribe(response => {
           console.log('Role updated successfully:', response);
+          this.messageService.add({severity:'success', summary: 'Successfully Updated Role ' + this.role.name});
           this.selectRole(this.role);
           this.resetForm();
         }, error => {
-          console.log(error.response)
-          console.log(error.errors)
-          console.log(error.message)
           console.error('Error updating role:', error);
+          this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: error.error});
         });
+    } else {
+      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 

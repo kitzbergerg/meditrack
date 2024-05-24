@@ -24,6 +24,8 @@ import {ImageModule} from "primeng/image";
 import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { CalendarModule } from "primeng/calendar";
+import {ToastModule} from "primeng/toast";
+import { MessageService } from 'primeng/api';
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -57,28 +59,30 @@ function initializeKeycloak(keycloak: KeycloakService) {
     DashboardComponent,
     ShiftTypesComponent,
   ],
-    imports: [
-        BrowserModule,
-        ButtonModule,
-        AppRoutingModule,
-        RouterModule,
-        HttpClientModule,
-        KeycloakAngularModule,
-        FormsModule,
-        StyleClassModule,
-        RippleModule,
-        AppLayoutModule,
-        ReactiveFormsModule,
-        ToolbarModule,
-        TableModule,
-        DialogModule,
-        DropdownModule,
-        InputTextModule,
-        ImageModule,
-        CalendarModule,
-        ColorPickerModule,
-    ],
+  imports: [
+    BrowserModule,
+    ButtonModule,
+    AppRoutingModule,
+    RouterModule,
+    HttpClientModule,
+    KeycloakAngularModule,
+    FormsModule,
+    StyleClassModule,
+    RippleModule,
+    AppLayoutModule,
+    ReactiveFormsModule,
+    ToolbarModule,
+    TableModule,
+    DialogModule,
+    DropdownModule,
+    InputTextModule,
+    ImageModule,
+    CalendarModule,
+    ColorPickerModule,
+    ToastModule,
+  ],
   providers: [
+    MessageService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,
