@@ -1,5 +1,5 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
-import {ShiftType, ShiftTypeCreate} from "../../interfaces/shiftType";
+import {ShiftType} from "../../interfaces/shiftType";
 import {ShiftService} from "../../services/shift.service";
 
 @Component({
@@ -68,15 +68,17 @@ export class ShiftTypesComponent {
       });
   }
 
-  deleteShiftType(id: number): void {
-    this.shiftService.deleteShiftType(id)
-      .subscribe(response => {
-        console.log('Shift Type deleted successfully');
-        this.loadShiftTypes();
-        this.resetForm();
-      }, error => {
-        console.error('Error deleting shift type:', error);
-      });
+  deleteShiftType(): void {
+    if (this.shiftType.id != undefined) {
+      this.shiftService.deleteShiftType(this.shiftType.id)
+        .subscribe(response => {
+          console.log('Shift Type deleted successfully');
+          this.loadShiftTypes();
+          this.resetForm();
+        }, error => {
+          console.error('Error deleting shift type:', error);
+        });
+    }
   }
 
   getShiftType(id: number) {
@@ -109,7 +111,7 @@ export class ShiftTypesComponent {
     this.submitted = true;
 
     if (this.valid) {
-      const newShiftType: ShiftTypeCreate = {
+      const newShiftType: ShiftType = {
         name: this.shiftType.name,
         startTime: this.startTimeDate ? this.startTimeDate.toLocaleTimeString('en-US', {
           hour12: false,
@@ -146,6 +148,7 @@ export class ShiftTypesComponent {
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
+          //console.log(error.error);
           console.error('Error creating shift type:', error);
         });
     }
@@ -204,8 +207,10 @@ export class ShiftTypesComponent {
   }
 
   selectShiftType(shiftType: ShiftType) {
-    this.getShiftType(shiftType.id);
-    this.formMode = 'details';
+    if (shiftType.id != undefined) {
+      this.getShiftType(shiftType.id);
+      this.formMode = 'details';
+    }
   }
 
   editShiftType() {

@@ -5,9 +5,3 @@ export interface Role {
   color: string;
   abbreviation: string;
 }
-
-export interface RoleCreate {
-  name: string;
-  color: string;
-  abbreviation: string;
-}

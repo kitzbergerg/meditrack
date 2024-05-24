@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {map, Observable} from "rxjs";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import {Role, RoleCreate} from "../interfaces/role";
+import {Role} from "../interfaces/role";
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,7 @@ export class RolesService {
       }));
   }
 
-  createRole(role: RoleCreate): Observable<Role> {
+  createRole(role: Role): Observable<Role> {
     const httpOptions = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };

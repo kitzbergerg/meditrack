@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component} from '@angular/core';
 import {RolesService} from "../../services/roles.service";
-import {Role, RoleCreate} from "../../interfaces/role";
+import {Role} from "../../interfaces/role";
 import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
@@ -13,7 +13,7 @@ import {AuthorizationService} from "../../services/authentication/authorization.
 export class RolesComponent {
 
   roles: Role[] = [];
-  role: Role = { id: 0, name: '', color: '', abbreviation: ''};
+  role: Role = { id: 0, name: '', color: '#ff0000', abbreviation: ''};
   userId = '';
 
   submitted = false;
@@ -49,7 +49,7 @@ export class RolesComponent {
   constructor(private rolesService: RolesService,
               private  userService: UserService,
               private authorizationService: AuthorizationService,
-              private cdr: ChangeDetectorRef
+              private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -87,7 +87,7 @@ export class RolesComponent {
   }
 
   deleteRole(): void {
-    if (this.role.id != null) {
+    if (this.role.id != undefined) {
       this.rolesService.deleteRole(this.role.id)
         .subscribe({
           next: (response) => {
@@ -128,6 +128,7 @@ export class RolesComponent {
             this.resetForm();
           }, error: (error) => {
             console.error('Error creating role:', error);
+
           }
         });
     }
@@ -204,6 +205,6 @@ export class RolesComponent {
 
   resetForm() {
     this.submitted = false;
-    this.role = {id: 0, name: '', color: '', abbreviation: '' };
+    this.role = {id: 0, name: '', color: '#ff0000', abbreviation: '' };
   }
 }
