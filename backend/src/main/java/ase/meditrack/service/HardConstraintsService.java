@@ -30,7 +30,7 @@ public class HardConstraintsService {
     /**
      * Fetches a hard constraint by id from the database.
      *
-     * @param id, the id of the hard constraint
+     * @param id the id of the hard constraint
      * @return the hard constraint
      */
     public HardConstraints findById(UUID id) {
@@ -41,7 +41,7 @@ public class HardConstraintsService {
     /**
      * Creates a hard constraint in the database.
      *
-     * @param hardConstraints, the hard constraints to create
+     * @param hardConstraints the hard constraints to create
      * @return the created hard constraints
      */
     public HardConstraints create(HardConstraints hardConstraints) {
@@ -51,7 +51,7 @@ public class HardConstraintsService {
     /**
      * Updates a hard constraints in the database.
      *
-     * @param hardConstraints, the hard constraints to update
+     * @param hardConstraints the hard constraints to update
      * @return the updated hard constraints
      */
     public HardConstraints update(HardConstraints hardConstraints) {
@@ -88,7 +88,7 @@ public class HardConstraintsService {
     /**
      * Deletes a hard constraint from the database.
      *
-     * @param id, the id of the hard constraints to delete
+     * @param id the id of the hard constraints to delete
      */
     public void delete(UUID id) {
         repository.deleteById(id);

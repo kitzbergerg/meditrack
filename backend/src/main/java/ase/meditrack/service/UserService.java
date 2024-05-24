@@ -2,11 +2,8 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
-import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
-import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -32,14 +29,11 @@ import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
-    private final UserMapper mapper;
     private final UserValidator userValidator;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository,
-                       UserMapper mapper, UserValidator userValidator) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
-        this.mapper = mapper;
         this.userValidator = userValidator;
     }
 
@@ -52,14 +46,6 @@ public class UserService {
         RoleScopeResource roleScopeResource = user.roles().realmLevel();
         roleScopeResource.remove(roleScopeResource.listAll());
         user.roles().realmLevel().add(userRoles);
-    }
-
-    @PostConstruct
-    public void createAdminUser() {
-        if (meditrackRealm.users().count() == 0) {
-            log.info("Creating default admin user...");
-            this.create(defaultAdminUser());
-        }
     }
 
     /**
@@ -77,7 +63,7 @@ public class UserService {
     /**
      * Fetches all users from the team of the dm from the database and matches additional attributes from keycloak.
      *
-     * @param principal, the dm of the team
+     * @param principal the current user's id
      * @return List of all users from the team of the dm
      */
     public List<User> findByTeam(Principal principal) throws NoSuchElementException {
@@ -97,7 +83,7 @@ public class UserService {
     /**
      * Fetches a user by id from the database and matches additional attributes from keycloak.
      *
-     * @param id, the id of the user
+     * @param id the id of the user
      * @return the user
      */
     public User findById(UUID id) {
@@ -110,7 +96,7 @@ public class UserService {
     /**
      * Creates a user in the database and in keycloak.
      *
-     * @param user, the user to create
+     * @param user the user to create
      * @return the created user
      */
     public User create(User user) {
@@ -137,7 +123,8 @@ public class UserService {
     /**
      * Updates a user in the database and in keycloak.
      *
-     * @param user, the user to update
+     * @param user the user to update
+     * @param principal the current user's id
      * @return the updated user
      */
     public User update(User user, Principal principal) {
@@ -165,7 +152,8 @@ public class UserService {
     /**
      * Deletes a user from the database and from keycloak.
      *
-     * @param id, the id of the user to delete
+     * @param id the id of the user to delete
+     * @param principal the current user's id
      */
     public void delete(UUID id, Principal principal) {
         //checks if employee to delete is part of dms team
@@ -181,31 +169,6 @@ public class UserService {
             }
             repository.deleteById(id);
         }
-    }
-
-    private User defaultAdminUser() {
-        UserDto user = new UserDto(
-                null,
-                "admin",
-                "admin",
-                "admin@meditrack.com",
-                "admin",
-                "admin",
-                List.of("admin"),
-                null,
-                1.0f,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        return mapper.fromDto(user);
     }
 
     private User updateChangedAttributes(User user) {
