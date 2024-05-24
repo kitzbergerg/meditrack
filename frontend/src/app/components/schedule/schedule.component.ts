@@ -19,6 +19,7 @@ export class ScheduleComponent implements OnInit {
   employees: any[] = [];
   currentWeekOffset = 0;
   startDate: Date = new Date();
+  range = 7;
 
   constructor(private scheduleService: ScheduleService) {
   }
@@ -36,8 +37,8 @@ export class ScheduleComponent implements OnInit {
   }
 
   loadWeek(): void {
-    const start = this.currentWeekOffset * 7;
-    this.days = this.allDays.slice(start, start + 7);
+    const start = this.currentWeekOffset * this.range;
+    this.days = this.allDays.slice(start, start + this.range);
     this.transformData(this.days);
   }
 
@@ -45,7 +46,7 @@ export class ScheduleComponent implements OnInit {
     const employeeMap = new Map<string, any>();
 
     days.forEach(day => {
-      day.dayName = this.getDayString(day.day - (this.currentWeekOffset * 7));
+      day.dayName = this.getDayString(day.day - (this.currentWeekOffset * this.range));
       day.shifts.forEach(shift => {
         const name = `${shift.employee.firstname} ${shift.employee.lastname}`;
         const role = shift.employee.role;
@@ -70,7 +71,12 @@ export class ScheduleComponent implements OnInit {
 
   changeWeek(offset: number): void {
     this.currentWeekOffset += offset;
-    this.startDate.setDate(this.startDate.getDate() + (offset * 7));
+    this.startDate.setDate(this.startDate.getDate() + (offset * this.range));
+    this.loadWeek();
+  }
+
+  changeRange(range: number): void {
+    this.range = range;
     this.loadWeek();
   }
 

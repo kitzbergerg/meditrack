@@ -29,12 +29,22 @@ export class WeekViewComponent implements OnChanges {
   @Input() employees: any[] = [];
   @Input() startDate: Date | undefined;
   @Output() weekChange = new EventEmitter<number>();
+  @Output() rangeChange = new EventEmitter<number>();
   roles: string[] = ['nurse', 'qualified nurse']; //TODO: fetch roles from backend
   weekNumber: number | undefined;
+  monthNumber: number | undefined;
+
+  range = 7; // Default value set to 7 days
+  rangeOptions: any[] = [
+    { label: 'Week', value: 7 },
+    { label: '2 Weeks', value: 14 },
+    { label: 'Month', value: 30 }
+  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.startDate) {
       this.weekNumber = this.getWeekNumber(this.startDate);
+      this.monthNumber = this.getMonthNumber(this.startDate);
     }
   }
 
@@ -60,10 +70,16 @@ export class WeekViewComponent implements OnChanges {
     return Math.ceil((((diffInMs / 86400000) + 1) / 7));
   }
 
+  getMonthNumber(date: Date): number {
+    // Get the month from the date object
+    // Months are zero-based in JavaScript, so we add 1 to get a 1-based month number
+    return date.getMonth() + 1;
+  }
+
   getFormattedDateRange(): string {
     if (this.startDate) {
       const endDate = new Date(this.startDate);
-      endDate.setDate(this.startDate.getDate() + 6);
+      endDate.setDate(this.startDate.getDate() + this.range);
       return `${this.startDate.toLocaleDateString('en-GB')} - ${endDate.toLocaleDateString('en-GB')}`;
     }
     return "";
@@ -75,6 +91,11 @@ export class WeekViewComponent implements OnChanges {
 
   nextWeek(): void {
     this.weekChange.emit(1);
+  }
+
+  setRange(range: number) : void {
+    this.range = range;
+    this.rangeChange.emit(range);
   }
 
 }

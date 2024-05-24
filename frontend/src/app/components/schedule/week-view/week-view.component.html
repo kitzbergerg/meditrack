@@ -2,7 +2,9 @@
          [globalFilterFields]="['name','role']">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-      <h5 class="m-0">Calendar Week {{ weekNumber }}</h5>
+      <h5 *ngIf="range===7" class="m-0">Calendar Week {{ weekNumber }}</h5>
+      <h5 *ngIf="weekNumber && range===14" class="m-0">Calendar Week {{ weekNumber }}/{{weekNumber + 1}}</h5>
+      <h5 *ngIf="range===30" class="m-0">Calendar Month {{ monthNumber }}</h5>
       <div class="flex align-items-center justify-content-start">
         <p-button
           type="button"
@@ -26,6 +28,16 @@
             </p-dropdown>
           </ng-template>
         </p-columnFilter>
+
+      </div>
+
+      <div>
+        <p-dropdown
+          [ngModel]="range"
+          [options]="rangeOptions"
+          (onChange)="setRange($event.value)"
+          placeholder="Select Range">
+        </p-dropdown>
       </div>
 
       <span class="block mt-2 md:mt-0 p-input-icon-left">
@@ -59,10 +71,9 @@
   }">
         <ng-container *ngIf="employee.shifts[day.day]">
           <div class="text-xl font-medium">{{ employee.shifts[day.day].shift.type.name }}</div>
-          <span class="text-sm">
+          <span *ngIf="range<=14" class="text-sm">
             {{ employee.shifts[day.day].shift.type.start_time }} - {{ employee.shifts[day.day].shift.type.end_time }}
           </span>
-
         </ng-container>
       </td>
     </tr>
