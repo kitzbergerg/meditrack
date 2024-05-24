@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
+import {ChangeDetectorRef, Component} from '@angular/core';
 import {RolesService} from "../../services/roles.service";
-import {Role, RoleCreate} from "../../interfaces/roles/rolesInterface";
+import {Role} from "../../interfaces/role";
+import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
-import {User} from "../../interfaces/user";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-roles',
@@ -13,10 +14,17 @@ import {User} from "../../interfaces/user";
 export class RolesComponent {
 
   roles: Role[] = [];
-  editedRole: Role = {id: 0, name: '', users: []};
-  newRoleName = '';
+  role: Role = { id: 0, name: '', color: '#ff0000', abbreviation: ''};
   userId = '';
-  showNewRoleInputField = false;
+
+  submitted = false;
+  valid = false;
+
+  initialLoad= false;
+
+  formTitle= '';
+  formAction= '';
+  formMode: 'create' | 'edit' | 'details' = 'details';
 
   currentUser: User = {
     id: '',
@@ -31,7 +39,7 @@ export class RolesComponent {
     specialSkills: [],
     holidays: [],
     shifts: [],
-    role: {name: ""},
+    role: {name: "", color: "", abbreviation: ""},
     team: undefined,
     requestedShiftSwaps: [],
     suggestedShiftSwaps: [],
@@ -39,11 +47,17 @@ export class RolesComponent {
     preferredShiftTypes: []
   };
 
-  constructor(private rolesService: RolesService, private  userService: UserService, private authorizationService: AuthorizationService) { }
+  constructor(private rolesService: RolesService,
+              private  userService: UserService,
+              private authorizationService: AuthorizationService,
+              private cdr: ChangeDetectorRef,
+              private messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
+    this.loadRoles()
   }
 
   getUser(): void {
@@ -64,74 +78,141 @@ export class RolesComponent {
     this.rolesService.getAllRoles()
       .subscribe(fetchedRoles => {
         this.roles = fetchedRoles;
+        if (this.roles.length === 0) {
+          this.formMode = 'create';
+        }
+        if (this.roles.length > 0 && !this.initialLoad) {
+          this.initialLoad = true;
+          this.selectRole(this.roles[0]);
+        }
       });
   }
 
-  deleteRole(role: Role): void {
-    if (role.id != null) {
-      this.rolesService.deleteRole(role.id)
+  deleteRole(): void {
+    if (this.role.id != undefined) {
+      this.rolesService.deleteRole(this.role.id)
         .subscribe({
           next: (response) => {
           console.log('Role deleted successfully:', response);
+          this.messageService.add({severity:'success', summary: 'Successfully Deleted Role ' + this.role.name});
           this.loadRoles();
+          this.resetForm();
         }, error: (error) => {
           console.error('Error deleting role:', error);
+          this.messageService.add({severity:'error', summary: 'Deleting Role Failed'});
         }});
     }
   }
 
+  getRole(id: number) {
+    this.rolesService.getRole(id)
+      .subscribe((response: Role) => {
+        console.log('Role retrieved successfully:', response);
+        this.role = response;
+        this.loadRoles();
+      }, error => {
+        console.error('Error retrieving Role:', error);
+      });
+  }
+
   createRole() {
-    if (this.isRoleNameUnique(this.newRoleName) && this.newRoleName) {
-      const newRole: RoleCreate = {
-        name: this.newRoleName
-      };
+    this.submitted = true;
+
+    if (this.valid) {
+      const newRole: Role = {
+        name: this.role.name,
+        color: this.role.color,
+        abbreviation: this.role.abbreviation
+      }
       this.rolesService.createRole(newRole)
         .subscribe({
           next: (response) => {
-          console.log('Role created successfully:', response);
-          this.loadRoles();
-          this.newRoleName = '';
-        }, error: (error) => {
-          console.error('Error creating role:', error);
-      }});
-      this.showNewRoleInputField = false;
-    } else {
-      console.error('Role name must be unique.');
-    }
-  }
-
-  startEditing(role: Role) {
-    this.editedRole = role;
-  }
-
-  updateRole(role: Role) {
-    if (this.isRoleNameUnique(role.name)) {
-      const roleToUpdate: Role = {
-        id: role.id,
-        name: role.name,
-        users: role.users
-      };
-
-      this.rolesService.updateRole(roleToUpdate)
-        .subscribe(response => {
-          this.editedRole = {id: 0, name: '', users: []};
-          console.log('Role updated successfully:', response);
-          this.loadRoles();
-        }, error => {
-          this.editedRole = {id: 0, name: '', users: []};
-          console.error('Error updating role:', error);
+            console.log('Role created successfully:', response);
+            this.messageService.add({severity:'success', summary: 'Successfully Created Role ' + newRole.name});
+            this.loadRoles();
+            this.resetForm();
+          }, error: (error) => {
+            console.error('Error creating role:', error);
+            this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: error.error});
+          }
         });
     } else {
-      this.editedRole = {id: 0, name: '', users: []};
-      console.error('Role name must be unique.');
+      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
-  isRoleNameUnique(name: string): boolean {
-    return !this.roles.some(role => role.name === name);
+  updateRole() {
+    this.submitted = true;
+
+    if (this.valid) {
+      this.rolesService.updateRole(this.role)
+        .subscribe(response => {
+          console.log('Role updated successfully:', response);
+          this.messageService.add({severity:'success', summary: 'Successfully Updated Role ' + this.role.name});
+          this.selectRole(this.role);
+          this.resetForm();
+        }, error => {
+          console.error('Error updating role:', error);
+          this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: error.error});
+        });
+    } else {
+      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+    }
+  }
+
+  showCreateForm() {
+    this.resetForm();
+    this.formMode = 'create';
+  }
+
+  selectRole(role: Role) {
+    if (role.id != undefined) {
+      this.getRole(role.id);
+      this.formMode = 'details';
+    }
+  }
+
+  editRole() {
+    this.formMode = 'edit';
+  }
+
+  getFormTitle(): string {
+    if (this.formMode === 'create') {
+      this.formTitle = 'Create Role';
+      this.formAction = 'Create';
+    } else if (this.formMode === 'edit') {
+      this.formTitle = 'Edit Role';
+      this.formAction = 'Save';
+    } else {
+      this.formTitle = 'Role Details';
+      this.formAction = 'Edit';
+    }
+    return this.formTitle;
+  }
+
+  createOrUpdateRole() {
+    this.valid = (this.role.name !== '') && (this.role.color !== '') && (this.role.abbreviation !== '');
+    if (this.formMode === 'create') {
+      this.createRole();
+    } else if (this.formMode === 'edit') {
+      this.updateRole();
+      this.getFormTitle();
+      this.loadRoles();
+    }
   }
 
   cancelEditing() {
-    this.editedRole = {id: 0, name: '', users: []};
+    this.selectRole(this.role);
+    this.resetForm();
+  }
+
+  onColorChange(event: any) {
+    this.role.color = event.value;
+    this.cdr.detectChanges();
+  }
+
+  resetForm() {
+    this.submitted = false;
+    this.role = {id: 0, name: '', color: '#ff0000', abbreviation: '' };
   }
 }

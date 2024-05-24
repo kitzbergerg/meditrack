@@ -1,5 +1,6 @@
 package ase.meditrack.exception;
 
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -37,5 +38,11 @@ public class GlobalExceptionHandler {
         });
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    private ResponseEntity<String> handleValidation(ValidationException ex) {
+        log.info("UNPROCESSABLE_ENTITY: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(ex.getMessage());
     }
 }

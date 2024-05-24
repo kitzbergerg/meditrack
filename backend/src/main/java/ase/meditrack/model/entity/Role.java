@@ -24,6 +24,10 @@ public class Role {
     @Column(unique = true)
     private String name;
 
+    private String color;
+
+    private String abbreviation;
+
     @OneToMany(mappedBy = "role")
     private List<User> users;
 

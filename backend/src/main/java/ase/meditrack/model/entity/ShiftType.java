@@ -36,6 +36,16 @@ public class ShiftType {
 
     private LocalTime endTime;
 
+    private LocalTime breakStartTime;
+
+    private LocalTime breakEndTime;
+
+    private String type;
+
+    private String color;
+
+    private String abbreviation;
+
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
