@@ -133,11 +133,15 @@ export class RolesComponent {
             this.resetForm();
           }, error: (error) => {
             console.error('Error creating role:', error);
-            this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: error.error});
+            if (error.error === "data integrity violation") {
+              this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
+            } else {
+              this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: error.error});
+            }
           }
         });
     } else {
-      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({severity:'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
@@ -153,10 +157,14 @@ export class RolesComponent {
           this.resetForm();
         }, error => {
           console.error('Error updating role:', error);
-          this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: error.error});
+          if (error.error === "data integrity violation") {
+            this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
+          } else {
+            this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: error.error});
+          }
         });
     } else {
-      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({severity:'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 

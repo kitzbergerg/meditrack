@@ -21,15 +21,16 @@ public record ShiftTypeDto(
         @NotNull(groups = CreateValidator.class) LocalTime breakEndTime,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
+        @Pattern(regexp = "Day|Night", message = "Shift Type must be either 'Day' or 'Night'", groups = {CreateValidator.class, UpdateValidator.class})
         String type,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
-        @Size(min = 7, max = 7)
-        @Pattern(regexp = "^#([A-Fa-f0-9]{6})$")
+        @Size(min = 7, max = 7, groups = {CreateValidator.class, UpdateValidator.class})
+        @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", groups = {CreateValidator.class, UpdateValidator.class})
         String color,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
-        @Length(max = 4)
+        @Length(max = 4, groups = {CreateValidator.class, UpdateValidator.class})
         String abbreviation,
         UUID team,
         List<UUID> shifts,

@@ -20,29 +20,9 @@ public class ShiftTypeValidator {
         this.shiftTypeRepository = shiftTypeRepository;
     }
 
-    public void shiftTypeCreateValidation(ShiftType shiftType) throws ValidationException {
-        LOGGER.trace("Makes create validation for {}", shiftType);
+    public void shiftTypeValidation(ShiftType shiftType) throws ValidationException {
+        LOGGER.trace("Makes validation for {}", shiftType);
 
-        if (!(shiftType.getType().equals("Day") || shiftType.getType().equals("Night"))) {
-            throw new ValidationException("Shift Type type has to be either Day or Night");
-        }
-
-        validateTimes(shiftType);
-        validateUnique(shiftType);
-    }
-
-    public void shiftTypeUpdateValidation(ShiftType shiftType) throws ValidationException {
-        LOGGER.trace("Makes update validation for {}", shiftType);
-
-        if (!(shiftType.getType().equals("Day") || shiftType.getType().equals("Night"))) {
-            throw new ValidationException("Shift Type type has to be either Day or Night");
-        }
-
-        validateTimes(shiftType);
-        validateUnique(shiftType);
-    }
-
-    public void validateTimes(ShiftType shiftType) {
         boolean isOvernightShift = shiftType.getEndTime().isBefore(shiftType.getStartTime());
         if (isOvernightShift) {
             if (!(shiftType.getBreakStartTime().isAfter(shiftType.getStartTime()) || shiftType.getBreakStartTime().isBefore(shiftType.getEndTime()))) {
@@ -61,24 +41,6 @@ public class ShiftTypeValidator {
         }
         if (shiftType.getBreakStartTime().isAfter(shiftType.getBreakEndTime())) {
             throw new ValidationException("Break Starting Time has to be before Break Ending Time");
-        }
-    }
-
-    public void validateUnique(ShiftType shiftType) {
-        List<ShiftType> shiftTypes = shiftTypeRepository.findAll();
-
-        for (ShiftType st:shiftTypes) {
-            if (!shiftType.equals(st)) {
-                if (shiftType.getName().equals(st.getName())) {
-                    throw new ValidationException("Name has to be unique.");
-                }
-                if (shiftType.getColor().equals(st.getColor())) {
-                    throw new ValidationException("Color has to be unique.");
-                }
-                if (shiftType.getAbbreviation().equals(st.getAbbreviation())) {
-                    throw new ValidationException("Abbreviation has to be unique.");
-                }
-            }
         }
     }
 }
