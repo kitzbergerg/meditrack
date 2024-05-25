@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.RoleValidator;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
@@ -21,24 +20,12 @@ import java.util.UUID;
 public class RoleService {
     private final RoleRepository repository;
     private final UserRepository userRepository;
-    private final RoleValidator validator;
+    private final UserService userService;
 
-    public RoleService(RoleRepository repository, UserRepository userRepository, RoleValidator validator) {
+    public RoleService(RoleRepository repository, UserRepository userRepository, UserService userService) {
         this.repository = repository;
         this.userRepository = userRepository;
-        this.validator = validator;
-    }
-
-    public User getPrincipalWithTeam(Principal principal) {
-        UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = userRepository.findById(dmId);
-        if (dm.isEmpty()) {
-            throw new NotFoundException("User doesnt exist");
-        }
-        if (dm.get().getTeam() == null) {
-            throw new NotFoundException("User has no team");
-        }
-        return dm.get();
+        this.userService = userService;
     }
 
     /**
@@ -57,7 +44,7 @@ public class RoleService {
      * @return List of all roles
      */
     public List<Role> findAllByTeam(Principal principal) {
-        User dm = getPrincipalWithTeam(principal);
+        User dm = userService.getPrincipalWithTeam(principal);
         return repository.findAllByTeam(dm.getTeam());
     }
 
@@ -81,7 +68,7 @@ public class RoleService {
      */
     @Transactional
     public Role create(Role role, Principal principal) {
-        User dm = getPrincipalWithTeam(principal);
+        User dm = userService.getPrincipalWithTeam(principal);
         List<Role> roles = new ArrayList<>();
         if (dm.getTeam().getRoles() != null) {
             roles = dm.getTeam().getRoles();
@@ -89,7 +76,6 @@ public class RoleService {
         roles.add(role);
         dm.getTeam().setRoles(roles);
         role.setTeam(dm.getTeam());
-        validator.roleValidation(role);
         return repository.save(role);
     }
 
@@ -115,7 +101,6 @@ public class RoleService {
         if (role.getAbbreviation() != null) {
             dbRole.setAbbreviation(role.getAbbreviation());
         }
-        validator.roleValidation(role);
         return repository.save(dbRole);
     }
 

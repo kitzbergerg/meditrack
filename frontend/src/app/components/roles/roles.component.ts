@@ -5,6 +5,7 @@ import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
 import {MessageService} from "primeng/api";
+import {Team} from "../../interfaces/team";
 
 @Component({
   selector: 'app-roles',
@@ -13,6 +14,8 @@ import {MessageService} from "primeng/api";
 })
 export class RolesComponent {
 
+  loading = true;
+  teamComponentHeader = "roles";
   roles: Role[] = [];
   role: Role = { id: 0, name: '', color: '#ff0000', abbreviation: ''};
   userId = '';
@@ -57,6 +60,10 @@ export class RolesComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
+  }
+
+  receiveTeam(team: Team) {
+    this.currentUser.team = team.id;
     this.loadRoles()
   }
 
@@ -67,6 +74,7 @@ export class RolesComponent {
         if (response.team != null) {
           this.loadRoles()
         }
+        this.loading = false;
       },
       (error) => {
         console.error('Error fetching data:', error);
@@ -133,11 +141,15 @@ export class RolesComponent {
             this.resetForm();
           }, error: (error) => {
             console.error('Error creating role:', error);
-            this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: error.error});
+            if (error.error === "data integrity violation") {
+              this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
+            } else {
+              this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: error.error});
+            }
           }
         });
     } else {
-      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({severity:'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
@@ -153,10 +165,14 @@ export class RolesComponent {
           this.resetForm();
         }, error => {
           console.error('Error updating role:', error);
-          this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: error.error});
+          if (error.error === "data integrity violation") {
+            this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
+          } else {
+            this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: error.error});
+          }
         });
     } else {
-      this.messageService.add({severity:'warning', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({severity:'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 

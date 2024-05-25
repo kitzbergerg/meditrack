@@ -1,0 +1,43 @@
+<div class="ruleName display-flex center">
+  <ng-container *ngIf="!editMode">
+    <span class="va-middle align-self-center mr-auto"
+          i18n="Allowed flex time per month:@@rules.allowed-flex-time-total.component.rule-name">
+      Allowed flex time in total:
+    </span>
+    <span class="align-self-center"
+          i18n="Hours Count@@rules.allowed-flex-time-total.component.hour-count">
+      {allowedFlexTimeTotal, plural, one {{{ allowedFlexTimeTotal }} hour} other {{{allowedFlexTimeTotal}} hours}}
+    </span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto"
+            i18n="Edit@@rules.edit">
+      Edit
+    </button>
+  </ng-container>
+  <ng-container *ngIf="editMode">
+    <div class="align-self-center mr-auto"
+         i18n="Hours of allowed flex time in total:@@rules.allowed-flex-time-total.component.edit-mode-text">
+    Hours of allowed flex time in total:
+    </div>
+    <div class="align-self-center">
+      <p-inputNumber
+        [(ngModel)]="allowedFlexTimeTotal"
+        inputId="minmax"
+        mode="decimal"
+        [min]="0" [max]="8760" class="mr-0_5 ml-0_5"/>
+    </div>
+    <div class="align-self-center ml-auto">
+      <button pButton pRipple (click)="update()" class="mr-0_5"
+              i18n="Save@@rules.save">
+        Save
+      </button>
+      <button pButton pRipple (click)="editMode = false" class="mr-0_5"
+              i18n="Cancel@@rules.cancel">
+        Cancel
+      </button>
+      <button pButton pRipple (click)="delete()" class=""
+              i18n="Delete@@rules.delete">
+        Delete
+      </button>
+    </div>
+  </ng-container>
+</div>

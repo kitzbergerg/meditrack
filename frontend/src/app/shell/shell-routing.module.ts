@@ -7,6 +7,7 @@ import {RolesComponent} from "../components/roles/roles.component";
 import {DashboardComponent} from "../components/dashboard/dashboard.component";
 import {employeeGuard} from "../guard/employee.guard";
 import {dmGuard} from "../guard/dm.guard";
+import {RulesComponent} from "../components/rules/rules.component";
 import {ShiftTypesComponent} from "../components/shift-types/shift-types.component";
 import {ScheduleComponent} from "../components/schedule/schedule.component";
 
@@ -39,6 +40,11 @@ const routes: Routes = [
     path: 'schedule',
     canActivate: [employeeGuard],
     component: ScheduleComponent,
+  },
+  {
+    path: 'rules',
+    canActivate: [dmGuard],
+    component: RulesComponent,
   },
 ]
 

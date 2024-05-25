@@ -10,3 +10,54 @@
 @import "./_responsive";
 @import "./_utils";
 @import "./_typography";
+
+.display-table-cell {
+  display: table-cell;
+}
+
+.display-table {
+  display: table;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.va-middle {
+  vertical-align: middle;
+}
+
+.mr-0_5 {
+  margin-right: 0.5em;
+}
+.ml-0_5 {
+  margin-left: 0.5em;
+}
+
+.mt-0_5 {
+  margin-top: 0.5em;
+}
+
+.mb-0_5 {
+  margin-bottom: 0.5em;
+}
+
+.space-around {
+  justify-content: space-around;
+}
+
+.space-evenly {
+  justify-content: space-evenly;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.center {
+  justify-content: center;
+}
+
+.flex-1{
+  flex:1;
+}

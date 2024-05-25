@@ -1,5 +1,6 @@
 import {Team} from "./team";
 import {Role} from "./role";
+import {ShiftType} from "./shiftType";
 
 export interface User {
   id?: string;
@@ -20,7 +21,7 @@ export interface User {
   requestedShiftSwaps: string[]; // List of UUIDs
   suggestedShiftSwaps: string[]; // List of UUIDs
   shifts: string[]; // List of UUIDs
-  canWorkShiftTypes: string[]; // List of UUIDs
+  canWorkShiftTypes: ShiftType[]; // List of ShiftTypes
   preferredShiftTypes: string[]; // List of UUIDs
 }
 

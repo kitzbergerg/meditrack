@@ -2,6 +2,7 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
+import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.dto.ShiftDto;
 import ase.meditrack.model.mapper.ShiftMapper;
 import ase.meditrack.service.ShiftService;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +44,8 @@ public class ShiftController {
         log.info("Fetching shifts");
         return mapper.toDtoList(service.findAll());
     }
+
+
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")

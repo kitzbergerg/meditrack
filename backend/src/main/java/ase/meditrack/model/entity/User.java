@@ -3,6 +3,7 @@ package ase.meditrack.model.entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Transient;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,6 +32,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -39,8 +42,10 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(nullable = false)
     private Float workingHoursPercentage;
 
+    @Column(nullable = false)
     private Integer currentOverTime;
 
     @ElementCollection
