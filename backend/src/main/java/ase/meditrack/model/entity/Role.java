@@ -23,7 +23,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "team"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "roleAndTeamUnique", columnNames = {"name", "team_id"})})
 public class Role {
 
     @Id
