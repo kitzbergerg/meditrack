@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.UUID;
 
 public record SimpleShiftTypeDto(@Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
-                                 @NotBlank(groups = CreateValidator.class) String name,
+                                 @NotBlank(groups = CreateValidator.class)
+                                 @NotBlank(groups = UpdateValidator.class)
+                                 @Length(max = 40, groups = {CreateValidator.class, UpdateValidator.class})
+                                 String name,
                                  @NotNull(groups = CreateValidator.class) LocalTime startTime,
                                  @NotNull(groups = CreateValidator.class) LocalTime endTime,
                                  @NotNull(groups = CreateValidator.class) LocalTime breakStartTime,
