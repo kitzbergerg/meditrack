@@ -9,6 +9,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = EntityUuidMapper.class)
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = {EntityUuidMapper.class, RoleMapper.class})
 public abstract class UserMapper {
 
     @Autowired
@@ -36,6 +37,7 @@ public abstract class UserMapper {
     @Named("toScheduleDto")
     @Mapping(target = "firstName", expression = "java(user.getUserRepresentation().getFirstName())")
     @Mapping(target = "lastName", expression = "java(user.getUserRepresentation().getLastName())")
+    @Mapping(target = "role", source = "user.role")
     public abstract UserScheduleDto toScheduleDto(User user);
 
     @IterableMapping(qualifiedByName = "toScheduleDto")
