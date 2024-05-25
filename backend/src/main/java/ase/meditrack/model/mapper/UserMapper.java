@@ -1,7 +1,9 @@
 package ase.meditrack.model.mapper;
 
+import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.dto.UserScheduleDto;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -15,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Mapper(uses = EntityUuidMapper.class)
+@Mapper(componentModel = "spring", uses = EntityUuidMapper.class)
 public abstract class UserMapper {
 
     @Autowired
@@ -31,11 +33,13 @@ public abstract class UserMapper {
     @Mapping(source = "user", target = "roles", qualifiedByName = "mapRoles")
     public abstract UserDto toDto(User user);
 
+    @Named("toScheduleDto")
     @Mapping(target = "firstName", expression = "java(user.getUserRepresentation().getFirstName())")
     @Mapping(target = "lastName", expression = "java(user.getUserRepresentation().getLastName())")
-    @Mapping(target = "workingHoursPercentage", source = "user.workingHoursPercentage")
-    @Mapping(target = "role", source = "user.role.name")
     public abstract UserScheduleDto toScheduleDto(User user);
+
+    @IterableMapping(qualifiedByName = "toScheduleDto")
+    public abstract List<UserScheduleDto> toScheduleDto(List<User> users);
 
     @Named("mapRoles")
     protected List<String> mapRoles(User user) {
