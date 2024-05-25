@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {Role} from "../../../interfaces/roles/rolesInterface";
 import {RolesService} from "../../../services/roles.service";
 import {ButtonModule} from "primeng/button";
 import {DropdownModule} from "primeng/dropdown";
@@ -7,6 +6,7 @@ import {InputNumberModule} from "primeng/inputnumber";
 import {NgForOf, NgIf} from "@angular/common";
 import {RippleModule} from "primeng/ripple";
 import {FormsModule} from "@angular/forms";
+import {Role} from "../../../interfaces/role";
 
 @Component({
   selector: 'app-night-time-required-roles',

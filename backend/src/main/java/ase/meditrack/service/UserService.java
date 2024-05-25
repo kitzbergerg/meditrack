@@ -2,10 +2,14 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
@@ -30,11 +34,13 @@ public class UserService {
     private final RealmResource meditrackRealm;
     private final UserRepository repository;
     private final UserValidator userValidator;
+    private final ShiftTypeRepository shiftTypeRepository;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator, ShiftTypeRepository shiftTypeRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
+        this.shiftTypeRepository = shiftTypeRepository;
     }
 
     private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
@@ -171,6 +177,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     private User updateChangedAttributes(User user) {
         User dbUser = repository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("Could not find user with id: " + user.getId() + "!"));
@@ -206,12 +213,41 @@ public class UserService {
             dbUser.setShifts(user.getShifts());
         }
         if (user.getCanWorkShiftTypes() != null) {
-            dbUser.setCanWorkShiftTypes(user.getCanWorkShiftTypes());
+            for (ShiftType shiftType : dbUser.getCanWorkShiftTypes()) {
+                shiftType.getWorkUsers().remove(dbUser);
+            }
+            dbUser.getCanWorkShiftTypes().clear();
+
+            // Add new shift types
+            for (ShiftType newShiftType : user.getCanWorkShiftTypes()) {
+                ShiftType shiftType = shiftTypeRepository.findById(newShiftType.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("ShiftType not found"));
+                dbUser.getCanWorkShiftTypes().add(shiftType);
+                shiftType.getWorkUsers().add(dbUser);
+            }
         }
         if (user.getPreferredShiftTypes() != null) {
             dbUser.setPreferredShiftTypes(user.getPreferredShiftTypes());
         }
 
         return dbUser;
+    }
+
+    /**
+     * Fetches the user with the id from the principal
+     *
+     * @param principal the current user
+     * @return user with the id from principal
+     */
+    public User getPrincipalWithTeam(Principal principal) {
+        UUID dmId = UUID.fromString(principal.getName());
+        Optional<User> dm = repository.findById(dmId);
+        if (dm.isEmpty()) {
+            throw new NotFoundException("User doesnt exist");
+        }
+        if (dm.get().getTeam() == null) {
+            throw new NotFoundException("User has no team");
+        }
+        return dm.get();
     }
 }

@@ -31,6 +31,7 @@
               <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
               <th pSortableColumn="role.name">Role <p-sortIcon field="role"></p-sortIcon></th>
               <th pSortableColumn="workingHoursPercentage">Work % <p-sortIcon field="workingHoursPercentage"></p-sortIcon></th>
+              <th pSortableColumn="canWorkShiftTypes">Can Work Shift<p-sortIcon field="canWorkShiftTypes"></p-sortIcon></th>
               <th></th>
             </tr>
           </ng-template>
@@ -59,6 +60,12 @@
               <td style="width:14%; min-width: 10rem;">
                 <span class="p-column-title">Work %</span>
                 {{user.workingHoursPercentage}}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Can Work Shift</span>
+                <ng-container *ngFor="let shiftType of user.canWorkShiftTypes; let isLast = last">
+                  {{ shiftType.abbreviation }}<span *ngIf="!isLast">, </span>
+                </ng-container>
               </td>
               <td>
                 <div class="flex">
@@ -99,6 +106,16 @@
                 <small *ngIf="submitted && newUserForm.controls['lastName'].errors?.['required']">Last name is required.</small>
               </div>
 
+              <div *ngIf="shiftTypes" class="field">
+                <label for="canWorkShiftTypes">Can Work</label>
+                <p-multiSelect
+                  formControlName="canWorkShiftTypes"
+                  id="canWorkShiftTypes"
+                  [options]="shiftTypes"
+                  optionLabel="abbreviation"
+                  placeholder="Select Shift Types" />
+              </div>
+
 
               <div class="field">
                 <label for="role">Role:</label>
@@ -113,6 +130,8 @@
                 />
                 <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is required.</small>
               </div>
+
+
 
               <div class="field">
                 <label for="workingHoursPercentage">Working Percentage:</label>
@@ -144,14 +163,9 @@
 
       </div>
 
-    <div *ngIf="currentUser.team === null">
-      <h2>Create a Team first before you can add employees!</h2>
-        <div class="field">
-          <input placeholder="Enter Team Name" type="text" pInputText id="teamName" [(ngModel)]="newTeam.name" required [ngClass]="{'ng-invalid ng-dirty' : !newTeam.name || isTeamNameSet()}"/>
-        </div>
-      <p-button name="addButton" (click)="createTeam()" [disabled]="!newTeam.name || isTeamNameSet()">Add</p-button>
-
-    </div>
+      <div *ngIf="currentUser.team === null">
+        <app-team [teamComponentHeader] = "teamComponentHeader" (teamEmitter)="receiveTeam($event)"></app-team>
+      </div>
     </div>
   </div>
 </div>
