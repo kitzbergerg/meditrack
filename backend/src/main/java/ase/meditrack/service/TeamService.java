@@ -72,6 +72,7 @@ public class TeamService {
         team.setUsers(users);
         creator.setTeam(team);
 
+        if (team.getWorkingHours() == null) team.setWorkingHours(40);
         if (team.getHardConstraints() == null) {
             team.setHardConstraints(new HardConstraints(
                     null,
