@@ -1,6 +1,14 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Table;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -10,6 +18,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/*
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "team"}),
+                @UniqueConstraint(columnNames = {"abbreviation", "team"}),
+                @UniqueConstraint(columnNames = {"color", "team"})
+        }
+)*/
 @Entity(name = "role")
 @Getter
 @Setter
@@ -21,7 +37,6 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(unique = true)
     private String name;
 
     private String color;

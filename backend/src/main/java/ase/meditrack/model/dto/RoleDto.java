@@ -16,16 +16,16 @@ public record RoleDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
-        @Length(max = 40)
+        @Length(max = 40, groups = {CreateValidator.class, UpdateValidator.class})
         String name,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
-        @Size(min = 7, max = 7)
-        @Pattern(regexp = "^#([A-Fa-f0-9]{6})$")
+        @Size(min = 7, max = 7, groups = {CreateValidator.class, UpdateValidator.class})
+        @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", groups = {CreateValidator.class, UpdateValidator.class})
         String color,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
-        @Length(max = 4)
+        @Length(max = 4, groups = {CreateValidator.class, UpdateValidator.class})
         String abbreviation,
         List<UUID> users,
         UUID team

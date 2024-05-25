@@ -47,7 +47,7 @@ public class ShiftTypeService {
      * @return the created shift type
      */
     public ShiftType create(ShiftType shiftType) {
-        validator.shiftTypeCreateValidation(shiftType);
+        validator.shiftTypeValidation(shiftType);
         return repository.save(shiftType);
     }
 
@@ -72,7 +72,7 @@ public class ShiftTypeService {
         if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
         if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
 
-        validator.shiftTypeUpdateValidation(dbShiftType);
+        validator.shiftTypeValidation(dbShiftType);
 
         return repository.save(dbShiftType);
     }

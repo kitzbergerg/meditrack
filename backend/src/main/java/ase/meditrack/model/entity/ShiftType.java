@@ -8,6 +8,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,6 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+/*
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "team"}),
+                @UniqueConstraint(columnNames = {"abbreviation", "team"}),
+                @UniqueConstraint(columnNames = {"color", "team"})
+        }
+)*/
 @Entity(name = "shift_type")
 @Getter
 @Setter
@@ -40,6 +51,7 @@ public class ShiftType {
 
     private LocalTime breakEndTime;
 
+    @Pattern(regexp = "Day|Night", message = "Shift Type must be either 'Day' or 'Night'")
     private String type;
 
     private String color;

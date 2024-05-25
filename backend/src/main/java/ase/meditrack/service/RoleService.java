@@ -1,7 +1,6 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
-import ase.meditrack.model.RoleValidator;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
@@ -21,12 +20,10 @@ import java.util.UUID;
 public class RoleService {
     private final RoleRepository repository;
     private final UserRepository userRepository;
-    private final RoleValidator validator;
 
-    public RoleService(RoleRepository repository, UserRepository userRepository, RoleValidator validator) {
+    public RoleService(RoleRepository repository, UserRepository userRepository) {
         this.repository = repository;
         this.userRepository = userRepository;
-        this.validator = validator;
     }
 
     public User getPrincipalWithTeam(Principal principal) {
@@ -89,7 +86,6 @@ public class RoleService {
         roles.add(role);
         dm.getTeam().setRoles(roles);
         role.setTeam(dm.getTeam());
-        validator.roleValidation(role);
         return repository.save(role);
     }
 
@@ -115,7 +111,6 @@ public class RoleService {
         if (role.getAbbreviation() != null) {
             dbRole.setAbbreviation(role.getAbbreviation());
         }
-        validator.roleValidation(role);
         return repository.save(dbRole);
     }
 
