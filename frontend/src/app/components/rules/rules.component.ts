@@ -12,7 +12,8 @@ import {DayTimeRequiredRolesComponent} from "./day-time-required-roles/day-time-
 import {NightTimeRequiredRolesComponent} from "./night-time-required-roles/night-time-required-roles.component";
 import {AllowedFlexTimeTotalComponent} from "./allowed-flex-time-total/allowed-flex-time-total.component";
 import {AllowedFlexTimePerMonthComponent} from "./allowed-flex-time-per-month/allowed-flex-time-per-month.component";
-import {Role} from "../../interfaces/roles/rolesInterface";
+import {Role} from "../../interfaces/role";
+
 
 @Component({
   selector: 'app-rules',

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,29 +42,36 @@ public class ShiftTypeController {
         return mapper.toDtoList(service.findAll());
     }
 
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    public List<ShiftTypeDto> findAllByTeam(Principal principal) {
+        log.info("Fetching shift types from team");
+        return mapper.toDtoList(service.findAllByTeam(principal));
+    }
+
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public ShiftTypeDto findById(@PathVariable UUID id) {
         log.info("Fetching shift type {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto) {
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto, Principal principal) {
         log.info("Creating shift type {}", dto.name());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+        return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) {
         log.info("Updating shift type {}", dto.name());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public void delete(@PathVariable UUID id) {
         log.info("Deleting shift type with id {}", id);
         service.delete(id);
