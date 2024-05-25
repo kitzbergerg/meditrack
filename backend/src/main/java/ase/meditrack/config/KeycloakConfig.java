@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@Configuration
+@Configuration("keycloakConfig")
 @Slf4j
 public class KeycloakConfig {
 
@@ -36,7 +36,7 @@ public class KeycloakConfig {
         return keycloak.realm("meditrack");
     }
 
-    @Configuration
+    @Configuration("postConstruct")
     public static class PostCostruct {
         private final RealmResource meditrackRealm;
         private final UserService service;
