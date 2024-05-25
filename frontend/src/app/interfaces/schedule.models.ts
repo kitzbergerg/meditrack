@@ -6,8 +6,7 @@ export interface Schedule {
 
 export interface Day {
   dayName: string;
-  day: number;
-  shifts: Shift[];
+  date: Date;
 }
 
 export interface Shift {
@@ -24,6 +23,20 @@ export interface Schedule {
   "published": boolean,
   "team": string,
   "shifts": Shift[]
+}
+export interface SimpleShift {
+  id: string | null;
+  date: string;
+  type: ShiftType;
+}
+
+export interface EmployeeWithShifts {
+  name: string;
+  role: string;
+  workingPercentage: string;
+  shifts: {
+    [date: string]: SimpleShift;
+  };
 }
 
 interface User {
