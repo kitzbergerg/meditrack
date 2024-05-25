@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -35,16 +37,20 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class ShiftType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private LocalTime startTime;
 
+    @Column(nullable = false)
     private LocalTime endTime;
 
     private LocalTime breakStartTime;

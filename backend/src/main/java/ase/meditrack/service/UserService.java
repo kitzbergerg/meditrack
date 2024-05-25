@@ -108,6 +108,7 @@ public class UserService {
     public User create(User user) {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
+        user.setCurrentOverTime(0);
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
