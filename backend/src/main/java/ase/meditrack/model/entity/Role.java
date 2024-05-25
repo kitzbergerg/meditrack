@@ -21,7 +21,9 @@ import java.util.UUID;
 
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(name = "roleAndTeamUnique", columnNames = {"name", "team_id"})
+                @UniqueConstraint(name = "roleNameAndTeamUnique", columnNames = {"name", "team_id"}),
+                @UniqueConstraint(name = "roleColorAndTeamUnique", columnNames = {"color", "team_id"}),
+                @UniqueConstraint(name = "roleAbbreviationAndTeamUnique", columnNames = {"abbreviation", "team_id"}),
         }
 )
 @Entity(name = "role")

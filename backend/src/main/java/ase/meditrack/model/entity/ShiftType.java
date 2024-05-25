@@ -25,9 +25,9 @@ import java.util.UUID;
 
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "team"}),
-                @UniqueConstraint(columnNames = {"abbreviation", "team"}),
-                @UniqueConstraint(columnNames = {"color", "team"})
+                @UniqueConstraint(name = "shiftTypeNameAndTeamUnique", columnNames = {"name", "team_id"}),
+                @UniqueConstraint(name = "shiftTypeColorAndTeamUnique", columnNames = {"color", "team_id"}),
+                @UniqueConstraint(name = "shiftTypeAbbAndTeamUnique", columnNames = {"abbreviation", "team_id"})
         }
 )
 @Entity(name = "shift_type")
