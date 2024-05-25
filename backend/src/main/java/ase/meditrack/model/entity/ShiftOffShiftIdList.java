@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,6 +29,13 @@ public class ShiftOffShiftIdList {
 
     @ElementCollection
     private List<UUID> shiftOffShiftIdList;
+
+    public void addShiftOffShiftIdList(UUID id) {
+        if (shiftOffShiftIdList == null) {
+            shiftOffShiftIdList = new ArrayList<>();
+        }
+        shiftOffShiftIdList.add(id);
+    }
 
     @Override
     public final boolean equals(final Object o) {

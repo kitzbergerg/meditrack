@@ -15,6 +15,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -53,6 +54,20 @@ public class ShiftSwap {
             inverseJoinColumns = @JoinColumn(name = "shift_id")
     )
     private List<Shift> suggestedShifts;
+
+    public void addSwapSuggestingUsers(User user) {
+        if (swapSuggestingUsers == null) {
+            swapSuggestingUsers = new ArrayList<>();
+        }
+        swapSuggestingUsers.add(user);
+    }
+
+    public void addSuggestedShifts(Shift shift){
+        if (suggestedShifts == null) {
+            suggestedShifts = new ArrayList<>();
+        }
+        suggestedShifts.add(shift);
+    }
 
     @Override
     public final boolean equals(final Object o) {
