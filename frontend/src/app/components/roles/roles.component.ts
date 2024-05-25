@@ -5,6 +5,7 @@ import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authentication/authorization.service";
 import {MessageService} from "primeng/api";
+import {Team} from "../../interfaces/team";
 
 @Component({
   selector: 'app-roles',
@@ -13,6 +14,8 @@ import {MessageService} from "primeng/api";
 })
 export class RolesComponent {
 
+  loading = true;
+  teamComponentHeader = "roles";
   roles: Role[] = [];
   role: Role = { id: 0, name: '', color: '#ff0000', abbreviation: ''};
   userId = '';
@@ -57,6 +60,10 @@ export class RolesComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
+  }
+
+  receiveTeam(team: Team) {
+    this.currentUser.team = team.id;
     this.loadRoles()
   }
 
@@ -67,6 +74,7 @@ export class RolesComponent {
         if (response.team != null) {
           this.loadRoles()
         }
+        this.loading = false;
       },
       (error) => {
         console.error('Error fetching data:', error);

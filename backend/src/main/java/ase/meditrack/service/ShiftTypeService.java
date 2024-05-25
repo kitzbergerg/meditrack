@@ -3,10 +3,13 @@ package ase.meditrack.service;
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.ShiftTypeValidator;
 import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftTypeRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,10 +18,12 @@ import java.util.UUID;
 public class ShiftTypeService {
     private final ShiftTypeRepository repository;
     private final ShiftTypeValidator validator;
+    private final UserService userService;
 
-    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator) {
+    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator, UserService userService) {
         this.repository = repository;
         this.validator = validator;
+        this.userService = userService;
     }
 
     /**
@@ -41,13 +46,32 @@ public class ShiftTypeService {
     }
 
     /**
+     * Fetches all shift type from a team from the database.
+     *
+     * @param principal the current user
+     * @return List of all shift type
+     */
+    public List<ShiftType> findAllByTeam(Principal principal) {
+        User dm = userService.getPrincipalWithTeam(principal);
+        return repository.findAllByTeam(dm.getTeam());
+    }
+
+    /**
      * Creates a shift type in the database.
      *
      * @param shiftType the shift type to create
      * @return the created shift type
      */
-    public ShiftType create(ShiftType shiftType) {
+    public ShiftType create(ShiftType shiftType, Principal principal) {
         validator.shiftTypeValidation(shiftType);
+        User dm = userService.getPrincipalWithTeam(principal);
+        List<ShiftType> shiftTypes = new ArrayList<>();
+        if (dm.getTeam().getShiftTypes() != null) {
+            shiftTypes = dm.getTeam().getShiftTypes();
+        }
+        shiftTypes.add(shiftType);
+        dm.getTeam().setShiftTypes(shiftTypes);
+        shiftType.setTeam(dm.getTeam());
         return repository.save(shiftType);
     }
 

@@ -232,4 +232,22 @@ public class UserService {
 
         return dbUser;
     }
+
+    /**
+     * Fetches the user with the id from the principal
+     *
+     * @param principal the current user
+     * @return user with the id from principal
+     */
+    public User getPrincipalWithTeam(Principal principal) {
+        UUID dmId = UUID.fromString(principal.getName());
+        Optional<User> dm = repository.findById(dmId);
+        if (dm.isEmpty()) {
+            throw new NotFoundException("User doesnt exist");
+        }
+        if (dm.get().getTeam() == null) {
+            throw new NotFoundException("User has no team");
+        }
+        return dm.get();
+    }
 }

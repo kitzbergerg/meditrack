@@ -1,3 +1,5 @@
+import {Team} from "./team";
+
 export interface ShiftType {
   id?: number;
   name: string;
@@ -8,4 +10,6 @@ export interface ShiftType {
   type: string;
   color: string;
   abbreviation: string;
+
+  team?: Team;
 }

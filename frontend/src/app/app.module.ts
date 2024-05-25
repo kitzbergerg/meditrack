@@ -27,6 +27,7 @@ import { CalendarModule } from "primeng/calendar";
 import {MultiSelectModule} from "primeng/multiselect";
 import {ToastModule} from "primeng/toast";
 import { MessageService } from 'primeng/api';
+import {TeamComponent} from "./components/team/team.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -59,6 +60,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RolesComponent,
     DashboardComponent,
     ShiftTypesComponent,
+    TeamComponent
   ],
   imports: [
     BrowserModule,

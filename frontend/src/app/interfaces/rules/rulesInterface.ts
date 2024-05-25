@@ -1,5 +1,4 @@
-import {Role} from "../roles/rolesInterface";
-
+import {Role} from "../role";
 export interface Rules {
   shiftOffShift: [number[], number] | null,
   minRestPeriod: number | null,
