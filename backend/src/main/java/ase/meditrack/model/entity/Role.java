@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Table(
+        name = "role",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"name", "team"}),
                 @UniqueConstraint(columnNames = {"abbreviation", "team"}),
