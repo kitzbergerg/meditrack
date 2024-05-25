@@ -1,5 +1,7 @@
 package ase.meditrack.service.algorithm;
 
+import ase.meditrack.model.dto.SimpleRoleDto;
+import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Role;
@@ -7,6 +9,14 @@ import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.mapper.RoleMapper;
+import ase.meditrack.model.mapper.ShiftTypeMapper;
+import ase.meditrack.model.mapper.UserMapper;
+import ase.meditrack.repository.RoleRepository;
+import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.service.RoleService;
+import ase.meditrack.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -20,6 +30,18 @@ import java.util.UUID;
 @Service
 public class MonthlyPlanCreator {
 
+    @Autowired
+    UserService userService;
+    @Autowired
+    UserMapper userMapper;
+    @Autowired
+    RoleRepository roleRepository;
+    @Autowired
+    RoleMapper roleMapper;
+    @Autowired
+    ShiftTypeMapper shiftTypeMapper;
+    @Autowired
+    ShiftTypeRepository shiftTypeRepository;
     public MonthlyPlan createMonthlyPlan(int month, int year, UUID teamId) {
 
         // Create mock data
@@ -29,24 +51,46 @@ public class MonthlyPlanCreator {
         team.setWorkingHours(40);
         team.setName("Mock Team");
 
+        String[] cols = {"#571F4E", "#571F4E", "#4F759B", "#92C9B1"};
+
         List<ShiftType> shiftTypes = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             ShiftType shiftType = new ShiftType();
             shiftType.setId(UUID.randomUUID());
             shiftType.setName("Shift " + i);
+            shiftType.setColor(cols[i%cols.length]);
             shiftType.setStartTime(LocalTime.of(9 + i * 3, 0));
             shiftType.setEndTime(LocalTime.of(12 + i * 3, 0));
             shiftTypes.add(shiftType);
         }
 
+        List<Role> roles2 = roleRepository.findAll();
+
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            User user = new User();
-            user.setId(UUID.randomUUID());
-            user.setCanWorkShiftTypes(shiftTypes);
-            user.setWorkingHoursPercentage(1.0F);
-            user.setCurrentOverTime(0);
-            users.add(user);
+        for (int i = 0; i < 20; i++) {
+            UserDto user = new UserDto(
+                    null,
+                    UUID.randomUUID().toString(),
+                    "s€cr€tPa$$w0rd",
+                    UUID.randomUUID() + "@meditrack.com",
+                    "Firstname" + i,
+                    "Lastname" + i,
+                    List.of("admin"),
+                    roleMapper.toSimpleDto(roles2.get(i% roles2.size())),
+                    100f-i,
+                    0,
+                    List.of("specialSkill1", "specialSkill2"),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    new ArrayList<UUID>(),
+                    null
+            );
+            User userEntity = userMapper.fromDto(user);
+            users.add(userService.create(userEntity));
         }
 
         List<Role> roles = new ArrayList<>();
