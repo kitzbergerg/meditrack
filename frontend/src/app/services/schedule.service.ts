@@ -1,7 +1,9 @@
 import {Injectable} from "@angular/core";
 
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import {ShiftType} from "../interfaces/shiftType";
+import {Schedule} from "../interfaces/schedule.models";
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +11,8 @@ import { Observable, of } from 'rxjs';
 export class ScheduleService {
 
   constructor(private http: HttpClient) { }
+
+  private apiUrl = 'http://localhost:8081/api/monthly-plan?year=2024&month=June&teamId=547d3a4c-7856-4eaf-aecd-0303a559d4ef';
 
   // Mock method to get schedule data
   getSchedule(): Observable<any> {
@@ -1178,4 +1182,9 @@ export class ScheduleService {
     };
     return of(scheduleData);
   }
+
+  createSchedule(): Observable<Schedule> {
+    return this.http.post<Schedule>(this.apiUrl, "");
+  }
+
 }

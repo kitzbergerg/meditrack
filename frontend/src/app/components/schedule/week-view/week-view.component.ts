@@ -6,6 +6,7 @@ import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
 import {FormsModule} from "@angular/forms";
 import {DropdownModule} from "primeng/dropdown";
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @Component({
   selector: 'app-week-view',
@@ -18,7 +19,8 @@ import {DropdownModule} from "primeng/dropdown";
     ButtonModule,
     InputTextModule,
     FormsModule,
-    DropdownModule
+    DropdownModule,
+    ProgressSpinnerModule
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
@@ -33,6 +35,7 @@ export class WeekViewComponent implements OnChanges {
   roles: string[] = ['nurse', 'qualified nurse']; //TODO: fetch roles from backend
   weekNumber: number | undefined;
   monthNumber: number | undefined;
+  loading = false;
 
   range = 7; // Default value set to 7 days
   rangeOptions: any[] = [
@@ -46,6 +49,7 @@ export class WeekViewComponent implements OnChanges {
       this.weekNumber = this.getWeekNumber(this.startDate);
       this.monthNumber = this.getMonthNumber(this.startDate);
     }
+    this.loading = this.employees.length === 0;
   }
 
   onGlobalFilter(table: Table, event: Event) {

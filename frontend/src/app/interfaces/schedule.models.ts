@@ -11,8 +11,30 @@ export interface Day {
 }
 
 export interface Shift {
-  employee: Employee;
-  shift: ShiftDetail;
+  id: string | null;
+  date: string;
+  type: ShiftType;
+  users: User[];
+}
+
+export interface Schedule {
+  "id": string | null,
+  "month": string,
+  "year": number,
+  "published": boolean,
+  "team": string,
+  "shifts": Shift[]
+}
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  workingHoursPercentage: number;
+  role: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface Employee {

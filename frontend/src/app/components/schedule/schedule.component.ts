@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {WeekViewComponent} from "./week-view/week-view.component";
-import {Day} from "../../interfaces/schedule.models";
+import {Day, Shift} from "../../interfaces/schedule.models";
 import {ScheduleService} from "../../services/schedule.service";
 
 @Component({
@@ -15,6 +15,7 @@ import {ScheduleService} from "../../services/schedule.service";
 export class ScheduleComponent implements OnInit {
 
   allDays: Day[] = [];
+  allShifts: Shift[] = [];
   days: Day[] = [];
   employees: any[] = [];
   currentWeekOffset = 0;
@@ -29,36 +30,68 @@ export class ScheduleComponent implements OnInit {
   }
 
   loadSchedule(): void {
-    this.scheduleService.getSchedule().subscribe(data => {
-      this.allDays = data.days;
-      this.startDate = new Date(data.year, data.month, 1);
+    this.scheduleService.createSchedule().subscribe(data => {
+      this.allDays = this.transformDays(data.shifts);
+      this.allShifts = data.shifts;
+      this.startDate = new Date(data.year, this.getMonthFromString(data.month), 1);
       this.loadWeek();
     });
   }
 
-  loadWeek(): void {
-    const start = this.currentWeekOffset * this.range;
-    this.days = this.allDays.slice(start, start + this.range);
-    this.transformData(this.days);
+  transformDays(shifts: Shift[]): Day[] {
+    const dayMap = new Map<number, Day>();
+
+    shifts.forEach(shift => {
+      const date = new Date(shift.date);
+      const day = date.getDate();
+      const dayName = this.getDayString(day - (this.currentWeekOffset * this.range));
+
+      if (!dayMap.has(day)) {
+        dayMap.set(day, {dayName, day, shifts: []});
+      }
+      dayMap.get(day)?.shifts.push(shift);
+    });
+
+    return Array.from(dayMap.values()).sort((a, b) => a.day - b.day);
   }
 
-  transformData(days: Day[]): void {
+  loadWeek(): void {
+    this.days = this.allDays.slice(0, this.range);
+    const start = this.currentWeekOffset * this.range;
+    const end = start + this.range;
+    const filteredShifts = this.allShifts.filter(shift => {
+      const shiftDate = new Date(shift.date).getDate();
+      return shiftDate >= start && shiftDate < end;
+    });
+    this.transformData(filteredShifts);
+  }
+
+
+  transformData(shifts: Shift[]): void {
     const employeeMap = new Map<string, any>();
 
-    days.forEach(day => {
-      day.dayName = this.getDayString(day.day - (this.currentWeekOffset * this.range));
-      day.shifts.forEach(shift => {
-        const name = `${shift.employee.firstname} ${shift.employee.lastname}`;
-        const role = shift.employee.role;
-        const workingPercentage = `${shift.employee.working_percentage * 100}`;
+    shifts.forEach(shift => {
+      const day = new Date(shift.date).getDate();
+      const dayName = this.getDayString(day - (this.currentWeekOffset * this.range));
+
+      shift.users.forEach(user => {
+        const name = `${user.firstName} ${user.lastName}`;
+        const role = user.role.name;
+        const workingPercentage = `${user.workingHoursPercentage}`;
         if (!employeeMap.has(name)) {
           employeeMap.set(name, {name, role, workingPercentage, shifts: {}});
         }
-        employeeMap.get(name).shifts[day.day] = shift;
+        employeeMap.get(name).shifts[day] = {...shift, dayName};
       });
     });
 
     this.employees = Array.from(employeeMap.values());
+
+  }
+
+  getMonthFromString(month: string): number {
+    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+    return monthNames.indexOf(month.toUpperCase());
   }
 
   getDayString(dayIndex: number): string {

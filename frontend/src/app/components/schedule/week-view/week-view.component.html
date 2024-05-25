@@ -1,9 +1,10 @@
-<p-table #dt [value]="employees" [customSort]="true" class="p-mt-2" styleClass="p-datatable-gridlines" responsiveLayout="scroll"
-         [globalFilterFields]="['name','role']">
+<p-table #dt [value]="employees" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
+         styleClass="p-datatable-gridlines" responsiveLayout="scroll"
+         [globalFilterFields]="['name','role']" [loading]=" loading">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
       <h5 *ngIf="range===7" class="m-0">Calendar Week {{ weekNumber }}</h5>
-      <h5 *ngIf="weekNumber && range===14" class="m-0">Calendar Week {{ weekNumber }}/{{weekNumber + 1}}</h5>
+      <h5 *ngIf="weekNumber && range===14" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
       <h5 *ngIf="range===30" class="m-0">Calendar Month {{ monthNumber }}</h5>
       <div class="flex align-items-center justify-content-start">
         <p-button
@@ -53,29 +54,33 @@
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
       'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'
-    }" class="font-semibold" *ngFor="let day of days">{{ (day.dayName) }}</th>
+    }" class="font-semibold" *ngFor="let day of days">{{ (day.dayName) }}
+      </th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-employee>
     <tr>
       <td>
         <div pSortableColumn="username">{{ employee.name }}</div>
-        <div class="text-sm flex align-items-center justify-content-start"><span class="pi pi-clock mr-1"></span>{{ employee.workingPercentage }}%</div>
+        <div class="text-sm flex align-items-center justify-content-start"><span
+          class="pi pi-clock mr-1"></span>{{ employee.workingPercentage }}%
+        </div>
         <div class="text-sm">{{ employee.role }}</div>
       </td>
       <!-- TODO: Weekend check should be language independent -->
       <td *ngFor="let day of days; index as i"
           [ngStyle]="{
-    'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !employee.shifts[day.day]?.shift.type.hexcode ? 'lightgray' : employee.shifts[day.day]?.shift.type.hexcode,
+    'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !employee.shifts[day.day]?.type.color ? 'lightgray' : employee.shifts[day.day]?.type.color,
     'color': '#fff'
   }">
         <ng-container *ngIf="employee.shifts[day.day]">
-          <div class="text-xl font-medium">{{ employee.shifts[day.day].shift.type.name }}</div>
+          <div class="text-xl font-medium">{{ employee.shifts[day.day].type.name }}</div>
           <span *ngIf="range<=14" class="text-sm">
-            {{ employee.shifts[day.day].shift.type.start_time }} - {{ employee.shifts[day.day].shift.type.end_time }}
+            {{ employee.shifts[day.day].type.startTime }} - {{ employee.shifts[day.day].type.endTime }}
           </span>
         </ng-container>
       </td>
     </tr>
   </ng-template>
 </p-table>
+
