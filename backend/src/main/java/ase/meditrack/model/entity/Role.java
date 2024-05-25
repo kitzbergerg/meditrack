@@ -18,14 +18,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-/*
+
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "team"}),
-                @UniqueConstraint(columnNames = {"abbreviation", "team"}),
-                @UniqueConstraint(columnNames = {"color", "team"})
+                @UniqueConstraint(name = "roleAndTeamUnique", columnNames = {"name", "team_id"})
         }
-)*/
+)
 @Entity(name = "role")
 @Getter
 @Setter

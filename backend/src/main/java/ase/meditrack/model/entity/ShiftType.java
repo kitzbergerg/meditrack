@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-/*
+
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"name", "team"}),
                 @UniqueConstraint(columnNames = {"abbreviation", "team"}),
                 @UniqueConstraint(columnNames = {"color", "team"})
         }
-)*/
+)
 @Entity(name = "shift_type")
 @Getter
 @Setter
