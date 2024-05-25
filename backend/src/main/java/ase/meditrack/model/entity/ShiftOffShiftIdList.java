@@ -30,11 +30,11 @@ public class ShiftOffShiftIdList {
     @ElementCollection
     private List<UUID> shiftOffShiftIdList;
 
-    public void addShiftOffShiftIdList(UUID id) {
+    public void addShiftOffShiftIdList(UUID shiftOffShiftId) {
         if (shiftOffShiftIdList == null) {
             shiftOffShiftIdList = new ArrayList<>();
         }
-        shiftOffShiftIdList.add(id);
+        shiftOffShiftIdList.add(shiftOffShiftId);
     }
 
     @Override

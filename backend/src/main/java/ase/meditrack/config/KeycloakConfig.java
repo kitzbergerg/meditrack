@@ -48,6 +48,9 @@ public class KeycloakConfig {
             this.mapper = mapper;
         }
 
+        /**
+         * Creates a default admin user in keycloak and the database on startup, in case none exists.
+         */
         @PostConstruct
         public void createAdminUser() {
             if (meditrackRealm.users().count() == 0) {

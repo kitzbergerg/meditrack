@@ -62,7 +62,7 @@ public class ShiftSwap {
         swapSuggestingUsers.add(user);
     }
 
-    public void addSuggestedShifts(Shift shift){
+    public void addSuggestedShifts(Shift shift) {
         if (suggestedShifts == null) {
             suggestedShifts = new ArrayList<>();
         }

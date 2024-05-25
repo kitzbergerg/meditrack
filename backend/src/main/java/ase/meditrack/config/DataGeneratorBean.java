@@ -57,7 +57,7 @@ public class DataGeneratorBean {
     private final UserMapper userMapper;
     private final ShiftOffShiftIdListRepository shiftOffShiftIdListRepository;
 
-    public DataGeneratorBean (UserService userService, TeamRepository teamRepository,
+    public DataGeneratorBean(UserService userService, TeamRepository teamRepository,
                               ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
                               RoleRepository roleRepository, PreferencesRepository preferencesRepository,
                               MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
@@ -96,18 +96,23 @@ public class DataGeneratorBean {
     @PostConstruct
     private void generateData() {
         try {
-            log.info("Generating data...");
-            createTeams();
-            createRoles();
-            createUsers();
-            createHolidays();
-            createShiftTypes();
-            createMonthlyPlan();
-            createShifts();
-            createShiftSwap();
-            createHardConstraints();
-            createPreferences();
-            log.info("Data generation complete!");
+            log.info("Checking if database contains data...");
+            if (userService.findAll().size() <= 1) {
+                log.info("Generating data...");
+                createTeams();
+                createRoles();
+                createUsers();
+                createHolidays();
+                createShiftTypes();
+                createMonthlyPlan();
+                createShifts();
+                createShiftSwap();
+                createHardConstraints();
+                createPreferences();
+                log.info("Data generation complete!");
+            } else {
+                log.info("Database is not empty, rebuild the docker containers to generate data!");
+            }
         } catch (Exception e) {
             log.error("Error generating data: {}", e.getMessage());
         }

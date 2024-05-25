@@ -77,7 +77,8 @@ class UserControllerIT {
     void test_getUsers_succeeds() throws Exception {
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/user")
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
                 )
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -115,7 +116,8 @@ class UserControllerIT {
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/user")
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -132,7 +134,8 @@ class UserControllerIT {
         // execute request as user test
         String responseGetTestUser = mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/user/{id}", created.id())
-                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + AuthHelper.getAccessToken("test", "testpass"))
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + AuthHelper.getAccessToken("test", "testpass"))
                 )
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
