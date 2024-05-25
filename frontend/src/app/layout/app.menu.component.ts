@@ -27,7 +27,7 @@ export class AppMenuComponent implements OnInit {
                   { label: 'Shift Types', icon: 'pi pi-fw pi-clock', routerLink: ['/shift-types'], visible: this.isDM },
                   { label: 'Roles', icon: 'pi pi-fw pi-lock', routerLink: ['/roles'], visible: this.isDM },
                   { label: 'Holidays', icon: 'pi pi-fw pi-sun', routerLink: ['/todo'], visible: this.isEmployee  },
-                  { label: 'Rules', icon: 'pi pi-fw pi-cog', routerLink: ['/todo'], visible: this.isDM },
+                  { label: 'Rules', icon: 'pi pi-fw pi-cog', routerLink: ['/rules'], visible: this.isDM },
                   { label: 'Shift Swapping', icon: 'pi pi-fw pi-sync', routerLink: ['/todo'], visible: this.isEmployee }
                 ]
             }

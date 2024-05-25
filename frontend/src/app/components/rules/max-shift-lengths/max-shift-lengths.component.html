@@ -1,0 +1,44 @@
+<div class="ruleName display-flex center">
+  <ng-container *ngIf="!editMode">
+    <span class="va-middle align-self-center mr-auto"
+          i18n="Max shift length:@@rules.max-shift-lengths.component.rule-name">
+      Max shift length:
+    </span>
+    <span class="align-self-center"
+          i18n="Minutes Count@@rules.max-shift-lengths.component.minute-count">
+      {duration, plural, one {{{ duration }} minute} other {{{duration}} minutes}}
+    </span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto"
+            i18n="Edit@@rules.edit">
+      Edit
+    </button>
+  </ng-container>
+  <ng-container *ngIf="editMode">
+    <div class="align-self-center mr-auto"
+         i18n="Maximum amount of shift length in minutes between shifts:@@rules.max-shift-lengths.component.edit-mode-text">
+    Maximum amount of shift length in minutes between shifts:
+    </div>
+    <div class="align-self-center">
+      <p-inputNumber
+        [(ngModel)]="duration"
+        inputId="minmax"
+        mode="decimal"
+        [min]="0" [max]="525600" class="mr-0_5 ml-0_5"/>
+    </div>
+    <div class="align-self-center ml-auto">
+      <button pButton pRipple (click)="update()" class="mr-0_5"
+              i18n="Save@@rules.save">
+        Save
+      </button>
+      <button pButton pRipple (click)="editMode = false" class="mr-0_5"
+              i18n="Cancel@@rules.cancel">
+        Cancel
+      </button>
+      <button pButton pRipple (click)="delete()" class=""
+              i18n="Delete@@rules.delete">
+        Delete
+      </button>
+    </div>
+  </ng-container>
+</div>
+

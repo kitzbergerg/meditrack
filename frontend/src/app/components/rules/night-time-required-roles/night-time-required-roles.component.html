@@ -1,0 +1,75 @@
+<div class="ruleName center grid-3">
+  <ng-container *ngIf="!editMode">
+    <span class="align-self-center mr-auto flex-1"
+          i18n="Night time required roles:@@rules.night-time-required-roles.component.rule-name">
+      Night time required roles:
+    </span>
+    <span class="align-self-center flex-1">
+      <div *ngFor="let roleNumber of nightTimeRequiredRoles" class="display-flex width-30em">
+        <span i18n="Role Name@@rules.rules.night-time-required-roles.component.role-name">
+          role name: {{ roleNumber[0]?.name }}</span>
+        <span class="ml-auto" i18n="Required people@@rules.rules.night-time-required-roles.component.required-people">
+          required people: {{ roleNumber[1] }}</span>
+      </div>
+    </span>
+    <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto mb-auto mt-auto"
+            i18n="Edit@@rules.edit">
+      Edit
+    </button>
+  </ng-container>
+  <ng-container *ngIf="editMode">
+    <span class="align-self-center mr-auto"
+          i18n="Night time required roles:@@rules.night-time-required-roles.component.rule-name">
+      Night time required roles:
+    </span>
+    <span class="align-self-center text-center">
+      <div *ngFor="let roleNumber of nightTimeRequiredRoles" class="mb-0_5">
+        <span
+          i18n="Role Name@@rules.rules.night-time-required-roles.component.role-name-edit-mode">
+          >role name:</span>
+        <p-dropdown
+          [options]="availableRoles"
+          [(ngModel)]="roleNumber[0]"
+          optionLabel="name"
+          class="mr-0_5"
+          placeholder="Select a Role"/>
+        <span
+          i18n="Required people@@rules.rules.night-time-required-roles.component.required-people-edit-mode"
+        >
+          number of people:
+        </span>
+          <p-inputNumber
+            [(ngModel)]="roleNumber[1]"
+            inputId="minmax"
+            mode="decimal"
+            [min]="0" [max]="31"
+            styleClass="max-width-10"
+            class="mr-0_5 ml-0_5 max-width-10"/>
+        <button pButton pRipple (click)="deleteRoleNumber(roleNumber)"
+                i18n="Delete@@rules.delete">
+          Delete
+        </button>
+      </div>
+      <div class="text-center">
+        <button pButton pRipple (click)="addRole()" class="mr-0_5 ml-0_5"
+                i18n="Add Role@@rules.add-role">
+          Add Role
+        </button>
+        </div>
+    </span>
+    <span class="align-self-center ml-auto">
+    <button pButton pRipple (click)="update()" class="mr-0_5"
+            i18n="Save@@rules.save">
+      Save
+    </button>
+    <button pButton pRipple (click)="editMode = false" class="mr-0_5"
+            i18n="Cancel@@rules.cancel">
+      Cancel
+    </button>
+    <button pButton pRipple (click)="delete()" class=""
+            i18n="Delete@@rules.delete">
+      Delete
+    </button>
+    </span>
+  </ng-container>
+</div>
