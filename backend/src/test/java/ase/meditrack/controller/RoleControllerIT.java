@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBean(KeycloakConfig.PostCostruct.class)
 @MockBean(RealmResource.class)
 class RoleControllerIT {
-    private static final String USER_ID = "2ea419f1-31b2-4d4e-8c2e-5180c34e047c";
+    private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
     @Autowired
     private MockMvc mockMvc;
