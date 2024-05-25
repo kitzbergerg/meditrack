@@ -3,7 +3,7 @@
     <div class="card px-6 py-6">
       <div class="p-d-flex p-flex-column p-h-100">
         <app-week-view [days]="days" [employees]="employees" [startDate]="startDate" (weekChange)="changeWeek($event)"
-                       (rangeChange)="changeRange($event)"
+                       (rangeChange)="changeRange($event)" [loading]="loading"
                        class="p-flex-1 p-overflow-auto"></app-week-view>
       </div>
     </div>

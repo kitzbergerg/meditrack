@@ -27,6 +27,7 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 })
 export class WeekViewComponent implements OnChanges {
 
+  @Input() loading= true;
   @Input() days: Day[] = [];
   @Input() employees: any[] = [];
   @Input() startDate: Date | undefined;
@@ -35,7 +36,6 @@ export class WeekViewComponent implements OnChanges {
   roles: string[] = ['nurse', 'qualified nurse']; //TODO: fetch roles from backend
   weekNumber: number | undefined;
   monthNumber: number | undefined;
-  loading = false;
 
   range = 7; // Default value set to 7 days
   rangeOptions: any[] = [
@@ -49,7 +49,7 @@ export class WeekViewComponent implements OnChanges {
       this.weekNumber = this.getWeekNumber(this.startDate);
       this.monthNumber = this.getMonthNumber(this.startDate);
     }
-    this.loading = this.employees.length === 0;
+    console.log(JSON.stringify(this.employees));
   }
 
   onGlobalFilter(table: Table, event: Event) {

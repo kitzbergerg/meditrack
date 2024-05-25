@@ -13,7 +13,7 @@
           (click)="previousWeek()"
           styleClass="p-button-text"/>
 
-        <h5 class="inline m-0 p-2">{{ getFormattedDateRange() }} </h5>
+        <h5 class="inline m-0 p-2">{{ days[0].dayName }} -  {{ days[days.length-1].dayName }}</h5>
 
         <p-button
           type="button"
@@ -70,13 +70,13 @@
       <!-- TODO: Weekend check should be language independent -->
       <td *ngFor="let day of days; index as i"
           [ngStyle]="{
-    'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !employee.shifts[day.day]?.type.color ? 'lightgray' : employee.shifts[day.day]?.type.color,
+    'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !employee.shifts[day.date.toDateString()]?.type.color ? 'lightgray' : employee.shifts[day.date.toDateString()]?.type.color,
     'color': '#fff'
   }">
-        <ng-container *ngIf="employee.shifts[day.day]">
-          <div class="text-xl font-medium">{{ employee.shifts[day.day].type.name }}</div>
+        <ng-container *ngIf="employee.shifts[day.date.toDateString()]">
+          <div class="text-xl font-medium">{{ employee.shifts[day.date.toDateString()].type.name }}</div>
           <span *ngIf="range<=14" class="text-sm">
-            {{ employee.shifts[day.day].type.startTime }} - {{ employee.shifts[day.day].type.endTime }}
+            {{ employee.shifts[day.date.toDateString()].type.startTime }} - {{ employee.shifts[day.date.toDateString()].type.endTime }}
           </span>
         </ng-container>
       </td>
