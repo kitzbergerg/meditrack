@@ -7,29 +7,24 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.RoleService;
+import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBean(KeycloakConfig.PostCostruct.class)
 @MockBean(RealmResource.class)
 class RoleControllerIT {
+    private static final String USER_ID = "2ea419f1-31b2-4d4e-8c2e-5180c34e047c";
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,7 +50,32 @@ class RoleControllerIT {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RoleService roleService;
+    private TeamService teamService;
+    private Team team;
+
+    @BeforeEach
+    void setup() {
+        userRepository.save(new User(
+                UUID.fromString(USER_ID),
+                null,
+                1f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ));
+        team = teamService.create(
+                new Team(null, "test team", 40, null, null, null, null, null),
+                () -> USER_ID
+        );
+    }
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin")
@@ -69,34 +90,15 @@ class RoleControllerIT {
         assertEquals(0, roles.size());
     }
 
-    //TODO test does not work since it is dependant on Principal
 
-    /*
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = "123e4567-e89b-12d3-a456-426614174000")
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createRole_succeeds() throws Exception {
-        // Mock the principal with a specific name that can be parsed into UUID
-        Principal principal = Mockito.mock(Principal.class);
-        Mockito.when(principal.getName()).thenReturn("123e4567-e89b-12d3-a456-426614174000");
-
-        // Create a mock user directly
-        User mockUser = new User();
-        // Mock team
-        Team mockTeam = new Team();
-        mockTeam.setId(UUID.randomUUID());
-        mockUser.setTeam(mockTeam);
-
-        // Mock userRepository.findById to return the mock user
-        Mockito.when(userRepository.findById(Mockito.any(UUID.class))).thenReturn(Optional.of(mockUser));
-
-        // Mock the behavior of getPrincipalWithTeam to return the mock user directly
-        Mockito.when(roleService.getPrincipalWithTeam(principal)).thenReturn(mockUser);
-
         RoleDto dto = new RoleDto(
                 null,
                 "testRole",
                 null,
-                null
+                team.getId()
         );
 
         String response = mockMvc.perform(
@@ -112,5 +114,5 @@ class RoleControllerIT {
         assertNotNull(created.id());
         assertEquals(dto.name(), created.name());
         assertEquals(1, roleRepository.count());
-    }*/
+    }
 }
