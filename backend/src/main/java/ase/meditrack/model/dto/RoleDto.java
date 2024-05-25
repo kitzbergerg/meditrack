@@ -17,6 +17,6 @@ public record RoleDto(
         @Length(max = 40)
         String name,
         List<UUID> users,
-        UUID team
+        @NotNull(groups = CreateValidator.class) UUID team
 ) {
 }
