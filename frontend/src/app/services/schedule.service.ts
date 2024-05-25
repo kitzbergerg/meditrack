@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import {ShiftType} from "../interfaces/shiftType";
 import {Schedule} from "../interfaces/schedule.models";
@@ -12,7 +12,7 @@ export class ScheduleService {
 
   constructor(private http: HttpClient) { }
 
-  private apiUrl = 'http://localhost:8081/api/monthly-plan?year=2024&month=June&teamId=547d3a4c-7856-4eaf-aecd-0303a559d4ef';
+  private baseUrl = 'http://localhost:8081/api/monthly-plan';
 
   // Mock method to get schedule data
   getSchedule(): Observable<any> {
@@ -1183,8 +1183,16 @@ export class ScheduleService {
     return of(scheduleData);
   }
 
-  createSchedule(): Observable<Schedule> {
-    return this.http.post<Schedule>(this.apiUrl, "");
+  createSchedule(month:string, year:number): Observable<Schedule> {
+    //TODO: param should not be required in backend
+    const teamId = "547d3a4c-7856-4eaf-aecd-0303a559d4ef";
+    const params = new HttpParams()
+      .set('year', year.toString())
+      .set('month', month)
+      .set('teamId', teamId);
+
+    const url = `${this.baseUrl}`;
+    return this.http.post<Schedule>(url, "", { params });
   }
 
 }
