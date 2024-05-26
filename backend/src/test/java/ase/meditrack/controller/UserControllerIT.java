@@ -2,7 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.UserDto;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
@@ -59,6 +61,8 @@ class UserControllerIT {
     private UserRepository userRepository;
     @Autowired
     private KeycloakConfig.KeycloakPostConstruct keycloakConfigKeycloakPostConstruct;
+    @Autowired
+    private TeamRepository teamRepository;
 
     @DynamicPropertySource
     private static void startContainers(DynamicPropertyRegistry registry) {
@@ -150,6 +154,76 @@ class UserControllerIT {
         assertNotNull(testUser);
         assertEquals(created.id(), testUser.id());
         assertEquals(created.username(), testUser.username());
+    }
+
+    @Test
+    void test_updateUser_succeeds() throws Exception {
+        User user = new User(
+                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                null,
+                1f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        userRepository.save(user);
+
+        User savedUser = userRepository.findById(user.getId()).get();
+
+        Team team = teamRepository.save(
+                new Team(null,
+                        "test team",
+                        40,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null)
+        );
+        UserDto updateUserDto = new UserDto(
+                savedUser.getId(),
+                null,
+                "testpassword",
+                "test@test.test",
+                "test",
+                "testLast",
+                List.of("employee"),
+                null,
+                1f,
+                null,
+                null,
+                team.getId(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        String response = mockMvc.perform(
+                        MockMvcRequestBuilders.put("/api/user")
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
+                                .content(objectMapper.writeValueAsString(updateUserDto))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        UserDto updated = objectMapper.readValue(response, UserDto.class);
+
+        assertNotNull(updated);
+        assertEquals(updated.id(), updateUserDto.id());
+        assertEquals(updated.username(), updateUserDto.username());
     }
 
     @Test

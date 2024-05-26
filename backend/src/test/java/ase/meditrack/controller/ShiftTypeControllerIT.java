@@ -251,6 +251,46 @@ class ShiftTypeControllerIT {
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_createOvernightShiftType_succeeds() throws Exception {
+        ShiftTypeDto shiftTypeDto = new ShiftTypeDto(
+                null,
+                "Shift Type",
+                LocalTime.of(21, 0, 0, 0),
+                LocalTime.of(3, 0, 0, 0),
+                LocalTime.of(0, 0, 0, 0),
+                LocalTime.of(0, 30, 0, 0),
+                "Night",
+                "#ffff00",
+                "ST",
+                team.getId(),
+                null,
+                null,
+                null);
+
+        String response = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/shift-type")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftTypeDto))
+                )
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        ShiftTypeDto created = objectMapper.readValue(response, ShiftTypeDto.class);
+
+        assertNotNull(created);
+        assertNotNull(created.id());
+        assertEquals(shiftTypeDto.name(), created.name());
+        assertEquals(shiftTypeDto.startTime(), created.startTime());
+        assertEquals(shiftTypeDto.endTime(), created.endTime());
+        assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime());
+        assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime());
+        assertEquals(shiftTypeDto.color(), created.color());
+        assertEquals(shiftTypeDto.abbreviation(), created.abbreviation());
+        assertEquals(1, shiftTypeRepository.count());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_updateShiftType_succeeds() throws Exception {
         ShiftType shiftType = new ShiftType();
         shiftType.setName("ShiftType");
