@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {Observable} from "rxjs";
 import {User} from "../interfaces/user";
 
@@ -15,8 +15,8 @@ export class UserService {
   private realmUrl = "http://localhost:8080/realms/meditrack";
 
 
-  getAllUsers(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl);
   }
 
   getAllUserFromTeam(): Observable<User[]> {

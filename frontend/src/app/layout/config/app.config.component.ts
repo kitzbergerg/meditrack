@@ -7,7 +7,7 @@ import { MenuService } from '../app.menu.service';
     templateUrl: './app.config.component.html',
 })
 export class AppConfigComponent {
-    @Input() minimal: boolean = false;
+    @Input() minimal = false;
 
 
     constructor(

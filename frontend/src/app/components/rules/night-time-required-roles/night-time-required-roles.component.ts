@@ -30,7 +30,7 @@ export class NightTimeRequiredRolesComponent {
   @Output() updateNightTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
-    roleService.getAllRoles().subscribe(x => this.availableRoles = x);
+    roleService.getAllRolesFromTeam().subscribe(x => this.availableRoles = x);
   }
 
   update() {

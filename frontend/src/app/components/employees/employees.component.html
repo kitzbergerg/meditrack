@@ -1,12 +1,12 @@
 <div class="grid">
   <div class="col-12">
     <div class="card px-6 py-6">
-      <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team != undefined">
+      <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team !== undefined">
         <p-toolbar styleClass="mb-4">
           <h2>{{team.name}}</h2>
           <ng-template pTemplate="left">
             <div class="my-2">
-              <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+              <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"> </button>
             </div>
           </ng-template>
         </p-toolbar>
@@ -71,8 +71,8 @@
               </td>
               <td>
                 <div class="flex">
-                  <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editUser(user)"></button>
-                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteUser(user)"></button>
+                  <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editUser(user)"> </button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteUser(user)"> </button>
                 </div>
               </td>
             </tr>
@@ -147,8 +147,8 @@
           </ng-template>
 
           <ng-template pTemplate="footer">
-            <button  pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-            <button  pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createUser()"></button>
+            <button  pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"> </button>
+            <button  pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createUser()"> </button>
           </ng-template>
         </p-dialog>
 
@@ -158,8 +158,8 @@
             <span *ngIf="newUser">Are you sure you want to delete <b>{{newUser.username}}</b>?</span>
           </div>
           <ng-template pTemplate="footer">
-            <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteUserDialog = false"></button>
-            <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+            <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteUserDialog = false"> </button>
+            <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"> </button>
           </ng-template>
         </p-dialog>
 

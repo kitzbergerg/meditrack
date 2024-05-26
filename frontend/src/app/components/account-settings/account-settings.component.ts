@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {HttpClient} from "@angular/common/http";
 import {UserService} from "../../services/user.service";
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {UserService} from "../../services/user.service";
 import {User} from "../../interfaces/user";
 import {TeamService} from "../../services/team.service";
@@ -126,7 +126,7 @@ export class EmployeesComponent {
   }
 
   loadRoles(): void {
-    this.rolesService.getAllRoles()
+    this.rolesService.getAllRolesFromTeam()
       .subscribe(fetchedRoles => {
         this.roles = fetchedRoles;
       });
@@ -135,7 +135,6 @@ export class EmployeesComponent {
     this.shiftService.getAllShiftTypesByTeam().subscribe({
       next: (response) => {
         this.shiftTypes = response;
-        console.log(this.shiftTypes)
         console.log("Fetched Shift Types successfully")
       },
       error: (error) => {

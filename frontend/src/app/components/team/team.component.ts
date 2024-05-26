@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {UserService} from "../../services/user.service";
 import {TeamService} from "../../services/team.service";
 import {Team} from "../../interfaces/team";
