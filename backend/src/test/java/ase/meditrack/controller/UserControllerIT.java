@@ -52,7 +52,7 @@ class UserControllerIT {
     @Autowired
     private UserService userService;
     @Autowired
-    private KeycloakConfig.PostCostruct keycloakConfigPostCostruct;
+    private KeycloakConfig.KeycloakPostConstruct keycloakConfigKeycloakPostConstruct;
 
     @DynamicPropertySource
     private static void startContainers(DynamicPropertyRegistry registry) {
@@ -63,7 +63,7 @@ class UserControllerIT {
 
     @BeforeEach
     void setUp() {
-        keycloakConfigPostCostruct.createAdminUser();
+        keycloakConfigKeycloakPostConstruct.createAdminUser();
     }
 
     @AfterEach

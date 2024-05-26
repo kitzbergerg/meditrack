@@ -37,12 +37,12 @@ public class KeycloakConfig {
     }
 
     @Configuration("postConstruct")
-    public static class PostCostruct {
+    public static class KeycloakPostConstruct {
         private final RealmResource meditrackRealm;
         private final UserService service;
         private final UserMapper mapper;
 
-        public PostCostruct(RealmResource meditrackRealm, UserService service, UserMapper mapper) {
+        public KeycloakPostConstruct(RealmResource meditrackRealm, UserService service, UserMapper mapper) {
             this.meditrackRealm = meditrackRealm;
             this.service = service;
             this.mapper = mapper;
