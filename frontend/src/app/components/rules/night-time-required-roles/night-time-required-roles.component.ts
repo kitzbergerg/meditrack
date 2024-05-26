@@ -24,7 +24,7 @@ import {Role} from "../../../interfaces/role";
   styleUrl: './night-time-required-roles.component.scss'
 })
 export class NightTimeRequiredRolesComponent {
-  @Input() nightTimeRequiredRolesInput: Map<number, number> | null = null;
+  @Input() nightTimeRequiredRolesInput: object | null = null;
   nightTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
   editMode = true;
@@ -33,13 +33,16 @@ export class NightTimeRequiredRolesComponent {
   constructor(roleService: RolesService) {
     roleService.getAllRoles().subscribe(x => {
       this.availableRoles = x;
-      console.log(this.nightTimeRequiredRolesInput);
+      console.log('this.availableRoles', this.availableRoles);
       this.nightTimeRequiredRoles = []
-      for (const role of this.nightTimeRequiredRolesInput!) {
-        // @ts-ignore
-        this.nightTimeRequiredRoles.push([this.availableRoles.find(x => x.id == role[0]), role[1]])
+      if (this.nightTimeRequiredRolesInput) {
+        for (const [k, v] of Object.entries(this.nightTimeRequiredRolesInput)) {
+
+          // @ts-ignore
+          this.nightTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
+        }
+        console.log(this.nightTimeRequiredRoles);
       }
-      console.log(this.nightTimeRequiredRoles);
     })
   }
 

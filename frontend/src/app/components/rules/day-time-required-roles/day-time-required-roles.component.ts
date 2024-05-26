@@ -24,7 +24,8 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './day-time-required-roles.component.scss'
 })
 export class DayTimeRequiredRolesComponent {
-  @Input() dayTimeRequiredRoles: [Role | null, number][] | null = null;
+  @Input() dayTimeRequiredRolesInput: object | null = null;
+  dayTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
   editMode = true;
   @Output() updateDayTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
@@ -33,12 +34,18 @@ export class DayTimeRequiredRolesComponent {
     roleService.getAllRoles().subscribe(x => {
       console.log(x)
       this.availableRoles = x
+      console.log('this.availableRoles', this.availableRoles);
+      this.dayTimeRequiredRoles = []
+      if (this.dayTimeRequiredRolesInput) {
+        for (const [k, v] of Object.entries(this.dayTimeRequiredRolesInput)) {
+
+
+          // @ts-ignore
+          this.dayTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
+        }
+        console.log(this.dayTimeRequiredRoles);
+      }
     });
-    console.log('constructor', this.dayTimeRequiredRoles)
-    if (this.dayTimeRequiredRoles === undefined || this.dayTimeRequiredRoles === null) {
-      this.dayTimeRequiredRoles = [];
-      console.log(this.dayTimeRequiredRoles)
-    }
   }
 
   update() {

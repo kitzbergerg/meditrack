@@ -65,9 +65,19 @@ export class RulesComponent {
           if (this.rules.maxShiftLengths) {
             this.showMaxShiftLengths = true
           }
+          // @ts-ignore
+          if (Object.entries(this.rules.daytimeRequiredRoles).length == 0){
+            this.rules.daytimeRequiredRoles = null;
+          }
           if (this.rules.daytimeRequiredRoles) {
             this.showDayTimeRequiredRoles = true
           }
+
+          // @ts-ignore
+          if (Object.entries(this.rules.nighttimeRequiredRoles).length == 0){
+            this.rules.nighttimeRequiredRoles = null;
+          }
+
           if (this.rules.nighttimeRequiredRoles) {
             this.showNightTimeRequiredRoles = true
           }
@@ -148,17 +158,39 @@ export class RulesComponent {
   updateDayTimeRequiredRolesRule(dayTimeRoles: [Role | null, number][] | null) {
     if (dayTimeRoles == null) {
       this.showDayTimeRequiredRoles = false;
+      this.rules!.daytimeRequiredRoles = new Map<number, number>();
+      this.save()
+    } else {
+      const dayRoleMap: Map<number, number> = new Map<number, number>();
+      for (const dayTimeRole of dayTimeRoles) {
+        if (dayTimeRole != null && dayTimeRole[0] != null) {
+          dayRoleMap.set(dayTimeRole[0]!.id!, dayTimeRole[1])
+        }
+      }
+      this.rules!.daytimeRequiredRoles = Object.fromEntries(dayRoleMap.entries());
+      console.log('dayRoleMap', dayRoleMap)
+      console.log('this.rules!.daytimeRequiredRoles', this.rules!.daytimeRequiredRoles)
+      this.save()
     }
-    this.rules!.daytimeRequiredRoles = dayTimeRoles;
-    this.save()
   }
 
   updateNightTimeRequiredRolesRule(nightTimeRoles: [Role | null, number][] | null) {
     if (nightTimeRoles == null) {
       this.showNightTimeRequiredRoles = false;
+      this.rules!.nighttimeRequiredRoles = new Map<number, number>();
+      this.save()
+    } else {
+      const nightRoleMap: Map<number, number> = new Map<number, number>();
+      for (const nightRole of nightTimeRoles) {
+        if (nightRole != null && nightRole[0] != null) {
+          nightRoleMap.set(nightRole[0]!.id!, nightRole[1])
+        }
+      }
+      this.rules!.nighttimeRequiredRoles = Object.fromEntries(nightRoleMap.entries());
+      console.log('nightRoleMap', nightRoleMap)
+      console.log('this.rules!.nighttimeRequiredRoles', this.rules!.nighttimeRequiredRoles)
+      this.save()
     }
-    this.rules!.nighttimeRequiredRoles = nightTimeRoles;
-    this.save()
   }
 
   updateAllowedFlexTimeTotalRule(flexTotal: number | null) {

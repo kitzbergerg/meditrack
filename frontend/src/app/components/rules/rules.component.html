@@ -24,13 +24,13 @@
         </li>
         <li *ngIf="showDayTimeRequiredRoles">
           <app-day-time-required-roles
-            [dayTimeRequiredRoles]="rules!.daytimeRequiredRoles"
+            [dayTimeRequiredRolesInput]="rules!.daytimeRequiredRoles"
             (updateDayTimeRequiredRoles)="updateDayTimeRequiredRolesRule($event)">
           </app-day-time-required-roles>
         </li>
         <li *ngIf="showNightTimeRequiredRoles">
           <app-night-time-required-roles
-            [nightTimeRequiredRoles]="rules!.nighttimeRequiredRoles"
+            [nightTimeRequiredRolesInput]="rules!.nighttimeRequiredRoles"
             (updateNightTimeRequiredRoles)="updateNightTimeRequiredRolesRule($event)">
           </app-night-time-required-roles>
         </li>
