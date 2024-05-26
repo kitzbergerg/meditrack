@@ -63,8 +63,10 @@
               </td>
               <td style="width:14%; min-width: 10rem;">
                 <span class="p-column-title">Can Work Shift</span>
-                <ng-container *ngFor="let shiftType of user.canWorkShiftTypes; let isLast = last">
-                  {{ shiftType.abbreviation }}<span *ngIf="!isLast">, </span>
+                <ng-container  *ngFor="let shiftType of user.canWorkShiftTypes; let isLast = last">
+                  <span *ngIf="user.canWorkShiftTypes !== null">
+                    {{ shiftType.abbreviation}}<span *ngIf="!isLast">, </span>
+                  </span>
                 </ng-container>
               </td>
               <td>

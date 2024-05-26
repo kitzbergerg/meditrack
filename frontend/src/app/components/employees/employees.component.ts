@@ -8,7 +8,6 @@ import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ShiftService} from "../../services/shift.service";
-import {ShiftType} from "../../interfaces/shiftType";
 
 @Component({
   selector: 'app-employees',
@@ -133,7 +132,7 @@ export class EmployeesComponent {
       });
   }
   loadShiftTypes() {
-    this.shiftService.getAllShiftTypes().subscribe({
+    this.shiftService.getAllShiftTypesByTeam().subscribe({
       next: (response) => {
         this.shiftTypes = response;
         console.log(this.shiftTypes)
@@ -147,32 +146,35 @@ export class EmployeesComponent {
   }
 
   getUser(): void {
-    this.userService.getUserById(this.userId).subscribe(
-      (response) => {
-        this.currentUser = response;
-        if (response.team != null) {
-          this.getTeam();
-          this.loadUsersFromTeam()
-          this.loadRoles()
-          this.loadShiftTypes()
-        }
-      },
-      (error) => {
-        console.error('Error fetching data:', error);
-      }
-    );
+    this.userService.getUserById(this.userId).subscribe({
+      next:
+        (response) => {
+          this.currentUser = response;
+          if (response.team != null) {
+            this.getTeam();
+            this.loadUsersFromTeam()
+            this.loadRoles()
+            this.loadShiftTypes()
+          }
+        },
+    error: (error) =>
+    {
+      console.error('Error fetching data:', error);
+    }
+  });
   }
 
   getTeam(): void {
     if (this.currentUser.team !== undefined ) {
-      this.teamService.getTeamById(this.currentUser.team).subscribe(
-        (response) => {
-          this.team = response;
-        },
-        (error) => {
+      this.teamService.getTeamById(this.currentUser.team).subscribe({
+        next:
+          (response) => {
+            this.team = response;
+          },
+        error: (error) => {
           console.error('Error fetching data:', error);
         }
-      );
+      });
     }
   }
 
