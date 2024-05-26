@@ -14,6 +14,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -35,6 +36,13 @@ public class Preferences {
     @OneToOne
     @MapsId
     private User user;
+
+    public void addOffDays(LocalDate offDay) {
+        if (offDays == null) {
+            offDays = new ArrayList<>();
+        }
+        offDays.add(offDay);
+    }
 
     @Override
     public final boolean equals(final Object o) {

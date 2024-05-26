@@ -23,6 +23,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -69,12 +70,7 @@ public class User {
     @ManyToMany(mappedBy = "swapSuggestingUsers")
     private List<ShiftSwap> suggestedShiftSwaps;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_shifts",
-            joinColumns = @JoinColumn(name = "users_id"),
-            inverseJoinColumns = @JoinColumn(name = "shift_id")
-    )
+    @ManyToMany(mappedBy = "users")
     private List<Shift> shifts;
 
     @ManyToMany
@@ -96,6 +92,27 @@ public class User {
     @Transient
     @JsonInclude
     private UserRepresentation userRepresentation;
+
+    public void addSpecialSkills(String skill) {
+        if (specialSkills == null) {
+            specialSkills = new ArrayList<>();
+        }
+        specialSkills.add(skill);
+    }
+
+    public void addCanWorkShiftTypes(ShiftType shiftType) {
+        if (canWorkShiftTypes == null) {
+            canWorkShiftTypes = new ArrayList<>();
+        }
+        canWorkShiftTypes.add(shiftType);
+    }
+
+    public void addPreferredShiftTypes(ShiftType shiftType) {
+        if (preferredShiftTypes == null) {
+            preferredShiftTypes = new ArrayList<>();
+        }
+        preferredShiftTypes.add(shiftType);
+    }
 
     @Override
     public final boolean equals(final Object o) {

@@ -29,6 +29,18 @@ public class AlgorithmMapper {
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
     private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
 
+    /**
+     * Converts the input to a format that can be used by the solver.
+     *
+     * @param month
+     * @param year
+     * @param employees
+     * @param shiftTypes
+     * @param roles
+     * @param constraints
+     * @param team
+     * @return input for the algorithm
+     */
     public AlgorithmInput mapToAlgorithmInput(int month, int year, List<User> employees, List<ShiftType> shiftTypes,
                                               List<Role> roles, HardConstraints constraints, Team team) {
 
@@ -112,6 +124,17 @@ public class AlgorithmMapper {
         return input;
     }
 
+    /**
+     * Converts the solvers output back to entities that will then be created.
+     *
+     * @param output
+     * @param shiftTypes
+     * @param users
+     * @param monthlyPlan
+     * @param month
+     * @param year
+     * @return a list of shifts that satisfy the constraints
+     */
     public List<Shift> mapFromAlgorithmOutput(AlgorithmOutput output, List<ShiftType> shiftTypes, List<User> users,
                                               MonthlyPlan monthlyPlan, Integer month, Integer year) {
         // Create maps, key = UUID, value = entity

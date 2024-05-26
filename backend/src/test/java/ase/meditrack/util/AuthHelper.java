@@ -10,8 +10,19 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-public class AuthHelper {
+public final class AuthHelper {
 
+    private AuthHelper() {
+
+    }
+
+    /**
+     * Get an access token from keycloak.
+     *
+     * @param username the username
+     * @param password the password
+     * @return the token
+     */
     public static String getAccessToken(String username, String password) {
         RestTemplate restTemplate = new RestTemplate();
         String authUrl = "http://localhost:8080/realms/meditrack/protocol/openid-connect/token";

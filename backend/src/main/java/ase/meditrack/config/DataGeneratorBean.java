@@ -23,20 +23,25 @@ import ase.meditrack.repository.ShiftSwapRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.service.UserService;
+import com.github.javafaker.Faker;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.UUID;
 
 @Profile("generate-data")
 @Component
+@DependsOn({"keycloakConfig", "postConstruct"})
 @Slf4j
 public class DataGeneratorBean {
     private final UserService userService;
@@ -52,12 +57,13 @@ public class DataGeneratorBean {
     private final UserMapper userMapper;
     private final ShiftOffShiftIdListRepository shiftOffShiftIdListRepository;
 
-    public DataGeneratorBean (UserService userService, TeamRepository teamRepository,
+    public DataGeneratorBean(UserService userService, TeamRepository teamRepository,
                               ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
                               RoleRepository roleRepository, PreferencesRepository preferencesRepository,
                               MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
                               HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
-                              ShiftTypeRepository shiftTypeRepository, ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
+                              ShiftTypeRepository shiftTypeRepository,
+                              ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
         this.userService = userService;
         this.teamRepository = teamRepository;
         this.shiftRepository = shiftRepository;
@@ -72,13 +78,12 @@ public class DataGeneratorBean {
         this.shiftOffShiftIdListRepository = shiftOffShiftIdListRepository;
     }
 
-    private final Random randomNumGenerator = new Random();
+    private static final Faker FAKER = new Faker();
 
-    private static final List<String> ROLES = List.of("Nurse", "Doctor", "Trainee");
     private static final Integer NUM_TEAMS = 5;
-    private static final Integer NUM_USERS = 10;
+    private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
+    private static final Integer NUM_USERS_WITH_ROLES = 3;
     private static final Integer NUM_HOLIDAYS = 2;
-    private static final Integer NUM_PREFERENCES = 1;
     private static final Integer NUM_MONTHLY_PLANS = 3;
 
     private List<Role> roles;
@@ -91,60 +96,25 @@ public class DataGeneratorBean {
     @PostConstruct
     private void generateData() {
         try {
-            log.info("Generating data...");
-            createRoles();
-            createUsers();
-            createTeams();
-            createHolidays();
-            createShiftTypes();
-            createShifts();
-            createMonthlyPlan();
-            createShiftSwap();
-            createHardConstraints();
-            createPreferences();
-            log.info("Data generation complete!");
+            log.info("Checking if database contains data...");
+            if (userService.findAll().size() <= 1) {
+                log.info("Generating data...");
+                createTeams();
+                createRoles();
+                createUsers();
+                createHolidays();
+                createShiftTypes();
+                createMonthlyPlan();
+                createShifts();
+                createShiftSwap();
+                createHardConstraints();
+                createPreferences();
+                log.info("Data generation complete!");
+            } else {
+                log.info("Database is not empty, rebuild the docker containers to generate data!");
+            }
         } catch (Exception e) {
             log.error("Error generating data: {}", e.getMessage());
-        }
-    }
-
-    private void createRoles() {
-        log.info("Creating roles...");
-        roles = new ArrayList<>();
-        for (String roleName : ROLES) {
-            Role role = new Role();
-            role.setName(roleName);
-            roles.add(roleRepository.save(role));
-        }
-    }
-
-    private void createUsers() {
-        log.info("Generating {} users...", NUM_USERS);
-        users = new ArrayList<>();
-        for (int i = 0; i < NUM_USERS; i++) {
-            UserDto user = new UserDto(
-                    null,
-                    "User" + i,
-                    "s€cr€tPa$$w0rd",
-                    "user" + i + "@meditrack.com",
-                    "UserFirstname" + i,
-                    "UserLastname" + i,
-                    List.of("admin"),
-                    null,
-                    100f-i,
-                    0,
-                    List.of("specialSkill1", "specialSkill2"),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-                    );
-            User userEntity = userMapper.fromDto(user);
-            users.add(userService.create(userEntity));
         }
     }
 
@@ -153,67 +123,121 @@ public class DataGeneratorBean {
         teams = new ArrayList<>();
         for (int i = 0; i < NUM_TEAMS; i++) {
             Team team = new Team();
-            team.setName("Team" + i);
-            team.setWorkingHours(40);
+            team.setName(FAKER.team().name());
+            team.setWorkingHours(FAKER.number().numberBetween(20, 40));
+            team.setHardConstraints(new HardConstraints(
+                    null,
+                    Map.of(),
+                    Map.of(),
+                    Map.of(),
+                    0,
+                    0,
+                    20,
+                    20,
+                    team
+            ));
             teams.add(teamRepository.save(team));
+        }
+    }
+
+    private void createRoles() {
+        log.info("Creating every role of: {} for every team...", ROLES);
+        roles = new ArrayList<>();
+        for (Team team : teams) {
+            for (String roleName : ROLES) {
+                Role role = new Role();
+                role.setName(roleName);
+                role.setTeam(team);
+                role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
+                role.setColor(FAKER.color().hex());
+                roles.add(roleRepository.save(role));
+            }
+        }
+    }
+
+    private void createUsers() {
+        log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
+        users = new ArrayList<>();
+        for (Team team : teams) {
+            for (Role role : roles) {
+                for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
+                    UserDto user = new UserDto(
+                            null,
+                            FAKER.name().username(),
+                            "s€cr€tPa$$w0rd",
+                            FAKER.internet().emailAddress(),
+                            FAKER.name().firstName(),
+                            FAKER.name().lastName(),
+                            List.of("admin"),
+                            null,
+                            (float) FAKER.number().numberBetween(20, 100),
+                            0,
+                            List.of(FAKER.educator().course(), FAKER.educator().course()),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                    );
+                    User userEntity = userMapper.fromDto(user);
+                    userEntity.setTeam(team);
+                    userEntity.setRole(role);
+                    users.add(userService.create(userEntity));
+                }
+            }
         }
     }
 
     private void createHolidays() {
         log.info("Generating {} holidays for every user...", NUM_HOLIDAYS);
-        for (int i = 0; i < NUM_USERS; i++) {
+        for (User user : users) {
             for (int j = 0; j < NUM_HOLIDAYS; j++) {
                 Holiday holiday = new Holiday();
-                holiday.setStartDate(generateValidRandomDate());
+                holiday.setStartDate(generateValidRandomFutureDate());
                 holiday.setEndDate(holiday.getStartDate().plusDays(1));
                 holiday.setIsApproved(false);
+                holiday.setUser(user);
                 holidayRepository.save(holiday);
             }
         }
     }
 
-    private LocalDate generateValidRandomDate() {
-        int month = 0;
-        int day = 0;
-        while (month < LocalDate.now().getMonthValue()) {
-            month = randomNumGenerator.nextInt(12) + 1;
+    private LocalDate generateValidRandomFutureDate() {
+        int day;
+        int month = FAKER.number().numberBetween(LocalDate.now().getMonthValue(), 12);
+        if (month == LocalDate.now().getMonthValue()) {
+            day = FAKER.number().numberBetween(LocalDate.now().getDayOfMonth(), LocalDate.now().getMonth().minLength());
+        } else {
+            day = FAKER.number().numberBetween(1, LocalDate.now().getMonth().minLength());
         }
-        while (day < LocalDate.now().getDayOfMonth()) {
-            day = randomNumGenerator.nextInt(28) + 1;
-        }
-        return LocalDate.of(2024, month, day);
+        return LocalDate.of(LocalDate.now().getYear(), month, day);
     }
 
     private void createShiftTypes() {
-        log.info("Generating shift types...");
+        log.info("Generating morning, evening and night shift types for every team...");
         shiftTypes = new ArrayList<>();
-        ShiftType nightShift = new ShiftType();
-        nightShift.setName("Night Shift");
-        nightShift.setStartTime(LocalTime.of(22,0));
-        nightShift.setEndTime(LocalTime.of(6,0));
-        shiftTypes.add(shiftTypeRepository.save(nightShift));
-        ShiftType earlyDayShift = new ShiftType();
-        nightShift.setName("Early Day Shift");
-        nightShift.setStartTime(LocalTime.of(6,0));
-        nightShift.setEndTime(LocalTime.of(14,0));
-        shiftTypes.add(shiftTypeRepository.save(earlyDayShift));
-        ShiftType lateDayShift = new ShiftType();
-        nightShift.setName("Late Day Shift");
-        nightShift.setStartTime(LocalTime.of(14,0));
-        nightShift.setEndTime(LocalTime.of(22,0));
-        shiftTypes.add(shiftTypeRepository.save(lateDayShift));
-    }
-
-    private void createShifts() {
-        log.info("Generating shifts...");
-        shifts = new ArrayList<>();
-        for (ShiftType s : shiftTypes) {
-            for (int i = 0; i <= 30; i++) {
-                Shift shift = new Shift();
-                shift.setDate(LocalDate.now().plusDays(i));
-                shift.setShiftType(s);
-                shifts.add(shiftRepository.save(shift));
-            }
+        for (Team team : teams) {
+            ShiftType nightShift = new ShiftType();
+            nightShift.setName("Night Shift");
+            nightShift.setStartTime(LocalTime.of(22, 0));
+            nightShift.setEndTime(LocalTime.of(6, 0));
+            nightShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(nightShift));
+            ShiftType morningShift = new ShiftType();
+            morningShift.setName("Morning Shift");
+            morningShift.setStartTime(LocalTime.of(6, 0));
+            morningShift.setEndTime(LocalTime.of(14, 0));
+            morningShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(morningShift));
+            ShiftType eveningShift = new ShiftType();
+            eveningShift.setName("Evening Shift");
+            eveningShift.setStartTime(LocalTime.of(14, 0));
+            eveningShift.setEndTime(LocalTime.of(22, 0));
+            eveningShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(eveningShift));
         }
     }
 
@@ -227,16 +251,55 @@ public class DataGeneratorBean {
                 monthlyPlan.setYear(LocalDate.now().getYear());
                 monthlyPlan.setPublished(false);
                 monthlyPlan.setTeam(team);
-                monthlyPlan.setShifts(shifts);
                 monthlyPlans.add(monthlyPlanRepository.save(monthlyPlan));
             }
         }
     }
 
+    private void createShifts() {
+        log.info("Generating shifts with every shift type for every role, day and monthly plan...");
+        shifts = new ArrayList<>();
+        for (MonthlyPlan monthlyPlan : monthlyPlans) {
+            Map<UUID, List<User>> teamUsersPerRole = getTeamUsersPerRole(monthlyPlan.getTeam());
+            int days = YearMonth.of(monthlyPlan.getYear(), monthlyPlan.getMonth()).lengthOfMonth();
+            for (int i = 1; i <= days; i++) {
+                List<User> alreadyAssignedTeamUsers = new ArrayList<>();
+                for (ShiftType shiftType : shiftTypes) {
+                    //for now, for every shift type we want one shift with one user per role
+                    for (UUID key : teamUsersPerRole.keySet()) {
+                        Shift shift = new Shift();
+                        shift.setDate(LocalDate.of(monthlyPlan.getYear(), monthlyPlan.getMonth(), i));
+                        shift.setShiftType(shiftType);
+                        shift.setMonthlyPlan(monthlyPlan);
+                        for (User user : teamUsersPerRole.get(key)) {
+                            if (!alreadyAssignedTeamUsers.contains(user)) {
+                                alreadyAssignedTeamUsers.add(user);
+                                shift.addUser(user);
+                                break;
+                            }
+                        }
+                        shifts.add(shiftRepository.save(shift));
+                    }
+                }
+            }
+        }
+    }
+
+    private Map<UUID, List<User>> getTeamUsersPerRole(Team team) {
+        Map<UUID, List<User>> teamUserPerRole = new HashMap<>();
+        for (Role role : roles) {
+            teamUserPerRole.put(role.getId(), users.stream()
+                    .filter(u -> u.getTeam().getId().equals(team.getId())
+                            && u.getRole().getId().equals(role.getId()))
+                    .toList());
+        }
+        return teamUserPerRole;
+    }
+
     private void createHardConstraints() {
         log.info("Generating hard constraints for every team...");
         for (Team team : teams) {
-            HardConstraints hardConstraints = new HardConstraints();
+            HardConstraints hardConstraints = team.getHardConstraints();
             hardConstraints.setId(team.getId());
             hardConstraints.setDaytimeRequiredRoles(Map.of(roles.get(0), 2, roles.get(1), 1));
             hardConstraints.setNighttimeRequiredRoles(Map.of(roles.get(0), 1, roles.get(1), 1));
@@ -245,7 +308,7 @@ public class DataGeneratorBean {
             hardConstraints.setAllowedFlextimeTotal(10);
             hardConstraints.setAllowedFlextimePerMonth(5);
             hardConstraints.setShiftOffShift(Map.of(createShiftOffShiftIdList(),
-                    shifts.get(randomNumGenerator.nextInt(shifts.size())).getId()));
+                    shifts.get(FAKER.number().numberBetween(0, shifts.size())).getId()));
             hardConstraints.setTeam(team);
             hardConstraintsRepository.save(hardConstraints);
         }
@@ -263,7 +326,7 @@ public class DataGeneratorBean {
         for (User user : users) {
             Preferences preferences = new Preferences();
             preferences.setId(user.getId());
-            preferences.setOffDays(List.of(generateValidRandomDate(), generateValidRandomDate()));
+            preferences.setOffDays(List.of(generateValidRandomFutureDate(), generateValidRandomFutureDate()));
             preferences.setUser(user);
             preferencesRepository.save(preferences);
         }

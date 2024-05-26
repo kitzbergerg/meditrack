@@ -13,8 +13,8 @@ The backend's API documentation can be accessed at http://localhost:8081/swagger
 Depending on which services you want to run you can leave out profiles. For example to run the backend locally and the
 rest in docker do: `docker compose --profile keycloak --profile frontend up -d`
 
-To insert sample data into the database, you can use the docker profile `backend-dev` or start the application with 
-`mvn spring-boot:run -Pgenerate-data`.
+To insert sample data into the database, you can use the backend with the PROFILE env variable: `PROFILE=generate-data docker compose ...`  
+You can also start the application with `mvn spring-boot:run -Pgenerate-data`.
 
 ## Development Environment
 
@@ -30,29 +30,36 @@ follows:
 For the frontend, ESLint is implemented and can be run with `npm run lint`. The results can be found in the console.
 
 ## Guidelines
-In order to guarantee a consistent code base and repo structure, the coding conventions must be implemented. 
-It can be helpful to use Checkstyle directly in the IDE. You can find out how this can be set up 
+
+In order to guarantee a consistent code base and repo structure, the coding conventions must be implemented.
+It can be helpful to use Checkstyle directly in the IDE. You can find out how this can be set up
 in the Development Environment section above.
 
 ## Conventions
+
 ### Code
+
 #### Java
-We use the Sun coding conventions. The general checks can be found [here](https://checkstyle.sourceforge.io/checks.html) 
-and sun specific styling [here](https://checkstyle.sourceforge.io/sun_style.html). However, it is sufficient to simply 
+
+We use the Sun coding conventions. The general checks can be found [here](https://checkstyle.sourceforge.io/checks.html)
+and sun specific styling [here](https://checkstyle.sourceforge.io/sun_style.html). However, it is sufficient to simply
 perform a build, as this automatically checks the rules and displays any failures in the console.
 
 #### TypeScript
-To follow Angular and TypeScript best practices, we use the `Recommended` set of ESLint rules. This can be viewed 
+
+To follow Angular and TypeScript best practices, we use the `Recommended` set of ESLint rules. This can be viewed
 [here](https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/src/configs/README.md).
 
 ### Branches
-We differentiate between feature and bugfix branches. The structure is as follows: 
-`feature|fix/#<issuenumber>-<some-short-description>`, where the description is optional. For 
+
+We differentiate between feature and bugfix branches. The structure is as follows:
+`feature|fix/#<issuenumber>-<some-short-description>`, where the description is optional. For
 example, when a new feature is implemented: `feature/#13-backend-setup`. This can be used for the majority of issues.
-If bugs are detected (after an issue has been completed!) a new issue must be created and a branch defined as follows: 
+If bugs are detected (after an issue has been completed!) a new issue must be created and a branch defined as follows:
 `fix/#xx-<some-short-description>`, where `xx` is the new created issue number and optional a short description.
 
 ### Commits
+
 Commits must follow the following structure:
 `#<issue-number>: <commit-message>`
 For example: `#13: my meaningful commit message`
