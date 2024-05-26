@@ -125,6 +125,17 @@ public class DataGeneratorBean {
             Team team = new Team();
             team.setName(FAKER.team().name());
             team.setWorkingHours(FAKER.number().numberBetween(20, 40));
+            team.setHardConstraints(new HardConstraints(
+                    null,
+                    Map.of(),
+                    Map.of(),
+                    Map.of(),
+                    0,
+                    0,
+                    20,
+                    20,
+                    team
+            ));
             teams.add(teamRepository.save(team));
         }
     }
@@ -137,15 +148,14 @@ public class DataGeneratorBean {
                 Role role = new Role();
                 role.setName(roleName);
                 role.setTeam(team);
+                role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
+                role.setColor(FAKER.color().hex());
                 roles.add(roleRepository.save(role));
             }
         }
     }
 
     private void createUsers() {
-        log.info("Generating default admin user...");
-        // needs to be done because spring executes this bean before the keycloak config
-
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
         for (Team team : teams) {
@@ -289,7 +299,7 @@ public class DataGeneratorBean {
     private void createHardConstraints() {
         log.info("Generating hard constraints for every team...");
         for (Team team : teams) {
-            HardConstraints hardConstraints = new HardConstraints();
+            HardConstraints hardConstraints = team.getHardConstraints();
             hardConstraints.setId(team.getId());
             hardConstraints.setDaytimeRequiredRoles(Map.of(roles.get(0), 2, roles.get(1), 1));
             hardConstraints.setNighttimeRequiredRoles(Map.of(roles.get(0), 1, roles.get(1), 1));
