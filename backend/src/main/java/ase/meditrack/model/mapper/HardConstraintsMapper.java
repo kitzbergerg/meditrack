@@ -12,5 +12,6 @@ public interface HardConstraintsMapper {
     HardConstraintsDto toDto(HardConstraints hardConstraints);
 
     @Mapping(target = "shiftOffShift", ignore = true)
+    @Mapping(target = "team", ignore = true)
     HardConstraints fromDto(HardConstraintsDto dto);
 }

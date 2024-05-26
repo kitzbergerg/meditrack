@@ -43,7 +43,7 @@ public class HardConstraintsService {
     }
 
     /**
-     * Fetches the hardconstraint from a team from the database
+     * Fetches the hardconstraint from a team from the database.
      * @param principal – the current user
      * @return the hardConstraints of the team
      */
@@ -83,17 +83,20 @@ public class HardConstraintsService {
         if (hardConstraints.getNighttimeRequiredRoles() != null) {
             dbHardConstraints.setNighttimeRequiredRoles(hardConstraints.getNighttimeRequiredRoles());
         }
-        if (hardConstraints.getDaytimeRequiredPeople() != null) {
-            dbHardConstraints.setDaytimeRequiredPeople(hardConstraints.getDaytimeRequiredPeople());
-        }
-        if (hardConstraints.getNighttimeRequiredPeople() != null) {
-            dbHardConstraints.setNighttimeRequiredPeople(hardConstraints.getNighttimeRequiredPeople());
-        }
         if (hardConstraints.getAllowedFlextimeTotal() != null) {
             dbHardConstraints.setAllowedFlextimeTotal(hardConstraints.getAllowedFlextimeTotal());
         }
         if (hardConstraints.getAllowedFlextimePerMonth() != null) {
             dbHardConstraints.setAllowedFlextimePerMonth(hardConstraints.getAllowedFlextimePerMonth());
+        }
+        if (hardConstraints.getMandatoryOffDays() != null) {
+            dbHardConstraints.setMandatoryOffDays(hardConstraints.getMandatoryOffDays());
+        }
+        if (hardConstraints.getMinRestPeriod() != null) {
+            dbHardConstraints.setMinRestPeriod(hardConstraints.getMinRestPeriod());
+        }
+        if (hardConstraints.getMaximumShiftLengths() != null) {
+            dbHardConstraints.setMaximumShiftLengths(hardConstraints.getMaximumShiftLengths());
         }
         if (hardConstraints.getTeam() != null) {
             dbHardConstraints.setTeam(hardConstraints.getTeam());

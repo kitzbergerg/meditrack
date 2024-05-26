@@ -77,9 +77,8 @@ public class AlgorithmMapper {
         }
 
         HardConstraintInfo constraintInfo =
-                new HardConstraintInfo(dayTimeRolesMap, nightTimeRolesMap, constraints.getDaytimeRequiredPeople(),
-                        constraints.getNighttimeRequiredPeople(), constraints.getAllowedFlextimeTotal(),
-                        constraints.getAllowedFlextimePerMonth());
+                new HardConstraintInfo(dayTimeRolesMap, nightTimeRolesMap, constraints.getAllowedFlextimeTotal(),
+                        constraints.getAllowedFlextimePerMonth(), 22, 2, 2);
 
         // Create day records for every day of month
         while (!date.isAfter(endDate)) {

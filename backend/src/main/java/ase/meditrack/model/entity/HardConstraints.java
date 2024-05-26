@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,38 +44,19 @@ public class HardConstraints {
     @MapKeyEnumerated(EnumType.STRING)
     private Map<Role, Integer> nighttimeRequiredRoles;
 
-    private Integer daytimeRequiredPeople;
-
-    private Integer nighttimeRequiredPeople;
-
     private Integer allowedFlextimeTotal;
 
     private Integer allowedFlextimePerMonth;
 
+    private Integer mandatoryOffDays;
+
+    private Integer minRestPeriod;
+
+    private Integer maximumShiftLengths;
+
     @OneToOne
     @MapsId
     private Team team;
-
-    public void addShiftOffShift(ShiftOffShiftIdList key, UUID value) {
-        if (shiftOffShift == null) {
-            shiftOffShift = new HashMap<>();
-        }
-        shiftOffShift.put(key, value);
-    }
-
-    public void addDaytimeRequiredRoles(Role key, Integer value) {
-        if (daytimeRequiredRoles == null) {
-            daytimeRequiredRoles = new HashMap<>();
-        }
-        daytimeRequiredRoles.put(key, value);
-    }
-
-    public void addNighttimeRequiredRoles(Role key, Integer value) {
-        if (nighttimeRequiredRoles == null) {
-            nighttimeRequiredRoles = new HashMap<>();
-        }
-        nighttimeRequiredRoles.put(key, value);
-    }
 
     @Override
     public final boolean equals(final Object o) {

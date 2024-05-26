@@ -84,10 +84,11 @@ public class TeamService {
                     Map.of(),
                     Map.of(),
                     Map.of(),
-                    0,
-                    0,
                     20,
                     20,
+                    2,
+                    120,
+                    8,
                     team
             ));
         }

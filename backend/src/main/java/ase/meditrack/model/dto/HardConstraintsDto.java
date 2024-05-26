@@ -12,10 +12,11 @@ public record HardConstraintsDto(
         @Nullable Map<UUID, UUID> shiftOffShift,
         @Nullable Map<UUID, Integer> daytimeRequiredRoles,
         @Nullable Map<UUID, Integer> nighttimeRequiredRoles,
-        @Nullable @PositiveOrZero Integer daytimeRequiredPeople,
-        @Nullable @PositiveOrZero Integer nighttimeRequiredPeople,
         @Nullable @PositiveOrZero Integer allowedFlextimeTotal,
-        @Nullable @PositiveOrZero Integer allowedFlextimePerMonth
+        @Nullable @PositiveOrZero Integer allowedFlextimePerMonth,
+        @Nullable @PositiveOrZero Integer mandatoryOffDays,
+        @Nullable @PositiveOrZero Integer minRestPeriod,
+        @Nullable @PositiveOrZero Integer maximumShiftLengths
 ) {
 }
 
