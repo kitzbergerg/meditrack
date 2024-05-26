@@ -108,7 +108,7 @@ export class ShiftTypesComponent {
   }
 
   loadShiftTypes(): void {
-    this.shiftService.getAllShiftTypes()
+    this.shiftService.getAllShiftTypesByTeam()
       .subscribe(fetchedShiftTypes => {
         this.shiftTypes = fetchedShiftTypes;
         if (this.shiftTypes.length === 0) {
@@ -329,7 +329,7 @@ export class ShiftTypesComponent {
 
   resetForm() {
     this.submitted = false;
-    this.selectedOption.name = 'Choose Type';
+    this.selectedOption =  {name: 'Choose Type'};
     this.startTimeDate = this.emptyTime;
     this.endTimeDate = this.emptyTime;
     this.breakStartTimeDate = this.emptyTime;
