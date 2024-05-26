@@ -7,7 +7,7 @@
     <span class="align-self-center"
           i18n="days count@@rules.mandatory-off-days-rule.component.days-count"
     >
-      {numberOfDaysInMonth, plural, one {{{ numberOfDaysInMonth }} day} other {{{numberOfDaysInMonth}} days}}
+      {mandatoryOffDays, plural, one {{{ mandatoryOffDays }} day} other {{{mandatoryOffDays}} days}}
     </span>
     <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto"
             i18n="Edit@@rules.edit">
@@ -21,7 +21,7 @@
     </div>
     <div class="align-self-center">
       <p-inputNumber
-        [(ngModel)]="numberOfDaysInMonth"
+        [(ngModel)]="mandatoryOffDays"
         inputId="minmax"
         mode="decimal"
         [min]="0" [max]="31" class="mr-0_5 ml-0_5"/>

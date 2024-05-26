@@ -42,6 +42,9 @@ export class NightTimeRequiredRolesComponent {
           // @ts-ignore
           this.nightTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
         }
+        if (Object.entries(this.nightTimeRequiredRolesInput).length == 0) {
+          this.nightTimeRequiredRoles.push([null, 0])
+        }
         console.log(this.nightTimeRequiredRoles);
       }
       if (this.nightTimeRequiredRolesInput !== null) {

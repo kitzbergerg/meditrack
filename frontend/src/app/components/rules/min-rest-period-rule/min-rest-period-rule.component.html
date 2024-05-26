@@ -6,7 +6,7 @@
     </span>
     <span class="align-self-center"
           i18n="Minutes Count@@rules.min-rest-period-rule.component.minute-count">
-      {duration, plural, one {{{ duration }} minute} other {{{duration}} minutes}}
+      {minRestPeriod, plural, one {{{ minRestPeriod }} minute} other {{{minRestPeriod}} minutes}}
     </span>
     <button pButton pRipple (click)="editMode = true" class="ml-0_5 ml-auto"
             i18n="Edit@@rules.edit">
@@ -20,7 +20,7 @@
     </div>
     <div>
       <p-inputNumber
-        [(ngModel)]="duration"
+        [(ngModel)]="minRestPeriod"
         inputId="minmax"
         mode="decimal"
         [min]="0" [max]="525600" class="mr-0_5 ml-0_5"/>

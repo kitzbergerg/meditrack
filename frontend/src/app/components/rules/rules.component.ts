@@ -62,23 +62,16 @@ export class RulesComponent {
           if (this.rules.minRestPeriod) {
             this.showMinRestPeriod = true
           }
-          if (this.rules.maxShiftLengths) {
+          if (this.rules.maximumShiftLengths) {
             this.showMaxShiftLengths = true
           }
           // @ts-ignore
           if (Object.entries(this.rules.daytimeRequiredRoles).length == 0){
-            this.rules.daytimeRequiredRoles = null;
-          }
-          if (this.rules.daytimeRequiredRoles) {
-            this.showDayTimeRequiredRoles = true
+            this.showDayTimeRequiredRoles = true;
           }
 
           // @ts-ignore
           if (Object.entries(this.rules.nighttimeRequiredRoles).length == 0){
-            this.rules.nighttimeRequiredRoles = null;
-          }
-
-          if (this.rules.nighttimeRequiredRoles) {
             this.showNightTimeRequiredRoles = true
           }
           if (this.rules.allowedFlextimeTotal) {
@@ -101,7 +94,7 @@ export class RulesComponent {
     return {
       shiftOffShift: null,
       minRestPeriod: null,
-      maxShiftLengths: null,
+      maximumShiftLengths: null,
       mandatoryOffDays: null,
       daytimeRequiredRoles: null,
       nighttimeRequiredRoles: null,
@@ -111,9 +104,9 @@ export class RulesComponent {
   }
 
   anyRulesNotSet() {
-    return this.rules?.minRestPeriod == null
-      || this.rules?.maxShiftLengths == null
-      || this.rules?.mandatoryOffDays == null;
+    return !this.showAllowedFlexTimePerMonth || !this.showAllowedFlexTimeTotal || !this.showDayTimeRequiredRoles
+      || !this.showMandatoryOffDaysRule || !this.showMaxShiftLengths || !this.showMinRestPeriod  ||
+      !this.showNightTimeRequiredRoles
   }
 
   save() {
@@ -151,7 +144,7 @@ export class RulesComponent {
     if (maxShift == null) {
       this.showMaxShiftLengths = false;
     }
-    this.rules!.maxShiftLengths = maxShift;
+    this.rules!.maximumShiftLengths = maxShift;
     this.save()
   }
 

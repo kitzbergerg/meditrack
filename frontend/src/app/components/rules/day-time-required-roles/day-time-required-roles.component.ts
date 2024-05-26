@@ -41,6 +41,9 @@ export class DayTimeRequiredRolesComponent {
           // @ts-ignore
           this.dayTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
         }
+        if (Object.entries(this.dayTimeRequiredRolesInput).length == 0) {
+          this.dayTimeRequiredRoles.push([null, 0])
+        }
         console.log(this.dayTimeRequiredRoles);
       }
       if (this.dayTimeRequiredRolesInput !== null) {
