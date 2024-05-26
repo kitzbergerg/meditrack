@@ -88,7 +88,7 @@ public class TeamService {
                     20,
                     2,
                     120,
-                    8,
+                    480,
                     team
             ));
         }

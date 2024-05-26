@@ -134,7 +134,7 @@ public class DataGeneratorBean {
                     20,
                     2,
                     120,
-                    8,
+                    480,
                     team
             ));
             teams.add(teamRepository.save(team));
