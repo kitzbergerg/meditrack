@@ -23,24 +23,10 @@ services:
     image: meditrack-backend
     ports:
       - "8081:8081"
+    environment:
+      PROFILE: ${PROFILE:-default}
     env_file:
-      - ./backend/backend.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      keycloak-config:
-        condition: service_completed_successfully
-
-  backend-dev:
-    profiles:
-      - backend-dev
-    build:
-      context: backend
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
-    env_file:
-      - ./backend/backend-dev.env
+      - ./backend/docker-compose.env
     depends_on:
       postgres:
         condition: service_healthy
