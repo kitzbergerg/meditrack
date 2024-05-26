@@ -20,7 +20,7 @@ import {RippleModule} from "primeng/ripple";
 })
 export class MandatoryOffDaysRuleComponent {
   @Input() mandatoryOffDays: number | null = null;
-  editMode = true;
+  editMode = false;
   @Output() updateMandatoryOffDays = new EventEmitter<number | null>();
   numberOfDaysInMonth: number | null = this.mandatoryOffDays;
 

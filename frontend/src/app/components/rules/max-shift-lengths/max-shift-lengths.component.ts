@@ -21,7 +21,7 @@ import {FormsModule} from "@angular/forms";
 })
 export class MaxShiftLengthsComponent {
   @Input() maxShiftLength: number | null = null;
-  editMode = true;
+  editMode = false;
   @Output() updateMaxShiftLength = new EventEmitter<number | null>();
   duration: number | null = this.maxShiftLength;
 

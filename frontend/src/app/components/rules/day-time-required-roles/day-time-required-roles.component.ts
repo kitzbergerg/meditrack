@@ -27,7 +27,7 @@ export class DayTimeRequiredRolesComponent {
   @Input() dayTimeRequiredRolesInput: object | null = null;
   dayTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
-  editMode = true;
+  editMode: any;
   @Output() updateDayTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
@@ -38,12 +38,15 @@ export class DayTimeRequiredRolesComponent {
       this.dayTimeRequiredRoles = []
       if (this.dayTimeRequiredRolesInput) {
         for (const [k, v] of Object.entries(this.dayTimeRequiredRolesInput)) {
-
-
           // @ts-ignore
           this.dayTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
         }
         console.log(this.dayTimeRequiredRoles);
+      }
+      if (this.dayTimeRequiredRolesInput !== null) {
+        this.editMode = false
+      } else {
+        this.editMode = true
       }
     });
   }

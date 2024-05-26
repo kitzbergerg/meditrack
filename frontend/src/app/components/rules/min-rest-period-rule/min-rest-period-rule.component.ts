@@ -20,7 +20,7 @@ import {FormsModule} from "@angular/forms";
 })
 export class MinRestPeriodRuleComponent {
   @Input() minRestPeriod: number | null = null;
-  editMode = true;
+  editMode = false;
   @Output() updateMinRestPeriod = new EventEmitter<number | null>();
   duration: number | null = this.minRestPeriod;
 
