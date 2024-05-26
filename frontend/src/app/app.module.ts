@@ -22,6 +22,12 @@ import {DropdownModule} from "primeng/dropdown";
 import {InputTextModule} from "primeng/inputtext";
 import {ImageModule} from "primeng/image";
 import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { CalendarModule } from "primeng/calendar";
+import {MultiSelectModule} from "primeng/multiselect";
+import {ToastModule} from "primeng/toast";
+import { MessageService } from 'primeng/api';
+import {TeamComponent} from "./components/team/team.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -54,27 +60,33 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RolesComponent,
     DashboardComponent,
     ShiftTypesComponent,
+    TeamComponent
   ],
-    imports: [
-        BrowserModule,
-        ButtonModule,
-        AppRoutingModule,
-        RouterModule,
-        HttpClientModule,
-        KeycloakAngularModule,
-        FormsModule,
-        StyleClassModule,
-        RippleModule,
-        AppLayoutModule,
-        ReactiveFormsModule,
-        ToolbarModule,
-        TableModule,
-        DialogModule,
-        DropdownModule,
-        InputTextModule,
-        ImageModule,
-    ],
+  imports: [
+    BrowserModule,
+    ButtonModule,
+    AppRoutingModule,
+    RouterModule,
+    HttpClientModule,
+    KeycloakAngularModule,
+    FormsModule,
+    StyleClassModule,
+    RippleModule,
+    AppLayoutModule,
+    ReactiveFormsModule,
+    ToolbarModule,
+    TableModule,
+    DialogModule,
+    DropdownModule,
+    InputTextModule,
+    ImageModule,
+    CalendarModule,
+    ColorPickerModule,
+    MultiSelectModule,
+    ToastModule,
+  ],
   providers: [
+    MessageService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,

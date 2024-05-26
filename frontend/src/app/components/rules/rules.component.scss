@@ -1,0 +1,35 @@
+.plusButtonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.createRuleList {
+  padding-left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -5px;
+  flex-direction: column;
+}
+
+.createRuleList > * {
+  margin-bottom: 0.5em;
+}
+
+.currentRulesList > li {
+  margin-bottom: 1.5em;
+  width: 100%;
+}
+
+.currentRulesList {
+  list-style-type: none;
+  padding-left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -5px;
+  flex-direction: column;
+}

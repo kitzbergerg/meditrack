@@ -5,7 +5,6 @@ import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.mapper.RoleMapper;
 import ase.meditrack.service.RoleService;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,6 +43,7 @@ public class RoleController {
         log.info("Fetching roles");
         return mapper.toDtoList(service.findAll());
     }
+
     @GetMapping("/team")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public List<RoleDto> findAllByTeam(Principal principal) {
@@ -51,10 +51,17 @@ public class RoleController {
         return mapper.toDtoList(service.findAllByTeam(principal));
     }
 
+    @GetMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    public RoleDto findById(@PathVariable UUID id) {
+        log.info("Fetching role {}", id);
+        return mapper.toDto(service.findById(id));
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public RoleDto create(@Valid @Validated(CreateValidator.class) @RequestBody RoleDto dto, Principal principal) {
+    public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Creating role {}", dto.name());
         return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }

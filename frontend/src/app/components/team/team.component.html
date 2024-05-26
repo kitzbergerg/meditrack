@@ -1,0 +1,5 @@
+<h2>Create a Team first before you can add {{teamComponentHeader}}!</h2>
+<div class="field">
+  <input placeholder="Enter Team Name" type="text" pInputText id="teamName" [(ngModel)]="newTeam.name" required [ngClass]="{'ng-invalid ng-dirty' : !newTeam.name || isTeamNameSet()}"/>
+</div>
+<p-button name="addButton" (click)="createTeam()" [disabled]="!newTeam.name || isTeamNameSet()">Add</p-button>

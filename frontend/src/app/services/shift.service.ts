@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {map, Observable} from "rxjs";
-import {ShiftType, ShiftTypeCreate} from "../interfaces/shiftTypeInterface";
+import {ShiftType} from "../interfaces/shiftType";
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,7 @@ export class ShiftService {
         }));
   }
 
-  createShiftType(shiftType: ShiftTypeCreate): Observable<ShiftType> {
+  createShiftType(shiftType: ShiftType): Observable<ShiftType> {
     const httpOptions = {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };

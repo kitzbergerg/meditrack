@@ -1,5 +1,6 @@
 package ase.meditrack.service;
 
+import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.TeamRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -61,7 +63,7 @@ public class TeamService {
     /**
      * Creates a team in the database.
      *
-     * @param team the team to create
+     * @param team      the team to create
      * @param principal the current user's id
      * @return the created team
      */
@@ -74,6 +76,22 @@ public class TeamService {
         users.add(creator);
         team.setUsers(users);
         creator.setTeam(team);
+
+        if (team.getWorkingHours() == null) team.setWorkingHours(40);
+        if (team.getHardConstraints() == null) {
+            team.setHardConstraints(new HardConstraints(
+                    null,
+                    Map.of(),
+                    Map.of(),
+                    Map.of(),
+                    0,
+                    0,
+                    20,
+                    20,
+                    team
+            ));
+        }
+
         return repository.save(team);
     }
 
