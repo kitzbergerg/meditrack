@@ -5,7 +5,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import {RippleModule} from "primeng/ripple";
 import {DropdownModule} from "primeng/dropdown";
 import {RolesService} from "../../../services/roles.service";
-import {Role} from "../../../interfaces/roles/rolesInterface";
+import {Role} from "../../../interfaces/role";
 import {FormsModule} from "@angular/forms";
 
 @Component({

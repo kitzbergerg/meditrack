@@ -36,7 +36,8 @@ public class UserService {
     private final UserValidator userValidator;
     private final ShiftTypeRepository shiftTypeRepository;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator, ShiftTypeRepository shiftTypeRepository) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
+                       ShiftTypeRepository shiftTypeRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
@@ -108,6 +109,7 @@ public class UserService {
     public User create(User user) {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
+        user.setCurrentOverTime(0);
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
@@ -178,7 +180,7 @@ public class UserService {
     }
 
     @Transactional
-    private User updateChangedAttributes(User user) {
+    protected User updateChangedAttributes(User user) {
         User dbUser = repository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("Could not find user with id: " + user.getId() + "!"));
 
@@ -231,5 +233,23 @@ public class UserService {
         }
 
         return dbUser;
+    }
+
+    /**
+     * Fetches the user with the id from the principal.
+     *
+     * @param principal the current user
+     * @return user with the id from principal
+     */
+    public User getPrincipalWithTeam(Principal principal) {
+        UUID dmId = UUID.fromString(principal.getName());
+        Optional<User> dm = repository.findById(dmId);
+        if (dm.isEmpty()) {
+            throw new NotFoundException("User doesnt exist");
+        }
+        if (dm.get().getTeam() == null) {
+            throw new NotFoundException("User has no team");
+        }
+        return dm.get();
     }
 }

@@ -43,6 +43,8 @@ public class ShiftController {
         return mapper.toDtoList(service.findAll());
     }
 
+
+
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public ShiftDto findById(@PathVariable UUID id) {

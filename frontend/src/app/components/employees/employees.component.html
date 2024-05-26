@@ -63,7 +63,9 @@
               </td>
               <td style="width:14%; min-width: 10rem;">
                 <span class="p-column-title">Can Work Shift</span>
-                {{user.canWorkShiftTypes.join(', ') }}
+                <ng-container *ngFor="let shiftType of user.canWorkShiftTypes; let isLast = last">
+                  {{ shiftType.abbreviation }}<span *ngIf="!isLast">, </span>
+                </ng-container>
               </td>
               <td>
                 <div class="flex">
@@ -110,8 +112,7 @@
                   formControlName="canWorkShiftTypes"
                   id="canWorkShiftTypes"
                   [options]="shiftTypes"
-                  optionLabel="name"
-                  optionValue="id"
+                  optionLabel="abbreviation"
                   placeholder="Select Shift Types" />
               </div>
 
@@ -162,14 +163,9 @@
 
       </div>
 
-    <div *ngIf="currentUser.team === null">
-      <h2>Create a Team first before you can add employees!</h2>
-        <div class="field">
-          <input placeholder="Enter Team Name" type="text" pInputText id="teamName" [(ngModel)]="newTeam.name" required [ngClass]="{'ng-invalid ng-dirty' : !newTeam.name || isTeamNameSet()}"/>
-        </div>
-      <p-button name="addButton" (click)="createTeam()" [disabled]="!newTeam.name || isTeamNameSet()">Add</p-button>
-
-    </div>
+      <div *ngIf="currentUser.team === null">
+        <app-team [teamComponentHeader] = "teamComponentHeader" (teamEmitter)="receiveTeam($event)"></app-team>
+      </div>
     </div>
   </div>
 </div>

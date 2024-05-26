@@ -3,6 +3,7 @@ package ase.meditrack.model.entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Transient;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -21,6 +23,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -30,6 +33,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -39,8 +43,10 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(nullable = false)
     private Float workingHoursPercentage;
 
+    @Column(nullable = false)
     private Integer currentOverTime;
 
     @ElementCollection
@@ -64,12 +70,7 @@ public class User {
     @ManyToMany(mappedBy = "swapSuggestingUsers")
     private List<ShiftSwap> suggestedShiftSwaps;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_shifts",
-            joinColumns = @JoinColumn(name = "users_id"),
-            inverseJoinColumns = @JoinColumn(name = "shift_id")
-    )
+    @ManyToMany(mappedBy = "users")
     private List<Shift> shifts;
 
     @ManyToMany
@@ -91,6 +92,27 @@ public class User {
     @Transient
     @JsonInclude
     private UserRepresentation userRepresentation;
+
+    public void addSpecialSkills(String skill) {
+        if (specialSkills == null) {
+            specialSkills = new ArrayList<>();
+        }
+        specialSkills.add(skill);
+    }
+
+    public void addCanWorkShiftTypes(ShiftType shiftType) {
+        if (canWorkShiftTypes == null) {
+            canWorkShiftTypes = new ArrayList<>();
+        }
+        canWorkShiftTypes.add(shiftType);
+    }
+
+    public void addPreferredShiftTypes(ShiftType shiftType) {
+        if (preferredShiftTypes == null) {
+            preferredShiftTypes = new ArrayList<>();
+        }
+        preferredShiftTypes.add(shiftType);
+    }
 
     @Override
     public final boolean equals(final Object o) {

@@ -18,6 +18,7 @@ import {ShiftType} from "../../interfaces/shiftType";
 export class EmployeesComponent {
 
   userDialog = false;
+  teamComponentHeader = "employees";
   userHeader = "";
   deleteUserDialog= false;
   submitted = false;
@@ -113,6 +114,11 @@ export class EmployeesComponent {
     ];
   }
 
+  receiveTeam(team: Team) {
+    this.currentUser.team = team.id;
+    this.team = team;
+  }
+
   usernameValidator(control: any): { [key: string]: any } | null {
     if (this.userHeader === "Edit User" && control.value === null) {
       return null;
@@ -130,6 +136,7 @@ export class EmployeesComponent {
     this.shiftService.getAllShiftTypes().subscribe({
       next: (response) => {
         this.shiftTypes = response;
+        console.log(this.shiftTypes)
         console.log("Fetched Shift Types successfully")
       },
       error: (error) => {
@@ -137,25 +144,6 @@ export class EmployeesComponent {
       },
     });
     this.resetUser()
-  }
-
-
-
-  createTeam() {
-    this.teamService.createTeam(this.newTeam).subscribe(
-      (response) => {
-        this.currentUser.team= response.id;
-        this.team = response;
-      },
-      (error) => {
-        console.error('Error fetching team:', error);
-      }
-    );
-  }
-
-  isTeamNameSet(): boolean {
-    const b = !this.newTeam.name.trim();
-    return b;
   }
 
   getUser(): void {
@@ -204,6 +192,8 @@ export class EmployeesComponent {
 
   editUser(user: User) {
     const selectedRole = this.roles.find(role => role.id === user.role.id);
+    const userShiftTypeIds = user.canWorkShiftTypes.map(shiftType => shiftType.id);
+    const selectedShiftTypes = this.shiftTypes.filter(shiftType => userShiftTypeIds.includes(shiftType.id));
 
     this.newUserForm.patchValue({
       username: null,
@@ -212,7 +202,7 @@ export class EmployeesComponent {
       lastName: user.lastName,
       workingHoursPercentage: user.workingHoursPercentage,
       role: selectedRole,
-      canWorkShiftTypes: user.canWorkShiftTypes,
+      canWorkShiftTypes: selectedShiftTypes,
     });
     this.newUser = { ...user };
     this.userHeader = "Edit User";
@@ -262,7 +252,6 @@ export class EmployeesComponent {
           this.newUser.roles = ['employee'];
           this.newUser.team = this.team.id;
           this.newUser.password = <string>this.newUser.username;
-          console.log(this.newUser);
           this.userService.createUser(this.newUser)
             .subscribe({
               next: (response) => {

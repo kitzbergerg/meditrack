@@ -27,6 +27,7 @@
         <keycloak.version>24.0.1</keycloak.version>
         <jacoco.version>0.8.12</jacoco.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+        <faker.version>1.0.2</faker.version>
 
         <spring.profiles.active/>
     </properties>
@@ -124,6 +125,12 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>${faker.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,6 +146,9 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <profiles>
+                        <profile>generate-data</profile>
+                    </profiles>
                 </configuration>
             </plugin>
             <plugin>
@@ -314,5 +324,14 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>generate-data</id>
+            <properties>
+                <spring.profiles.active>generate-data</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

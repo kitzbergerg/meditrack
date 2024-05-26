@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -22,29 +24,33 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-/*
+
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "team"}),
-                @UniqueConstraint(columnNames = {"abbreviation", "team"}),
-                @UniqueConstraint(columnNames = {"color", "team"})
+                @UniqueConstraint(name = "shiftTypeNameAndTeamUnique", columnNames = {"name", "team_id"}),
+                @UniqueConstraint(name = "shiftTypeColorAndTeamUnique", columnNames = {"color", "team_id"}),
+                @UniqueConstraint(name = "shiftTypeAbbAndTeamUnique", columnNames = {"abbreviation", "team_id"})
         }
-)*/
+)
 @Entity(name = "shift_type")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class ShiftType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     private LocalTime startTime;
 
+    @Column(nullable = false)
     private LocalTime endTime;
 
     private LocalTime breakStartTime;

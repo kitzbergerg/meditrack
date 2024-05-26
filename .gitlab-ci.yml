@@ -42,4 +42,3 @@ test-backend-checkstyle:
   script:
     - cd backend
     - mvn checkstyle:check
-  allow_failure: true

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,22 +19,12 @@ import java.util.UUID;
 public class RoleService {
     private final RoleRepository repository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public RoleService(RoleRepository repository, UserRepository userRepository) {
+    public RoleService(RoleRepository repository, UserRepository userRepository, UserService userService) {
         this.repository = repository;
         this.userRepository = userRepository;
-    }
-
-    public User getPrincipalWithTeam(Principal principal) {
-        UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = userRepository.findById(dmId);
-        if (dm.isEmpty()) {
-            throw new NotFoundException("User doesnt exist");
-        }
-        if (dm.get().getTeam() == null) {
-            throw new NotFoundException("User has no team");
-        }
-        return dm.get();
+        this.userService = userService;
     }
 
     /**
@@ -54,7 +43,7 @@ public class RoleService {
      * @return List of all roles
      */
     public List<Role> findAllByTeam(Principal principal) {
-        User dm = getPrincipalWithTeam(principal);
+        User dm = userService.getPrincipalWithTeam(principal);
         return repository.findAllByTeam(dm.getTeam());
     }
 
@@ -78,7 +67,7 @@ public class RoleService {
      */
     @Transactional
     public Role create(Role role, Principal principal) {
-        User dm = getPrincipalWithTeam(principal);
+        User dm = userService.getPrincipalWithTeam(principal);
         List<Role> roles = new ArrayList<>();
         if (dm.getTeam().getRoles() != null) {
             roles = dm.getTeam().getRoles();

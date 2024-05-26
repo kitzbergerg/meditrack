@@ -9,12 +9,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyEnumerated;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class HardConstraints {
 
     @Id
@@ -54,6 +57,27 @@ public class HardConstraints {
     @OneToOne
     @MapsId
     private Team team;
+
+    public void addShiftOffShift(ShiftOffShiftIdList key, UUID value) {
+        if (shiftOffShift == null) {
+            shiftOffShift = new HashMap<>();
+        }
+        shiftOffShift.put(key, value);
+    }
+
+    public void addDaytimeRequiredRoles(Role key, Integer value) {
+        if (daytimeRequiredRoles == null) {
+            daytimeRequiredRoles = new HashMap<>();
+        }
+        daytimeRequiredRoles.put(key, value);
+    }
+
+    public void addNighttimeRequiredRoles(Role key, Integer value) {
+        if (nighttimeRequiredRoles == null) {
+            nighttimeRequiredRoles = new HashMap<>();
+        }
+        nighttimeRequiredRoles.put(key, value);
+    }
 
     @Override
     public final boolean equals(final Object o) {

@@ -1,6 +1,15 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -16,14 +25,17 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true)
     private String name;
 
+    @Column(nullable = false)
     private Integer workingHours;
 
     @OneToMany(mappedBy = "team")
@@ -32,7 +44,7 @@ public class Team {
     @OneToMany(mappedBy = "team")
     private List<User> users;
 
-    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, optional = false)
     @PrimaryKeyJoinColumn
     private HardConstraints hardConstraints;
 
