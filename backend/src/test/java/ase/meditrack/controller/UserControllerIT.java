@@ -101,6 +101,37 @@ class UserControllerIT {
     }
 
     @Test
+    void test_findUserById_succeeds() throws Exception {
+        User user = new User(
+                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                null,
+                1f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+        userRepository.save(user);
+
+        User savedUser = userRepository.findById(user.getId()).get();
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/" + savedUser.getId()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        UserDto foundUser = objectMapper.readValue(response, UserDto.class);
+
+        assertEquals(savedUser.getId(), foundUser.id());
+    }
+
+    @Test
     void test_createUser_succeeds() throws Exception {
         UserDto dto = new UserDto(
                 null,

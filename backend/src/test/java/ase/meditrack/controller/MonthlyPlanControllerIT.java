@@ -86,7 +86,7 @@ class MonthlyPlanControllerIT {
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
-    void test_createRole_succeeds() throws Exception {
+    void test_createMonthlyPlan_succeeds() throws Exception {
         Team team = new Team(null, "test team", 40, null, null, null, null, null);
         team = teamService.create(team, () -> USER_ID);
 

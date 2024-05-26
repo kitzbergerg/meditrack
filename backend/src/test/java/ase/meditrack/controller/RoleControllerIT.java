@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -250,5 +252,44 @@ class RoleControllerIT {
         assertNotNull(created.id());
         assertEquals(dto.name(), created.name());
         assertEquals(1, roleRepository.count());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_createRoleWithExistingColor_returns422() throws Exception {
+        RoleDto firstDto = new RoleDto(
+                null,
+                "testRole",
+                "#FF0000",
+                "TR",
+                null,
+                team.getId()
+        );
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/role")
+                                .content(objectMapper.writeValueAsString(firstDto))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        RoleDto secondDto = new RoleDto(
+                null,
+                "Role Two",
+                "#FF0000",
+                "RT",
+                null,
+                team.getId()
+        );
+
+        MockHttpServletResponse secondResponse = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/role")
+                                .content(objectMapper.writeValueAsString(secondDto))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andReturn().getResponse();
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), secondResponse.getStatus());
     }
 }

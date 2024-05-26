@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -207,6 +209,15 @@ class ShiftTypeControllerIT {
         assertEquals(shiftType.getName(), foundShiftType.name());
         assertEquals(shiftType.getColor(), foundShiftType.color());
         assertEquals(shiftType.getAbbreviation(), foundShiftType.abbreviation());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_findShiftTypeByNonExistingId_returns404() throws Exception {
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-type/" + "11111111-1111-1111-1111-111111111111"))
+                .andReturn().getResponse();
+
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
     }
 
     @Test
