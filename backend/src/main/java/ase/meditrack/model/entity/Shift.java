@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
@@ -16,6 +17,7 @@ import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -41,7 +43,12 @@ public class Shift {
     @JoinColumn(name = "shift_type_id")
     private ShiftType shiftType;
 
-    @ManyToMany(mappedBy = "shifts")
+    @ManyToMany
+    @JoinTable(
+            name = "shift_users",
+            joinColumns = @JoinColumn(name = "shifts_id"),
+            inverseJoinColumns = @JoinColumn(name = "users_id")
+    )
     private List<User> users;
 
     @ManyToMany(mappedBy = "suggestedShifts")
@@ -49,6 +56,13 @@ public class Shift {
 
     @OneToOne(mappedBy = "requestedShift", cascade = CascadeType.ALL)
     private ShiftSwap requestedShiftSwap;
+
+    public void addUser(User user) {
+        if (users == null) {
+            users = new ArrayList<>();
+        }
+        users.add(user);
+    }
 
     @Override
     public final boolean equals(final Object o) {

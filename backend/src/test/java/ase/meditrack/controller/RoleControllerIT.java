@@ -6,7 +6,6 @@ import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
-import ase.meditrack.service.RoleService;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @MockBean(KeycloakConfig.class)
-@MockBean(KeycloakConfig.PostCostruct.class)
+@MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
 class RoleControllerIT {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";

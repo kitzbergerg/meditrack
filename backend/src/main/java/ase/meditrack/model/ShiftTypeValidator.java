@@ -10,6 +10,12 @@ import org.springframework.stereotype.Component;
 public class ShiftTypeValidator {
 
 
+    /**
+     * Check time constraints.
+     *
+     * @param shiftType the shiftType to check
+     * @throws ValidationException if the shiftType has invalid data
+     */
     public void shiftTypeValidation(ShiftType shiftType) throws ValidationException {
         log.trace("Makes validation for {}", shiftType);
 

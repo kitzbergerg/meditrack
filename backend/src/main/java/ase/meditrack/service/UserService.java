@@ -36,7 +36,8 @@ public class UserService {
     private final UserValidator userValidator;
     private final ShiftTypeRepository shiftTypeRepository;
 
-    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator, ShiftTypeRepository shiftTypeRepository) {
+    public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
+                       ShiftTypeRepository shiftTypeRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
@@ -179,7 +180,7 @@ public class UserService {
     }
 
     @Transactional
-    private User updateChangedAttributes(User user) {
+    protected User updateChangedAttributes(User user) {
         User dbUser = repository.findById(user.getId())
                 .orElseThrow(() -> new NotFoundException("Could not find user with id: " + user.getId() + "!"));
 
@@ -235,7 +236,7 @@ public class UserService {
     }
 
     /**
-     * Fetches the user with the id from the principal
+     * Fetches the user with the id from the principal.
      *
      * @param principal the current user
      * @return user with the id from principal

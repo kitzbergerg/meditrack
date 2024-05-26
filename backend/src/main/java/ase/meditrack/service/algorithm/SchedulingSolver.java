@@ -87,7 +87,7 @@ public final class SchedulingSolver {
     }
 
     private static void addHardConstraints(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
-        // TODO: add constraints
+        // TODO #37: add constraints
         // Each nurse works at most one shift per day.
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.days().size(); d++) {
@@ -98,7 +98,7 @@ public final class SchedulingSolver {
         }
 
         // Every shiftType on a day has to have at least one employee
-        // TODO: this should be changed in the long run
+        // TODO #37: this should be changed in the long run
         for (int d = 0; d < input.days().size(); d++) {
             for (int s = 0; s < input.shiftTypes().size(); s++) {
                 List<Literal> employeesToShiftTypes = new ArrayList<>();
@@ -111,7 +111,7 @@ public final class SchedulingSolver {
     }
 
     private static void addOptimization(CpModel model, AlgorithmInput input) {
-        // TODO: add optimization
+        // TODO #37: add optimization
     }
 
 }

@@ -11,6 +11,6 @@ public record AlgorithmInput(
 
         HardConstraintInfo hardConstraints
 
-        // TODO: add more fields for other constraints
+        // TODO #37: add more fields for other constraints
 ) {
 }

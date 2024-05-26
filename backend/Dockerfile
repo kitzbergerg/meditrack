@@ -12,4 +12,4 @@ RUN mvn package -DskipTests
 FROM openjdk:17-slim
 COPY --from=build /usr/src/backend/target/app.jar /app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT java -jar -Dspring.profiles.active=$PROFILE /app.jar

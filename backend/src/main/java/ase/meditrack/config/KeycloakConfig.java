@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@Configuration
+@Configuration("keycloakConfig")
 @Slf4j
 public class KeycloakConfig {
 
@@ -36,18 +36,21 @@ public class KeycloakConfig {
         return keycloak.realm("meditrack");
     }
 
-    @Configuration
-    public static class PostCostruct {
+    @Configuration("postConstruct")
+    public static class KeycloakPostConstruct {
         private final RealmResource meditrackRealm;
         private final UserService service;
         private final UserMapper mapper;
 
-        public PostCostruct(RealmResource meditrackRealm, UserService service, UserMapper mapper) {
+        public KeycloakPostConstruct(RealmResource meditrackRealm, UserService service, UserMapper mapper) {
             this.meditrackRealm = meditrackRealm;
             this.service = service;
             this.mapper = mapper;
         }
 
+        /**
+         * Creates a default admin user in keycloak and the database on startup, in case none exists.
+         */
         @PostConstruct
         public void createAdminUser() {
             if (meditrackRealm.users().count() == 0) {
