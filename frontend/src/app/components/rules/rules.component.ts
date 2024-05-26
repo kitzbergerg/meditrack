@@ -50,11 +50,33 @@ export class RulesComponent {
   constructor(private rulesService: RulesService) {
     rulesService.getRules().subscribe({
       next: (x: Rules) => {
-        if (this.rules == null) {
+        if (x == null) {
           this.rules = this.emptyRules()
+          console.log('null', this.rules);
         } else {
-
           this.rules = x
+          console.log('not null', this.rules);
+          if (this.rules.mandatoryOffDays) {
+            this.showMandatoryOffDaysRule = true
+          }
+          if (this.rules.minRestPeriod) {
+            this.showMinRestPeriod = true
+          }
+          if (this.rules.maxShiftLengths) {
+            this.showMaxShiftLengths = true
+          }
+          if (this.rules.daytimeRequiredRoles) {
+            this.showDayTimeRequiredRoles = true
+          }
+          if (this.rules.nighttimeRequiredRoles) {
+            this.showNightTimeRequiredRoles = true
+          }
+          if (this.rules.allowedFlextimeTotal) {
+            this.showAllowedFlexTimeTotal = true
+          }
+          if (this.rules.allowedFlextimePerMonth) {
+            this.showAllowedFlexTimePerMonth = true
+          }
         }
         console.log(this.rules);
       },
@@ -71,10 +93,10 @@ export class RulesComponent {
       minRestPeriod: null,
       maxShiftLengths: null,
       mandatoryOffDays: null,
-      dayTimeRequiredRoles: null,
-      nightTimeRequiredRoles: null,
-      allowedFlexTimeTotal: null,
-      allowedFlexTimePerMonth: null
+      daytimeRequiredRoles: null,
+      nighttimeRequiredRoles: null,
+      allowedFlextimeTotal: null,
+      allowedFlextimePerMonth: null
     }
   }
 
@@ -127,7 +149,7 @@ export class RulesComponent {
     if (dayTimeRoles == null) {
       this.showDayTimeRequiredRoles = false;
     }
-    this.rules!.dayTimeRequiredRoles = dayTimeRoles;
+    this.rules!.daytimeRequiredRoles = dayTimeRoles;
     this.save()
   }
 
@@ -135,7 +157,7 @@ export class RulesComponent {
     if (nightTimeRoles == null) {
       this.showNightTimeRequiredRoles = false;
     }
-    this.rules!.nightTimeRequiredRoles = nightTimeRoles;
+    this.rules!.nighttimeRequiredRoles = nightTimeRoles;
     this.save()
   }
 
@@ -143,7 +165,7 @@ export class RulesComponent {
     if (flexTotal == null) {
       this.showAllowedFlexTimeTotal = false;
     }
-    this.rules!.allowedFlexTimeTotal = flexTotal;
+    this.rules!.allowedFlextimeTotal = flexTotal;
     this.save()
   }
 
@@ -151,7 +173,7 @@ export class RulesComponent {
     if (flexMonth == null) {
       this.showAllowedFlexTimePerMonth = false;
     }
-    this.rules!.allowedFlexTimePerMonth = flexMonth;
+    this.rules!.allowedFlextimePerMonth = flexMonth;
     this.save()
   }
 }

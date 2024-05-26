@@ -24,13 +24,23 @@ import {Role} from "../../../interfaces/role";
   styleUrl: './night-time-required-roles.component.scss'
 })
 export class NightTimeRequiredRolesComponent {
-  @Input() nightTimeRequiredRoles: [Role | null, number][] | null = null;
+  @Input() nightTimeRequiredRolesInput: Map<number, number> | null = null;
+  nightTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
   editMode = true;
   @Output() updateNightTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
-    roleService.getAllRoles().subscribe(x => this.availableRoles = x);
+    roleService.getAllRoles().subscribe(x => {
+      this.availableRoles = x;
+      console.log(this.nightTimeRequiredRolesInput);
+      this.nightTimeRequiredRoles = []
+      for (const role of this.nightTimeRequiredRolesInput!) {
+        // @ts-ignore
+        this.nightTimeRequiredRoles.push([this.availableRoles.find(x => x.id == role[0]), role[1]])
+      }
+      console.log(this.nightTimeRequiredRoles);
+    })
   }
 
   update() {
