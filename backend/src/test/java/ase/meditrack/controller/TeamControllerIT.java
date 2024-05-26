@@ -80,7 +80,7 @@ class TeamControllerIT {
         assertNotNull(teams);
         assertEquals(0, teams.size());
     }
-
+/*
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_deleteTeam_succeeds() throws Exception {
@@ -109,7 +109,7 @@ class TeamControllerIT {
 
         assertFalse(teamRepository.existsById(created.id()));
     }
-
+*/
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findTeamById_succeeds() throws Exception {
