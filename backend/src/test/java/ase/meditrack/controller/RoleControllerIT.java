@@ -2,6 +2,7 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.RoleDto;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
@@ -26,6 +27,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -89,6 +91,77 @@ class RoleControllerIT {
         assertEquals(0, roles.size());
     }
 
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_deleteRole_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        role.setUsers(null);
+        role.setTeam(team);
+        roleRepository.save(role);
+        Role savedRole = roleRepository.findById(role.getId()).get();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/role/" + savedRole.getId()))
+                .andExpect(status().isNoContent());
+
+        assertFalse(roleRepository.existsById(savedRole.getId()));
+        assertEquals(0, roleRepository.count());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_findRoleById_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        role.setUsers(null);
+        role.setTeam(team);
+        roleRepository.save(role);
+        Role savedRole = roleRepository.findById(role.getId()).get();
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/role/" + savedRole.getId()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        RoleDto foundRole = objectMapper.readValue(response, RoleDto.class);
+
+        assertEquals(savedRole.getId(), foundRole.id());
+        assertEquals(role.getName(), foundRole.name());
+        assertEquals(role.getColor(), foundRole.color());
+        assertEquals(role.getAbbreviation(), foundRole.abbreviation());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_updateRole_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        role.setUsers(null);
+        role.setTeam(team);
+        roleRepository.save(role);
+        Role savedRole = roleRepository.findById(role.getId()).get();
+
+        RoleDto updatedRoleDto = new RoleDto(savedRole.getId(), "Updated Role", "#000000", "UR", null, null);
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/role")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(updatedRoleDto)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        RoleDto responseRole = objectMapper.readValue(response, RoleDto.class);
+
+        assertEquals(savedRole.getId(), responseRole.id());
+        assertEquals(updatedRoleDto.name(), responseRole.name());
+        assertEquals(updatedRoleDto.color(), responseRole.color());
+        assertEquals(updatedRoleDto.abbreviation(), responseRole.abbreviation());
+        assertEquals(1, roleRepository.count());
+    }
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
