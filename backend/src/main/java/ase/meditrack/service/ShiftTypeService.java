@@ -60,6 +60,7 @@ public class ShiftTypeService {
      * Creates a shift type in the database.
      *
      * @param shiftType the shift type to create
+     * @param principal the principal
      * @return the created shift type
      */
     public ShiftType create(ShiftType shiftType, Principal principal) {
