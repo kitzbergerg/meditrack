@@ -2,10 +2,12 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.HardConstraintsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +15,11 @@ import java.util.UUID;
 @Slf4j
 public class HardConstraintsService {
     private final HardConstraintsRepository repository;
+    private final UserService userService;
 
-    public HardConstraintsService(HardConstraintsRepository repository) {
+    public HardConstraintsService(HardConstraintsRepository repository, UserService userService) {
         this.repository = repository;
+        this.userService = userService;
     }
 
     /**
@@ -39,12 +43,25 @@ public class HardConstraintsService {
     }
 
     /**
+     * Fetches the hardconstraint from a team from the database
+     * @param principal – the current user
+     * @return the hardConstraints of the team
+     */
+    public HardConstraints findByTeam(Principal principal) {
+        User dm = userService.getPrincipalWithTeam(principal);
+        return repository.findByTeam(dm.getTeam());
+    }
+
+    /**
      * Creates a hard constraint in the database.
      *
      * @param hardConstraints the hard constraints to create
+     * @param principal - the current user
      * @return the created hard constraints
      */
-    public HardConstraints create(HardConstraints hardConstraints) {
+    public HardConstraints create(HardConstraints hardConstraints, Principal principal) {
+        User dm = userService.getPrincipalWithTeam(principal);
+        hardConstraints.setTeam(dm.getTeam());
         return repository.save(hardConstraints);
     }
 
