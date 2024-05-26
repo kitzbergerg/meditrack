@@ -1,7 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {PaginatorModule} from "primeng/paginator";
 import {NgIf} from "@angular/common";
-import {Rules} from "../../../interfaces/rules/rulesInterface";
 import {RulesService} from "../../../services/rules.service";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
@@ -20,21 +19,19 @@ import {RippleModule} from "primeng/ripple";
 })
 export class MandatoryOffDaysRuleComponent {
   @Input() mandatoryOffDays: number | null = null;
-  editMode = true;
+  editMode = false;
   @Output() updateMandatoryOffDays = new EventEmitter<number | null>();
-  numberOfDaysInMonth: number | null = this.mandatoryOffDays;
 
-  constructor(rulesService: RulesService) {
+  constructor() {
     console.log(this.mandatoryOffDays);
     if (this.mandatoryOffDays == null) {
       this.mandatoryOffDays = 1;
     }
-    console.log(this.mandatoryOffDays);
   }
 
   update() {
     this.editMode = false
-    this.updateMandatoryOffDays.emit(this.numberOfDaysInMonth)
+    this.updateMandatoryOffDays.emit(this.mandatoryOffDays)
   }
 
   delete() {
