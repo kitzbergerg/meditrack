@@ -63,17 +63,17 @@ public class TeamController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     @ResponseStatus(HttpStatus.OK)
-    public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) {
+    public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) { // Principal principal
         log.info("Updating team {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id) { // Principal principal
         log.info("Deleting team with id {}", id);
         service.delete(id);
     }
