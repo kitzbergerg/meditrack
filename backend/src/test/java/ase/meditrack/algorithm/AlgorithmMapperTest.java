@@ -140,10 +140,11 @@ class AlgorithmMapperTest {
 
         when(constraints.getDaytimeRequiredRoles()).thenReturn(requiredRoles);
         when(constraints.getNighttimeRequiredRoles()).thenReturn(requiredRoles);
-        when(constraints.getDaytimeRequiredPeople()).thenReturn(5);
-        when(constraints.getNighttimeRequiredPeople()).thenReturn(3);
         when(constraints.getAllowedFlextimeTotal()).thenReturn(10);
         when(constraints.getAllowedFlextimePerMonth()).thenReturn(5);
+        when(constraints.getMandatoryOffDays()).thenReturn(2);
+        when(constraints.getMinRestPeriod()).thenReturn(120);
+        when(constraints.getMaximumShiftLengths()).thenReturn(8);
 
         AlgorithmInput input =
                 algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);

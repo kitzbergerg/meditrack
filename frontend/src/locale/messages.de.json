@@ -14,6 +14,8 @@
   "rules.rules.day-time-required-roles.component.role-name": " Rollenname: {$INTERPOLATION} ",
   "rules.rules.day-time-required-roles.component.required-people": " erforderliche Personen: {$INTERPOLATION}",
   "rules.rules.day-time-required-roles.component.role-name-edit-mode": " Rollenname:",
+  "rules.no-roles-found-dropdown": "Keine Rollen gefunden",
+  "rules.select-role-dropdown": "Name",
   "rules.rules.day-time-required-roles.component.required-people-edit-mode": " erforderliche Personen: ",
   "rules.add-role": " Rolle hinzufügen ",
   "rules.mandatory-off-days-rule.component.rule-name": " Verpflichtende freie Tage: ",
