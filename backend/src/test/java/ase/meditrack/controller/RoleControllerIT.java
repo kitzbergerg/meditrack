@@ -92,6 +92,68 @@ class RoleControllerIT {
     }
 
     @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_getRolesByTeam_succeeds() throws Exception {
+        Role roleInTeam = new Role();
+        roleInTeam.setName("Role One");
+        roleInTeam.setColor("FF0000");
+        roleInTeam.setAbbreviation("TR");
+        roleInTeam.setUsers(null);
+        roleInTeam.setTeam(team);
+        roleRepository.save(roleInTeam);
+
+        // other team creation
+        String otherUserId = "11111111-1111-1111-1111-111111111111";
+        userRepository.save(new User(
+                UUID.fromString(otherUserId),
+                null,
+                1f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ));
+
+        Team otherTeam = teamService.create(
+                new Team(null, "other test team", 40, null, null, null, null, null),
+                () -> otherUserId
+        );
+
+        Role roleNotInTeam = new Role();
+        roleNotInTeam.setName("Role Two");
+        roleNotInTeam.setColor("FF0000");
+        roleNotInTeam.setAbbreviation("TR");
+        roleNotInTeam.setUsers(null);
+        roleNotInTeam.setTeam(otherTeam);
+        roleRepository.save(roleNotInTeam);
+
+        String responseOnlyTeam = mockMvc.perform(MockMvcRequestBuilders.get("/api/role/team"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<RoleDto> rolesInTeam = objectMapper.readValue(responseOnlyTeam, new TypeReference<>() {
+        });
+
+        String responseAll = mockMvc.perform(MockMvcRequestBuilders.get("/api/role"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<RoleDto> allRoles = objectMapper.readValue(responseAll, new TypeReference<>() {
+        });
+
+        assertNotNull(rolesInTeam);
+        assertEquals(1, rolesInTeam.size());
+
+        assertNotNull(allRoles);
+        assertEquals(2, allRoles.size());
+    }
+
+    @Test
     @WithMockUser(authorities = "SCOPE_admin")
     void test_deleteRole_succeeds() throws Exception {
         Role role = new Role();

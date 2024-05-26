@@ -93,6 +93,74 @@ class ShiftTypeControllerIT {
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_getShiftTypesByTeam_succeeds() throws Exception {
+        ShiftType shiftTypeInTeam = new ShiftType();
+        shiftTypeInTeam.setName("ShiftType One");
+        shiftTypeInTeam.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftTypeInTeam.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftTypeInTeam.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftTypeInTeam.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeInTeam.setColor("FF0000");
+        shiftTypeInTeam.setAbbreviation("TR");
+        shiftTypeInTeam.setTeam(team);
+        shiftTypeRepository.save(shiftTypeInTeam);
+
+        // other team creation
+        String otherUserId = "11111111-1111-1111-1111-111111111111";
+        userRepository.save(new User(
+                UUID.fromString(otherUserId),
+                null,
+                1f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ));
+
+        Team otherTeam = teamService.create(
+                new Team(null, "other test team", 40, null, null, null, null, null),
+                () -> otherUserId
+        );
+
+        ShiftType shiftTypeNotInTeam = new ShiftType();
+        shiftTypeNotInTeam.setName("ShiftType Two");
+        shiftTypeNotInTeam.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftTypeNotInTeam.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftTypeNotInTeam.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftTypeNotInTeam.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeNotInTeam.setColor("FF0000");
+        shiftTypeNotInTeam.setAbbreviation("TR");
+        shiftTypeInTeam.setTeam(otherTeam);
+        shiftTypeRepository.save(shiftTypeNotInTeam);
+
+        String responseOnlyTeam = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-type/team"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<ShiftTypeDto> shiftTypesInTeam = objectMapper.readValue(responseOnlyTeam, new TypeReference<>() {
+        });
+
+        String responseAll = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-type"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<ShiftTypeDto> allShiftTypes = objectMapper.readValue(responseAll, new TypeReference<>() {
+        });
+
+        assertNotNull(shiftTypesInTeam);
+        assertEquals(1, shiftTypesInTeam.size());
+
+        assertNotNull(allShiftTypes);
+        assertEquals(2, allShiftTypes.size());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_deleteShiftType_succeeds() throws Exception {
         ShiftType shiftType = new ShiftType();
         shiftType.setName("Test ShiftType");
@@ -102,6 +170,7 @@ class ShiftTypeControllerIT {
         shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftType.setColor("FF0000");
         shiftType.setAbbreviation("TR");
+        shiftType.setTeam(team);
         shiftTypeRepository.save(shiftType);
 
         ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
@@ -124,6 +193,7 @@ class ShiftTypeControllerIT {
         shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftType.setColor("FF0000");
         shiftType.setAbbreviation("TR");
+        shiftType.setTeam(team);
         shiftTypeRepository.save(shiftType);
         ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
 
@@ -142,7 +212,20 @@ class ShiftTypeControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftType_succeeds() throws Exception {
-        ShiftTypeDto shiftTypeDto = new ShiftTypeDto(null, "Shift Type", LocalTime.of(8, 0, 0, 0), LocalTime.of(16, 0, 0, 0), LocalTime.of(12, 0, 0, 0), LocalTime.of(12, 30, 0, 0), "Day", "#ff0000", "ST", null, null, null, null);
+        ShiftTypeDto shiftTypeDto = new ShiftTypeDto(
+                null,
+                "Shift Type",
+                LocalTime.of(8, 0, 0, 0),
+                LocalTime.of(16, 0, 0, 0),
+                LocalTime.of(12, 0, 0, 0),
+                LocalTime.of(12, 30, 0, 0),
+                "Day",
+                "#ff0000",
+                "ST",
+                team.getId(),
+                null,
+                null,
+                null);
 
         String response = mockMvc.perform(
                     MockMvcRequestBuilders.post("/api/shift-type")
@@ -177,10 +260,24 @@ class ShiftTypeControllerIT {
         shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftType.setColor("FF0000");
         shiftType.setAbbreviation("TR");
+        shiftType.setTeam(team);
         shiftTypeRepository.save(shiftType);
         ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
 
-        ShiftTypeDto updatedShiftTypeDto = new ShiftTypeDto(savedShiftType.getId(), "Updated ShiftType", LocalTime.of(8, 0, 0, 0), LocalTime.of(17, 0, 0, 0), LocalTime.of(12, 0, 0, 0), LocalTime.of(13, 0, 0, 0), "Day", "#000000", "STD", null, null, null, null);
+        ShiftTypeDto updatedShiftTypeDto = new ShiftTypeDto(
+                savedShiftType.getId(),
+                "Updated ShiftType",
+                LocalTime.of(8, 0, 0, 0),
+                LocalTime.of(17, 0, 0, 0),
+                LocalTime.of(12, 0, 0, 0),
+                LocalTime.of(13, 0, 0, 0),
+                "Day",
+                "#000000",
+                "STD",
+                team.getId(),
+                null,
+                null,
+                null);
 
         String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/shift-type")
                         .contentType("application/json")
