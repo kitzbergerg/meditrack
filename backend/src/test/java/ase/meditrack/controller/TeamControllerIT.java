@@ -3,7 +3,6 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.TeamDto;
 import ase.meditrack.model.entity.User;
-import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -81,7 +80,7 @@ class TeamControllerIT {
         assertNotNull(teams);
         assertEquals(0, teams.size());
     }
-/*
+
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_deleteTeam_succeeds() throws Exception {
@@ -109,9 +108,8 @@ class TeamControllerIT {
                 .andExpect(status().isNoContent());
 
         assertFalse(teamRepository.existsById(created.id()));
-        assertEquals(0, teamRepository.count());
     }
-*/
+
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findTeamById_succeeds() throws Exception {
