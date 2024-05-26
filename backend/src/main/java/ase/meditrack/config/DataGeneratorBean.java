@@ -33,11 +33,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Profile("generate-data")
 @Component
@@ -80,11 +76,11 @@ public class DataGeneratorBean {
 
     private static final Faker FAKER = new Faker();
 
-    private static final Integer NUM_TEAMS = 5;
+    private static final Integer NUM_TEAMS = 2;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
     private static final Integer NUM_USERS_WITH_ROLES = 3;
     private static final Integer NUM_HOLIDAYS = 2;
-    private static final Integer NUM_MONTHLY_PLANS = 3;
+    private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
     private List<Team> teams;
@@ -100,10 +96,10 @@ public class DataGeneratorBean {
             if (userService.findAll().size() <= 1) {
                 log.info("Generating data...");
                 createTeams();
+                createShiftTypes();
                 createRoles();
                 createUsers();
                 createHolidays();
-                createShiftTypes();
                 createMonthlyPlan();
                 createShifts();
                 createShiftSwap();
@@ -159,6 +155,33 @@ public class DataGeneratorBean {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
         for (Team team : teams) {
+            // create dm for every team
+            UserDto dm = new UserDto(
+                    null,
+                    FAKER.name().username(),
+                    "dm",
+                    FAKER.internet().emailAddress(),
+                    FAKER.name().firstName(),
+                    FAKER.name().lastName(),
+                    List.of("dm"),
+                    null,
+                    (float) FAKER.number().numberBetween(20, 100),
+                    0,
+                    List.of(FAKER.educator().course(), FAKER.educator().course()),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            User dmEntity = userMapper.fromDto(dm);
+            dmEntity.setRole(roles.get(0));
+            dmEntity.setTeam(team);
+            users.add(userService.create(dmEntity));
+
             for (Role role : roles) {
                 for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
                     UserDto user = new UserDto(
@@ -168,7 +191,7 @@ public class DataGeneratorBean {
                             FAKER.internet().emailAddress(),
                             FAKER.name().firstName(),
                             FAKER.name().lastName(),
-                            List.of("admin"),
+                            List.of("employee"),
                             null,
                             (float) FAKER.number().numberBetween(20, 100),
                             0,
@@ -185,6 +208,12 @@ public class DataGeneratorBean {
                     User userEntity = userMapper.fromDto(user);
                     userEntity.setTeam(team);
                     userEntity.setRole(role);
+                    // random amount of shifttypes for each user
+                    Random random = new Random();
+                    int subsetSize = random.nextInt(shiftTypes.size() + 1);
+                    Collections.shuffle(shiftTypes, random);
+                    userEntity.setCanWorkShiftTypes(shiftTypes.subList(0, subsetSize));
+
                     users.add(userService.create(userEntity));
                 }
             }
@@ -224,18 +253,33 @@ public class DataGeneratorBean {
             nightShift.setName("Night Shift");
             nightShift.setStartTime(LocalTime.of(22, 0));
             nightShift.setEndTime(LocalTime.of(6, 0));
+            nightShift.setBreakStartTime(LocalTime.of(2, 0));
+            nightShift.setBreakEndTime(LocalTime.of(2, 30));
+            nightShift.setAbbreviation("N10");
+            nightShift.setType("Night");
+            nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
             ShiftType morningShift = new ShiftType();
             morningShift.setName("Morning Shift");
             morningShift.setStartTime(LocalTime.of(6, 0));
             morningShift.setEndTime(LocalTime.of(14, 0));
+            morningShift.setBreakStartTime(LocalTime.of(10, 0));
+            morningShift.setBreakEndTime(LocalTime.of(10, 30));
+            morningShift.setAbbreviation("D6");
+            morningShift.setType("Day");
+            morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
             ShiftType eveningShift = new ShiftType();
             eveningShift.setName("Evening Shift");
             eveningShift.setStartTime(LocalTime.of(14, 0));
             eveningShift.setEndTime(LocalTime.of(22, 0));
+            eveningShift.setBreakStartTime(LocalTime.of(18, 0));
+            eveningShift.setBreakEndTime(LocalTime.of(18, 30));
+            eveningShift.setAbbreviation("D14");
+            eveningShift.setType("Day");
+            eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));
         }
