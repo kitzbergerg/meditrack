@@ -9,6 +9,7 @@ import {employeeGuard} from "../guard/employee.guard";
 import {dmGuard} from "../guard/dm.guard";
 import {RulesComponent} from "../components/rules/rules.component";
 import {ShiftTypesComponent} from "../components/shift-types/shift-types.component";
+import {ScheduleComponent} from "../components/schedule/schedule.component";
 
 const routes: Routes = [
   {
@@ -34,6 +35,11 @@ const routes: Routes = [
   {
     path: 'account-settings',
     component: AccountSettingsComponent,
+  },
+  {
+    path: 'schedule',
+    canActivate: [employeeGuard],
+    component: ScheduleComponent,
   },
   {
     path: 'rules',

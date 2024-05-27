@@ -1,11 +1,13 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.UserDto;
+import ase.meditrack.model.dto.UserScheduleDto;
 import ase.meditrack.model.entity.User;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Mapper(uses = EntityUuidMapper.class)
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        uses = {EntityUuidMapper.class, RoleMapper.class})
 public abstract class UserMapper {
 
     @Autowired
@@ -29,6 +32,15 @@ public abstract class UserMapper {
     @Mapping(target = "lastName", expression = "java(user.getUserRepresentation().getLastName())")
     @Mapping(source = "user", target = "roles", qualifiedByName = "mapRoles")
     public abstract UserDto toDto(User user);
+
+    @Named("toScheduleDto")
+    @Mapping(target = "firstName", expression = "java(user.getUserRepresentation().getFirstName())")
+    @Mapping(target = "lastName", expression = "java(user.getUserRepresentation().getLastName())")
+    @Mapping(target = "role", source = "user.role")
+    public abstract UserScheduleDto toScheduleDto(User user);
+
+    @IterableMapping(qualifiedByName = "toScheduleDto")
+    public abstract List<UserScheduleDto> toScheduleDto(List<User> users);
 
     @Named("mapRoles")
     protected List<String> mapRoles(User user) {
