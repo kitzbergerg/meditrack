@@ -23,6 +23,7 @@ export class AppMenuComponent implements OnInit {
             {
                 items: [
                   { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'], visible: this.isEmployee || this.isDM },
+                  { label: 'Schedule', icon: 'pi pi-fw pi-calendar', routerLink: ['/schedule'], visible: this.isEmployee || this.isDM },
                   { label: 'Employees', icon: 'pi pi-fw pi-users', routerLink: ['/employees'], visible: this.isDM},
                   { label: 'Shift Types', icon: 'pi pi-fw pi-clock', routerLink: ['/shift-types'], visible: this.isDM },
                   { label: 'Roles', icon: 'pi pi-fw pi-lock', routerLink: ['/roles'], visible: this.isDM },

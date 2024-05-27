@@ -1,6 +1,5 @@
 package ase.meditrack.service.algorithm;
 
-import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
@@ -9,11 +8,13 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.TeamRepository;
+import ase.meditrack.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MonthlyPlanCreator {
@@ -21,12 +22,14 @@ public class MonthlyPlanCreator {
     private final ShiftRepository shiftRepository;
     private final MonthlyPlanRepository monthlyPlanRepository;
     private final TeamRepository teamRepository;
+    private final UserService userService;
 
     public MonthlyPlanCreator(ShiftRepository shiftRepository, MonthlyPlanRepository monthlyPlanRepository,
-                              TeamRepository teamRepository) {
+                              TeamRepository teamRepository, UserService userService) {
         this.shiftRepository = shiftRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
         this.teamRepository = teamRepository;
+        this.userService = userService;
     }
 
 
@@ -34,16 +37,18 @@ public class MonthlyPlanCreator {
      * Create a monthly plan for the given parameters.
      * Stores the shifts and monthly plan in the database and returns the created plan.
      *
-     * @param month  the month for which to create the plan
-     * @param year   the year for which to create the plan
-     * @param teamId the team for which to create the plan
+     * @param month     the month for which to create the plan
+     * @param year      the year for which to create the plan
+     * @param principal principal that calls the rest endpoint
      * @return the created plan
      */
     @Transactional
-    public MonthlyPlan createMonthlyPlan(int month, int year, UUID teamId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(() -> new NotFoundException("team not found"));
+    public MonthlyPlan createMonthlyPlan(int month, int year, Principal principal) {
+        User user = userService.getPrincipalWithTeam(principal);
+        Team team = user.getTeam();
         List<ShiftType> shiftTypes = team.getShiftTypes();
-        List<User> users = team.getUsers();
+        List<User> users = userService.findByTeam(principal);
+        users = users.stream().filter(u -> u.getId() != user.getId()).collect(Collectors.toList());
 
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();

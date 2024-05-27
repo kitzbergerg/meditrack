@@ -34,13 +34,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
-
 
 @Profile("generate-data")
 @Component
@@ -83,10 +80,10 @@ public class DataGeneratorBean {
 
     private static final Faker FAKER = new Faker();
 
-    private static final Integer NUM_TEAMS = 2;
+    private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
     private static final Integer NUM_USERS_WITH_ROLES = 3;
-    private static final Integer NUM_HOLIDAYS = 2;
+    private static final Integer NUM_HOLIDAYS = 0;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
@@ -103,10 +100,10 @@ public class DataGeneratorBean {
             if (userService.findAll().size() <= 1) {
                 log.info("Generating data...");
                 createTeams();
-                createShiftTypes();
                 createRoles();
                 createUsers();
                 createHolidays();
+                createShiftTypes();
                 createMonthlyPlan();
                 createShifts();
                 createShiftSwap();
@@ -163,84 +160,33 @@ public class DataGeneratorBean {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
         for (Team team : teams) {
-            // create dm for every team
-            String firstName = FAKER.name().firstName();
-            String lastName = FAKER.name().lastName();
-            String username = (firstName.charAt(0) + lastName).toLowerCase();
-            String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + FAKER.internet().domainName();
-
-            UserDto dm = new UserDto(
-                    null,
-                    username,
-                    "dm",
-                    email,
-                    firstName,
-                    lastName,
-                    List.of("dm"),
-                    null,
-                    (float) FAKER.number().numberBetween(30, 100) / 100,
-                    0,
-                    List.of(FAKER.educator().course(), FAKER.educator().course()),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-            User dmEntity = userMapper.fromDto(dm);
-
-            Role dmRole = roles.stream()
-                    .filter(r -> r.getTeam().getId() == team.getId())
-                    .findFirst()
-                    .orElse(null);
-            dmEntity.setRole(dmRole);
-
-
-            dmEntity.setTeam(team);
-            users.add(userService.create(dmEntity));
-
             for (Role role : roles) {
-                if (role.getTeam().getId() == team.getId()) {
-                    for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                        firstName = FAKER.name().firstName();
-                        lastName = FAKER.name().lastName();
-                        username = (firstName.charAt(0) + lastName).toLowerCase();
-                        email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + FAKER.internet().domainName();
-                        UserDto user = new UserDto(
-                                null,
-                                username,
-                                "s€cr€tPa$$w0rd",
-                                email,
-                                firstName,
-                                lastName,
-                                List.of("employee"),
-                                null,
-                                (float) FAKER.number().numberBetween(30, 100) / 100,
-                                0,
-                                List.of(FAKER.educator().course(), FAKER.educator().course()),
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null
-                        );
-                        User userEntity = userMapper.fromDto(user);
-                        userEntity.setTeam(team);
-                        userEntity.setRole(role);
-                        // random amount of shifttypes for each user
-                        Random random = new Random();
-                        int subsetSize = random.nextInt(shiftTypes.size() + 1);
-                        Collections.shuffle(shiftTypes, random);
-                        userEntity.setCanWorkShiftTypes(shiftTypes.subList(1, subsetSize));
-
-                        users.add(userService.create(userEntity));
-                    }
+                for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
+                    UserDto user = new UserDto(
+                            null,
+                            FAKER.name().username(),
+                            "s€cr€tPa$$w0rd",
+                            FAKER.internet().emailAddress(),
+                            FAKER.name().firstName(),
+                            FAKER.name().lastName(),
+                            List.of("admin"),
+                            null,
+                            (float) FAKER.number().numberBetween(20, 100),
+                            0,
+                            List.of(FAKER.educator().course(), FAKER.educator().course()),
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null
+                    );
+                    User userEntity = userMapper.fromDto(user);
+                    userEntity.setTeam(team);
+                    userEntity.setRole(role);
+                    users.add(userService.create(userEntity));
                 }
             }
         }
@@ -282,7 +228,6 @@ public class DataGeneratorBean {
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
-            nightShift.setType("Night");
             nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
@@ -293,7 +238,6 @@ public class DataGeneratorBean {
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
-            morningShift.setType("Day");
             morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
@@ -304,7 +248,6 @@ public class DataGeneratorBean {
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");
-            eveningShift.setType("Day");
             eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));
@@ -332,23 +275,25 @@ public class DataGeneratorBean {
         for (MonthlyPlan monthlyPlan : monthlyPlans) {
             Map<UUID, List<User>> teamUsersPerRole = getTeamUsersPerRole(monthlyPlan.getTeam());
             int days = YearMonth.of(monthlyPlan.getYear(), monthlyPlan.getMonth()).lengthOfMonth();
+
             for (int i = 1; i <= days; i++) {
-                List<User> alreadyAssignedTeamUsers = new ArrayList<>();
-                for (ShiftType shiftType : shiftTypes) {
-                    //for now, for every shift type we want one shift with one user per role
-                    for (UUID key : teamUsersPerRole.keySet()) {
-                        Shift shift = new Shift();
-                        shift.setDate(LocalDate.of(monthlyPlan.getYear(), monthlyPlan.getMonth(), i));
-                        shift.setShiftType(shiftType);
-                        shift.setMonthlyPlan(monthlyPlan);
-                        for (User user : teamUsersPerRole.get(key)) {
-                            if (!alreadyAssignedTeamUsers.contains(user)) {
-                                alreadyAssignedTeamUsers.add(user);
-                                shift.addUser(user);
-                                break;
+                LocalDate date = LocalDate.of(monthlyPlan.getYear(), monthlyPlan.getMonth(), i);
+                for (UUID key : teamUsersPerRole.keySet()) {
+                    List<User> usersPerRole = teamUsersPerRole.get(key);
+                    if (usersPerRole != null && !usersPerRole.isEmpty()) {
+                        for (User user : usersPerRole) {
+                            // Create a shift with a random shift type for each user
+                            Shift shift = new Shift();
+                            shift.setDate(date);
+                            shift.setShiftType(shiftTypes.get((int) (Math.random() * shiftTypes.size())));
+                            shift.setMonthlyPlan(monthlyPlan);
+                            shift.addUser(user);
+
+                            // Add the shift 1/3rd of the time
+                            if (Math.random() < (1.0 / 3.0)) {
+                                shifts.add(shiftRepository.save(shift));
                             }
                         }
-                        shifts.add(shiftRepository.save(shift));
                     }
                 }
             }
