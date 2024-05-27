@@ -22,14 +22,14 @@ export class AppMenuComponent implements OnInit {
         this.model = [
             {
                 items: [
-                  { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'], visible: this.isEmployee || this.isDM },
-                  { label: 'Schedule', icon: 'pi pi-fw pi-calendar', routerLink: ['/schedule'], visible: this.isEmployee || this.isDM },
-                  { label: 'Employees', icon: 'pi pi-fw pi-users', routerLink: ['/employees'], visible: this.isDM},
-                  { label: 'Shift Types', icon: 'pi pi-fw pi-clock', routerLink: ['/shift-types'], visible: this.isDM },
-                  { label: 'Roles', icon: 'pi pi-fw pi-lock', routerLink: ['/roles'], visible: this.isDM },
-                  { label: 'Holidays', icon: 'pi pi-fw pi-sun', routerLink: ['/todo'], visible: this.isEmployee  },
-                  { label: 'Rules', icon: 'pi pi-fw pi-cog', routerLink: ['/rules'], visible: this.isDM },
-                  { label: 'Shift Swapping', icon: 'pi pi-fw pi-sync', routerLink: ['/todo'], visible: this.isEmployee }
+                  { label: $localize`Dashboard`, icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'], visible: this.isEmployee || this.isDM },
+                  { label: $localize`Schedule`, icon: 'pi pi-fw pi-calendar', routerLink: ['/schedule'], visible: this.isEmployee || this.isDM },
+                  { label: $localize`Employees`, icon: 'pi pi-fw pi-users', routerLink: ['/employees'], visible: this.isDM},
+                  { label: $localize`Shift Types`, icon: 'pi pi-fw pi-clock', routerLink: ['/shift-types'], visible: this.isDM },
+                  { label: $localize`Roles`, icon: 'pi pi-fw pi-lock', routerLink: ['/roles'], visible: this.isDM },
+                  { label: $localize`Holidays`, icon: 'pi pi-fw pi-sun', routerLink: ['/todo'], visible: this.isEmployee  },
+                  { label: $localize`Rules`, icon: 'pi pi-fw pi-cog', routerLink: ['/rules'], visible: this.isDM },
+                  { label: $localize`Shift Swapping`, icon: 'pi pi-fw pi-sync', routerLink: ['/todo'], visible: this.isEmployee }
                 ]
             }
         ];
