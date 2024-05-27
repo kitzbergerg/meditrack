@@ -2,28 +2,23 @@
   <div class="col-12">
     <div class="card px-6 py-6">
       <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team !== undefined">
-        <p-toolbar styleClass="mb-4">
-          <h2>{{team.name}}</h2>
-          <ng-template pTemplate="left">
-            <div class="my-2">
-              <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"> </button>
-            </div>
-          </ng-template>
-        </p-toolbar>
-
-        <div *ngIf="usersFromTeam.length > 0">
-
-        <p-table #dt [value]="usersFromTeam" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['username']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedUsers" selectionMode="multiple" [rowHover]="true" dataKey="id">
+        <p-table #dt [value]="usersFromTeam" [columns]="cols" responsiveLayout="scroll" [rows]="7" [globalFilterFields]="['username']" [paginator]="true" [rowsPerPageOptions]="[7,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedUsers" selectionMode="multiple" [loading]="loading" [rowHover]="true" dataKey="id">
           <ng-template pTemplate="caption">
             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-              <h5 class="m-0">Users</h5>
-              <span class="block mt-2 md:mt-0 p-input-icon-left">
+                <div>
+                  <h2>{{team.name}}</h2>
+                </div>
+                <div class="block mt-2 md:mt-0 p-input-icon-left">
                     <i class="pi pi-search"></i>
                     <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
-                </span>
+                </div>
+                <div class="my-2">
+                  <p-toast></p-toast>
+                  <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"> </button>
+                </div>
             </div>
           </ng-template>
-          <ng-template pTemplate="header">
+          <ng-template   pTemplate="header">
             <tr>
               <th pSortableColumn="username">Name <p-sortIcon field="username"></p-sortIcon></th>
               <th pSortableColumn="firstName">FirstName<p-sortIcon field="firstName"></p-sortIcon></th>
@@ -77,8 +72,9 @@
               </td>
             </tr>
           </ng-template>
-        </p-table>
-        </div>
+
+          </p-table>
+
 
         <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true" class="p-fluid">
           <ng-template pTemplate="content">
@@ -146,7 +142,7 @@
             </form>
           </ng-template>
 
-          <ng-template pTemplate="footer">
+          <ng-template   pTemplate="footer">
             <button  pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"> </button>
             <button  pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createUser()"> </button>
           </ng-template>
@@ -164,11 +160,10 @@
         </p-dialog>
 
       </div>
-
+    </div>
       <div *ngIf="currentUser.team === null">
         <app-team [teamComponentHeader] = "teamComponentHeader" (teamEmitter)="receiveTeam($event)"></app-team>
       </div>
     </div>
-  </div>
 </div>
 

@@ -33,7 +33,14 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+
 
 @Profile("generate-data")
 @Component
@@ -54,12 +61,12 @@ public class DataGeneratorBean {
     private final ShiftOffShiftIdListRepository shiftOffShiftIdListRepository;
 
     public DataGeneratorBean(UserService userService, TeamRepository teamRepository,
-                              ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
-                              RoleRepository roleRepository, PreferencesRepository preferencesRepository,
-                              MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
-                              HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
-                              ShiftTypeRepository shiftTypeRepository,
-                              ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
+                             ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
+                             RoleRepository roleRepository, PreferencesRepository preferencesRepository,
+                             MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
+                             HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
+                             ShiftTypeRepository shiftTypeRepository,
+                             ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
         this.userService = userService;
         this.teamRepository = teamRepository;
         this.shiftRepository = shiftRepository;
@@ -157,16 +164,21 @@ public class DataGeneratorBean {
         users = new ArrayList<>();
         for (Team team : teams) {
             // create dm for every team
+            String firstName = FAKER.name().firstName();
+            String lastName = FAKER.name().lastName();
+            String username = (firstName.charAt(0) + lastName).toLowerCase();
+            String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + FAKER.internet().domainName();
+
             UserDto dm = new UserDto(
                     null,
-                    FAKER.name().username(),
+                    username,
                     "dm",
-                    FAKER.internet().emailAddress(),
-                    FAKER.name().firstName(),
-                    FAKER.name().lastName(),
+                    email,
+                    firstName,
+                    lastName,
                     List.of("dm"),
                     null,
-                    (float) FAKER.number().numberBetween(20, 100),
+                    (float) FAKER.number().numberBetween(30, 100) / 100,
                     0,
                     List.of(FAKER.educator().course(), FAKER.educator().course()),
                     null,
@@ -179,43 +191,56 @@ public class DataGeneratorBean {
                     null
             );
             User dmEntity = userMapper.fromDto(dm);
-            dmEntity.setRole(roles.get(0));
+
+            Role dmRole = roles.stream()
+                    .filter(r -> r.getTeam().getId() == team.getId())
+                    .findFirst()
+                    .orElse(null);
+            dmEntity.setRole(dmRole);
+
+
             dmEntity.setTeam(team);
             users.add(userService.create(dmEntity));
 
             for (Role role : roles) {
-                for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                    UserDto user = new UserDto(
-                            null,
-                            FAKER.name().username(),
-                            "s€cr€tPa$$w0rd",
-                            FAKER.internet().emailAddress(),
-                            FAKER.name().firstName(),
-                            FAKER.name().lastName(),
-                            List.of("employee"),
-                            null,
-                            (float) FAKER.number().numberBetween(20, 100),
-                            0,
-                            List.of(FAKER.educator().course(), FAKER.educator().course()),
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                    );
-                    User userEntity = userMapper.fromDto(user);
-                    userEntity.setTeam(team);
-                    userEntity.setRole(role);
-                    // random amount of shifttypes for each user
-                    Random random = new Random();
-                    int subsetSize = random.nextInt(shiftTypes.size() + 1);
-                    Collections.shuffle(shiftTypes, random);
-                    userEntity.setCanWorkShiftTypes(shiftTypes.subList(0, subsetSize));
+                if (role.getTeam().getId() == team.getId()) {
+                    for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
+                        firstName = FAKER.name().firstName();
+                        lastName = FAKER.name().lastName();
+                        username = (firstName.charAt(0) + lastName).toLowerCase();
+                        email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + FAKER.internet().domainName();
+                        UserDto user = new UserDto(
+                                null,
+                                username,
+                                "s€cr€tPa$$w0rd",
+                                email,
+                                firstName,
+                                lastName,
+                                List.of("employee"),
+                                null,
+                                (float) FAKER.number().numberBetween(30, 100) / 100,
+                                0,
+                                List.of(FAKER.educator().course(), FAKER.educator().course()),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        );
+                        User userEntity = userMapper.fromDto(user);
+                        userEntity.setTeam(team);
+                        userEntity.setRole(role);
+                        // random amount of shifttypes for each user
+                        Random random = new Random();
+                        int subsetSize = random.nextInt(shiftTypes.size() + 1);
+                        Collections.shuffle(shiftTypes, random);
+                        userEntity.setCanWorkShiftTypes(shiftTypes.subList(1, subsetSize));
 
-                    users.add(userService.create(userEntity));
+                        users.add(userService.create(userEntity));
+                    }
                 }
             }
         }
