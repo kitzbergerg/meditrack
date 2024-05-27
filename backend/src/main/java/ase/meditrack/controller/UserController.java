@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public List<UserDto> findByTeam(Principal principal) {
         log.info("Fetching users from dm team");
         try {
@@ -69,7 +69,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) {
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) { // Principal principal
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }

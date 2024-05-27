@@ -227,7 +227,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   fetchRoles(): void {
-    this.roleService.getAllRoles().subscribe({
+    this.roleService.getAllRolesFromTeam().subscribe({
       next: data => {
         this.roles = data;
       }

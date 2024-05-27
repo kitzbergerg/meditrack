@@ -1,6 +1,6 @@
-import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot} from '@angular/router';
+import {CanActivateFn, Router} from '@angular/router';
 import {inject} from "@angular/core";
-import {AuthorizationService} from "../services/authentication/authorization.service";
+import {AuthorizationService} from "../services/authorization/authorization.service";
 
 export const dmGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthorizationService);

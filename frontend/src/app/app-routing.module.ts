@@ -13,6 +13,11 @@ const routes: Routes = [
   },
   {
     path: '',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: '',
     canActivate: [AuthGuard],
     component: AppLayoutComponent,
     loadChildren: () => import('./shell/shell.module').then((m) => m.ShellModule),

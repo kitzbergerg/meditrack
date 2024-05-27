@@ -31,8 +31,7 @@ export class NightTimeRequiredRolesComponent {
   @Output() updateNightTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
-
-    roleService.getAllRoles().subscribe(x => {
+    roleService.getAllRolesFromTeam().subscribe(x => {
       this.availableRoles = x;
       console.log('this.availableRoles', this.availableRoles);
       this.nightTimeRequiredRoles = []

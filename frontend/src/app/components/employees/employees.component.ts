@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {UserService} from "../../services/user.service";
 import {User} from "../../interfaces/user";
 import {TeamService} from "../../services/team.service";
@@ -8,7 +8,9 @@ import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ShiftService} from "../../services/shift.service";
+import {MessageService} from "primeng/api";
 import {ShiftType} from "../../interfaces/shiftType";
+import {Role} from "../../interfaces/role";
 
 @Component({
   selector: 'app-employees',
@@ -16,6 +18,8 @@ import {ShiftType} from "../../interfaces/shiftType";
   styleUrls: ['./employees.component.scss']
 })
 export class EmployeesComponent {
+
+  loading = true;
 
   userDialog = false;
   teamComponentHeader = "employees";
@@ -48,8 +52,8 @@ export class EmployeesComponent {
 
   selectedUsers: User[] = [];
 
-  roles: any[] = [];
-  shiftTypes: any[] = [];
+  roles: Role[] = [];
+  shiftTypes: ShiftType[] = [];
 
   currentUser: User = {
     id: '',
@@ -87,6 +91,7 @@ export class EmployeesComponent {
               private rolesService: RolesService,
               private formBuilder: FormBuilder,
               private shiftService: ShiftService,
+              private messageService: MessageService,
   ) {
     this.newUserForm = this.formBuilder.group({
       username: ['', this.usernameValidator.bind(this)],
@@ -127,52 +132,54 @@ export class EmployeesComponent {
   }
 
   loadRoles(): void {
-    this.rolesService.getAllRoles()
+    this.rolesService.getAllRolesFromTeam()
       .subscribe(fetchedRoles => {
         this.roles = fetchedRoles;
       });
   }
   loadShiftTypes() {
-    this.shiftService.getAllShiftTypes().subscribe({
+    this.shiftService.getAllShiftTypesByTeam().subscribe({
       next: (response) => {
         this.shiftTypes = response;
-        console.log(this.shiftTypes)
         console.log("Fetched Shift Types successfully")
       },
       error: (error) => {
-        console.error('Error fetching shift types:', error)
+        this.messageService.add({severity:'error', summary: 'Error fetching Shift Types: ', detail: error.error});
       },
     });
     this.resetUser()
   }
 
   getUser(): void {
-    this.userService.getUserById(this.userId).subscribe(
-      (response) => {
-        this.currentUser = response;
-        if (response.team != null) {
-          this.getTeam();
-          this.loadUsersFromTeam()
-          this.loadRoles()
-          this.loadShiftTypes()
-        }
-      },
-      (error) => {
-        console.error('Error fetching data:', error);
-      }
-    );
+    this.userService.getUserById(this.userId).subscribe({
+      next:
+        (response) => {
+          this.currentUser = response;
+          if (response.team != null) {
+            this.getTeam();
+            this.loadUsersFromTeam()
+            this.loadRoles()
+            this.loadShiftTypes()
+          }
+        },
+    error: (error) =>
+    {
+      this.messageService.add({severity:'error', summary: 'Error Fetching User: ', detail: error.error});
+    }
+  });
   }
 
   getTeam(): void {
     if (this.currentUser.team !== undefined ) {
-      this.teamService.getTeamById(this.currentUser.team).subscribe(
-        (response) => {
-          this.team = response;
-        },
-        (error) => {
-          console.error('Error fetching data:', error);
+      this.teamService.getTeamById(this.currentUser.team).subscribe({
+        next:
+          (team) => {
+            this.team = team;
+          },
+        error: (error) => {
+          this.messageService.add({severity:'error', summary: 'Error Fetching team: ', detail: error.error});
         }
-      );
+      });
     }
   }
 
@@ -180,6 +187,7 @@ export class EmployeesComponent {
       this.userService.getAllUserFromTeam()
         .subscribe(users => {
           this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id)
+          this.loading = false;
         });
   }
 
@@ -191,7 +199,11 @@ export class EmployeesComponent {
   }
 
   editUser(user: User) {
+    console.log(user.role);
+    console.log(this.roles)
     const selectedRole = this.roles.find(role => role.id === user.role.id);
+    console.log(selectedRole);
+    console.log(user);
     const userShiftTypeIds = user.canWorkShiftTypes.map(shiftType => shiftType.id);
     const selectedShiftTypes = this.shiftTypes.filter(shiftType => userShiftTypeIds.includes(shiftType.id));
 
@@ -218,9 +230,13 @@ export class EmployeesComponent {
     this.deleteUserDialog = false;
     this.usersFromTeam = this.usersFromTeam.filter(val => val.id !== this.newUser.id);
     this.userService.deleteUser(this.newUser).subscribe({
-        next: () => {console.log("User deleted successfully: ", this.newUser)},
-        error: () => {console.log("User could not be deleted: ", this.newUser)}}
-    );
+        next: () => {
+          this.messageService.add({severity:'success', summary: 'Successfully Deleted User ' + this.newUser.firstName});
+        },
+        error: (error) => {
+          this.messageService.add({severity:'error', summary: 'Deleting User Failed', detail: error.error});
+        }
+    });
     this.resetUser()
   }
 
@@ -237,33 +253,37 @@ export class EmployeesComponent {
           this.newUser = { ...this.newUser, ...this.newUserForm.value };
           this.userService.updateUser(this.newUser).subscribe({
             next: (user) => {
-              console.log("Successfully updated user", user);
               if(user.id) {
                 this.usersFromTeam[this.findIndexById(user.id)] = user;
               }
+              this.messageService.add({severity:'success', summary: 'Successfully Updated User ' + user.firstName});
               this.userDialog = false;
             },
-            error: () => {
-              console.log("Error updating user", this.newUser)
+            error: (error) => {
+              this.messageService.add({severity:'error', summary: 'Updating User Failed'});
             }
           })
         }else {
           this.newUser = this.newUserForm.value;
-          this.newUser.roles = ['employee'];
+          if (this.currentUser.roles.includes("admin")) {
+            this.newUser.roles = ['dm'];
+          } else {
+            this.newUser.roles = ['employee'];
+          }
           this.newUser.team = this.team.id;
           this.newUser.password = <string>this.newUser.username;
+          console.log(this.newUser);
           this.userService.createUser(this.newUser)
             .subscribe({
-              next: (response) => {
+              next: (user) => {
                 this.userDialog = false;
-                console.log('User created successfully:', response);
                 this.usersFromTeam = [...this.usersFromTeam];
-                this.usersFromTeam.push(response);
+                this.usersFromTeam.push(user);
                 this.resetUser()
+                this.messageService.add({severity:'success', summary: 'Successfully Created User ' + user.firstName});
               },
               error: (error) => {
-                console.error('Error creating user:', error);
-                //this.resetUser()
+                this.messageService.add({severity:'error', summary: 'Creating User Failed ' + error.error});
               }}
             );
       }

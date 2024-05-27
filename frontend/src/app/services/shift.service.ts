@@ -12,8 +12,12 @@ export class ShiftService {
 
   private apiUrl = 'http://localhost:8081/api/shift-type';
 
-  getAllShiftTypes(): Observable<any> {
-    return this.http.get(this.apiUrl);
+  getAllShiftTypes(): Observable<ShiftType[]> {
+    return this.http.get<ShiftType[]>(this.apiUrl);
+  }
+
+  getAllShiftTypesByTeam(): Observable<ShiftType[]> {
+    return this.http.get<ShiftType[]>(this.apiUrl + '/team');
   }
 
   getShiftType(id: number): Observable<ShiftType> {

@@ -28,6 +28,7 @@ import {MultiSelectModule} from "primeng/multiselect";
 import {ToastModule} from "primeng/toast";
 import { MessageService } from 'primeng/api';
 import {TeamComponent} from "./components/team/team.component";
+import {ChipModule} from "primeng/chip";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -84,6 +85,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     ColorPickerModule,
     MultiSelectModule,
     ToastModule,
+    ChipModule,
   ],
   providers: [
     MessageService,

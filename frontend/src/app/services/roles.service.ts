@@ -12,8 +12,8 @@ export class RolesService {
 
   private apiUrl = 'http://localhost:8081/api/role';
 
-  getAllRoles(): Observable<any> {
-    return this.http.get(this.apiUrl + '/team');
+  getAllRolesFromTeam(): Observable<Role[]> {
+    return this.http.get<Role[]>(this.apiUrl + '/team');
   }
 
   getRole(id: number): Observable<Role> {

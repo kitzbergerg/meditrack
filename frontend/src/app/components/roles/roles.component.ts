@@ -3,7 +3,7 @@ import {RolesService} from "../../services/roles.service";
 import {Role} from "../../interfaces/role";
 import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
-import {AuthorizationService} from "../../services/authentication/authorization.service";
+import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {MessageService} from "primeng/api";
 import {Team} from "../../interfaces/team";
 
@@ -83,7 +83,7 @@ export class RolesComponent {
   }
 
   loadRoles(): void {
-    this.rolesService.getAllRoles()
+    this.rolesService.getAllRolesFromTeam()
       .subscribe(fetchedRoles => {
         this.roles = fetchedRoles;
         if (this.roles.length === 0) {

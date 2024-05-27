@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import {User} from "../interfaces/user";
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Team} from "../interfaces/team";
@@ -16,8 +15,8 @@ export class TeamService {
 
 
 
-  getAllTeams(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);
+  getAllTeams(): Observable<Team[]> {
+    return this.http.get<Team[]>(this.apiUrl);
   }
   getTeamById(id: string): Observable<Team> {
     return this.http.get<Team>(`${this.apiUrl}/${id}`);

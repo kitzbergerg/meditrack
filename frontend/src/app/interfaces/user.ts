@@ -1,4 +1,3 @@
-import {Team} from "./team";
 import {Role} from "./role";
 import {ShiftType} from "./shiftType";
 
@@ -10,7 +9,6 @@ export interface User {
   firstName: string;
   lastName: string;
   roles: string[];
-
   role: Role ;
   workingHoursPercentage: number;
   currentOverTime?: number | null; // Nullable in CreateValidator class
