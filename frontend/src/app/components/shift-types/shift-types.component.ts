@@ -38,7 +38,7 @@ export class ShiftTypesComponent {
     abbreviation: ''
   };
 
-  initialLoad: boolean = false;
+  initialLoad = false;
 
   submitted = false;
   valid = false;
@@ -49,8 +49,8 @@ export class ShiftTypesComponent {
   breakStartTimeDate: Date | null = this.emptyTime;
   breakEndTimeDate: Date | null = this.emptyTime;
 
-  formTitle: string = '';
-  formAction: string = '';
+  formTitle = '';
+  formAction = '';
   formMode: 'create' | 'edit' | 'details' = 'details';
   userId = '';
   currentUser: User = {

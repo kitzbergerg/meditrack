@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {WeekViewComponent} from "./week-view/week-view.component";
-import {Day, Employee, EmployeeWithShifts, Shift} from "../../interfaces/schedule.models";
+import {Day, EmployeeWithShifts, Shift} from "../../interfaces/schedule.models";
 import {ScheduleService} from "../../services/schedule.service";
 import {RolesService} from "../../services/roles.service";
 import {Role} from "../../interfaces/role";

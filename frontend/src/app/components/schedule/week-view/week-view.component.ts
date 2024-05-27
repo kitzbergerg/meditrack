@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {Day, EmployeeMap, EmployeeWithShifts} from "../../../interfaces/schedule.models";
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Day, EmployeeWithShifts, RangeOption} from "../../../interfaces/schedule.models";
 import {DatePipe, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
@@ -40,26 +40,23 @@ export class WeekViewComponent implements OnChanges {
   @Output() rangeChange = new EventEmitter<string>();
   @Input() displayCreateScheduleButton = false;
   @Input() users: User[] = [];
-  @Input() missingMonth: string = "";
+  @Input() missingMonth = "";
   weekNumber: number | undefined;
   monthNumber: number | undefined;
 
-
   range = 'week'; // Default value set to week = 7 days
-  rangeOptions: any[] = [
+
+  rangeOptions: RangeOption[] = [
     {label: 'Week', value: 'week'},
     {label: '2 Weeks', value: '2weeks'},
     {label: 'Month', value: 'month'}
   ];
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.startDate) {
+    if (changes && this.startDate) {
       this.weekNumber = this.getWeekNumber(this.startDate);
       this.monthNumber = this.getMonthNumber(this.startDate);
     }
-    console.log(this.employees)
-    console.log(this.days)
-    console.log(this.users)
   }
 
   onGlobalFilter(table: Table, event: Event) {

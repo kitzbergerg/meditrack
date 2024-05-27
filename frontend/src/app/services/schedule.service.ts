@@ -1,8 +1,7 @@
 import {Injectable} from "@angular/core";
 
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
-import {ShiftType} from "../interfaces/shiftType";
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
 import {Schedule} from "../interfaces/schedule.models";
 
 @Injectable({

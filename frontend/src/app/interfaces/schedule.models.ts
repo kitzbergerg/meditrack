@@ -4,6 +4,12 @@ export interface Schedule {
   days: Day[];
 }
 
+export interface RangeOption {
+  label: string;
+  value: string;
+}
+
+
 export interface Day {
   dayName: string;
   date: Date;
