@@ -1,11 +1,19 @@
-<p-table #dt [value]="employees" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
+<div class="flex justify-content-end p-2">
+  <p-button
+    [outlined]="true"
+    *ngIf="displayCreateScheduleButton"
+    type="button"
+    (click)="createNewSchedule()"
+    label="{{'Create plan for ' + missingMonth}}"/>
+</div>
+<p-table #dt [value]="users" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
          styleClass="p-datatable-gridlines" responsiveLayout="scroll"
-         [globalFilterFields]="['name','role']" [loading]=" loading">
+         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]=" loading">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-      <h5 *ngIf="range===7" class="m-0">Calendar Week {{ weekNumber }}</h5>
-      <h5 *ngIf="weekNumber && range===14" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
-      <h5 *ngIf="range===30" class="m-0">Calendar Month {{ monthNumber }}</h5>
+      <h5 *ngIf="range==='week'" class="m-0">Calendar Week {{ weekNumber }}</h5>
+      <h5 *ngIf="weekNumber && range==='2weeks'" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
+      <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthNumber }}</h5>
       <div class="flex align-items-center justify-content-start">
         <p-button
           type="button"
@@ -13,7 +21,7 @@
           (click)="previousWeek()"
           styleClass="p-button-text"/>
 
-        <h5 class="inline m-0 p-2">{{ days[0].dayName }} -  {{ days[days.length-1].dayName }}</h5>
+        <h5 class="inline m-0 p-2">{{ days[0].dayName }} -  {{ days[days.length - 1].dayName }}</h5>
 
         <p-button
           type="button"
@@ -23,9 +31,10 @@
       </div>
       <div class="flex justify-content-center align-items-center">
 
-        <p-columnFilter field="role" [showMenu]="false">
+        <p-columnFilter field="role.name" [showMenu]="false">
           <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-            <p-dropdown [ngModel]="value" [options]="roles" (onChange)="filter($event.value)" placeholder="Role">
+            <p-dropdown [ngModel]="value" optionValue="name" optionLabel="name" [options]="roles"
+                        (onChange)="filter($event.value)" placeholder="Role">
             </p-dropdown>
           </ng-template>
         </p-columnFilter>
@@ -50,7 +59,7 @@
   </ng-template>
   <ng-template pTemplate="header">
     <tr>
-      <th class="font-semibold">Employees</th>
+      <th class="font-semibold" pFrozenColumn>Employees</th>
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
       'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'
@@ -58,29 +67,33 @@
       </th>
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-employee>
+  <ng-template pTemplate="body" let-user>
     <tr>
-      <td>
-        <div pSortableColumn="username">{{ employee.name }}</div>
+      <td pFrozenColumn>
+        <div pSortableColumn="username">{{ user.firstName }} {{ user.lastName }}</div>
         <div class="text-sm flex align-items-center justify-content-start"><span
-          class="pi pi-clock mr-1"></span>{{ employee.workingPercentage }}%
+          class="pi pi-clock mr-1"></span>{{ user.workingHoursPercentage }}%
         </div>
-        <div class="text-sm">{{ employee.role }}</div>
+        <div class="text-sm">{{ user.role.name }}</div>
       </td>
       <!-- TODO: Weekend check should be language independent -->
       <td *ngFor="let day of days; index as i"
           [ngStyle]="{
-    'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !employee.shifts[day.date.toDateString()]?.type.color ? 'lightgray' : employee.shifts[day.date.toDateString()]?.type.color,
-    'color': '#fff'
-  }">
-        <ng-container *ngIf="employee.shifts[day.date.toDateString()]">
-          <div class="text-xl font-medium">{{ employee.shifts[day.date.toDateString()].type.name }}</div>
-          <span *ngIf="range<=14" class="text-sm">
-            {{ employee.shifts[day.date.toDateString()].type.startTime }} - {{ employee.shifts[day.date.toDateString()].type.endTime }}
-          </span>
+      'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !(employees.get(user?.firstName + ' ' + user?.lastName)?.shifts?.[day.date.toDateString()]?.type?.color) ? 'lightgray' : (employees.get(user.firstName + ' ' + user.lastName)?.shifts?.[day.date.toDateString()]?.type?.color ?? 'defaultColor'),
+      'color': '#fff'
+    }">
+        <ng-container *ngIf="employees?.get(user.firstName + ' ' + user.lastName)?.shifts as shifts">
+          <ng-container *ngIf="shifts[day.date.toDateString()]">
+            <div
+              class="text-xl font-medium">{{ shifts[day.date.toDateString()].type.abbreviation }}
+            </div>
+            <span *ngIf="range!=='month'" class="text-sm">
+              {{ shifts[day.date.toDateString()].type.startTime.slice(0, -3) }}
+              - {{ shifts[day.date.toDateString()].type.endTime.slice(0, -3) }}
+            </span>
+          </ng-container>
         </ng-container>
       </td>
     </tr>
   </ng-template>
 </p-table>
-

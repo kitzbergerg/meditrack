@@ -1,12 +1,14 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {Day} from "../../../interfaces/schedule.models";
-import {NgForOf, NgIf, NgStyle} from "@angular/common";
+import {Day, EmployeeMap, EmployeeWithShifts} from "../../../interfaces/schedule.models";
+import {DatePipe, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
 import {FormsModule} from "@angular/forms";
 import {DropdownModule} from "primeng/dropdown";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
+import {Role} from "../../../interfaces/role";
+import {User} from "../../../interfaces/user";
 
 @Component({
   selector: 'app-week-view',
@@ -20,28 +22,34 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
     InputTextModule,
     FormsModule,
     DropdownModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    DatePipe
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
 })
 export class WeekViewComponent implements OnChanges {
 
-  @Input() loading= true;
+  @Input() loading = true;
   @Input() days: Day[] = [];
-  @Input() employees: any[] = [];
+  @Input() employees: Map<string, EmployeeWithShifts> = new Map<string, EmployeeWithShifts>();
   @Input() startDate: Date | undefined;
+  @Input() roles: Role[] | undefined;
   @Output() weekChange = new EventEmitter<number>();
-  @Output() rangeChange = new EventEmitter<number>();
-  roles: string[] = ['nurse', 'qualified nurse']; //TODO: fetch roles from backend
+  @Output() createSchedule = new EventEmitter<void>();
+  @Output() rangeChange = new EventEmitter<string>();
+  @Input() displayCreateScheduleButton = false;
+  @Input() users: User[] = [];
+  @Input() missingMonth: string = "";
   weekNumber: number | undefined;
   monthNumber: number | undefined;
 
-  range = 7; // Default value set to 7 days
+
+  range = 'week'; // Default value set to week = 7 days
   rangeOptions: any[] = [
-    { label: 'Week', value: 7 },
-    { label: '2 Weeks', value: 14 },
-    { label: 'Month', value: 30 }
+    {label: 'Week', value: 'week'},
+    {label: '2 Weeks', value: '2weeks'},
+    {label: 'Month', value: 'month'}
   ];
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -49,7 +57,9 @@ export class WeekViewComponent implements OnChanges {
       this.weekNumber = this.getWeekNumber(this.startDate);
       this.monthNumber = this.getMonthNumber(this.startDate);
     }
-    console.log(JSON.stringify(this.employees));
+    console.log(this.employees)
+    console.log(this.days)
+    console.log(this.users)
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -80,13 +90,8 @@ export class WeekViewComponent implements OnChanges {
     return date.getMonth() + 1;
   }
 
-  getFormattedDateRange(): string {
-    if (this.startDate) {
-      const endDate = new Date(this.startDate);
-      endDate.setDate(this.startDate.getDate() + this.range);
-      return `${this.startDate.toLocaleDateString('en-GB')} - ${endDate.toLocaleDateString('en-GB')}`;
-    }
-    return "";
+  createNewSchedule(): void {
+    this.createSchedule.emit();
   }
 
   previousWeek(): void {
@@ -97,7 +102,7 @@ export class WeekViewComponent implements OnChanges {
     this.weekChange.emit(1);
   }
 
-  setRange(range: number) : void {
+  setRange(range: string): void {
     this.range = range;
     this.rangeChange.emit(range);
   }
