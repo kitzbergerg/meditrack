@@ -14,6 +14,8 @@
   "rules.rules.day-time-required-roles.component.role-name": " role name: {$INTERPOLATION} ",
   "rules.rules.day-time-required-roles.component.required-people": " required people: {$INTERPOLATION}",
   "rules.rules.day-time-required-roles.component.role-name-edit-mode": " role name:",
+  "rules.no-roles-found-dropdown": "No roles found",
+  "rules.select-role-dropdown": "name",
   "rules.rules.day-time-required-roles.component.required-people-edit-mode": " number of people:",
   "rules.add-role": " Add Role ",
   "rules.mandatory-off-days-rule.component.rule-name": " Mandatory off days: ",

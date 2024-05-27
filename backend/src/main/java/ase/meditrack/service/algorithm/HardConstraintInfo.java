@@ -9,9 +9,10 @@ public record HardConstraintInfo(
         Map<Integer, Integer> nighttimeRequiredRoles,
         // TODO #37: Maybe add staffing level for specific day
         // Staffing level
-        int daytimeRequiredPeople,
-        int nighttimeRequiredPeople,
         int allowedFlexTimeTotal,
-        int allowedFlexTimePerMonth
+        int allowedFlexTimePerMonth,
+        int mandatoryOffDays,
+        int minRestPeriod,
+        int maximumShiftLengths
 ) {
 }

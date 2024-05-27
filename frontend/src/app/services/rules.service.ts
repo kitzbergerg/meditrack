@@ -10,10 +10,10 @@ export class RulesService {
 
   constructor(private http: HttpClient) { }
 
-  private apiUrl = 'http://localhost:8081/api/rule';
+  private apiUrl = 'http://localhost:8081/api/rules';
 
-  getRules(): Observable<Rules> {
-    return this.http.get<Rules>(this.apiUrl)
+  getRules(): Observable<any> {
+    return this.http.get<any>(this.apiUrl)
   }
 
   saveRules(rules: Rules): Observable<Rules> {

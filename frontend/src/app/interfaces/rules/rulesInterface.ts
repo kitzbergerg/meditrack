@@ -1,11 +1,10 @@
-import {Role} from "../role";
 export interface Rules {
   shiftOffShift: [number[], number] | null,
   minRestPeriod: number | null,
-  maxShiftLengths: number | null,
+  maximumShiftLengths: number | null,
   mandatoryOffDays: number | null,
-  dayTimeRequiredRoles: [Role | null, number][] | null,
-  nightTimeRequiredRoles: [Role | null, number][] | null,
-  allowedFlexTimeTotal: number | null,
-  allowedFlexTimePerMonth: number | null
+  daytimeRequiredRoles: object | null,
+  nighttimeRequiredRoles: object | null,
+  allowedFlextimeTotal: number | null,
+  allowedFlextimePerMonth: number | null
 }
