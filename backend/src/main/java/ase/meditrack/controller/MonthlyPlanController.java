@@ -57,6 +57,13 @@ public class MonthlyPlanController {
         return mapper.toDto(service.findById(id));
     }
 
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    public MonthlyPlanDto findByTeamMonthYear(@RequestParam Year year, @RequestParam Month month, Principal principal) {
+        log.info("Fetching monthly-plan for user : {}, for date: {}, {}", principal.getName(), month, year);
+        return mapper.toDto(service.getMonthlyPlan(month.getValue(), year.getValue(), principal));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.CREATED)
