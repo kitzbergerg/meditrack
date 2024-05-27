@@ -57,13 +57,23 @@ export interface Employee {
   role: string;
 }
 
+export interface EmployeeMap {
+  name: string;
+  role: string;
+  workingPercentage: string;
+  shifts: {
+    [key: string]: Shift;
+  };
+}
+
 export interface ShiftDetail {
   type: ShiftType;
 }
 
 export interface ShiftType {
   name: string;
-  hexcode: string;
-  start_time: string;
-  end_time: string;
+  color: string;
+  startTime: string;
+  endTime: string;
+  abbreviation: string;
 }
