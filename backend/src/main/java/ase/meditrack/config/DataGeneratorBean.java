@@ -126,10 +126,11 @@ public class DataGeneratorBean {
                     Map.of(),
                     Map.of(),
                     Map.of(),
-                    0,
-                    0,
                     20,
                     20,
+                    2,
+                    120,
+                    480,
                     team
             ));
             teams.add(teamRepository.save(team));
@@ -347,10 +348,11 @@ public class DataGeneratorBean {
             hardConstraints.setId(team.getId());
             hardConstraints.setDaytimeRequiredRoles(Map.of(roles.get(0), 2, roles.get(1), 1));
             hardConstraints.setNighttimeRequiredRoles(Map.of(roles.get(0), 1, roles.get(1), 1));
-            hardConstraints.setDaytimeRequiredPeople(5);
-            hardConstraints.setNighttimeRequiredPeople(3);
             hardConstraints.setAllowedFlextimeTotal(10);
             hardConstraints.setAllowedFlextimePerMonth(5);
+            hardConstraints.setMandatoryOffDays(2);
+            hardConstraints.setMinRestPeriod(120);
+            hardConstraints.setMaximumShiftLengths(8);
             hardConstraints.setShiftOffShift(Map.of(createShiftOffShiftIdList(),
                     shifts.get(FAKER.number().numberBetween(0, shifts.size())).getId()));
             hardConstraints.setTeam(team);

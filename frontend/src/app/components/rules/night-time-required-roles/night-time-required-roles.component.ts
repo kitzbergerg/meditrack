@@ -24,13 +24,36 @@ import {Role} from "../../../interfaces/role";
   styleUrl: './night-time-required-roles.component.scss'
 })
 export class NightTimeRequiredRolesComponent {
-  @Input() nightTimeRequiredRoles: [Role | null, number][] | null = null;
+  @Input() nightTimeRequiredRolesInput: object | null = null;
+  nightTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
-  editMode = true;
+  editMode: any;
   @Output() updateNightTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
-    roleService.getAllRolesFromTeam().subscribe(x => this.availableRoles = x);
+    roleService.getAllRolesFromTeam().subscribe(x => {
+      this.availableRoles = x;
+      console.log('this.availableRoles', this.availableRoles);
+      this.nightTimeRequiredRoles = []
+      if (this.nightTimeRequiredRolesInput) {
+        for (const [k, v] of Object.entries(this.nightTimeRequiredRolesInput)) {
+
+          // @ts-ignore
+          this.nightTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
+        }
+        if (Object.entries(this.nightTimeRequiredRolesInput).length == 0) {
+          this.nightTimeRequiredRoles.push([null, 0])
+        }
+        console.log(this.nightTimeRequiredRoles);
+      }
+      if (this.nightTimeRequiredRolesInput !== null) {
+        console.log('false', this.nightTimeRequiredRolesInput);
+        this.editMode = false
+      } else {
+        console.log('true', this.nightTimeRequiredRolesInput);
+        this.editMode = true
+      }
+    })
   }
 
   update() {

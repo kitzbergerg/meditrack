@@ -21,11 +21,12 @@ import {FormsModule} from "@angular/forms";
 })
 export class AllowedFlexTimePerMonthComponent {
   @Input() allowedFlexTimePerMonth: number | null = null;
-  editMode = true;
+  editMode = false;
   @Output() updateAllowedFlexTimePerMonth = new EventEmitter<number | null>();
 
-  constructor(rulesService: RulesService) {
+  constructor() {
     if (this.allowedFlexTimePerMonth == null) {
+      //this.editMode = true;
       this.allowedFlexTimePerMonth = 1;
     }
   }

@@ -24,21 +24,34 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './day-time-required-roles.component.scss'
 })
 export class DayTimeRequiredRolesComponent {
-  @Input() dayTimeRequiredRoles: [Role | null, number][] | null = null;
+  @Input() dayTimeRequiredRolesInput: object | null = null;
+  dayTimeRequiredRoles: [Role | null, number][] | null = null;
   availableRoles: Role[] = [];
-  editMode = true;
+  editMode: any;
   @Output() updateDayTimeRequiredRoles = new EventEmitter<[Role | null, number][] | null>();
 
   constructor(roleService: RolesService) {
     roleService.getAllRolesFromTeam().subscribe(x => {
       console.log(x)
       this.availableRoles = x
+      console.log('this.availableRoles', this.availableRoles);
+      this.dayTimeRequiredRoles = []
+      if (this.dayTimeRequiredRolesInput) {
+        for (const [k, v] of Object.entries(this.dayTimeRequiredRolesInput)) {
+          // @ts-ignore
+          this.dayTimeRequiredRoles.push([this.availableRoles.find(x => x.id == k), v])
+        }
+        if (Object.entries(this.dayTimeRequiredRolesInput).length == 0) {
+          this.dayTimeRequiredRoles.push([null, 0])
+        }
+        console.log(this.dayTimeRequiredRoles);
+      }
+      if (this.dayTimeRequiredRolesInput !== null) {
+        this.editMode = false
+      } else {
+        this.editMode = true
+      }
     });
-    console.log('constructor', this.dayTimeRequiredRoles)
-    if (this.dayTimeRequiredRoles === undefined || this.dayTimeRequiredRoles === null) {
-      this.dayTimeRequiredRoles = [];
-      console.log(this.dayTimeRequiredRoles)
-    }
   }
 
   update() {

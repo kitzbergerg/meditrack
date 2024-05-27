@@ -21,7 +21,7 @@ import {FormsModule} from "@angular/forms";
 })
 export class AllowedFlexTimeTotalComponent {
   @Input() allowedFlexTimeTotal: number | null = null;
-  editMode = true;
+  editMode = false;
   @Output() updateAllowedFlexTimeTotal = new EventEmitter<number | null>();
 
   constructor(rulesService: RulesService) {

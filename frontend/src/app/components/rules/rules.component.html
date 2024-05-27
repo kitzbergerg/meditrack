@@ -18,31 +18,31 @@
         </li>
         <li *ngIf="showMaxShiftLengths">
           <app-max-shift-lengths
-            [maxShiftLength]="rules!.maxShiftLengths"
+            [maxShiftLength]="rules!.maximumShiftLengths"
             (updateMaxShiftLength)="updateMaxShiftLengthRule($event)">
           </app-max-shift-lengths>
         </li>
         <li *ngIf="showDayTimeRequiredRoles">
           <app-day-time-required-roles
-            [dayTimeRequiredRoles]="rules!.dayTimeRequiredRoles"
+            [dayTimeRequiredRolesInput]="rules!.daytimeRequiredRoles"
             (updateDayTimeRequiredRoles)="updateDayTimeRequiredRolesRule($event)">
           </app-day-time-required-roles>
         </li>
         <li *ngIf="showNightTimeRequiredRoles">
           <app-night-time-required-roles
-            [nightTimeRequiredRoles]="rules!.nightTimeRequiredRoles"
+            [nightTimeRequiredRolesInput]="rules!.nighttimeRequiredRoles"
             (updateNightTimeRequiredRoles)="updateNightTimeRequiredRolesRule($event)">
           </app-night-time-required-roles>
         </li>
         <li *ngIf="showAllowedFlexTimeTotal">
           <app-allowed-flex-time-total
-            [allowedFlexTimeTotal]="rules!.allowedFlexTimeTotal"
+            [allowedFlexTimeTotal]="rules!.allowedFlextimeTotal"
             (updateAllowedFlexTimeTotal)="updateAllowedFlexTimeTotalRule($event)">
           </app-allowed-flex-time-total>
         </li>
         <li *ngIf="showAllowedFlexTimePerMonth">
           <app-allowed-flex-time-per-month
-            [allowedFlexTimePerMonth]="rules!.allowedFlexTimePerMonth"
+            [allowedFlexTimePerMonth]="rules!.allowedFlextimePerMonth"
             (updateAllowedFlexTimePerMonth)="updateAllowedFlexTimePerMonthRule($event)">
           </app-allowed-flex-time-per-month>
         </li>
