@@ -186,7 +186,7 @@ export class EmployeesComponent {
   loadUsersFromTeam(): void {
       this.userService.getAllUserFromTeam()
         .subscribe(users => {
-          this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id && !user.roles.includes('admin'))
+          this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id)
           this.loading = false;
         });
   }
