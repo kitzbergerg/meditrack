@@ -9,6 +9,7 @@
   "account-settings.component.work-percent": " Arbeit % ",
   "account-settings.component.role": " Rolle ",
   "account-settings.component.work-shifts": " Arbeitsschichten ",
+  "dashboard.component.dashboard-title": " Willkommmen zu MediTrack! ",
   "rules.allowed-flex-time-per-month.component.rule-name": " Monatlich zulässige Gleitzeit: ",
   "rules.allowed-flex-time-per-month.component.hour-count": " {$ICU} ",
   "2204898050112266057": "{VAR_PLURAL, plural, one {{INTERPOLATION} Stunde} other {{INTERPOLATION_1} Stunden}}",

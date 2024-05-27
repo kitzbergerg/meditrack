@@ -11,7 +11,7 @@
     "account-settings.component.work-percent": " Work % ",
     "account-settings.component.role": " Role ",
     "account-settings.component.work-shifts": " Work Shifts ",
-    "dashboard.component.dashboard-title": " This is the dashboard! ",
+    "dashboard.component.dashboard-title": " Welcome to MediTrack!",
     "rules.allowed-flex-time-per-month.component.rule-name": " Allowed flex time per month: ",
     "rules.allowed-flex-time-per-month.component.hour-count": " {$ICU} ",
     "2204898050112266057": "{VAR_PLURAL, plural, one {{INTERPOLATION} hour} other {{INTERPOLATION_1} hours}}",

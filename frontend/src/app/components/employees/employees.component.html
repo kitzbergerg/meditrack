@@ -74,8 +74,7 @@
           </ng-template>
 
           </p-table>
-
-
+        
         <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true" class="p-fluid">
           <ng-template pTemplate="content">
             <form [formGroup]="newUserForm" novalidate (ngSubmit)="createUser()">
@@ -114,7 +113,6 @@
                   placeholder="Select Shift Types" />
               </div>
 
-
               <div class="field">
                 <label for="role">Role:</label>
                 <p-dropdown
@@ -128,8 +126,6 @@
                 />
                 <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is required.</small>
               </div>
-
-
 
               <div class="field">
                 <label for="workingHoursPercentage">Working Percentage:</label>
@@ -160,10 +156,11 @@
         </p-dialog>
 
       </div>
-    </div>
+
       <div *ngIf="currentUser.team === null">
         <app-team [teamComponentHeader] = "teamComponentHeader" (teamEmitter)="receiveTeam($event)"></app-team>
       </div>
     </div>
+  </div>
 </div>
 
