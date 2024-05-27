@@ -1,6 +1,17 @@
 {
   "locale": "en-US",
   "translations": {
+    "account-settings.component.profile-title": "Profile",
+    "account-settings.component.username": " Username ",
+    "account-settings.component.edit": "Edit",
+    "account-settings.component.first-name": " First Name ",
+    "account-settings.component.last-name": " Last Name ",
+    "account-settings.component.email": " Email ",
+    "account-settings.component.password": " Password ",
+    "account-settings.component.work-percent": " Work % ",
+    "account-settings.component.role": " Role ",
+    "account-settings.component.work-shifts": " Work Shifts ",
+    "dashboard.component.dashboard-title": " This is the dashboard! ",
     "rules.allowed-flex-time-per-month.component.rule-name": " Allowed flex time per month: ",
     "rules.allowed-flex-time-per-month.component.hour-count": " {$ICU} ",
     "2204898050112266057": "{VAR_PLURAL, plural, one {{INTERPOLATION} hour} other {{INTERPOLATION_1} hours}}",
@@ -17,7 +28,7 @@
     "rules.rules.day-time-required-roles.component.required-people": " required people: {$INTERPOLATION}",
     "rules.rules.day-time-required-roles.component.role-name-edit-mode": " role name: ",
     "rules.no-roles-found-dropdown": "No roles found",
-    "rules.select-role-dropdown": "name",
+    "rules.select-role-dropdown": "Select a Role",
     "rules.rules.day-time-required-roles.component.required-people-edit-mode": " number of people: ",
     "rules.add-role": " Add Role ",
     "rules.mandatory-off-days-rule.component.rule-name": " Mandatory off days: ",
@@ -43,6 +54,16 @@
     "rules.component.rule-add-day-time-required-roles": " day time required roles ",
     "rules.component.rule-add-night-time-required-roles": " night time required roles ",
     "rules.component.rule-add-allowed-flex-time-total": " allowed flex time total ",
-    "rules.component.rule-add-allowed-flex-time-per-month": " allowed flex time per month "
+    "rules.component.rule-add-allowed-flex-time-per-month": " allowed flex time per month ",
+    "6570363013146073520": "Dashboard",
+    "5433782699501161466": "Schedule",
+    "3537701360947660901": "Employees",
+    "1117237755360033842": "Shift Types",
+    "795890916060309463": "Roles",
+    "9223174834682042610": "Holidays",
+    "4645345687322304891": "Rules",
+    "8713425931860782502": "Shift Swapping",
+    "app.topbar.component.welcome": " Welcome {$INTERPOLATION} ",
+    "app.config.component.language": "Language"
   }
 }

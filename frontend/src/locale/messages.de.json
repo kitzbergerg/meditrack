@@ -1,4 +1,14 @@
 {
+  "account-settings.component.profile-title": "Profil",
+  "account-settings.component.username": "Username",
+  "account-settings.component.edit": "Bearbeiten",
+  "account-settings.component.first-name": " Vorname ",
+  "account-settings.component.last-name": " Nachname ",
+  "account-settings.component.email": " E-mail ",
+  "account-settings.component.password": " Passwort ",
+  "account-settings.component.work-percent": " Arbeit % ",
+  "account-settings.component.role": " Rolle ",
+  "account-settings.component.work-shifts": " Arbeitsschichten ",
   "rules.allowed-flex-time-per-month.component.rule-name": " Monatlich zulässige Gleitzeit: ",
   "rules.allowed-flex-time-per-month.component.hour-count": " {$ICU} ",
   "2204898050112266057": "{VAR_PLURAL, plural, one {{INTERPOLATION} Stunde} other {{INTERPOLATION_1} Stunden}}",
@@ -41,5 +51,15 @@
   "rules.component.rule-add-day-time-required-roles": " Tagsüber benötigte Rollen ",
   "rules.component.rule-add-night-time-required-roles": " Nachtsüber benötigte Rollen ",
   "rules.component.rule-add-allowed-flex-time-total": " Insgesamt zulässige Gleitzeit ",
-  "rules.component.rule-add-allowed-flex-time-per-month": " Monatlich zulässige Gleitzeit "
+  "rules.component.rule-add-allowed-flex-time-per-month": " Monatlich zulässige Gleitzeit ",
+  "6570363013146073520": "Dashboard",
+  "5433782699501161466": "Zeitplan",
+  "3537701360947660901": "Angestellte",
+  "1117237755360033842": "Schichtarten",
+  "795890916060309463": "Rollen",
+  "9223174834682042610": "Urlaub",
+  "4645345687322304891": "Regeln",
+  "8713425931860782502": "Schichtwechsel",
+  "app.topbar.component.welcome": " Willkommen {$INTERPOLATION} ",
+  "app.config.component.language": "Sprache"
 }
