@@ -1,6 +1,5 @@
 package ase.meditrack.service.algorithm;
 
-import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,8 +37,8 @@ public class MonthlyPlanCreator {
      * Create a monthly plan for the given parameters.
      * Stores the shifts and monthly plan in the database and returns the created plan.
      *
-     * @param month  the month for which to create the plan
-     * @param year   the year for which to create the plan
+     * @param month     the month for which to create the plan
+     * @param year      the year for which to create the plan
      * @param principal principal that calls the rest endpoint
      * @return the created plan
      */
@@ -50,7 +48,7 @@ public class MonthlyPlanCreator {
         Team team = user.getTeam();
         List<ShiftType> shiftTypes = team.getShiftTypes();
         List<User> users = userService.findByTeam(principal);
-        users = users.stream().filter(u -> u.getId()!= user.getId()).collect(Collectors.toList());
+        users = users.stream().filter(u -> u.getId() != user.getId()).collect(Collectors.toList());
 
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();

@@ -2,19 +2,17 @@ package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.ShiftDto;
 import ase.meditrack.model.dto.ShiftScheduleDto;
-import ase.meditrack.model.dto.UserScheduleDto;
 import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.User;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = {EntityUuidMapper.class, UserMapper.class})
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        uses = {EntityUuidMapper.class, UserMapper.class})
 
 public interface ShiftMapper {
 

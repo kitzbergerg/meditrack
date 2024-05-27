@@ -278,9 +278,9 @@ public class DataGeneratorBean {
             for (int i = 1; i <= days; i++) {
                 LocalDate date = LocalDate.of(monthlyPlan.getYear(), monthlyPlan.getMonth(), i);
                 for (UUID key : teamUsersPerRole.keySet()) {
-                    List<User> users = teamUsersPerRole.get(key);
-                    if (users != null && !users.isEmpty()) {
-                        for (User user : users) {
+                    List<User> usersPerRole = teamUsersPerRole.get(key);
+                    if (usersPerRole != null && !usersPerRole.isEmpty()) {
+                        for (User user : usersPerRole) {
                             // Create a shift with a random shift type for each user
                             Shift shift = new Shift();
                             shift.setDate(date);

@@ -68,7 +68,7 @@ public class MonthlyPlanController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.CREATED)
     public MonthlyPlanDto create(@RequestParam Year year, @RequestParam Month month, Principal principal) {
-        log.info("Creating monthly-plan for user {}, {} {}", principal.getName() ,year, month);
+        log.info("Creating monthly-plan for user {}, {} {}", principal.getName(), year, month);
         return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), principal));
     }
 

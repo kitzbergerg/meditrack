@@ -1,9 +1,7 @@
 package ase.meditrack.model.mapper;
 
-import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.dto.UserScheduleDto;
-import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -18,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR, uses = {EntityUuidMapper.class, RoleMapper.class})
+@Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        uses = {EntityUuidMapper.class, RoleMapper.class})
 public abstract class UserMapper {
 
     @Autowired

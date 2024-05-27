@@ -3,19 +3,16 @@ package ase.meditrack.service;
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -50,6 +47,14 @@ public class MonthlyPlanService {
                 .orElseThrow(() -> new NotFoundException("Could not find monthly plan with id: " + id + "!"));
     }
 
+    /**
+     * Fetches a monthly plan for a given month and year.
+     *
+     * @param month of the plan
+     * @param year of the plan
+     * @param principal that fetches the plan
+     * @return the monthly plan
+     */
     public MonthlyPlan getMonthlyPlan(int month, int year, Principal principal) {
         User user = userService.getPrincipalWithTeam(principal);
         Team team = user.getTeam();
@@ -61,7 +66,8 @@ public class MonthlyPlanService {
         List<Shift> shifts = plan.getShifts();
         for (Shift shift : shifts) {
             shift.setUsers(shift.getUsers().stream()
-                    .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
+                    .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString())
+                            .toRepresentation()))
                     .toList());
         }
         plan.setShifts(shifts);
