@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {UserService} from "../../services/user.service";
 import {User} from "../../interfaces/user";
@@ -24,7 +24,7 @@ export class EmployeesComponent {
   userDialog = false;
   teamComponentHeader = "employees";
   userHeader = "";
-  deleteUserDialog= false;
+  deleteUserDialog = false;
   submitted = false;
   newUserForm: FormGroup;
 
@@ -41,7 +41,7 @@ export class EmployeesComponent {
     preferences: "",
     preferredShiftTypes: [],
     requestedShiftSwaps: [],
-    role: { name: "", color: "", abbreviation: ""},
+    role: {name: "", color: "", abbreviation: ""},
     roles: [],
     shifts: [],
     specialSkills: [],
@@ -68,7 +68,7 @@ export class EmployeesComponent {
     specialSkills: [],
     holidays: [],
     shifts: [],
-    role: { name: "", color: "", abbreviation: ""},
+    role: {name: "", color: "", abbreviation: ""},
     team: undefined,
     requestedShiftSwaps: [],
     suggestedShiftSwaps: [],
@@ -77,11 +77,11 @@ export class EmployeesComponent {
   };
 
   userId = '';
-  newTeam: Team = { name: '' };
+  newTeam: Team = {name: ''};
   team: Team = {
     name: '',
   }
-  usersFromTeam: User[] =[];
+  usersFromTeam: User[] = [];
   cols: any[] = [];
 
 
@@ -98,7 +98,7 @@ export class EmployeesComponent {
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      workingHoursPercentage: [1, [Validators.required, Validators.min(0.1), Validators.max(1.0)]],
+      workingHoursPercentage: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
       role: [null, Validators.required],
       canWorkShiftTypes: [[]]
     });
@@ -109,13 +109,13 @@ export class EmployeesComponent {
     this.getUser()
 
     this.cols = [
-      { field: 'username', header: 'Name' },
-      { field: 'firstName', header: 'First Name' },
-      { field: 'lastName', header: 'Last Name' },
-      { field: 'email', header: 'Email' },
-      { field: 'role', header: 'Role' },
-      { field: 'workingHoursPercentage', header: 'WorkingHoursPercentage' },
-      { field: 'canWorkShiftTypes', header: 'CanWorkShiftTypes' },
+      {field: 'username', header: 'Name'},
+      {field: 'firstName', header: 'First Name'},
+      {field: 'lastName', header: 'Last Name'},
+      {field: 'email', header: 'Email'},
+      {field: 'role', header: 'Role'},
+      {field: 'workingHoursPercentage', header: 'WorkingHoursPercentage'},
+      {field: 'canWorkShiftTypes', header: 'CanWorkShiftTypes'},
     ];
   }
 
@@ -137,6 +137,7 @@ export class EmployeesComponent {
         this.roles = fetchedRoles;
       });
   }
+
   loadShiftTypes() {
     this.shiftService.getAllShiftTypesByTeam().subscribe({
       next: (response) => {
@@ -144,7 +145,7 @@ export class EmployeesComponent {
         console.log("Fetched Shift Types successfully")
       },
       error: (error) => {
-        this.messageService.add({severity:'error', summary: 'Error fetching Shift Types: ', detail: error.error});
+        this.messageService.add({severity: 'error', summary: 'Error fetching Shift Types: ', detail: error.error});
       },
     });
     this.resetUser()
@@ -162,33 +163,32 @@ export class EmployeesComponent {
             this.loadShiftTypes()
           }
         },
-    error: (error) =>
-    {
-      this.messageService.add({severity:'error', summary: 'Error Fetching User: ', detail: error.error});
-    }
-  });
+      error: (error) => {
+        this.messageService.add({severity: 'error', summary: 'Error Fetching User: ', detail: error.error});
+      }
+    });
   }
 
   getTeam(): void {
-    if (this.currentUser.team !== undefined ) {
+    if (this.currentUser.team !== undefined) {
       this.teamService.getTeamById(this.currentUser.team).subscribe({
         next:
           (team) => {
             this.team = team;
           },
         error: (error) => {
-          this.messageService.add({severity:'error', summary: 'Error Fetching team: ', detail: error.error});
+          this.messageService.add({severity: 'error', summary: 'Error Fetching team: ', detail: error.error});
         }
       });
     }
   }
 
   loadUsersFromTeam(): void {
-      this.userService.getAllUserFromTeam()
-        .subscribe(users => {
-          this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id)
-          this.loading = false;
-        });
+    this.userService.getAllUserFromTeam()
+      .subscribe(users => {
+        this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id)
+        this.loading = false;
+      });
   }
 
   openNew() {
@@ -199,11 +199,7 @@ export class EmployeesComponent {
   }
 
   editUser(user: User) {
-    console.log(user.role);
-    console.log(this.roles)
     const selectedRole = this.roles.find(role => role.id === user.role.id);
-    console.log(selectedRole);
-    console.log(user);
     const userShiftTypeIds = user.canWorkShiftTypes.map(shiftType => shiftType.id);
     const selectedShiftTypes = this.shiftTypes.filter(shiftType => userShiftTypeIds.includes(shiftType.id));
 
@@ -216,26 +212,26 @@ export class EmployeesComponent {
       role: selectedRole,
       canWorkShiftTypes: selectedShiftTypes,
     });
-    this.newUser = { ...user };
+    this.newUser = {...user};
     this.userHeader = "Edit User";
     this.userDialog = true;
   }
 
   deleteUser(user: User) {
     this.deleteUserDialog = true;
-    this.newUser = { ...user };
+    this.newUser = {...user};
   }
 
   confirmDelete() {
     this.deleteUserDialog = false;
     this.usersFromTeam = this.usersFromTeam.filter(val => val.id !== this.newUser.id);
     this.userService.deleteUser(this.newUser).subscribe({
-        next: () => {
-          this.messageService.add({severity:'success', summary: 'Successfully Deleted User ' + this.newUser.firstName});
-        },
-        error: (error) => {
-          this.messageService.add({severity:'error', summary: 'Deleting User Failed', detail: error.error});
-        }
+      next: () => {
+        this.messageService.add({severity: 'success', summary: 'Successfully Deleted User ' + this.newUser.firstName});
+      },
+      error: (error) => {
+        this.messageService.add({severity: 'error', summary: 'Deleting User Failed', detail: error.error});
+      }
     });
     this.resetUser()
   }
@@ -249,43 +245,44 @@ export class EmployeesComponent {
     this.submitted = true;
 
     if (!this.newUserForm.invalid) {
-        if (this.newUser.id) {
-          this.newUser = { ...this.newUser, ...this.newUserForm.value };
-          this.userService.updateUser(this.newUser).subscribe({
-            next: (user) => {
-              if(user.id) {
-                this.usersFromTeam[this.findIndexById(user.id)] = user;
-              }
-              this.messageService.add({severity:'success', summary: 'Successfully Updated User ' + user.firstName});
-              this.userDialog = false;
-            },
-            error: (error) => {
-              this.messageService.add({severity:'error', summary: 'Updating User Failed'});
+      if (this.newUser.id) {
+        this.newUser = {...this.newUser, ...this.newUserForm.value};
+        this.userService.updateUser(this.newUser).subscribe({
+          next: (user) => {
+            if (user.id) {
+              this.usersFromTeam[this.findIndexById(user.id)] = user;
             }
-          })
-        }else {
-          this.newUser = this.newUserForm.value;
-          if (this.currentUser.roles.includes("admin")) {
-            this.newUser.roles = ['dm'];
-          } else {
-            this.newUser.roles = ['employee'];
+            this.messageService.add({severity: 'success', summary: 'Successfully Updated User ' + user.firstName});
+            this.userDialog = false;
+          },
+          error: (error) => {
+            this.messageService.add({severity: 'error', summary: 'Updating User Failed'});
           }
-          this.newUser.team = this.team.id;
-          this.newUser.password = <string>this.newUser.username;
-          console.log(this.newUser);
-          this.userService.createUser(this.newUser)
-            .subscribe({
+        })
+      } else {
+        this.newUser = this.newUserForm.value;
+        if (this.currentUser.roles.includes("admin")) {
+          this.newUser.roles = ['dm'];
+        } else {
+          this.newUser.roles = ['employee'];
+        }
+        this.newUser.team = this.team.id;
+        this.newUser.password = <string>this.newUser.username;
+        console.log(this.newUser);
+        this.userService.createUser(this.newUser)
+          .subscribe({
               next: (user) => {
                 this.userDialog = false;
                 this.usersFromTeam = [...this.usersFromTeam];
                 this.usersFromTeam.push(user);
                 this.resetUser()
-                this.messageService.add({severity:'success', summary: 'Successfully Created User ' + user.firstName});
+                this.messageService.add({severity: 'success', summary: 'Successfully Created User ' + user.firstName});
               },
               error: (error) => {
-                this.messageService.add({severity:'error', summary: 'Creating User Failed ' + error.error});
-              }}
-            );
+                this.messageService.add({severity: 'error', summary: 'Creating User Failed ' + error.error});
+              }
+            }
+          );
       }
     }
   }
@@ -314,7 +311,7 @@ export class EmployeesComponent {
       preferences: "",
       preferredShiftTypes: [],
       requestedShiftSwaps: [],
-      role: { name: "", color: "", abbreviation: ""},
+      role: {name: "", color: "", abbreviation: ""},
       roles: [],
       shifts: [],
       specialSkills: [],

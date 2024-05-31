@@ -29,6 +29,7 @@ import {ToastModule} from "primeng/toast";
 import { MessageService } from 'primeng/api';
 import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
+import {InputNumberModule} from "primeng/inputnumber";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -63,30 +64,31 @@ function initializeKeycloak(keycloak: KeycloakService) {
     ShiftTypesComponent,
     TeamComponent
   ],
-  imports: [
-    BrowserModule,
-    ButtonModule,
-    AppRoutingModule,
-    RouterModule,
-    HttpClientModule,
-    KeycloakAngularModule,
-    FormsModule,
-    StyleClassModule,
-    RippleModule,
-    AppLayoutModule,
-    ReactiveFormsModule,
-    ToolbarModule,
-    TableModule,
-    DialogModule,
-    DropdownModule,
-    InputTextModule,
-    ImageModule,
-    CalendarModule,
-    ColorPickerModule,
-    MultiSelectModule,
-    ToastModule,
-    ChipModule,
-  ],
+    imports: [
+        BrowserModule,
+        ButtonModule,
+        AppRoutingModule,
+        RouterModule,
+        HttpClientModule,
+        KeycloakAngularModule,
+        FormsModule,
+        StyleClassModule,
+        RippleModule,
+        AppLayoutModule,
+        ReactiveFormsModule,
+        ToolbarModule,
+        TableModule,
+        DialogModule,
+        DropdownModule,
+        InputTextModule,
+        ImageModule,
+        CalendarModule,
+        ColorPickerModule,
+        MultiSelectModule,
+        ToastModule,
+        ChipModule,
+        InputNumberModule,
+    ],
   providers: [
     MessageService,
     {

@@ -33,7 +33,6 @@ class SolverTest {
         HardConstraintInfo hardConstraints = null;
         AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, hardConstraints);
         var solution = SchedulingSolver.solve(input);
-        System.out.println(solution.get());
 
     }
 

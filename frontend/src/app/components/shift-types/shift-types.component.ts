@@ -6,6 +6,8 @@ import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {Team} from "../../interfaces/team";
+import {Role} from "../../interfaces/role";
+import {RolesService} from "../../services/roles.service";
 
 @Component({
   selector: 'app-shift-types',
@@ -18,6 +20,8 @@ export class ShiftTypesComponent {
   teamComponentHeader = 'shift types';
 
   shiftTypes: ShiftType[] = [];
+
+  roles: Role[] = [];
 
   dropdownOptions: { name: string }[] = [
     {name: 'Choose Type'},
@@ -35,7 +39,8 @@ export class ShiftTypesComponent {
     breakEndTime: '',
     type: this.selectedOption.name,
     color: '#ff0000',
-    abbreviation: ''
+    abbreviation: '',
+    requiredRoles: []
   };
 
   initialLoad = false;
@@ -48,6 +53,7 @@ export class ShiftTypesComponent {
   endTimeDate: Date | null = this.emptyTime;
   breakStartTimeDate: Date | null = this.emptyTime;
   breakEndTimeDate: Date | null = this.emptyTime;
+  requiredRoles: Role[] = [];
 
   formTitle = '';
   formAction = '';
@@ -79,6 +85,7 @@ export class ShiftTypesComponent {
               private messageService: MessageService,
               private userService: UserService,
               private authorizationService: AuthorizationService,
+              private rolesService: RolesService
   ) {
   }
 
@@ -98,6 +105,7 @@ export class ShiftTypesComponent {
         this.currentUser = response;
         if (response.team != null) {
           this.loadShiftTypes();
+          this.loadRoles();
         }
         this.loading = false;
       },
@@ -121,26 +129,40 @@ export class ShiftTypesComponent {
       });
   }
 
+  loadRoles(): void {
+    this.rolesService.getAllRolesFromTeam()
+      .subscribe(fetchedRoles => {
+        this.roles = fetchedRoles;
+      });
+  }
+
   deleteShiftType(): void {
     if (this.shiftType.id != undefined) {
       this.shiftService.deleteShiftType(this.shiftType.id)
         .subscribe(response => {
           console.log('Shift Type deleted successfully');
-          this.messageService.add({severity:'success', summary: 'Successfully Deleted Shift Type ' + this.shiftType.name});
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully Deleted Shift Type ' + this.shiftType.name
+          });
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
           console.error('Error deleting shift type:', error);
-          this.messageService.add({severity:'error', summary: 'Deleting Shift Type Failed', detail: error.error});
+          this.messageService.add({severity: 'error', summary: 'Deleting Shift Type Failed', detail: error.error});
         });
     }
   }
 
   getShiftType(id: number) {
+
     this.shiftService.getShiftType(id)
       .subscribe((response: ShiftType) => {
         console.log('Shift Type retrieved successfully:', response);
         this.shiftType = response;
+
+        const shiftTypeRoleIds = response.requiredRoles.map(role => role.id);
+        const selectedRoles = this.roles.filter(role => shiftTypeRoleIds.includes(role.id));
 
         this.startTimeDate = this.getTime(this.shiftType.startTime);
         this.endTimeDate = this.getTime(this.shiftType.endTime);
@@ -148,6 +170,7 @@ export class ShiftTypesComponent {
         this.breakEndTimeDate = this.getTime(this.shiftType.breakEndTime);
 
         this.selectedOption.name = this.shiftType.type;
+        this.requiredRoles = selectedRoles;
 
         this.loadShiftTypes();
       }, error => {
@@ -194,26 +217,36 @@ export class ShiftTypesComponent {
         }) : '',
         type: this.selectedOption.name,
         color: this.shiftType.color,
-        abbreviation: this.shiftType.abbreviation
+        abbreviation: this.shiftType.abbreviation,
+        requiredRoles: this.requiredRoles
       };
+
+      console.log(this.requiredRoles)
 
       this.shiftService.createShiftType(newShiftType)
         .subscribe(response => {
           console.log('Shift Type created successfully:', response);
-          this.messageService.add({severity:'success', summary: 'Successfully Created Shift Type ' + newShiftType.name});
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully Created Shift Type ' + newShiftType.name
+          });
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
           //console.log(error.error);
           console.error('Error creating shift type:', error);
           if (error.error === "data integrity violation") {
-            this.messageService.add({severity:'error', summary: 'Creating Shift Type Failed', detail: "Name, Color and Abbreviation have to be unique."});
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Creating Shift Type Failed',
+              detail: "Name, Color and Abbreviation have to be unique."
+            });
           } else {
-            this.messageService.add({severity:'error', summary: 'Creating Shift Type Failed', detail: error.error});
+            this.messageService.add({severity: 'error', summary: 'Creating Shift Type Failed', detail: error.error});
           }
         });
     } else {
-      this.messageService.add({severity:'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({severity: 'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
@@ -250,25 +283,34 @@ export class ShiftTypesComponent {
         }) : this.shiftType.breakEndTime,
         type: this.selectedOption.name,
         color: this.shiftType.color,
-        abbreviation: this.shiftType.abbreviation
+        abbreviation: this.shiftType.abbreviation,
+        requiredRoles: this.requiredRoles
       };
+
+      console.log(shiftTypeToUpdate)
 
       this.shiftService.updateShiftType(shiftTypeToUpdate)
         .subscribe(response => {
-          console.log('Shift Type updated successfully:', response);
-          this.messageService.add({severity:'success', summary: 'Successfully Updated Shift Type ' + this.shiftType.name});
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully Updated Shift Type ' + this.shiftType.name
+          });
           this.resetForm();
           this.selectShiftType(shiftTypeToUpdate);
         }, error => {
           console.error('Error updating shift type:', error);
           if (error.error === "data integrity violation") {
-            this.messageService.add({severity:'error', summary: 'Updating Shift Type Failed', detail: "Name, Color and Abbreviation have to be unique."});
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Updating Shift Type Failed',
+              detail: "Name, Color and Abbreviation have to be unique."
+            });
           } else {
-            this.messageService.add({severity:'error', summary: 'Updating Shift Type Failed', detail: error.error});
+            this.messageService.add({severity: 'error', summary: 'Updating Shift Type Failed', detail: error.error});
           }
         });
     } else {
-      this.messageService.add({severity:'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({severity: 'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
     }
   }
 
@@ -306,7 +348,7 @@ export class ShiftTypesComponent {
     this.valid = (this.shiftType.name !== '') && (this.startTimeDate !== null)
       && (this.endTimeDate !== null) && (this.breakStartTimeDate !== null)
       && (this.breakEndTimeDate !== null) && (this.selectedOption.name !== 'Choose Type')
-      && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '');
+      && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '') && (this.requiredRoles.length !== 0);
 
     if (this.formMode === 'create') {
       this.createShiftType();
@@ -329,11 +371,12 @@ export class ShiftTypesComponent {
 
   resetForm() {
     this.submitted = false;
-    this.selectedOption =  {name: 'Choose Type'};
+    this.selectedOption = {name: 'Choose Type'};
     this.startTimeDate = this.emptyTime;
     this.endTimeDate = this.emptyTime;
     this.breakStartTimeDate = this.emptyTime;
     this.breakEndTimeDate = this.emptyTime;
+    this.requiredRoles = [];
     this.shiftType = {
       id: 0,
       name: '',
@@ -343,7 +386,8 @@ export class ShiftTypesComponent {
       breakEndTime: '',
       type: this.selectedOption.name,
       color: '#ff0000',
-      abbreviation: ''
+      abbreviation: '',
+      requiredRoles: []
     };
   }
 }

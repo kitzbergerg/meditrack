@@ -1,4 +1,5 @@
 import {Team} from "./team";
+import {Role} from "./role";
 
 export interface ShiftType {
   id?: number;
@@ -10,6 +11,6 @@ export interface ShiftType {
   type: string;
   color: string;
   abbreviation: string;
-
   team?: Team;
+  requiredRoles: Role[];
 }
