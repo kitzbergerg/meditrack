@@ -10,6 +10,5 @@ export interface ShiftType {
   type: string;
   color: string;
   abbreviation: string;
-
   team?: Team;
 }

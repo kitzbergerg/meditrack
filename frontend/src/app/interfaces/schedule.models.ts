@@ -28,20 +28,27 @@ export interface Schedule {
   "year": number,
   "published": boolean,
   "team": string,
-  "shifts": Shift[]
+  "shifts": SimpleShift[]
 }
+
 export interface SimpleShift {
   id: string | null;
-  date: string;
-  type: ShiftType;
+  date: string | null;
+  monthlyPlan: string;
+  shiftType: string;
+  users: string[];
+}
+
+export interface ShiftWithIds {
+  id: string | null;
+  shiftType: string;
+  date: string | null;
 }
 
 export interface EmployeeWithShifts {
-  name: string;
-  role: string;
-  workingPercentage: string;
+  id: string;
   shifts: {
-    [date: string]: SimpleShift;
+    [date: string]: ShiftWithIds;
   };
 }
 
