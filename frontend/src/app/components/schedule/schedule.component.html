@@ -8,6 +8,8 @@
                        [displayCreateScheduleButton]="displayCreateScheduleButton" (createSchedule)="createSchedule()"
                        [shiftTypes]="shiftTypes"
                        (updateShift)="updateShift($event)"
+                       [currentUser]="currentUser"
+                       (deleteSchedule)="deleteSchedule()"
                        class="p-flex-1 p-overflow-auto"></app-week-view>
       </div>
     </div>

@@ -9,6 +9,7 @@ import {User} from "../../interfaces/user";
 import {ShiftTypeService} from "../../services/shiftType.service";
 import {ShiftType} from "../../interfaces/shiftType";
 import {ShiftService} from "../../services/shift.service";
+import {AuthorizationService} from "../../services/authorization/authorization.service";
 
 @Component({
   selector: 'app-schedule',
@@ -33,25 +34,29 @@ export class ScheduleComponent implements OnInit {
   roles: Role[] = [];
   users: User[] = [];
   shiftTypes: ShiftType[] = [];
+  currentUser: User | undefined;
 
-  constructor(private scheduleService: ScheduleService, private roleService: RolesService, private userService: UserService, private shiftTypeService: ShiftTypeService, private shiftService: ShiftService) {
+  constructor(private scheduleService: ScheduleService, private roleService: RolesService,
+              private userService: UserService, private shiftTypeService: ShiftTypeService,
+              private shiftService: ShiftService, private authorizationService: AuthorizationService) {
   }
 
   ngOnInit(): void {
     this.fetchRoles();
     this.loadSchedule();
     this.loadShiftTypes();
+    this.getCurrentUser();
   }
 
   loadSchedule(): void {
     this.startDate = this.getMondayOfCurrentWeek(new Date());
     this.startDate.setHours(0, 0, 0, 0);
+    this.getUsersFromTeam();
     this.updateData();
   }
 
   updateData(): void {
     this.generateDays();
-    this.getUsersFromTeam();
     this.getDataIfNotCached();
   }
 
@@ -60,6 +65,9 @@ export class ScheduleComponent implements OnInit {
     const year = this.startDate.getFullYear();
     this.scheduleService.createSchedule(this.createScheduleMonth, year).subscribe(() => {
       this.updateData();
+      const month = new Date(`${this.createScheduleMonth} 1, ${year}`).getMonth() + 1;
+      this.startDate = new Date(this.startDate.getFullYear(), month, 0);
+      this.changeRange("month");
       this.displayCreateScheduleButton = false;
     });
   }
@@ -196,6 +204,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   changeWeek(offset: number): void {
+    this.displayCreateScheduleButton = false;
     this.currentWeekOffset += offset;
     if (this.range > 14) {
       this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + offset, 1);
@@ -208,6 +217,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   changeRange(range: string): void {
+    this.displayCreateScheduleButton = false;
     switch (range) {
       case 'week':
         this.startDate = this.getMondayOfCurrentWeek(this.startDate);
@@ -284,7 +294,7 @@ export class ScheduleComponent implements OnInit {
         this.shiftService.createShift(shift).subscribe({
           next: (response) => {
             this.cachedSchedules[cacheKey].shifts.push(response);
-            this.loadSchedule();
+            this.updateData();
           }
         });
         break;
@@ -297,7 +307,7 @@ export class ScheduleComponent implements OnInit {
             this.cachedSchedules[cacheKey].shifts = this.cachedSchedules[cacheKey].shifts.filter(
               s => s.id !== shiftInfo.shiftId
             );
-            this.loadSchedule();
+            this.updateData();
           }
         })
         break;
@@ -311,11 +321,37 @@ export class ScheduleComponent implements OnInit {
               s => s.id !== response.id
             );
             this.cachedSchedules[cacheKey].shifts.push(response);
-            this.loadSchedule();
+            this.updateData();
           }
         })
         break;
     }
+  }
+
+  deleteSchedule(): void {
+    this.loading = true;
+    const shiftDate = new Date(this.startDate);
+    const cacheKey = this.generateCacheKey(shiftDate);
+    const scheduleId = this.cachedSchedules[cacheKey].id;
+    // TODO: add error msg
+    if (scheduleId == null) {
+      return;
+    }
+    this.scheduleService.deleteSchedule(scheduleId).subscribe(() => {
+      delete this.cachedSchedules[cacheKey];
+      this.updateData();
+      this.displayCreateScheduleButton = true;
+    });
+  }
+
+  getCurrentUser(): void {
+    const userId = this.authorizationService.parsedToken().sub;
+    this.userService.getUserById(userId).subscribe({
+      next:
+        (response) => {
+          this.currentUser = response;
+        }
+    });
   }
 
 }

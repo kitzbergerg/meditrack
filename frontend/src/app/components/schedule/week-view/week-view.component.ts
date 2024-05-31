@@ -1,6 +1,6 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Day, EmployeeWithShifts, RangeOption, Shift} from "../../../interfaces/schedule.models";
-import {DatePipe, JsonPipe, NgForOf, NgIf, NgStyle} from "@angular/common";
+import {DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
@@ -28,7 +28,8 @@ import {ShiftType} from "../../../interfaces/shiftType";
     DatePipe,
     OverlayPanelModule,
     JsonPipe,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgClass
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
@@ -43,14 +44,24 @@ export class WeekViewComponent implements OnChanges {
   @Output() weekChange = new EventEmitter<number>();
   @Output() createSchedule = new EventEmitter<void>();
   @Output() rangeChange = new EventEmitter<string>();
-  @Output() updateShift = new EventEmitter<{ user: User, day: Day, shiftType: ShiftType, shiftId: string | null, operation: string }>();
+  @Output() deleteSchedule = new EventEmitter<void>();
+  @Output() updateShift = new EventEmitter<{
+    user: User,
+    day: Day,
+    shiftType: ShiftType,
+    shiftId: string | null,
+    operation: string
+  }>();
   @Input() displayCreateScheduleButton = false;
   @Input() users: User[] = [];
   @Input() shiftTypes: ShiftType[] = [];
   @Input() missingMonth = "";
+  @Input() currentUser: User | undefined;
   weekNumber: number | undefined;
   monthNumber: number | undefined;
   currentShiftType: ShiftType | undefined;
+  editing = false;
+
 
   range = 'week'; // Default value set to week = 7 days
 
@@ -150,7 +161,6 @@ export class WeekViewComponent implements OnChanges {
   }
 
   setShiftType(type: ShiftType | undefined): void {
-    console.log("click");
     this.currentShiftType = type;
   }
 
@@ -158,6 +168,22 @@ export class WeekViewComponent implements OnChanges {
     const shiftType = this.currentShiftType;
     if (shiftType)
       this.updateShift.emit({user, day, shiftType, shiftId, operation});
+  }
+
+  toggleEdit() {
+    this.editing = !this.editing;
+    this.setRange('month');
+  }
+
+  deleteMonthSchedule(): void {
+    this.deleteSchedule.emit();
+  }
+
+  checkEditingAuthority(): boolean {
+    if (!this.currentUser?.roles) {
+      return false;
+    }
+    return this.currentUser.roles[0] === 'admin' || this.currentUser.roles[0] === 'dm';
   }
 
 }
