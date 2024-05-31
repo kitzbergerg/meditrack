@@ -15,7 +15,6 @@ export class ScheduleService {
   private baseUrl = 'http://localhost:8081/api/monthly-plan';
 
   createSchedule(month: string, year: number): Observable<Schedule> {
-    //TODO: param should not be required in backend
     const params = new HttpParams()
       .set('year', year.toString())
       .set('month', month);
@@ -25,13 +24,17 @@ export class ScheduleService {
   }
 
   fetchSchedule(month: string, year: number): Observable<Schedule> {
-    //TODO: param should not be required in backend
     const params = new HttpParams()
       .set('year', year.toString())
       .set('month', month);
 
     const url = `${this.baseUrl}/team`;
     return this.http.get<Schedule>(url, {params});
+  }
+
+  deleteSchedule(scheduleId: string) {
+    const url = `${this.baseUrl}/${scheduleId}`;
+    return this.http.delete(url);
   }
 
 }
