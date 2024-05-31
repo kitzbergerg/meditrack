@@ -58,12 +58,12 @@
     </div>
   </ng-template>
   <ng-template pTemplate="header">
-    <tr>
-      <th class="font-semibold" pFrozenColumn>Employees</th>
+    <tr class="font-semibold">
+      <th pFrozenColumn>Employees</th>
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
-      'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'
-    }" class="font-semibold" *ngFor="let day of days">{{ (day.dayName) }}
+      'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'}"
+          *ngFor="let day of days">{{ (day.dayName) }}
       </th>
     </tr>
   </ng-template>
@@ -78,21 +78,57 @@
       </td>
       <!-- TODO: Weekend check should be language independent -->
       <td *ngFor="let day of days; index as i"
-          [ngStyle]="{
-      'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !(employees.get(user?.firstName + ' ' + user?.lastName)?.shifts?.[day.date.toDateString()]?.type?.color) ? 'lightgray' : (employees.get(user.firstName + ' ' + user.lastName)?.shifts?.[day.date.toDateString()]?.type?.color ?? 'defaultColor'),
-      'color': '#fff'
-    }">
-        <ng-container *ngIf="employees?.get(user.firstName + ' ' + user.lastName)?.shifts as shifts">
-          <ng-container *ngIf="shifts[day.date.toDateString()]">
-            <div
-              class="text-xl font-medium">{{ shifts[day.date.toDateString()].type.abbreviation }}
+          [ngStyle]="getDayStyle(user, day)"
+          (click)="op.toggle($event); this.setShiftType(getShiftTypeFromDate(user.id, day.date))" class="cursor-pointer">
+
+        <ng-container *ngIf="getShiftTypeFromDate(user.id, day.date) as shiftType;">
+          <div>
+            <div class="text-xl font-medium">
+              {{ shiftType.abbreviation }}
             </div>
             <span *ngIf="range!=='month'" class="text-sm">
-              {{ shifts[day.date.toDateString()].type.startTime.slice(0, -3) }}
-              - {{ shifts[day.date.toDateString()].type.endTime.slice(0, -3) }}
+             {{ shiftType.startTime.slice(0, -3) }} - {{ shiftType.endTime.slice(0, -3) }}
             </span>
-          </ng-container>
+          </div>
         </ng-container>
+        <p-overlayPanel #op>
+          <p-dropdown
+            [(ngModel)]="this.currentShiftType"
+            [options]="shiftTypes"
+            optionLabel="name"
+            [showClear]="true"
+            placeholder="Select a Shift Type"
+          >
+          </p-dropdown>
+          <div class="flex justify-content-end flex-wrap">
+            <div *ngIf="getShiftTypeFromDate(user.id, day.date) as shiftType; else newShift;">
+              <p-button
+                class="m-2"
+                [outlined]="true"
+                type="button"
+                (click)="changeShift(user, day, getShiftIdFromDate(user.id, day.date), 'delete')"
+                label="Delete shift"
+                severity="danger">
+              </p-button>
+              <p-button
+                class="m-2"
+                [outlined]="true"
+                type="button"
+                (click)="changeShift(user, day, getShiftIdFromDate(user.id, day.date), 'update')"
+                label="Update shift">
+              </p-button>
+            </div>
+            <ng-template #newShift>
+              <p-button
+                class="m-2"
+                [outlined]="true"
+                type="button"
+                (click)="changeShift(user, day, null, 'create')"
+                label="Create shift">
+              </p-button>
+            </ng-template>
+          </div>
+        </p-overlayPanel>
       </td>
     </tr>
   </ng-template>

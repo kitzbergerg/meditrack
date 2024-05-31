@@ -1,14 +1,16 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {Day, EmployeeWithShifts, RangeOption} from "../../../interfaces/schedule.models";
-import {DatePipe, NgForOf, NgIf, NgStyle} from "@angular/common";
+import {Day, EmployeeWithShifts, RangeOption, Shift} from "../../../interfaces/schedule.models";
+import {DatePipe, JsonPipe, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DropdownModule} from "primeng/dropdown";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
+import {OverlayPanelModule} from "primeng/overlaypanel";
+import {ShiftType} from "../../../interfaces/shiftType";
 
 @Component({
   selector: 'app-week-view',
@@ -23,7 +25,10 @@ import {User} from "../../../interfaces/user";
     FormsModule,
     DropdownModule,
     ProgressSpinnerModule,
-    DatePipe
+    DatePipe,
+    OverlayPanelModule,
+    JsonPipe,
+    ReactiveFormsModule
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
@@ -38,11 +43,14 @@ export class WeekViewComponent implements OnChanges {
   @Output() weekChange = new EventEmitter<number>();
   @Output() createSchedule = new EventEmitter<void>();
   @Output() rangeChange = new EventEmitter<string>();
+  @Output() updateShift = new EventEmitter<{ user: User, day: Day, shiftType: ShiftType, shiftId: string | null, operation: string }>();
   @Input() displayCreateScheduleButton = false;
   @Input() users: User[] = [];
+  @Input() shiftTypes: ShiftType[] = [];
   @Input() missingMonth = "";
   weekNumber: number | undefined;
   monthNumber: number | undefined;
+  currentShiftType: ShiftType | undefined;
 
   range = 'week'; // Default value set to week = 7 days
 
@@ -81,10 +89,47 @@ export class WeekViewComponent implements OnChanges {
     return Math.ceil((((diffInMs / 86400000) + 1) / 7));
   }
 
+  getDayStyle(user: User, day: Day) {
+    if (user?.id == null) {
+      return {
+        'background-color': 'defaultColor',
+        'color': '#fff'
+      };
+    }
+    const shift = this.employees.get(user?.id)?.shifts?.[day.date.toDateString()];
+    const shiftType = this.getShiftType(shift?.shiftType);
+    const isWeekend = ['Su', 'Sa'].some(dayName => day.dayName.includes(dayName));
+    const backgroundColor = shiftType?.color || (isWeekend ? 'lightgray' : 'defaultColor');
+    return {
+      'background-color': backgroundColor,
+      'color': '#fff'
+    };
+  }
+
   getMonthNumber(date: Date): number {
     // Get the month from the date object
     // Months are zero-based in JavaScript, so we add 1 to get a 1-based month number
     return date.getMonth() + 1;
+  }
+
+  getShiftType(id: string | undefined): ShiftType | undefined {
+    return this.shiftTypes.find((shiftType => shiftType.id && shiftType.id.toString() === id));
+  }
+
+  getShiftTypeFromDate(userId: string, date: Date): ShiftType | undefined {
+    const shifts = this.employees?.get(userId)?.shifts;
+    if (shifts) {
+      return this.getShiftType(shifts[date.toDateString()]?.shiftType);
+    }
+    return undefined;
+  }
+
+  getShiftIdFromDate(userId: string, date: Date): string | null {
+    const shifts = this.employees?.get(userId)?.shifts;
+    if (shifts) {
+      return shifts[date.toDateString()].id;
+    }
+    return null;
   }
 
   createNewSchedule(): void {
@@ -102,6 +147,17 @@ export class WeekViewComponent implements OnChanges {
   setRange(range: string): void {
     this.range = range;
     this.rangeChange.emit(range);
+  }
+
+  setShiftType(type: ShiftType | undefined): void {
+    console.log("click");
+    this.currentShiftType = type;
+  }
+
+  changeShift(user: User, day: Day, shiftId: string | null, operation: string): void {
+    const shiftType = this.currentShiftType;
+    if (shiftType)
+      this.updateShift.emit({user, day, shiftType, shiftId, operation});
   }
 
 }

@@ -6,6 +6,8 @@
                        (rangeChange)="changeRange($event)" [loading]="loading" [roles]="roles" [users]="users"
                        [missingMonth]="createScheduleMonth"
                        [displayCreateScheduleButton]="displayCreateScheduleButton" (createSchedule)="createSchedule()"
+                       [shiftTypes]="shiftTypes"
+                       (updateShift)="updateShift($event)"
                        class="p-flex-1 p-overflow-auto"></app-week-view>
       </div>
     </div>
