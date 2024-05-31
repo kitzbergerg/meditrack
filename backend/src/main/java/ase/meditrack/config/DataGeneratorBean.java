@@ -161,32 +161,40 @@ public class DataGeneratorBean {
         users = new ArrayList<>();
         for (Team team : teams) {
             for (Role role : roles) {
-                for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                    UserDto user = new UserDto(
-                            null,
-                            FAKER.name().username(),
-                            "s€cr€tPa$$w0rd",
-                            FAKER.internet().emailAddress(),
-                            FAKER.name().firstName(),
-                            FAKER.name().lastName(),
-                            List.of("admin"),
-                            null,
-                            (float) FAKER.number().numberBetween(20, 100),
-                            0,
-                            List.of(FAKER.educator().course(), FAKER.educator().course()),
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                    );
-                    User userEntity = userMapper.fromDto(user);
-                    userEntity.setTeam(team);
-                    userEntity.setRole(role);
-                    users.add(userService.create(userEntity));
+                if (role.getTeam().getId().equals(team.getId())) {
+                    for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
+                        String firstName = FAKER.name().firstName();
+                        String lastName = FAKER.name().lastName();
+                        String username = (firstName.charAt(0) + lastName).toLowerCase();
+                        String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@' + FAKER.internet().domainName();
+
+                        UserDto user = new UserDto(
+                                null,
+                                username,
+                                "password",
+                                email,
+                                firstName,
+                                lastName,
+                                List.of("admin"),
+                                null,
+                                (float) FAKER.number().numberBetween(20, 100),
+                                0,
+                                List.of(FAKER.educator().course(), FAKER.educator().course()),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        );
+                        log.info("new User {}", user);
+                        User userEntity = userMapper.fromDto(user);
+                        userEntity.setTeam(team);
+                        userEntity.setRole(role);
+                        users.add(userService.create(userEntity));
+                    }
                 }
             }
         }
@@ -228,6 +236,7 @@ public class DataGeneratorBean {
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
+            nightShift.setType("Night");
             nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
@@ -238,6 +247,7 @@ public class DataGeneratorBean {
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
+            morningShift.setType("Day");
             morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
@@ -248,6 +258,7 @@ public class DataGeneratorBean {
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");
+            eveningShift.setType("Day");
             eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));
