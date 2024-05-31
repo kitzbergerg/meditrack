@@ -166,7 +166,8 @@ public class DataGeneratorBean {
                         String firstName = FAKER.name().firstName();
                         String lastName = FAKER.name().lastName();
                         String username = (firstName.charAt(0) + lastName).toLowerCase();
-                        String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@' + FAKER.internet().domainName();
+                        String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
+                                + FAKER.internet().domainName();
 
                         UserDto user = new UserDto(
                                 null,
