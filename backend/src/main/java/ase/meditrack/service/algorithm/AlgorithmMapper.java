@@ -119,7 +119,6 @@ public class AlgorithmMapper {
             employeeInfos.add(new EmployeeInfo(worksShifts, workingHours));
         }
         AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, constraintInfo);
-        System.out.println(input);
         return input;
     }
 

@@ -190,7 +190,6 @@ public class DataGeneratorBean {
                                 null,
                                 null
                         );
-                        log.info("new User {}", user);
                         User userEntity = userMapper.fromDto(user);
                         userEntity.setTeam(team);
                         userEntity.setRole(role);
