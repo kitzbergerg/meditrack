@@ -1,15 +1,6 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +44,9 @@ public class Role {
     @ManyToOne(optional = false)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @ManyToMany(mappedBy = "requiredRoles")
+    private List<ShiftType> shiftTypes;
 
     @Override
     public boolean equals(Object o) {

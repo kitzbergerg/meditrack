@@ -1,16 +1,6 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -63,6 +53,13 @@ public class ShiftType {
     private String color;
 
     private String abbreviation;
+
+    @ManyToMany()
+    @JoinTable(name = "shiftTypeRoles",
+            joinColumns = @JoinColumn(name = "shiftType_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> requiredRoles;
 
     @ManyToOne
     @JoinColumn(name = "team_id")

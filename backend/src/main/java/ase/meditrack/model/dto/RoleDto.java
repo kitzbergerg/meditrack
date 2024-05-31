@@ -28,6 +28,7 @@ public record RoleDto(
         @Length(max = 4, groups = {CreateValidator.class, UpdateValidator.class})
         String abbreviation,
         List<UUID> users,
-        UUID team
+        UUID team,
+        List<UUID> shiftTypes
 ) {
 }
