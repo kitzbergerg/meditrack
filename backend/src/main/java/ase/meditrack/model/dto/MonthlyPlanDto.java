@@ -17,6 +17,6 @@ public record MonthlyPlanDto(
         @NotNull(groups = CreateValidator.class) @FutureOrPresent Year year,
         @NotNull(groups = CreateValidator.class) Boolean published,
         @NotNull(groups = CreateValidator.class) UUID team,
-        List<ShiftScheduleDto> shifts
+        List<ShiftDto> shifts
 ) {
 }
