@@ -11,6 +11,8 @@ import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ShiftType} from "../../../interfaces/shiftType";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 @Component({
   selector: 'app-week-view',
@@ -29,7 +31,8 @@ import {ShiftType} from "../../../interfaces/shiftType";
     OverlayPanelModule,
     JsonPipe,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    ConfirmDialogModule
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
@@ -71,7 +74,12 @@ export class WeekViewComponent implements OnChanges {
     {label: 'Month', value: 'month'}
   ];
 
+
+  constructor(private messageService: MessageService, private confirmationService: ConfirmationService) {
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(this.loading);
     if (changes && this.startDate) {
       this.weekNumber = this.getWeekNumber(this.startDate);
       this.monthNumber = this.getMonthNumber(this.startDate);
@@ -184,6 +192,23 @@ export class WeekViewComponent implements OnChanges {
       return false;
     }
     return this.currentUser.roles[0] === 'admin' || this.currentUser.roles[0] === 'dm';
+  }
+
+  confirmDelete(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this schedule?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-danger p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "none",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.deleteMonthSchedule();
+      }
+    });
   }
 
 }

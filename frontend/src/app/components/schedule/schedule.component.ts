@@ -10,12 +10,15 @@ import {ShiftTypeService} from "../../services/shiftType.service";
 import {ShiftType} from "../../interfaces/shiftType";
 import {ShiftService} from "../../services/shift.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
+import {MessageService} from "primeng/api";
+import {ToastModule} from "primeng/toast";
 
 @Component({
   selector: 'app-schedule',
   standalone: true,
   imports: [
-    WeekViewComponent
+    WeekViewComponent,
+    ToastModule
   ],
   templateUrl: './schedule.component.html',
   styleUrl: './schedule.component.scss'
@@ -38,7 +41,8 @@ export class ScheduleComponent implements OnInit {
 
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
-              private shiftService: ShiftService, private authorizationService: AuthorizationService) {
+              private shiftService: ShiftService, private authorizationService: AuthorizationService,
+              private messageService: MessageService) {
   }
 
   ngOnInit(): void {
@@ -293,8 +297,11 @@ export class ScheduleComponent implements OnInit {
       case 'create':
         this.shiftService.createShift(shift).subscribe({
           next: (response) => {
+            this.messageService.add({severity:'success', summary: 'Successfully added shift'});
             this.cachedSchedules[cacheKey].shifts.push(response);
             this.updateData();
+          }, error: (error) => {
+            this.messageService.add({severity:'error', summary: 'Creating shift failed: ' + error.toString()});
           }
         });
         break;
@@ -304,10 +311,13 @@ export class ScheduleComponent implements OnInit {
         }
         this.shiftService.deleteShift(shiftInfo.shiftId).subscribe({
           next: () => {
+            this.messageService.add({severity:'success', summary: 'Successfully deleted shift'});
             this.cachedSchedules[cacheKey].shifts = this.cachedSchedules[cacheKey].shifts.filter(
               s => s.id !== shiftInfo.shiftId
-            );
+            )
             this.updateData();
+          }, error: (error) => {
+            this.messageService.add({severity:'error', summary: 'Deleting shift failed: ' + error.toString()});
           }
         })
         break;
@@ -317,11 +327,14 @@ export class ScheduleComponent implements OnInit {
         }
         this.shiftService.updateShift(shift).subscribe({
           next: (response) => {
+            this.messageService.add({severity:'success', summary: 'Successfully updated shift'});
             this.cachedSchedules[cacheKey].shifts = this.cachedSchedules[cacheKey].shifts.filter(
               s => s.id !== response.id
             );
             this.cachedSchedules[cacheKey].shifts.push(response);
             this.updateData();
+          }, error: (error) => {
+            this.messageService.add({severity:'error', summary: 'Updating shift failed: ' + error.toString()});
           }
         })
         break;

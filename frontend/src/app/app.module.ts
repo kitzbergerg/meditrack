@@ -26,7 +26,7 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { CalendarModule } from "primeng/calendar";
 import {MultiSelectModule} from "primeng/multiselect";
 import {ToastModule} from "primeng/toast";
-import { MessageService } from 'primeng/api';
+import {ConfirmationService, MessageService} from 'primeng/api';
 import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
 
@@ -89,6 +89,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
   ],
   providers: [
     MessageService,
+    ConfirmationService,
     {
       provide: APP_INITIALIZER,
       useFactory: initializeKeycloak,

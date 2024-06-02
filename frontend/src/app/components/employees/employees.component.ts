@@ -259,7 +259,7 @@ export class EmployeesComponent {
               this.messageService.add({severity:'success', summary: 'Successfully Updated User ' + user.firstName});
               this.userDialog = false;
             },
-            error: (error) => {
+            error: () => {
               this.messageService.add({severity:'error', summary: 'Updating User Failed'});
             }
           })

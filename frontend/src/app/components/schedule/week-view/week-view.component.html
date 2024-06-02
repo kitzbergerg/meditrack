@@ -3,12 +3,13 @@
   <p-button
     class="m-2"
     [outlined]="true"
-    *ngIf="checkEditingAuthority()"
+    *ngIf="checkEditingAuthority()  && editing"
     type="button"
     (click)="createNewSchedule()"
     severity="success"
     icon="pi pi-check-circle"
     label="{{'Publish'}}"/>
+
 
   <p-button
     class="m-2"
@@ -17,6 +18,18 @@
     type="button"
     (click)="createNewSchedule()"
     label="{{'Create plan for ' + missingMonth}}"/>
+
+  <p-confirmDialog/>
+
+  <p-button
+    class="m-2"
+    [outlined]="true"
+    *ngIf="checkEditingAuthority() && !displayCreateScheduleButton && editing"
+    type="button"
+    (click)="confirmDelete($event)"
+    icon="pi pi-times"
+    severity="danger"
+    label="{{'Delete'}}"/>
 
   <p-button
     class="m-2"
@@ -36,19 +49,10 @@
     icon="pi pi-check"
     label="{{'Done'}}"/>
 
-  <p-button
-    class="m-2"
-    [outlined]="true"
-    *ngIf="checkEditingAuthority() && !displayCreateScheduleButton"
-    type="button"
-    (click)="deleteMonthSchedule()"
-    icon="pi pi-times"
-    severity="danger"
-    label="{{'Delete'}}"/>
-
 </div>
 <p-table #dt [value]="users" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
          styleClass="p-datatable-gridlines" responsiveLayout="scroll"
+         [style]="editing ? {'border': '1px solid  var(--primary-color)'} : {}"
          [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]=" loading">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
