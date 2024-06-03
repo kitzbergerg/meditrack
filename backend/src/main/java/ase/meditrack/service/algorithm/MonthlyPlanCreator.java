@@ -1,18 +1,22 @@
 package ase.meditrack.service.algorithm;
 
 import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
+import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.TeamRepository;
+import ase.meditrack.service.MonthlyWorkDetailsService;
 import ase.meditrack.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,13 +27,19 @@ public class MonthlyPlanCreator {
     private final MonthlyPlanRepository monthlyPlanRepository;
     private final TeamRepository teamRepository;
     private final UserService userService;
+    private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
+    private final MonthlyWorkDetailsService monthlyWorkDetailsService;
 
     public MonthlyPlanCreator(ShiftRepository shiftRepository, MonthlyPlanRepository monthlyPlanRepository,
-                              TeamRepository teamRepository, UserService userService) {
+                              TeamRepository teamRepository, UserService userService,
+                              MonthlyWorkDetailsRepository monthlyWorkDetailsRepository,
+                              MonthlyWorkDetailsService monthlyWorkDetailsService) {
         this.shiftRepository = shiftRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
         this.teamRepository = teamRepository;
         this.userService = userService;
+        this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
+        this.monthlyWorkDetailsService = monthlyWorkDetailsService;
     }
 
 
@@ -66,7 +76,8 @@ public class MonthlyPlanCreator {
         AlgorithmOutput output = SchedulingSolver.solve(input)
                 .orElseThrow(() -> new RuntimeException("unable to create plan"));
 
-        MonthlyPlan monthlyPlan = monthlyPlanRepository.save(new MonthlyPlan(null, month, year, false, team, null));
+        MonthlyPlan monthlyPlan = monthlyPlanRepository.save(new MonthlyPlan(null, month, year, false,
+                team, null, null));
 
         List<Shift> shifts = algorithmMapper.mapFromAlgorithmOutput(
                 output,
@@ -76,6 +87,27 @@ public class MonthlyPlanCreator {
                 month,
                 year
         );
+
+        List<MonthlyWorkDetails> monthlyWorkDetails = new ArrayList<>();
+        for (User teamMember : users) {
+            Float targetHours = monthlyWorkDetailsService.calculateTargetWorkingHours(teamMember, team, month, year);
+            Float actualHours = monthlyWorkDetailsService.calculateActualWorkingHours(teamMember, shifts);
+            int overtime = Math.round(actualHours - targetHours);
+
+            MonthlyWorkDetails monthlyWorkDetail = new MonthlyWorkDetails(null,
+                    month,
+                    year,
+                    targetHours,
+                    actualHours,
+                    overtime,
+                    teamMember,
+                    monthlyPlan
+            );
+
+            monthlyWorkDetails.add(monthlyWorkDetail);
+        }
+
+        monthlyWorkDetailsRepository.saveAll(monthlyWorkDetails);
 
         shifts = shiftRepository.saveAll(shifts);
         monthlyPlan.setShifts(shifts);
