@@ -149,7 +149,6 @@ class AlgorithmMapperTest {
         AlgorithmInput input =
                 algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
 
-        System.out.println(input.hardConstraints().daytimeRequiredRoles());
 
         assertEquals(2, input.employees().size());
         assertEquals(Arrays.asList(0, 1), input.employees().get(0).worksShifts());
