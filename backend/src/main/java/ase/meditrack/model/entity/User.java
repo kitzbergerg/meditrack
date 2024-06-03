@@ -93,6 +93,9 @@ public class User {
     @JsonInclude
     private UserRepresentation userRepresentation;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MonthlyWorkDetails> monthlyWorkDetails;
+
     public void addSpecialSkills(String skill) {
         if (specialSkills == null) {
             specialSkills = new ArrayList<>();

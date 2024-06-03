@@ -44,6 +44,9 @@ public class MonthlyPlan {
     @OneToMany(mappedBy = "monthlyPlan", cascade = { CascadeType.REMOVE})
     private List<Shift> shifts;
 
+    @OneToMany(mappedBy = "monthlyPlan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MonthlyWorkDetails> monthlyWorkDetails;
+
     @Override
     public final boolean equals(final Object o) {
         if (this == o) return true;
