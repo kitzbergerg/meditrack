@@ -3,7 +3,7 @@
     <div class="card px-6 py-6">
       <div class="p-d-flex p-flex-column p-h-100">
         <p-toast></p-toast>
-        <app-week-view [days]="days" [employees]="employees" [startDate]="startDate" (weekChange)="changeWeek($event)"
+        <app-week-view [days]="days" [startDate]="startDate" (weekChange)="changeWeek($event)"
                        (rangeChange)="changeRange($event)" [loading]="loading" [roles]="roles" [users]="users"
                        [missingMonth]="createScheduleMonth"
                        [displayCreateScheduleButton]="displayCreateScheduleButton" (createSchedule)="createSchedule()"
@@ -11,6 +11,7 @@
                        (updateShift)="updateShift($event)"
                        [currentUser]="currentUser"
                        (deleteSchedule)="deleteSchedule()"
+                       [employees]="usersWithShifts"
                        class="p-flex-1 p-overflow-auto"></app-week-view>
       </div>
     </div>

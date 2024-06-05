@@ -1,6 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {WeekViewComponent} from "./week-view/week-view.component";
-import {Day, EmployeeWithShifts, Schedule, Shift, SimpleShift} from "../../interfaces/schedule.models";
+import {
+  Day,
+  EmployeeWithShifts,
+  Schedule,
+  SimpleShift,
+  UserWithShifts,
+  WorkDetails
+} from "../../interfaces/schedule.models";
 import {ScheduleService} from "../../services/schedule.service";
 import {RolesService} from "../../services/roles.service";
 import {Role} from "../../interfaces/role";
@@ -36,8 +43,11 @@ export class ScheduleComponent implements OnInit {
   createScheduleMonth = "";
   roles: Role[] = [];
   users: User[] = [];
-  shiftTypes: ShiftType[] = [];
+  usersWithShifts: UserWithShifts[] = [];
+  shiftTypes: { [id: string]: ShiftType } = {};
   currentUser: User | undefined;
+  userWorkDetails: WorkDetails[] = [];
+  workDetailsMap: Map<string, WorkDetails> = new Map<string, WorkDetails>();
 
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
@@ -60,8 +70,9 @@ export class ScheduleComponent implements OnInit {
   }
 
   updateData(): void {
-    this.generateDays();
+    this.loading = true;
     this.getDataIfNotCached();
+    this.generateDays();
   }
 
   createSchedule(): void {
@@ -78,14 +89,15 @@ export class ScheduleComponent implements OnInit {
 
   fetchMonthSchedule(date: Date): void {
     this.loading = true;
-    const month = date.toLocaleString('default', {month: 'long'});
+    const month = date.toLocaleString('en-us', {month: 'long'});
     const year = date.getFullYear();
     console.log("Grabbing data for month: " + month);
     this.scheduleService.fetchSchedule(month, year).subscribe({
       next: data => {
         const cacheKey = this.generateCacheKey(date);
         this.cachedSchedules[cacheKey] = data;
-        this.transformData(data.shifts);
+        this.userWorkDetails = data.monthlyWorkDetails;
+        this.transformData(date, data.shifts, data.monthlyWorkDetails);
       },
       error: err => {
         if (err.status === 404) {
@@ -97,6 +109,12 @@ export class ScheduleComponent implements OnInit {
     });
   }
 
+  mapUsers(users: User[]): UserWithShifts[] {
+    return users.map(user => ({
+      id: user.id, firstName: user.firstName, lastName: user.lastName,
+      workingHoursPercentage: user.workingHoursPercentage, role: user.role, shifts: {}, workDetails: {}
+    }));
+  }
   generateDays(): void {
     const days = [];
     let iterateDate = new Date(this.startDate);
@@ -114,77 +132,49 @@ export class ScheduleComponent implements OnInit {
     const endDate = new Date(this.startDate);
     endDate.setDate(this.startDate.getDate() + (this.range - 1));
 
-    // Delete old data
-    this.employees = new Map<string, EmployeeWithShifts>();
-
-    // Fill this.employees with new data
-    // Check if month data of first Day and last Day are cached
+    // Check if month data of first Day and last Day are already fetched
     this.checkAndFetchSchedule(currentDate);
     this.checkAndFetchSchedule(endDate);
+    this.loading = false;
   }
 
   checkAndFetchSchedule(date: Date): void {
     const cacheKey = this.generateCacheKey(date);
     if (!this.cachedSchedules[cacheKey]) {
       this.fetchMonthSchedule(date);
-    } else {
-      this.transformData(this.cachedSchedules[cacheKey].shifts);
     }
   }
 
-  transformData(shifts: SimpleShift[]): void {
-    const employeeMap = new Map<string, EmployeeWithShifts>();
-
-    const endDate = new Date(this.startDate);
-    endDate.setDate(this.startDate.getDate() + this.range);
-
-    // Filter shifts based on the date range
-    const filteredShifts = shifts.filter(shift => {
-      if (!shift.date) {
-        return;
-      }
-      const shiftDate = new Date(shift.date);
-      return shiftDate >= this.startDate && shiftDate < endDate;
-    });
-
-    // Fill map with employees, so we do not overwrite them in second transformData call in getDataIfNotCached()
-    this.employees.forEach(emp => {
-      const id = emp.id;
-
-      if (!employeeMap.has(id)) {
-        employeeMap.set(id, {
-          id: id,
-          shifts: emp.shifts
-        });
-      }
-    });
-
-    // Iterate over shifts and parse the data, store in employeeMap
-    filteredShifts.forEach(shift => {
+  transformData(calendarDate: Date, shifts: SimpleShift[], workDetails: WorkDetails[]): void {
+    this.loading = true;
+    // Iterate over shifts and parse the data, store in the respective employee's shifts map
+    shifts.forEach(shift => {
       if (!shift.date) {
         return;
       }
       const date = new Date(shift.date).toDateString();
-      shift.users.forEach(user => {
-        const id = `${user}`;
+      const userId = shift.users[0]; // Accessing the single user in the array
 
-        let employee = employeeMap.get(id);
-        if (!employee) {
-          employee = {
-            id: id,
-            shifts: {}
-          };
-          employeeMap.set(id, employee);
-        }
+      // Find the employee by id
+      const employee = this.usersWithShifts.find(emp => emp.id === userId);
+      if (employee) {
         employee.shifts[date] = {
           id: shift.id,
           date: shift.date,
           shiftType: shift.shiftType,
         };
-      });
+      }
     });
 
-    this.employees = employeeMap;
+    // Iterate over workDetails and add them to the respective employee's workDetails map
+    workDetails.forEach(detail => {
+      const employee = this.usersWithShifts.find(emp => emp.id === detail.userId);
+      if (employee) {
+        const monthYear = `${calendarDate.getMonth() + 1}/${calendarDate.getFullYear()}`; // Example format: "6/2023"
+        employee.workDetails[monthYear] = detail;
+      }
+    });
+
     this.loading = false;
   }
 
@@ -196,7 +186,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   generateCacheKey(currentDate: Date) {
-    const month = currentDate.toLocaleString('default', {month: 'long'});
+    const month = currentDate.toLocaleString('en-us', {month: 'long'});
     const year = currentDate.getFullYear();
     return `${month}-${year}`;
   }
@@ -208,6 +198,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   changeWeek(offset: number): void {
+    this.loading = true;
     this.displayCreateScheduleButton = false;
     this.currentWeekOffset += offset;
     if (this.range > 14) {
@@ -221,6 +212,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   changeRange(range: string): void {
+    this.loading = true;
     this.displayCreateScheduleButton = false;
     switch (range) {
       case 'week':
@@ -253,6 +245,7 @@ export class ScheduleComponent implements OnInit {
     this.userService.getAllUserFromTeam().subscribe({
       next: data => {
         this.users = data;
+        this.usersWithShifts = this.mapUsers(data);
       }
     });
   }
@@ -260,13 +253,19 @@ export class ScheduleComponent implements OnInit {
   loadShiftTypes() {
     this.shiftTypeService.getAllShiftTypesByTeam().subscribe({
       next: (response) => {
-        this.shiftTypes = response;
+        this.shiftTypes = {};
+
+        for (const shiftType of response) {
+          if (shiftType.id != undefined) {
+            this.shiftTypes[shiftType.id] = shiftType;
+          }
+        }
       }
     });
   }
 
   updateShift(shiftInfo: {
-    user: User,
+    user: UserWithShifts,
     day: Day,
     shiftType: ShiftType,
     shiftId: string | null,
@@ -293,15 +292,21 @@ export class ScheduleComponent implements OnInit {
       ],
     };
 
+    const curEmployee = this.usersWithShifts.find(user => user.id === shiftInfo.user.id);
+
     switch (shiftInfo.operation.toLowerCase()) {
       case 'create':
         this.shiftService.createShift(shift).subscribe({
           next: (response) => {
-            this.messageService.add({severity:'success', summary: 'Successfully added shift'});
-            this.cachedSchedules[cacheKey].shifts.push(response);
+            this.messageService.add({severity: 'success', summary: 'Successfully added shift'});
+            shift.id = response.id;
+            if (curEmployee) {
+              curEmployee.shifts[shiftDate.toDateString()] = shift;
+            }
+            if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             this.updateData();
           }, error: (error) => {
-            this.messageService.add({severity:'error', summary: 'Creating shift failed: ' + error.toString()});
+            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + error.toString()});
           }
         });
         break;
@@ -311,13 +316,13 @@ export class ScheduleComponent implements OnInit {
         }
         this.shiftService.deleteShift(shiftInfo.shiftId).subscribe({
           next: () => {
-            this.messageService.add({severity:'success', summary: 'Successfully deleted shift'});
-            this.cachedSchedules[cacheKey].shifts = this.cachedSchedules[cacheKey].shifts.filter(
-              s => s.id !== shiftInfo.shiftId
-            )
+            this.messageService.add({severity: 'success', summary: 'Successfully deleted shift'});
+            delete curEmployee?.shifts[shiftDate.toDateString()];
+
+            if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             this.updateData();
           }, error: (error) => {
-            this.messageService.add({severity:'error', summary: 'Deleting shift failed: ' + error.toString()});
+            this.messageService.add({severity: 'error', summary: 'Deleting shift failed: ' + error.toString()});
           }
         })
         break;
@@ -326,19 +331,30 @@ export class ScheduleComponent implements OnInit {
           return;
         }
         this.shiftService.updateShift(shift).subscribe({
-          next: (response) => {
-            this.messageService.add({severity:'success', summary: 'Successfully updated shift'});
-            this.cachedSchedules[cacheKey].shifts = this.cachedSchedules[cacheKey].shifts.filter(
-              s => s.id !== response.id
-            );
-            this.cachedSchedules[cacheKey].shifts.push(response);
+          next: () => {
+            this.messageService.add({severity: 'success', summary: 'Successfully updated shift'});
+            if (curEmployee?.shifts[shiftDate.toDateString()]) {
+              curEmployee.shifts[shiftDate.toDateString()] = shift;
+            }
+            if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             this.updateData();
           }, error: (error) => {
-            this.messageService.add({severity:'error', summary: 'Updating shift failed: ' + error.toString()});
+            this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + error.toString()});
           }
         })
         break;
     }
+  }
+
+  fetchWorkDetails(userId: string, shiftDate: Date): void {
+    this.userService.getUserMonthlyDetails(userId, shiftDate.toLocaleString('default', {month: 'long'}), shiftDate.getFullYear()).subscribe((workDetails: WorkDetails) => {
+      // instead of pushing the new workDetails, we should update the existing one
+      const employee = this.usersWithShifts.find(emp => emp.id === workDetails.userId);
+      if (employee) {
+        const monthYear = `${shiftDate.getMonth() + 1}/${shiftDate.getFullYear()}`; // Example format: "6/2023"
+        employee.workDetails[monthYear] = workDetails;
+      }
+    });
   }
 
   deleteSchedule(): void {

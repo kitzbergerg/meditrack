@@ -15,6 +15,7 @@ export class ShiftService {
 
   createShift(shift: SimpleShift): Observable<SimpleShift> {
     const url = `${this.apiUrl}`;
+    console.log(JSON.stringify(shift));
     return this.http.post<SimpleShift>(url, shift);
   }
 

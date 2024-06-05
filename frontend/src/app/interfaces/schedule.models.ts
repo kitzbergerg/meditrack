@@ -1,3 +1,5 @@
+import {Role} from "./role";
+
 export interface Schedule {
   month: string;
   year: number;
@@ -28,7 +30,15 @@ export interface Schedule {
   "year": number,
   "published": boolean,
   "team": string,
-  "shifts": SimpleShift[]
+  "shifts": SimpleShift[],
+  "monthlyWorkDetails": WorkDetails[]
+}
+
+export interface WorkDetails {
+  userId: string,
+  hoursShouldWork : number,
+  hoursActuallyWorked: number,
+  overtime: number
 }
 
 export interface SimpleShift {
@@ -60,6 +70,20 @@ interface User {
   role: {
     id: string;
     name: string;
+  };
+}
+
+export interface UserWithShifts {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  workingHoursPercentage: number;
+  role: Role,
+  shifts: {
+    [date: string]: ShiftWithIds;
+  };
+  workDetails: {
+    [date: string]: WorkDetails;
   };
 }
 

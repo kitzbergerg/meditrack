@@ -50,10 +50,10 @@
     label="{{'Done'}}"/>
 
 </div>
-<p-table #dt [value]="users" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
+<p-table #dt [value]="employees" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
          styleClass="p-datatable-gridlines" responsiveLayout="scroll"
          [style]="editing ? {'border': '1px solid  var(--primary-color)'} : {}"
-         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]=" loading">
+         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading" [rowTrackBy]="trackByEmployeeId">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
       <h5 *ngIf="range==='week'" class="m-0">Calendar Week {{ weekNumber }}</h5>
@@ -102,32 +102,52 @@
                 </span>
     </div>
   </ng-template>
-  <ng-template pTemplate="header">
+  <ng-template pTemplate="header" let-employee>
     <tr class="font-semibold">
       <th pFrozenColumn>Employees</th>
+      <th *ngIf="range==='month'">Details</th>
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
       'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'}"
-          *ngFor="let day of days">{{ (day.dayName) }}
+          *ngFor="let day of days; trackBy: trackByDay">{{ (day.dayName) }}
       </th>
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-user>
+  <ng-template pTemplate="body" let-employee>
     <tr>
       <td pFrozenColumn>
-        <div pSortableColumn="username">{{ user.firstName }} {{ user.lastName }}</div>
-        <div class="text-sm flex align-items-center justify-content-start"><span
-          class="pi pi-clock mr-1"></span>{{ user.workingHoursPercentage }}%
+        <div class="flex flex-row">
+          <div class="flex align-items-center mr-3">
+            <div
+              [ngStyle]="{'background-color': getColorFromInitials(employee.firstName.charAt(0) + employee.lastName.charAt(0))}"
+              style="width: 40px; height: 40px; border-radius: 50%; background-color: #4caf50; display: flex; align-items: center; justify-content: center; color: white;">
+              {{ employee.firstName.charAt(0) }}{{ employee.lastName.charAt(0) }}
+            </div>
+          </div>
+          <div>
+            <div pSortableColumn="username">{{ employee.firstName }} {{ employee.lastName }}</div>
+            <div class="text-sm flex align-items-center justify-content-start"><span
+              class="pi pi-clock mr-1"></span>{{ employee.workingHoursPercentage }}%
+            </div>
+            <div class="text-sm">{{ employee.role.name }}</div>
+          </div>
         </div>
-        <div class="text-sm">{{ user.role.name }}</div>
+      </td>
+
+      <td *ngIf="range==='month'">
+        <div style="white-space: nowrap;" *ngIf="employee && getWorkDetails(employee) as detail">
+          <div>HSW: {{ detail.hoursShouldWork }}</div>
+          <div>HAW: {{ detail.hoursActuallyWorked }}</div>
+          <div>OT: {{ detail.overtime }}</div>
+        </div>
       </td>
       <!-- TODO: Weekend check should be language independent -->
-      <td *ngFor="let day of days; index as i"
-          [ngStyle]="getDayStyle(user, day)"
+      <td *ngFor="let day of days; index as i; trackBy: trackByDay"
+          [ngStyle]="getDayStyle(employee, day)"
           [ngClass]="{'cursor-pointer': editing}"
-          (click)="editing && op.toggle($event); editing && this.setShiftType(getShiftTypeFromDate(user.id, day.date))">
+          (click)="editing && op.toggle($event); editing && this.setShiftType(getShiftType(employee, day))">
 
-        <ng-container *ngIf="getShiftTypeFromDate(user.id, day.date) as shiftType;">
+        <ng-container *ngIf="getShiftType(employee, day) as shiftType;">
           <div>
             <div class="text-xl font-medium">
               {{ shiftType.abbreviation }}
@@ -140,19 +160,19 @@
         <p-overlayPanel #op>
           <p-dropdown
             [(ngModel)]="this.currentShiftType"
-            [options]="shiftTypes"
+            [options]="Object.values(shiftTypes)"
             optionLabel="name"
             [showClear]="true"
             placeholder="Select a Shift Type"
           >
           </p-dropdown>
           <div class="flex justify-content-end flex-wrap">
-            <div *ngIf="getShiftTypeFromDate(user.id, day.date) as shiftType; else newShift;">
+            <div *ngIf="getShiftType(employee, day) as shiftType; else newShift;">
               <p-button
                 class="m-2"
                 [outlined]="true"
                 type="button"
-                (click)="changeShift(user, day, getShiftIdFromDate(user.id, day.date), 'delete')"
+                (click)="changeShift(employee, day, 'delete')"
                 label="Delete shift"
                 severity="danger">
               </p-button>
@@ -160,7 +180,7 @@
                 class="m-2"
                 [outlined]="true"
                 type="button"
-                (click)="changeShift(user, day, getShiftIdFromDate(user.id, day.date), 'update')"
+                (click)="changeShift(employee, day, 'update')"
                 label="Update shift">
               </p-button>
             </div>
@@ -169,7 +189,7 @@
                 class="m-2"
                 [outlined]="true"
                 type="button"
-                (click)="changeShift(user, day, null, 'create')"
+                (click)="changeShift(employee, day, 'create')"
                 label="Create shift">
               </p-button>
             </ng-template>
