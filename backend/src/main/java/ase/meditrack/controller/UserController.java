@@ -101,10 +101,10 @@ public class UserController {
 
     @GetMapping("/monthly-details")
     public MonthlyWorkDetailsDto getMonthlyWorkDetails(@RequestParam Year year,
-                                                       @RequestParam Month month, Principal principal) {
+                                                       @RequestParam Month month, @RequestParam UUID userId) {
         log.info("Fetching monthly work details from user");
         try {
-            return monthlyWorkDetailsMapper.toDto(service.findWorkDetailsByIdAndMonthAndYear(principal, month, year));
+            return monthlyWorkDetailsMapper.toDto(service.findWorkDetailsByIdAndMonthAndYear(userId, month, year));
         } catch (NoSuchElementException e) {
             log.error("NoSuchElementException: GET /api/user/monthly-details", e);
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,

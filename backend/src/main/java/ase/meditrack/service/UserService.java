@@ -263,15 +263,14 @@ public class UserService {
     /**
      * Fetches work details from the principal, given a month and year.
      *
-     * @param principal of current user
+     * @param userId of user
      * @param month of the work details
      * @param year of the work details
      * @return monthly work details for the user, given the month and year
      */
-    public MonthlyWorkDetails findWorkDetailsByIdAndMonthAndYear(Principal principal, Month month, Year year) {
-        UUID dmId = UUID.fromString(principal.getName());
+    public MonthlyWorkDetails findWorkDetailsByIdAndMonthAndYear(UUID userId, Month month, Year year) {
         MonthlyWorkDetails details = monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
-                dmId, month.getValue(), year.getValue());
+                userId, month.getValue(), year.getValue());
         return details;
     }
 }
