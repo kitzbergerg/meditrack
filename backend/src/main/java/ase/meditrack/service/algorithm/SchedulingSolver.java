@@ -122,7 +122,9 @@ public final class SchedulingSolver {
             LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
             // Constraint to ensure total monthly hours does not exceed the maximum allowed for each employee
             // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
+            // TODO #86: make sure holidays and off days are considered in this calculation
             model.addLessOrEqual(totalMonthlyHours, input.employees().get(n).workingHours() + 20);
+            model.addGreaterOrEqual(totalMonthlyHours, input.employees().get(n).workingHours() / 2);
         }
 
 

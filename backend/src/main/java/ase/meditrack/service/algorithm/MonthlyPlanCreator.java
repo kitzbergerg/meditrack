@@ -48,7 +48,7 @@ public class MonthlyPlanCreator {
         Team team = user.getTeam();
         List<ShiftType> shiftTypes = team.getShiftTypes();
         List<User> users = userService.findByTeam(principal);
-        users = users.stream().filter(u -> u.getId() != user.getId()).collect(Collectors.toList());
+        users = users.stream().filter(u -> u.getId() != user.getId()).toList();
 
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();
