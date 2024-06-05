@@ -5,6 +5,7 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.LinearExpr;
 import com.google.ortools.sat.Literal;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +40,7 @@ public final class SchedulingSolver {
         CpModel model = new CpModel();
 
         // Creates shift variables.
-        // shifts[(n, d, s)]: nurse 'n' works shift type 's' on day 'd'.
+        // shifts[(n, d, s)]: employee 'n' works shift type 's' on day 'd'.
         BoolVar[][][] shifts = new BoolVar[input.employees().size()][input.days().size()][input.shiftTypes().size()];
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.days().size(); d++) {
@@ -88,7 +89,7 @@ public final class SchedulingSolver {
 
     private static void addHardConstraints(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
         // TODO #86: add constraints
-        // Each nurse works at most one shift per day.
+        // One Shift Per Day - Each employee works at most one shift per day.
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.days().size(); d++) {
                 List<Literal> possibleShiftsOnDay =
@@ -101,15 +102,29 @@ public final class SchedulingSolver {
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.days().size(); d++) {
                 List<Integer> worksShift = input.employees().get(n).worksShifts();
-                System.out.println(worksShift);
-                System.out.println(input.shiftTypes());
-                System.out.println(input.shiftTypes().size());
                 for (int s = 0; s < input.shiftTypes().size(); s++) {
-                    System.out.println(!worksShift.contains(s));
                     if (!worksShift.contains(s)) model.addEquality(shifts[n][d][s], 0);
                 }
             }
         }
+
+        // Maximum Monthly Hours - Employees cannot work more than workingHours + overtime per month
+        for (int n = 0; n < input.employees().size(); n++) {
+            List<LinearExpr> monthlyHours = new ArrayList<>();
+            for (int d = 0; d < input.days().size(); d++) {
+                for (int s = 0; s < input.shiftTypes().size(); s++) {
+                    // Multiplies the shift variable by its duration to get the hours worked
+                    LinearExpr shiftHours = LinearExpr.term(shifts[n][d][s], input.shiftTypes().get(s).duration());
+                    monthlyHours.add(shiftHours);
+                }
+            }
+            // Sum up all the hours worked by the employee over the month
+            LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
+            // Constraint to ensure total monthly hours does not exceed the maximum allowed for each employee
+            // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
+            model.addLessOrEqual(totalMonthlyHours, input.employees().get(n).workingHours() + 20);
+        }
+
 
         // Every shiftType on a day has to have at least one employee
         // TODO #86: this should be changed in the long run
