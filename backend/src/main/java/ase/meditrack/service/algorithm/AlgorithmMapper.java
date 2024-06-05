@@ -97,8 +97,13 @@ public class AlgorithmMapper {
             shiftTypeUuidToIndex.put(id, i);
             indexToShiftTypeUuid.put(i, id);
 
-            shiftTypeInfos.add(new ShiftTypeInfo(type.getStartTime(), type.getEndTime(),
-                    type.getEndTime().getHour() - type.getStartTime().getHour()));
+            int duration;
+            if (type.getEndTime().isBefore(type.getStartTime())) {
+                duration = 24 - type.getStartTime().getHour() + type.getEndTime().getHour();
+            } else {
+                duration = type.getEndTime().getHour() - type.getStartTime().getHour();
+            }
+            shiftTypeInfos.add(new ShiftTypeInfo(type.getStartTime(), type.getEndTime(), duration));
         }
 
         // Map employee entities to records
