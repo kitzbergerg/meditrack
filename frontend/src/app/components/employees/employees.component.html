@@ -3,28 +3,62 @@
     <div class="card px-6 py-6">
       <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team !== undefined">
         <p-table #dt [value]="usersFromTeam" [columns]="cols" responsiveLayout="scroll" [rows]="7"
-                 [globalFilterFields]="['username']" [paginator]="true" [rowsPerPageOptions]="[7,20,30]"
+                 [globalFilterFields]="['username', 'firstName', 'lastName', 'email']" [paginator]="true" [rowsPerPageOptions]="[7,20,30]"
                  [showCurrentPageReport]="true"
                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                  [(selection)]="selectedUsers" selectionMode="multiple" [loading]="loading" [rowHover]="true"
                  dataKey="id">
           <ng-template pTemplate="caption">
             <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+              <!-- Team Name Section -->
               <div>
                 <h2>{{ team.name }}</h2>
               </div>
-              <div class="block mt-2 md:mt-0 p-input-icon-left">
+
+              <!-- Role Filter Section -->
+              <div class="flex justify-content-center align-items-center mt-2 md:mt-0">
+                <p-columnFilter field="role.name" matchMode="equals" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown [ngModel]="value" [options]="roles" (onChange)="filter($event.value)"
+                                optionValue="name" placeholder="Role" [showClear]="true" optionLabel="name">
+                      <ng-template let-option pTemplate="item">
+                        <span>{{option.name}}</span>
+                      </ng-template>
+                    </p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </div>
+
+              <!-- Shift Type Filter Section -->
+              <div class="flex justify-content-center align-items-center mt-2 md:mt-0">
+                <p-columnFilter field="canWorkShiftTypes" matchMode="customFilter" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown [ngModel]="value" [options]="shiftTypes" (onChange)="filter($event.value)"
+                                optionValue="abbreviation" placeholder="Shift Type" [showClear]="true" optionLabel="abbreviation">
+                      <ng-template let-option pTemplate="item">
+                        <span>{{option.abbreviation}}</span>
+                      </ng-template>
+                    </p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </div>
+
+              <!-- Search Section -->
+              <div class="mt-2 mr-5 md:mt-0 p-input-icon-left">
                 <i class="pi pi-search"></i>
                 <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."
-                       class="w-full sm:w-auto"/>
+                       class="w-full sm:w-full"/>
               </div>
-              <div class="my-2">
+
+              <!-- New Button Section -->
+              <div class="my-2 md:my-5">
                 <p-toast></p-toast>
                 <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
                         (click)="openNew()"></button>
               </div>
             </div>
           </ng-template>
+
           <ng-template pTemplate="header">
             <tr>
               <th pSortableColumn="username">Name

@@ -8,7 +8,7 @@ import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {ShiftService} from "../../services/shift.service";
-import {MessageService} from "primeng/api";
+import {FilterService, MessageService} from "primeng/api";
 import {ShiftType} from "../../interfaces/shiftType";
 import {Role} from "../../interfaces/role";
 
@@ -92,6 +92,7 @@ export class EmployeesComponent {
               private formBuilder: FormBuilder,
               private shiftService: ShiftService,
               private messageService: MessageService,
+              private filterService: FilterService
   ) {
     this.newUserForm = this.formBuilder.group({
       username: ['', this.usernameValidator.bind(this)],
@@ -101,6 +102,13 @@ export class EmployeesComponent {
       workingHoursPercentage: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
       role: [null, Validators.required],
       canWorkShiftTypes: [[]]
+    });
+
+    this.filterService.register('customFilter', (value: any[], filter: string): boolean => {
+      if (!filter || !value) {
+        return true;
+      }
+      return value.some(shiftType => shiftType.abbreviation === filter);
     });
   }
 
