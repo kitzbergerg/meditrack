@@ -5,7 +5,10 @@ import com.google.ortools.sat.BoolVar;
 import com.google.ortools.sat.CpModel;
 import com.google.ortools.sat.CpSolver;
 import com.google.ortools.sat.CpSolverStatus;
+import com.google.ortools.sat.IntVar;
+import com.google.ortools.sat.LinearArgument;
 import com.google.ortools.sat.LinearExpr;
+import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,7 +54,7 @@ public final class SchedulingSolver {
         }
 
         addHardConstraints(model, input, shifts);
-        addOptimization(model, input);
+        addOptimization(model, input, shifts);
 
         CpSolver solver = new CpSolver();
         solver.getParameters().setMaxTimeInSeconds(MAX_RUNTIME_IN_SECONDS);
@@ -140,8 +143,29 @@ public final class SchedulingSolver {
         }
     }
 
-    private static void addOptimization(CpModel model, AlgorithmInput input) {
-        // TODO #86: add optimization
-    }
+    private static void addOptimization(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
+        LinearExprBuilder objective = LinearExpr.newBuilder();
+        for (int n = 0; n < input.employees().size(); n++) {
+            List<LinearExpr> monthlyHours = new ArrayList<>();
+            for (int d = 0; d < input.days().size() - 1; d++) {
+                for (int s = 0; s < input.shiftTypes().size(); s++) {
+                    LinearExpr shiftHours = LinearExpr.term(shifts[n][d][s], input.shiftTypes().get(s).duration());
+                    monthlyHours.add(shiftHours);
+                }
+            }
+            LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
+            LinearExpr optimalHours = LinearExpr.constant(input.employees().get(n).optimalWorkingHoursPerMonth());
+            IntVar deviation = model.newIntVar(0, Integer.MAX_VALUE, "deviation_n" + n);
 
+            // Add constraints to link the deviation with the actual and optimal hours
+            model.addGreaterOrEqual(deviation,
+                    LinearExpr.sum(new LinearArgument[] {totalMonthlyHours, LinearExpr.term(optimalHours, -1)}));
+            model.addGreaterOrEqual(deviation,
+                    LinearExpr.sum(new LinearArgument[] {optimalHours, LinearExpr.term(totalMonthlyHours, -1)}));
+
+            // Add the deviation to the objective
+            objective.add(deviation);
+        }
+        model.minimize(objective);
+    }
 }
