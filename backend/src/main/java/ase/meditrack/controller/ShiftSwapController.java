@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.ShiftSwapDto;
+import ase.meditrack.model.dto.SimpleShiftSwapDto;
 import ase.meditrack.model.mapper.ShiftSwapMapper;
 import ase.meditrack.service.ShiftSwapService;
 import lombok.extern.slf4j.Slf4j;
@@ -37,29 +38,29 @@ public class ShiftSwapController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     public List<ShiftSwapDto> findAll() {
         log.info("Fetching shift-swaps");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     public ShiftSwapDto findById(@PathVariable UUID id) {
         log.info("Fetching shift-swap with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     @ResponseStatus(HttpStatus.CREATED)
-    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto) {
+    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody SimpleShiftSwapDto dto) {
         log.info("Creating shift-swap {}", dto.id());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+        return mapper.toDto(service.create(mapper.fromSimpleShiftSwapDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     @ResponseStatus(HttpStatus.OK)
     public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto) {
         log.info("Updating shift-swap {}", dto.id());

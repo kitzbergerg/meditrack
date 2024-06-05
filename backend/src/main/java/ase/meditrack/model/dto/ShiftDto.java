@@ -16,7 +16,7 @@ public record ShiftDto(
         UUID monthlyPlan,
         UUID shiftType,
         List<UUID> users,
-        List<UUID> suggestedShiftSwaps,
+        UUID suggestedShiftSwap,
         UUID requestedShiftSwap
 ) {
 }

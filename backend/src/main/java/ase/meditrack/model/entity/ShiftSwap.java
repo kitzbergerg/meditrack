@@ -1,12 +1,13 @@
 package ase.meditrack.model.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -15,8 +16,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,39 +34,34 @@ public class ShiftSwap {
     @JoinColumn(name = "requesting_user_id")
     private User swapRequestingUser;
 
-    @ManyToMany
+    @OneToOne
+    @JoinColumn(name = "requested_shift_id")
+    private Shift requestedShift;
+
+    @Enumerated(EnumType.STRING)
+    private ShiftSwapStatus requestedShiftSwapStatus;
+
+
+    @ManyToOne
     @JoinTable(
             name = "shift_swap_user_suggestion",
             joinColumns = @JoinColumn(name = "shift_swap_id"),
             inverseJoinColumns = @JoinColumn(name = "users_id")
     )
-    private List<User> swapSuggestingUsers;
+    private User swapSuggestingUser;
+
 
     @OneToOne
-    @JoinColumn(name = "requested_shift_id")
-    private Shift requestedShift;
-
-    @ManyToMany
     @JoinTable(
             name = "shift_swap_suggestion",
             joinColumns = @JoinColumn(name = "shift_swap_id"),
             inverseJoinColumns = @JoinColumn(name = "shift_id")
     )
-    private List<Shift> suggestedShifts;
+    private Shift suggestedShift;
 
-    public void addSwapSuggestingUsers(User user) {
-        if (swapSuggestingUsers == null) {
-            swapSuggestingUsers = new ArrayList<>();
-        }
-        swapSuggestingUsers.add(user);
-    }
 
-    public void addSuggestedShifts(Shift shift) {
-        if (suggestedShifts == null) {
-            suggestedShifts = new ArrayList<>();
-        }
-        suggestedShifts.add(shift);
-    }
+    @Enumerated(EnumType.STRING)
+    private ShiftSwapStatus suggestedShiftSwapStatus;
 
     @Override
     public final boolean equals(final Object o) {

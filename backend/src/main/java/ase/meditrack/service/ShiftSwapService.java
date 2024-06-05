@@ -60,14 +60,14 @@ public class ShiftSwapService {
         if (shiftSwap.getSwapRequestingUser() != null) {
             dbShiftSwap.setSwapRequestingUser(shiftSwap.getSwapRequestingUser());
         }
-        if (shiftSwap.getSwapSuggestingUsers() != null) {
-            dbShiftSwap.setSwapSuggestingUsers(shiftSwap.getSwapSuggestingUsers());
+        if (shiftSwap.getSwapSuggestingUser() != null) {
+            dbShiftSwap.setSwapSuggestingUser(shiftSwap.getSwapSuggestingUser());
         }
         if (shiftSwap.getRequestedShift() != null) {
             dbShiftSwap.setRequestedShift(shiftSwap.getRequestedShift());
         }
-        if (shiftSwap.getSuggestedShifts() != null) {
-            dbShiftSwap.setSuggestedShifts(shiftSwap.getSuggestedShifts());
+        if (shiftSwap.getSuggestedShift() != null) {
+            dbShiftSwap.setSuggestedShift(shiftSwap.getSuggestedShift());
         }
 
         return repository.save(shiftSwap);
