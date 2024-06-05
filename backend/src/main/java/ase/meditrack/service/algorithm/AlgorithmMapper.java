@@ -118,8 +118,7 @@ public class AlgorithmMapper {
             }
             employeeInfos.add(new EmployeeInfo(worksShifts, workingHours));
         }
-        AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, constraintInfo);
-        return input;
+        return new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, constraintInfo);
     }
 
     /**
@@ -147,20 +146,19 @@ public class AlgorithmMapper {
             UUID userUuid = indexToEmployeeUuid.get(entry.getKey()); // map back index to uuid
             User user = userMap.get(userUuid);
 
-            if (user != null) {
-                for (AlgorithmOutput.ShiftTypeDayPair pair : entry.getValue()) { // Iterate over shifts the employee has
-                    UUID shiftTypeUuid = indexToShiftTypeUuid.get(pair.shiftType());
-                    ShiftType shiftType = shiftTypeMap.get(shiftTypeUuid);
+            if (user == null) continue;
 
-                    if (shiftType != null) {
-                        Shift shift = new Shift();
-                        shift.setShiftType(shiftType);
-                        shift.setUsers(List.of(user));
-                        shift.setMonthlyPlan(monthlyPlan);
-                        shift.setDate(LocalDate.of(year, month, pair.day() + 1));
-                        shifts.add(shift);
-                    }
-                }
+            for (AlgorithmOutput.ShiftTypeDayPair pair : entry.getValue()) { // Iterate over shifts the employee has
+                UUID shiftTypeUuid = indexToShiftTypeUuid.get(pair.shiftType());
+                ShiftType shiftType = shiftTypeMap.get(shiftTypeUuid);
+                if (shiftType == null) continue;
+
+                Shift shift = new Shift();
+                shift.setShiftType(shiftType);
+                shift.setUsers(List.of(user));
+                shift.setMonthlyPlan(monthlyPlan);
+                shift.setDate(LocalDate.of(year, month, pair.day() + 1));
+                shifts.add(shift);
             }
         }
         return shifts;

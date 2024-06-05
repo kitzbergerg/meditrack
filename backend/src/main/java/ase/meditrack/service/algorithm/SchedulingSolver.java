@@ -87,7 +87,7 @@ public final class SchedulingSolver {
     }
 
     private static void addHardConstraints(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
-        // TODO #37: add constraints
+        // TODO #86: add constraints
         // Each nurse works at most one shift per day.
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.days().size(); d++) {
@@ -97,8 +97,22 @@ public final class SchedulingSolver {
             }
         }
 
+        // Shift Compatability - Employees work only shifts they agreed to.
+        for (int n = 0; n < input.employees().size(); n++) {
+            for (int d = 0; d < input.days().size(); d++) {
+                List<Integer> worksShift = input.employees().get(n).worksShifts();
+                System.out.println(worksShift);
+                System.out.println(input.shiftTypes());
+                System.out.println(input.shiftTypes().size());
+                for (int s = 0; s < input.shiftTypes().size(); s++) {
+                    System.out.println(!worksShift.contains(s));
+                    if (!worksShift.contains(s)) model.addEquality(shifts[n][d][s], 0);
+                }
+            }
+        }
+
         // Every shiftType on a day has to have at least one employee
-        // TODO #37: this should be changed in the long run
+        // TODO #86: this should be changed in the long run
         for (int d = 0; d < input.days().size(); d++) {
             for (int s = 0; s < input.shiftTypes().size(); s++) {
                 List<Literal> employeesToShiftTypes = new ArrayList<>();
@@ -111,7 +125,7 @@ public final class SchedulingSolver {
     }
 
     private static void addOptimization(CpModel model, AlgorithmInput input) {
-        // TODO #37: add optimization
+        // TODO #86: add optimization
     }
 
 }

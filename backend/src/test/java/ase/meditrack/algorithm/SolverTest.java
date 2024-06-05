@@ -14,26 +14,39 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 class SolverTest {
 
 
     @Test
-    void firstTest() {
-
-        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(1, 2, 3), 90));
+    void simpleTest() {
+        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(0), 90));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
-        for (int i = 0; i < 28; i++) {
-            DayInfo day = new DayInfo("Dayname", false);
-            dayInfos.add(day);
-        }
-        RoleInfo role = new RoleInfo("Rolename");
-        List<RoleInfo> roles = new ArrayList<>();
-        roles.add(role);
+        for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i, false));
+        List<RoleInfo> roles = List.of(new RoleInfo("Rolename"));
         HardConstraintInfo hardConstraints = null;
         AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, hardConstraints);
-        var solution = SchedulingSolver.solve(input);
+        assertTrue(SchedulingSolver.solve(input).isPresent());
+    }
 
+    @Test
+    void testCanWorkShift() {
+        // empty can work -> no solution
+        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(), 90));
+        List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
+        List<DayInfo> dayInfos = new ArrayList<>();
+        for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i, false));
+        List<RoleInfo> roles = List.of(new RoleInfo("Rolename"));
+        HardConstraintInfo hardConstraints = null;
+        AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, hardConstraints);
+        assertTrue(SchedulingSolver.solve(input).isEmpty());
+
+        // set can work -> solution
+        employeeInfos = List.of(new EmployeeInfo(List.of(0), 90));
+        input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, hardConstraints);
+        assertTrue(SchedulingSolver.solve(input).isPresent());
     }
 
 }
