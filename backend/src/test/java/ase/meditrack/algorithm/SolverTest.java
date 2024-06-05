@@ -21,7 +21,7 @@ class SolverTest {
 
     @Test
     void simpleTest() {
-        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(0), 100000));
+        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(0), 28 * 8));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
         for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i, false));
@@ -34,7 +34,7 @@ class SolverTest {
     @Test
     void testCanWorkShift() {
         // empty can work -> no solution
-        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(), 100000));
+        List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(), 28 * 8));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
         for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i, false));
@@ -44,7 +44,7 @@ class SolverTest {
         assertTrue(SchedulingSolver.solve(input).isEmpty());
 
         // set can work -> solution
-        employeeInfos = List.of(new EmployeeInfo(List.of(0), 100000));
+        employeeInfos = List.of(new EmployeeInfo(List.of(0), 28 * 8));
         input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, hardConstraints);
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }

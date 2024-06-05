@@ -108,7 +108,7 @@ public final class SchedulingSolver {
             }
         }
 
-        // Maximum Monthly Hours - Employees cannot work more than workingHours + overtime per month
+        // Maximum Monthly Hours - Employees cannot work more than optimalWorkingHoursPerMonth + overtime per month
         for (int n = 0; n < input.employees().size(); n++) {
             List<LinearExpr> monthlyHours = new ArrayList<>();
             for (int d = 0; d < input.days().size(); d++) {
@@ -122,9 +122,8 @@ public final class SchedulingSolver {
             LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
             // Constraint to ensure total monthly hours does not exceed the maximum allowed for each employee
             // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
-            // TODO #86: make sure holidays and off days are considered in this calculation
-            model.addLessOrEqual(totalMonthlyHours, input.employees().get(n).workingHours() + 20);
-            model.addGreaterOrEqual(totalMonthlyHours, input.employees().get(n).workingHours() / 2);
+            model.addLessOrEqual(totalMonthlyHours, input.employees().get(n).optimalWorkingHoursPerMonth() + 20);
+            model.addGreaterOrEqual(totalMonthlyHours, input.employees().get(n).optimalWorkingHoursPerMonth() / 2);
         }
 
 

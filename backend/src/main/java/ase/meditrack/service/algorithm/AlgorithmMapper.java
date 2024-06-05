@@ -114,8 +114,11 @@ public class AlgorithmMapper {
             employeeUuidToIndex.put(id, i);
             indexToEmployeeUuid.put(i, id);
 
-            int workingHours = (int) (employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours())
-                    - employee.getCurrentOverTime();
+            // TODO #86: make sure holidays and off days are considered in this calculation
+            int optimalWorkingHoursPerMonth =
+                    (int) (employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours());
+            optimalWorkingHoursPerMonth = optimalWorkingHoursPerMonth * dayInfos.size() / 5;
+
             List<Integer> worksShifts = new ArrayList<>();
             if (employee.getCanWorkShiftTypes().isEmpty()) {
                 worksShifts.addAll(shiftTypeUuidToIndex.values());
@@ -125,7 +128,7 @@ public class AlgorithmMapper {
                     worksShifts.add(index);
                 }
             }
-            employeeInfos.add(new EmployeeInfo(worksShifts, workingHours));
+            employeeInfos.add(new EmployeeInfo(worksShifts, optimalWorkingHoursPerMonth));
         }
         return new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, constraintInfo);
     }
