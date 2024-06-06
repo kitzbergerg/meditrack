@@ -6,12 +6,14 @@ import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -50,19 +52,25 @@ public class MonthlyPlanService {
     /**
      * Fetches a monthly plan for a given month and year.
      *
-     * @param month of the plan
-     * @param year of the plan
+     * @param month     of the plan
+     * @param year      of the plan
      * @param principal that fetches the plan
      * @return the monthly plan
      */
     public MonthlyPlan getMonthlyPlan(int month, int year, Principal principal) {
-        User user = userService.getPrincipalWithTeam(principal);
+        User user = userService.findById(UUID.fromString(principal.getName()));
         Team team = user.getTeam();
         log.info("Fetching monthly plan for user {}", team);
         MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month, year);
         if (plan == null) {
             throw new NotFoundException("Could not find monthly plan for month: " + month + "!");
         }
+        // TODO: comment in line when test data works properly
+        // else if (!Objects.equals(user.getUserRepresentation().getRealmRoles().get(0), "dm") && !plan.getPublished()) {
+        else if (false) {
+            throw new RuntimeException("Monthly plan is not published yet!");
+        }
+
         List<Shift> shifts = plan.getShifts();
         for (Shift shift : shifts) {
             shift.setUsers(shift.getUsers().stream()
@@ -101,6 +109,24 @@ public class MonthlyPlanService {
         }
 
         return repository.save(dbPlan);
+    }
+
+    /**
+     * Publishes a monthly plan.
+     *
+     * @param id of the monthly plan to publish
+     */
+    @Transactional
+    public void publish(UUID id, Principal principal) {
+        UUID userId = UUID.fromString(principal.getName());
+        MonthlyPlan plan = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("MonthlyPlan not found with id " + id));
+        plan.setPublished(true);
+        plan.getTeam().getUsers().stream()
+                .filter(u -> u.getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Can not publish plan of other team!"));
+        repository.save(plan);
     }
 
     /**

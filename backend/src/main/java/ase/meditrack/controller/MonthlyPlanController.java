@@ -72,12 +72,21 @@ public class MonthlyPlanController {
         return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), principal));
     }
 
+
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.OK)
     public MonthlyPlanDto update(@Validated(UpdateValidator.class) @RequestBody MonthlyPlanDto dto) {
         log.info("Updating monthly-plan {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
+    }
+
+    @PutMapping("{id}/publish")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @ResponseStatus(HttpStatus.OK)
+    public void publish(@PathVariable UUID id, Principal principal) {
+        log.info("Publishing monthly-plan with id {}", id);
+        service.publish(id, principal);
     }
 
     @DeleteMapping("{id}")
