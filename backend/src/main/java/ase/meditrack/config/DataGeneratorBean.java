@@ -8,6 +8,8 @@ import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftOffShiftIdList;
+import ase.meditrack.model.entity.ShiftSwap;
+import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
@@ -187,7 +189,6 @@ public class DataGeneratorBean {
                     null,
                     null
             );
-            log.info("dm: {}", userDm);
             User dmEntity = userMapper.fromDto(userDm);
             dmEntity.setTeam(team);
             dmEntity.setRole(roles.get(0));
@@ -331,11 +332,19 @@ public class DataGeneratorBean {
                             shift.setDate(date);
                             shift.setShiftType(shiftTypes.get((int) (Math.random() * shiftTypes.size())));
                             shift.setMonthlyPlan(monthlyPlan);
+                            List<Shift> userShifts = new ArrayList<>();
+                            if (user.getShifts() != null && !user.getShifts().isEmpty()) {
+                                userShifts = user.getShifts();
+                            }
                             shift.addUser(user);
 
                             // Add the shift 1/3rd of the time
                             if (Math.random() < (1.0 / 3.0)) {
-                                shifts.add(shiftRepository.save(shift));
+                                Shift savedShift = shiftRepository.save(shift);
+                                shifts.add(savedShift);
+
+                                userShifts.add(savedShift);
+                                user.setShifts(userShifts);
                             }
                         }
                     }
@@ -393,6 +402,26 @@ public class DataGeneratorBean {
     }
 
     private void createShiftSwap() {
-        //tbd
+        int shiftSwapAmount = 3;
+        log.info("Generating {} simple shift swaps for every user...", shiftSwapAmount);
+        for (User user : users) {
+            if (user.getShifts() != null && !user.getShifts().isEmpty()) {
+                for (int i = 0; i < shiftSwapAmount; i++) {
+                    Shift selectedShift = user.getShifts().get(i % user.getShifts().size());
+                    ShiftSwap shiftswap = new ShiftSwap();
+                    shiftswap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+                    shiftswap.setSwapRequestingUser(user);
+                    shiftswap.setRequestedShift(selectedShift);
+                    List<ShiftSwap> shiftSwapList = new ArrayList<>();
+                    if (user.getRequestedShiftSwaps() != null && !user.getRequestedShiftSwaps().isEmpty()) {
+                        shiftSwapList = user.getRequestedShiftSwaps();
+                    }
+                    shiftSwapList.add(shiftswap);
+                    user.setRequestedShiftSwaps(shiftSwapList);
+                    selectedShift.setRequestedShiftSwap(shiftswap);
+                    shiftSwapRepository.save(shiftswap);
+                }
+            }
+        }
     }
 }
