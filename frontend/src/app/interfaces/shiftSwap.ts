@@ -22,9 +22,9 @@ export interface SimpleShiftSwap {
 }
 
 export enum ShiftSwapStatus{
-  ACCEPT = 'ACCEPT',
+  ACCEPTED = 'ACCEPTED',
   PENDING = 'PENDING',
-  DECLINE = 'DECLINE'
+  REJECTED = 'REJECTED'
 }
 
 export interface ShiftSwapShift {

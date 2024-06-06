@@ -61,7 +61,7 @@ public class ShiftSwap {
 
 
     @Enumerated(EnumType.STRING)
-    private ShiftSwapStatus suggestedShiftSwapStatus;
+    private ShiftSwapStatus suggestedShiftSwapStatus = ShiftSwapStatus.PENDING;
 
     @Override
     public final boolean equals(final Object o) {

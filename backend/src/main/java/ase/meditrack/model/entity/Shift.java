@@ -51,11 +51,12 @@ public class Shift {
     )
     private List<User> users;
 
+    @OneToOne(mappedBy = "requestedShift", cascade = CascadeType.ALL)
+    private ShiftSwap requestedShiftSwap;
+
     @OneToOne(mappedBy = "suggestedShift")
     private ShiftSwap suggestedShiftSwap;
 
-    @OneToOne(mappedBy = "requestedShift", cascade = CascadeType.ALL)
-    private ShiftSwap requestedShiftSwap;
 
     public void addUser(User user) {
         if (users == null) {
