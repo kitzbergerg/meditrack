@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import {
   Day,
-  RangeOption,
+  RangeOption, ScheduleWithId,
   UserWithShifts,
   WorkDetails
 } from "../../../interfaces/schedule.models";
@@ -68,11 +68,14 @@ export class WeekViewComponent implements OnChanges {
     shiftId: string | null,
     operation: string
   }>();
+  @Output() publishSchedule = new EventEmitter<string>();
   @Input() displayCreateScheduleButton = false;
   @Input() users: User[] = [];
   @Input() shiftTypes: { [id: string]: ShiftType } = {};
   @Input() missingMonth = "";
   @Input() currentUser: User | undefined;
+  @Input() planId: string | null = null;
+  @Input() currentSchedule: ScheduleWithId | undefined;
   weekNumber: number | undefined;
   monthNumber: number | undefined;
   currentShiftType: ShiftType | null = null
@@ -92,7 +95,6 @@ export class WeekViewComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes && this.startDate) {
-      console.log(changes);
       this.weekNumber = this.getWeekNumber(this.startDate);
       this.monthNumber = this.getMonthNumber(this.startDate);
     }
@@ -217,6 +219,11 @@ export class WeekViewComponent implements OnChanges {
 
   deleteMonthSchedule(): void {
     this.deleteSchedule.emit();
+  }
+
+  publishMonthSchedule(): void {
+    this.editing = false;
+    this.publishSchedule.emit()
   }
 
   checkEditingAuthority(): boolean {

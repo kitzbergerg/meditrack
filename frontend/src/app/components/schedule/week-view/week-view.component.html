@@ -3,9 +3,9 @@
   <p-button
     class="m-2"
     [outlined]="true"
-    *ngIf="checkEditingAuthority()  && editing"
+    *ngIf="checkEditingAuthority()  && editing && !currentSchedule?.published"
     type="button"
-    (click)="createNewSchedule()"
+    (click)="publishMonthSchedule()"
     severity="success"
     icon="pi pi-check-circle"
     label="{{'Publish'}}"/>
@@ -53,12 +53,16 @@
 <p-table #dt [value]="employees" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
          styleClass="p-datatable-gridlines" responsiveLayout="scroll"
          [style]="editing ? {'border': '1px solid  var(--primary-color)'} : {}"
-         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading" [rowTrackBy]="trackByEmployeeId">
+         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading"
+         [rowTrackBy]="trackByEmployeeId">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
       <h5 *ngIf="range==='week'" class="m-0">Calendar Week {{ weekNumber }}</h5>
       <h5 *ngIf="weekNumber && range==='2weeks'" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
-      <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthNumber }}</h5>
+      <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthNumber }}
+        <i *ngIf="currentSchedule?.published" class="pi pi-check" style="color: green; font-size: 1.2rem"></i>
+        <i *ngIf="!currentSchedule?.published" class="pi pi-file-o" style="color: gray; font-size: 1.2rem"></i>
+      </h5>
       <div class="flex align-items-center justify-content-start">
         <p-button *ngIf="!editing"
                   type="button"
@@ -102,7 +106,7 @@
                 </span>
     </div>
   </ng-template>
-  <ng-template pTemplate="header" let-employee>
+  <ng-template pTemplate="header">
     <tr class="font-semibold">
       <th pFrozenColumn>Employees</th>
       <th *ngIf="range==='month'">Details</th>

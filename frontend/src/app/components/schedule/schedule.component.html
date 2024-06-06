@@ -11,7 +11,10 @@
                        (updateShift)="updateShift($event)"
                        [currentUser]="currentUser"
                        (deleteSchedule)="deleteSchedule()"
+                       (publishSchedule)="publishSchedule()"
                        [employees]="usersWithShifts"
+                       [planId]="currentPlanId"
+                       [currentSchedule]="currentSchedule"
                        class="p-flex-1 p-overflow-auto"></app-week-view>
       </div>
     </div>

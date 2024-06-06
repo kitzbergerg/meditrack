@@ -1,11 +1,5 @@
 import {Role} from "./role";
 
-export interface Schedule {
-  month: string;
-  year: number;
-  days: Day[];
-}
-
 export interface RangeOption {
   label: string;
   value: string;
@@ -32,6 +26,11 @@ export interface Schedule {
   "team": string,
   "shifts": SimpleShift[],
   "monthlyWorkDetails": WorkDetails[]
+}
+
+export interface ScheduleWithId {
+  id: string,
+  published: boolean,
 }
 
 export interface WorkDetails {

@@ -3,7 +3,7 @@ import {WeekViewComponent} from "./week-view/week-view.component";
 import {
   Day,
   EmployeeWithShifts,
-  Schedule,
+  Schedule, ScheduleWithId,
   SimpleShift,
   UserWithShifts,
   WorkDetails
@@ -38,7 +38,8 @@ export class ScheduleComponent implements OnInit {
   currentWeekOffset = 0;
   startDate: Date = new Date();
   range = 7;
-  cachedSchedules: { [key: string]: Schedule } = {};
+  cachedSchedules: { [key: string]: ScheduleWithId } = {};
+  currentSchedule: ScheduleWithId | undefined;
   displayCreateScheduleButton = false;
   createScheduleMonth = "";
   roles: Role[] = [];
@@ -47,7 +48,8 @@ export class ScheduleComponent implements OnInit {
   shiftTypes: { [id: string]: ShiftType } = {};
   currentUser: User | undefined;
   userWorkDetails: WorkDetails[] = [];
-  workDetailsMap: Map<string, WorkDetails> = new Map<string, WorkDetails>();
+  currentPlanId: string | null = null;
+  currentPlanPublished = false;
 
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
@@ -91,12 +93,15 @@ export class ScheduleComponent implements OnInit {
     this.loading = true;
     const month = date.toLocaleString('en-us', {month: 'long'});
     const year = date.getFullYear();
-    console.log("Grabbing data for month: " + month);
     this.scheduleService.fetchSchedule(month, year).subscribe({
       next: data => {
         const cacheKey = this.generateCacheKey(date);
-        this.cachedSchedules[cacheKey] = data;
+        if(data.id == null)
+          return;
+        this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
+        this.setCurrentSchedule();
         this.userWorkDetails = data.monthlyWorkDetails;
+        this.displayCreateScheduleButton = false;
         this.transformData(date, data.shifts, data.monthlyWorkDetails);
       },
       error: err => {
@@ -107,6 +112,11 @@ export class ScheduleComponent implements OnInit {
         }
       }
     });
+  }
+
+  setCurrentSchedule(): void {
+    const cacheKey = this.generateCacheKey(this.startDate);
+    this.currentSchedule = this.cachedSchedules[cacheKey];
   }
 
   mapUsers(users: User[]): UserWithShifts[] {
@@ -135,6 +145,7 @@ export class ScheduleComponent implements OnInit {
     // Check if month data of first Day and last Day are already fetched
     this.checkAndFetchSchedule(currentDate);
     this.checkAndFetchSchedule(endDate);
+    this.setCurrentSchedule();
     this.loading = false;
   }
 
@@ -203,7 +214,7 @@ export class ScheduleComponent implements OnInit {
     this.currentWeekOffset += offset;
     if (this.range > 14) {
       this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + offset, 1);
-      this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + offset, 0).getDate();
+      this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth()+1, 0).getDate();
     } else {
       this.startDate.setDate(this.startDate.getDate() + (offset * this.range));
     }
@@ -226,6 +237,8 @@ export class ScheduleComponent implements OnInit {
       case 'month':
         this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), 1);
         this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, 0).getDate();
+        this.currentPlanPublished = this.cachedSchedules[this.generateCacheKey(this.startDate)].published;
+        this.currentPlanId = this.cachedSchedules[this.generateCacheKey(this.startDate)].id;
         break;
       default:
         throw new Error(`Unknown range: ${range}`);
@@ -371,6 +384,17 @@ export class ScheduleComponent implements OnInit {
       this.updateData();
       this.displayCreateScheduleButton = true;
     });
+  }
+
+  publishSchedule(): void {
+    if (this.currentPlanId == null) {
+      return;
+    }
+    this.scheduleService.publishSchedule(this.currentPlanId).subscribe( () => {
+      this.messageService.add({severity: 'success', summary: 'Schedule published successfully'});
+       this.cachedSchedules[this.generateCacheKey(this.startDate)].published = true;
+       this.setCurrentSchedule();
+    })
   }
 
   getCurrentUser(): void {
