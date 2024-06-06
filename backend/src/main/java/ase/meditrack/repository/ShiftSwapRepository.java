@@ -22,4 +22,16 @@ public interface ShiftSwapRepository extends JpaRepository<ShiftSwap, UUID> {
 
     List<ShiftSwap> findAllBySwapRequestingUserIdAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
             UUID user, LocalDate after, LocalDate before);
+
+    /**
+     * Fetches all the shift swaps from the remaining days of the month of all users.
+     *
+     * @param user whose requests should not be considered
+     * @param after is the current date
+     * @param before is the first date of the next month
+     * @return list of shifts
+     */
+
+    List<ShiftSwap> findAllBySwapRequestingUserIdNotAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
+            UUID user, LocalDate after, LocalDate before);
 }

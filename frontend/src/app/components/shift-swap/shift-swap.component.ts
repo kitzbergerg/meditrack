@@ -20,6 +20,7 @@ export class ShiftSwapComponent {
   loading = true;
   currentUser : User | undefined;
   shiftSwaps: ShiftSwap[] = [];
+  shiftSwapOffers: ShiftSwap[] = [];
   currentShifts: ShiftSwapShift[] = []
   selectedDate: Date | undefined;
   newShiftSwap: ShiftSwap | undefined;
@@ -65,6 +66,23 @@ export class ShiftSwapComponent {
       next: response => {
         console.log(response)
         this.shiftSwaps = response;
+        if (this.shiftSwaps.length > 0) {
+          this.getAllOfferedShiftSwaps();
+        } else {
+          this.shiftSwapOffers = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }}
+    );
+  }
+
+  getAllOfferedShiftSwaps() {
+    this.shiftSwapService.getAllOfferedShiftSwaps().subscribe({
+      next: response => {
+        console.log(response)
+        this.shiftSwapOffers = response;
       },
       error: (error) => {
         console.error('Error fetching data:', error);

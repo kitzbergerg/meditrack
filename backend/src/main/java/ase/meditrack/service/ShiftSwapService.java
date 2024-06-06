@@ -1,15 +1,20 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,11 +22,13 @@ import java.util.UUID;
 @Slf4j
 public class ShiftSwapService {
     private final ShiftSwapRepository repository;
+    private final ShiftRepository shiftRepository;
     private final UserService userService;
 
-    public ShiftSwapService(ShiftSwapRepository repository, UserService userService) {
+    public ShiftSwapService(ShiftSwapRepository repository, UserService userService, ShiftRepository shiftRepository) {
 
         this.repository = repository;
+        this.shiftRepository = shiftRepository;
         this.userService = userService;
     }
 
@@ -47,6 +54,49 @@ public class ShiftSwapService {
 
         return repository.findAllBySwapRequestingUserIdAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
                 user.getId(), today, nextMonth);
+    }
+
+    /**
+     * Fetches all shifts from the current month from the database.
+     *
+     * @param principal is current user
+     * @return List of all shift from a current month
+     */
+    public List<ShiftSwap> findAllOffersByCurrentMonth(Principal principal) {
+        User user = userService.getPrincipalWithTeam(principal);
+        LocalDate today = LocalDate.now();
+        LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
+
+        List<ShiftSwap> allOffers = repository.findAllBySwapRequestingUserIdNotAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
+                user.getId(), today, nextMonth);
+
+        List<Shift> userShifts = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(user.getId()), today, nextMonth);
+
+        List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
+
+        for (ShiftSwap offer : allOffers) {
+            boolean overlapFound = false;
+
+            for (Shift userShift : userShifts) {
+                if (offer.getSuggestedShift().getDate().isEqual(userShift.getDate())) {
+                    LocalTime offerStart = offer.getSuggestedShift().getShiftType().getStartTime();
+                    LocalTime offerEnd = offer.getSuggestedShift().getShiftType().getEndTime();
+                    LocalTime userShiftStart = userShift.getShiftType().getStartTime();
+                    LocalTime userShiftEnd = userShift.getShiftType().getEndTime();
+
+                    if (!(offerEnd.isBefore(userShiftStart) || offerStart.isAfter(userShiftEnd))) {
+                        overlapFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!overlapFound) {
+                filteredShiftSwaps.add(offer);
+            }
+        }
+
+        return filteredShiftSwaps;
     }
 
     /**

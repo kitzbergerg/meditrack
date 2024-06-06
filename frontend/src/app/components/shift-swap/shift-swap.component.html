@@ -117,7 +117,36 @@
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Other Shift Swap Offers</h2>
+        <ul class="list-none p-0 m-0">
+          <h5 *ngIf="shiftSwapOffers.length === 0" style="text-align: center; margin-top: 30px;">You have to make a shift swap first to see other offers.</h5>
+          <div *ngIf="shiftSwapOffers.length !== 0">
+            <li *ngFor="let shiftSwap of shiftSwapOffers" class="flex items-center mb-4">
+              <div
+                class="p-3 border-round-lg flex flex-column justify-content-center align-items-start"
+                [ngStyle]="{backgroundColor: 'inherit',
+                        border: '5px solid ' + shiftSwap.requestedShift.shiftType.color}"
+                style="width: 200px;">
 
+                <div class="flex justify-content-center align-items-center mb-2">
+                    <span
+                      style="width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border: 1px solid; border-radius: 50%;"
+                    >
+                      {{ shiftSwap.requestedShift.shiftType.abbreviation }}
+                    </span>
+                  <div class="ml-2">
+                    <span class="text-lg font-medium">{{ shiftSwap.requestedShift.shiftType.name }}</span>
+                  </div>
+                </div>
+
+                <div class="text-center">
+                  <div class="text-lg m-0 font-medium">{{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }} </div>
+                  {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
+                  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                </div>
+              </div>
+            </li>
+          </div>
+        </ul>
       </div>
     </div>
 
