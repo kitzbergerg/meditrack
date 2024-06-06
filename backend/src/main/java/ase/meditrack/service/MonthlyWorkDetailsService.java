@@ -34,7 +34,7 @@ public class MonthlyWorkDetailsService {
     /**
      * Updates work details when a shift is updated.
      *
-     * @param shift that is updated
+     * @param shift        that is updated
      * @param oldShiftType of the old shift, null if new shift is created
      */
     @Transactional
@@ -94,24 +94,25 @@ public class MonthlyWorkDetailsService {
     /**
      * Calculates the hours a user should work in a month.
      *
-     * @param user that the target hours are calculated for
-     * @param team of the user
+     * @param user  that the target hours are calculated for
+     * @param team  of the user
      * @param month that the target hours should be calculated for
-     * @param year that the target hours should be calculated for
+     * @param year  that the target hours should be calculated for
      * @return the hours the user should work in a month
      */
     public Float calculateTargetWorkingHours(User user, Team team, int month, int year) {
         int workingDaysInMonth = getWorkingDaysInMonth(month, year);
         float weeklyWorkingHours = team.getWorkingHours();
         float dailyWorkingHours = weeklyWorkingHours / 5; // Assuming a 5-day work week
-        return dailyWorkingHours * workingDaysInMonth * user.getWorkingHoursPercentage() / 100;
+        float targetWorkingHours = dailyWorkingHours * workingDaysInMonth * user.getWorkingHoursPercentage() / 100;
+        return Math.round(targetWorkingHours * 2) / 2.0f;
     }
 
     /**
      * Gets the amount of working days in a month.
      *
      * @param month to get the working days for
-     * @param year to get the working days for
+     * @param year  to get the working days for
      * @return amount of working days in a month
      */
     public int getWorkingDaysInMonth(int month, int year) {
@@ -132,7 +133,7 @@ public class MonthlyWorkDetailsService {
     /**
      * Calculates the working hours of a user, given the shifts the user works.
      *
-     * @param user that the working hours are calculated for
+     * @param user   that the working hours are calculated for
      * @param shifts that the user works in a month
      * @return length of the hours he works in a month
      */
@@ -146,7 +147,7 @@ public class MonthlyWorkDetailsService {
     /**
      * Calculates shift duration of a shift type.
      *
-     * @param shiftType the duration is caculated of
+     * @param shiftType the duration is calculated of
      * @return the length of the shift without the break
      */
     public double calculateShiftDuration(ShiftType shiftType) {
@@ -164,16 +165,30 @@ public class MonthlyWorkDetailsService {
         } else {
             totalDuration = Duration.between(startTime, endTime);
         }
+
         // Calculate break duration considering overnight breaks
         if (breakEndTime.isBefore(breakStartTime)) {
-            breakDuration = Duration.between(breakStartTime,
-                    LocalTime.MAX).plus(Duration.between(LocalTime.MIN, breakEndTime));
+            breakDuration = Duration.between(breakStartTime, LocalTime.MAX)
+                    .plus(Duration.between(LocalTime.MIN, breakEndTime));
         } else {
             breakDuration = Duration.between(breakStartTime, breakEndTime);
         }
 
-        double duration = (double) totalDuration.minus(breakDuration).toMinutes() / 60;
-        return (double) Math.round(duration * 100) / 100;
+        totalDuration = roundToNearestMinute(totalDuration);
+        breakDuration = roundToNearestMinute(breakDuration);
+
+        // Calculate the net duration in minutes
+        Duration netDuration = totalDuration.minus(breakDuration);
+
+        // Convert the net duration to hours and round to two decimal places
+        double durationInHours = netDuration.toMinutes() / 60.0;
+        return Math.round(durationInHours * 100.0) / 100.0;
+    }
+
+    private static Duration roundToNearestMinute(Duration duration) {
+        long seconds = duration.getSeconds();
+        long roundedSeconds = Math.round(seconds / 60.0) * 60;
+        return Duration.ofSeconds(roundedSeconds);
     }
 
 }

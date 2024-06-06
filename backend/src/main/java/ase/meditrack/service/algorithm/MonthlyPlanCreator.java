@@ -107,10 +107,11 @@ public class MonthlyPlanCreator {
             monthlyWorkDetails.add(monthlyWorkDetail);
         }
 
-        monthlyWorkDetailsRepository.saveAll(monthlyWorkDetails);
+        List<MonthlyWorkDetails> savedDetails = monthlyWorkDetailsRepository.saveAll(monthlyWorkDetails);
 
         shifts = shiftRepository.saveAll(shifts);
         monthlyPlan.setShifts(shifts);
+        monthlyPlan.setMonthlyWorkDetails(savedDetails);
         return monthlyPlan;
     }
 

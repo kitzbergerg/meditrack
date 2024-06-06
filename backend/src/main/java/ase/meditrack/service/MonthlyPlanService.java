@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -64,12 +63,12 @@ public class MonthlyPlanService {
         MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month, year);
         if (plan == null) {
             throw new NotFoundException("Could not find monthly plan for month: " + month + "!");
-        }
-        // TODO: comment in line when test data works properly
-        // else if (!Objects.equals(user.getUserRepresentation().getRealmRoles().get(0), "dm") && !plan.getPublished()) {
-        else if (false) {
+        } else if (false) {
             throw new RuntimeException("Monthly plan is not published yet!");
         }
+
+        // else if (!Objects.equals(user.getUserRepresentation().getRealmRoles().get(0), "dm")
+        // && !plan.getPublished()) {
 
         List<Shift> shifts = plan.getShifts();
         for (Shift shift : shifts) {
@@ -114,6 +113,7 @@ public class MonthlyPlanService {
     /**
      * Publishes a monthly plan.
      *
+     * @param principal that publishes the plan
      * @param id of the monthly plan to publish
      */
     @Transactional
