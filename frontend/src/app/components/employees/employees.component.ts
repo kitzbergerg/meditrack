@@ -7,7 +7,7 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ShiftService} from "../../services/shift.service";
+import {ShiftTypeService} from "../../services/shift-type.service";
 import {MessageService} from "primeng/api";
 import {ShiftType} from "../../interfaces/shiftType";
 import {Role} from "../../interfaces/role";
@@ -90,7 +90,7 @@ export class EmployeesComponent {
               private teamService: TeamService,
               private rolesService: RolesService,
               private formBuilder: FormBuilder,
-              private shiftService: ShiftService,
+              private shiftService: ShiftTypeService,
               private messageService: MessageService,
   ) {
     this.newUserForm = this.formBuilder.group({
