@@ -41,12 +41,9 @@ public class ShiftOffShiftIdListServiceTest {
     @Autowired
     private ShiftOffShiftIdListService service;
 
-    private UUID id;
-
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-        id = UUID.randomUUID();
     }
 
     @Test
@@ -77,7 +74,7 @@ public class ShiftOffShiftIdListServiceTest {
 
     @Test
     void findByIdThrowsNotFoundExceptionWhenNotFound() {
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.findById(id));
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> service.findById(UUID.randomUUID()));
 
         assertEquals("shiftOffShiftIdList not found", exception.getMessage());
     }
@@ -117,7 +114,7 @@ public class ShiftOffShiftIdListServiceTest {
     @Test
     void updateShiftOffShiftIdListThrowsNotFoundExceptionWhenNotFound() {
         ShiftOffShiftIdList updatedList = new ShiftOffShiftIdList();
-        updatedList.setId(id);
+        updatedList.setId(UUID.randomUUID());
 
         NotFoundException exception = assertThrows(NotFoundException.class, () -> service.update(updatedList));
 
