@@ -24,6 +24,7 @@ export class ShiftSwapComponent {
   selectedDate: Date | undefined;
   newShiftSwap: ShiftSwap | undefined;
   shiftSwapDialog = false;
+  valid = true;
 
   currentDate: Date = new Date();
   firstDayOfMonth: Date = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
@@ -60,7 +61,7 @@ export class ShiftSwapComponent {
   }
 
   getAllRequestedShiftSwaps() {
-    this.shiftSwapService.getAllRequestedShiftSwaps().subscribe({
+    this.shiftSwapService.getAllRequestedShiftSwapsFromUser().subscribe({
       next: response => {
         console.log(response)
         this.shiftSwaps = response;
@@ -84,6 +85,7 @@ export class ShiftSwapComponent {
 
 
   isSpecialDate(date: any): boolean {
+    if (date == undefined) return false;
     return this.findShiftFromDate(date) != undefined;
   }
 
@@ -113,47 +115,25 @@ export class ShiftSwapComponent {
   }
 
 
-  getDisabledDates(): Date[] {
-    // Get the current month and year
-    const currentMonth = this.minDate.getMonth();
-    const currentYear = this.minDate.getFullYear();
-
-    // Get the first and last day of the current month
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-
-    // Generate an array of dates for the current month
-    const datesOfMonth = [];
-    for (let i = firstDayOfMonth.getDate(); i <= lastDayOfMonth.getDate(); i++) {
-      const date = new Date(currentYear, currentMonth, i);
-      datesOfMonth.push(date);
-    }
-
-    // Filter out the dates not present in the currentShifts array
-    return  datesOfMonth.filter(date => !this.currentShifts.some(shift => {
-      const shiftDate = new Date(shift.date);
-      return shiftDate.getFullYear() === date.getFullYear() &&
-        shiftDate.getMonth() === date.getMonth() &&
-        shiftDate.getDate() === date.getDate();
-    }))
-  }
-
-
 
   generateShiftSwap() {
-    this.toggleDialog()
     if (this.selectedDate != undefined) {
       const shift = this.findShiftFromDate(this.selectedDate)
-      if (shift !== undefined) {
+      if (shift !== undefined && this.shiftSwaps.filter(tempShift => tempShift.requestedShift.id == shift.id).length == 0) {
+        this.valid = true;
+        this.toggleDialog()
         this.newShiftSwap = {
           requestedShift: shift,
-          requestedShiftSwapStatus: ShiftSwapStatus.ACCEPT,
+          requestedShiftSwapStatus: ShiftSwapStatus.ACCEPTED,
           suggestedShiftSwapStatus: ShiftSwapStatus.PENDING,
           swapRequestingUser: this.currentUser?.id == undefined? "" : this.currentUser.id
         };
       } else {
         this.newShiftSwap = undefined;
+        this.valid = false;
       }
+    } else {
+      this.valid = false;
     }
   }
 
@@ -161,24 +141,27 @@ export class ShiftSwapComponent {
     if (this.newShiftSwap !== undefined) {
       const simpleShiftSwap: SimpleShiftSwap = {
         requestedShift: this.newShiftSwap.requestedShift.id == undefined? "" : this.newShiftSwap.requestedShift.id,
-        requestedShiftSwapStatus: ShiftSwapStatus.ACCEPT,
+        requestedShiftSwapStatus: ShiftSwapStatus.ACCEPTED,
         suggestedShiftSwapStatus: ShiftSwapStatus.PENDING,
         swapRequestingUser: this.currentUser?.id == undefined? "" : this.currentUser.id
       }
       console.log(simpleShiftSwap)
       this.shiftSwapService.createShiftSwap(simpleShiftSwap).subscribe({
         next: response =>{
-          console.log("new Shiftswap");
+          this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Offer '});
           this.getAllRequestedShiftSwaps()
+          this.toggleDialog()
         },
         error: (error) => {
-          console.error('Error fetching data:', error);
+          this.toggleDialog()
+          this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Offer '});
         }});
     }
   }
 
   toggleDialog() {
     this.shiftSwapDialog = !this.shiftSwapDialog
+    this.valid = true;
   }
 
 

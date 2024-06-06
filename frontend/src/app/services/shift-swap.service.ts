@@ -18,6 +18,10 @@ export class ShiftSwapService {
     return this.http.get<ShiftSwap[]>(this.apiUrl);
   }
 
+  getAllRequestedShiftSwapsFromUser(): Observable<ShiftSwap[]> {
+    return this.http.get<ShiftSwap[]>(this.apiUrl + '/month');
+  }
+
   createShiftSwap(shiftSwap: SimpleShiftSwap): Observable<ShiftSwap> {
     return this.http.post<ShiftSwap>(`${this.apiUrl}`, shiftSwap);
   }
