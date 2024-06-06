@@ -67,10 +67,13 @@ public class ShiftSwapService {
         LocalDate today = LocalDate.now();
         LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
 
-        List<ShiftSwap> allOffers = repository.findAllBySwapRequestingUserIdNotAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
+        List<ShiftSwap> allOffers
+                = repository.findAllBySwapRequestingUserIdNotAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
                 user.getId(), today, nextMonth);
 
-        List<Shift> userShifts = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(user.getId()), today, nextMonth);
+        List<Shift> userShifts
+                = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(
+                        user.getId()), today, nextMonth);
 
         List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
 
