@@ -2,6 +2,7 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.TeamDto;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
@@ -80,36 +81,20 @@ class TeamControllerIT {
         assertNotNull(teams);
         assertEquals(0, teams.size());
     }
-/*
+
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_deleteTeam_succeeds() throws Exception {
-        TeamDto dto = new TeamDto(
-                null,
-                "testTeam",
-                0,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        Team team = new Team();
+        team.setId(null);
+        team.setName("testTeam");
+        team.setWorkingHours(1);
+        teamRepository.save(team);
 
-        String responseCreate = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/team")
-                                .content(objectMapper.writeValueAsString(dto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        TeamDto created = objectMapper.readValue(responseCreate, TeamDto.class);
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/team/" + created.id()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/team/" + team.getId()))
                 .andExpect(status().isNoContent());
-
-        assertFalse(teamRepository.existsById(created.id()));
     }
-*/
+
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findTeamById_succeeds() throws Exception {
