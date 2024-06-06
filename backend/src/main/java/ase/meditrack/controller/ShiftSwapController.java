@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,10 +39,17 @@ public class ShiftSwapController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public List<ShiftSwapDto> findAll() {
         log.info("Fetching shift-swaps");
         return mapper.toDtoList(service.findAll());
+    }
+
+    @GetMapping("/month")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    public List<ShiftSwapDto> findAllFromUserAndCurrentMonth(Principal principal) {
+        log.info("Fetching shift-swaps from a user from the current month");
+        return mapper.toDtoList(service.findAllByCurrentMonth(principal));
     }
 
     @GetMapping("{id}")
