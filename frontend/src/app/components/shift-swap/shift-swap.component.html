@@ -7,9 +7,9 @@
           <li *ngFor="let shiftSwap of shiftSwaps" class="flex items-center mb-4">
             <div
               class="p-3 border-round-lg flex flex-column justify-content-center align-items-start"
-              [ngStyle]="{backgroundColor: 'inherit',
+              [ngStyle]="{backgroundColor: shiftSwap === this.ownSelectedOffer ? '#e8e9eb' : 'inherit',
                     border: '5px solid ' + shiftSwap.requestedShift.shiftType.color}"
-              style="width: 200px;">
+              style="width: 300px;">
 
               <div class="flex justify-content-center align-items-center mb-2">
                 <span
@@ -27,6 +27,10 @@
                 {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
                 {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
               </div>
+            </div>
+            <div class="flex flex-row ml-4 justify-content-center align-items-center" style="width: 300px; gap: 10px">
+              <p-button label="Select Offer" [raised]="true" severity="info" (click)="selectOwnOffer(shiftSwap)" [style]="{'font-size': '1rem', 'padding': '0.65rem 0.6rem'}" />
+              <p-button label="Retract Offer" [outlined]="true" severity="danger" (click)="retractOffer(shiftSwap.id)" [style]="{'font-size': '1rem', 'padding': '0.65rem 0.6rem'}" />
             </div>
           </li>
 
@@ -108,8 +112,6 @@
               <small *ngIf="!valid">Selected day has no valid shift</small>
             </div>
           </div>
-
-
         </ul>
       </div>
     </div>
@@ -118,14 +120,15 @@
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Other Shift Offers</h2>
         <ul class="list-none p-0 m-0">
-          <h5 *ngIf="shiftSwapOffers.length === 0" style="text-align: center; margin-top: 30px;">You have to make a shift swap first to see other offers.</h5>
+          <h5 *ngIf="shiftSwapOffers.length === 0 && shiftSwaps.length !== 0" style="text-align: center; margin-top: 30px;">There are no shift swap offers available.</h5>
+          <h5 *ngIf="shiftSwaps.length === 0" style="text-align: center; margin-top: 30px;">You have to make a shift swap first to see other offers.</h5>
           <div *ngIf="shiftSwapOffers.length !== 0">
             <li *ngFor="let shiftSwap of shiftSwapOffers" class="flex items-center mb-4">
               <div
                 class="p-3 border-round-lg flex flex-column justify-content-center align-items-start"
-                [ngStyle]="{backgroundColor: 'inherit',
+                [ngStyle]="{backgroundColor: shiftSwap === this.otherSelectedOffer ? '#e8e9eb' : 'inherit',
                         border: '5px solid ' + shiftSwap.requestedShift.shiftType.color}"
-                style="width: 200px;">
+                style="width: 300px;">
 
                 <div class="flex justify-content-center align-items-center mb-2">
                     <span
@@ -147,6 +150,9 @@
                     {{ findUser(shiftSwap.swapRequestingUser)?.lastName}}</div>
                 </div>
               </div>
+              <div class="flex flex-column ml-4 justify-content-center align-items-center" style="width: 250px">
+                <p-button label="Select Offer" [raised]="true" severity="info" (click)="selectOtherOffer(shiftSwap)" [style]="{'font-size': '1rem'}" />
+              </div>
             </li>
           </div>
         </ul>
@@ -156,7 +162,9 @@
     <div class="col-12">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Requests</h2>
-
+        <div class="flex flex-column justify-content-center align-items-center">
+          <p-button label="Create Request" [raised]="true" severity="info" (click)="createRequest()" />
+        </div>
       </div>
     </div>
   </div>

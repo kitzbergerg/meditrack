@@ -34,6 +34,10 @@ export class ShiftSwapService {
     return this.http.put<ShiftSwap>(`${this.apiUrl}`, shiftSwap);
   }
 
+  deleteShiftSwap(id: string) {
+    return this.http.delete(this.apiUrl+`/${id}`);
+  }
+
   getAllShiftsFromCurrentMonth() {
     return this.http.get<ShiftSwapShift[]>(this.shiftUrl + '/month');
   }

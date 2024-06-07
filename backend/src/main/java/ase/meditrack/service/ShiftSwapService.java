@@ -167,5 +167,15 @@ public class ShiftSwapService {
      */
     public void delete(UUID id) {
         repository.deleteById(id);
+
+        /*
+        only user can delete his offer
+        User user = userService.getPrincipalWithTeam(principal);
+        ShiftSwap shiftSwap = repository.findById(id).get();
+        if (shiftSwap.getSwapRequestingUser().equals(user)) {
+            repository.deleteById(id);
+        }
+         */
+        // else exception
     }
 }

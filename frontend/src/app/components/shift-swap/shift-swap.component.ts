@@ -28,6 +28,7 @@ export class ShiftSwapComponent {
   newShiftSwap: ShiftSwap | undefined;
   shiftSwapDialog = false;
   valid = true;
+  shiftSwapOffersPresent = false;
 
   currentDate: Date = new Date();
   firstDayOfMonth: Date = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
@@ -36,6 +37,8 @@ export class ShiftSwapComponent {
   minDate: Date = this.firstDayOfMonth;
   maxDate: Date = this.lastDayOfMonth;
 
+  ownSelectedOffer: ShiftSwap | undefined;
+  otherSelectedOffer: ShiftSwap | undefined;
 
   constructor(private messageService: MessageService,
               private userService: UserService,
@@ -215,5 +218,46 @@ export class ShiftSwapComponent {
     this.valid = true;
   }
 
+  selectOwnOffer(shiftSwap: ShiftSwap) {
+    this.ownSelectedOffer = shiftSwap;
+  }
 
+  selectOtherOffer(shiftSwap: ShiftSwap) {
+    this.otherSelectedOffer = shiftSwap;
+  }
+
+  createRequest() {
+    /*
+    this.shiftSwapService.updateShiftSwap(this.ownOffer).subscribe({
+      next: response => {
+        this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Request '});
+      },
+      error: (error) => {
+        this.toggleDialog()
+        this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Request '});
+      }
+    });
+     */
+  }
+
+  retractOffer(id: string | undefined) {
+    if (id != undefined) {
+      this.shiftSwapService.deleteShiftSwap(id)
+        .subscribe(response => {
+          console.log('Shift Swap Offer deleted successfully');
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully Deleted Shift Swap Offer'
+          });
+          this.getAllRequestedShiftSwaps();
+        }, error => {
+          console.error('Error deleting shift swap:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Deleting Shift Swap Offer Failed',
+            detail: error.error
+          });
+        });
+    }
+  }
 }
