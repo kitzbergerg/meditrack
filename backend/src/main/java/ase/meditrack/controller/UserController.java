@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
     public List<UserDto> findByTeam(Principal principal) {
         log.info("Fetching users from dm team");
         try {

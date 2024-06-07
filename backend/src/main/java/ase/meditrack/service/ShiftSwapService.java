@@ -57,10 +57,11 @@ public class ShiftSwapService {
     }
 
     /**
-     * Fetches all shifts from the current month from the database.
+     * Fetches all shift swap offers from the current month from one team
+     * from user with the same role from the database.
      *
      * @param principal is current user
-     * @return List of all shift from a current month
+     * @return List of all shift swap offers from other
      */
     public List<ShiftSwap> findAllOffersByCurrentMonth(Principal principal) {
         User user = userService.getPrincipalWithTeam(principal);
@@ -68,38 +69,17 @@ public class ShiftSwapService {
         LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
 
         List<ShiftSwap> allOffers
-                = repository.findAllBySwapRequestingUserIdNotAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
-                user.getId(), today, nextMonth);
+                = repository.findAllShiftSwapOffersWithSameRole(
+                        user.getTeam().getId(), user.getId(), today, nextMonth);
 
-        List<Shift> userShifts
-                = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(
-                        user.getId()), today, nextMonth);
-
-        List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
-
+        List<ShiftSwap> filteredOffers = new ArrayList<>();
         for (ShiftSwap offer : allOffers) {
-            boolean overlapFound = false;
-
-            for (Shift userShift : userShifts) {
-                if (offer.getSuggestedShift().getDate().isEqual(userShift.getDate())) {
-                    LocalTime offerStart = offer.getSuggestedShift().getShiftType().getStartTime();
-                    LocalTime offerEnd = offer.getSuggestedShift().getShiftType().getEndTime();
-                    LocalTime userShiftStart = userShift.getShiftType().getStartTime();
-                    LocalTime userShiftEnd = userShift.getShiftType().getEndTime();
-
-                    if (!(offerEnd.isBefore(userShiftStart) || offerStart.isAfter(userShiftEnd))) {
-                        overlapFound = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!overlapFound) {
-                filteredShiftSwaps.add(offer);
+            if (offer.getSwapRequestingUser().getRole().equals(user.getRole())) {
+                filteredOffers.add(offer);
             }
         }
+        return filteredOffers;
 
-        return filteredShiftSwaps;
     }
 
     /**
@@ -134,10 +114,40 @@ public class ShiftSwapService {
     public ShiftSwap update(ShiftSwap shiftSwap) {
         ShiftSwap dbShiftSwap = findById(shiftSwap.getId());
 
+
         if (shiftSwap.getSwapRequestingUser() != null) {
             dbShiftSwap.setSwapRequestingUser(shiftSwap.getSwapRequestingUser());
         }
         if (shiftSwap.getSwapSuggestingUser() != null) {
+
+            LocalDate today = LocalDate.now();
+            LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
+            List<Shift> userShifts
+                    = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(
+                    shiftSwap.getSwapRequestingUser().getId()), today, nextMonth);
+
+            List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
+
+                boolean overlapFound = false;
+
+                for (Shift userShift : userShifts) {
+                    if (shiftSwap.getRequestedShift().getDate().isEqual(userShift.getDate())) {
+                        LocalTime offerStart = shiftSwap.getRequestedShift().getShiftType().getStartTime();
+                        LocalTime offerEnd = shiftSwap.getRequestedShift().getShiftType().getEndTime();
+                        LocalTime userShiftStart = userShift.getShiftType().getStartTime();
+                        LocalTime userShiftEnd = userShift.getShiftType().getEndTime();
+
+                        if (!(offerEnd.isBefore(userShiftStart) || offerStart.isAfter(userShiftEnd))) {
+                            overlapFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!overlapFound) {
+                    filteredShiftSwaps.add(shiftSwap);
+                }
+
             dbShiftSwap.setSwapSuggestingUser(shiftSwap.getSwapSuggestingUser());
         }
         if (shiftSwap.getRequestedShift() != null) {
