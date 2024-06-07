@@ -22,6 +22,7 @@ import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ShiftType} from "../../../interfaces/shiftType";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {format, startOfDay} from 'date-fns';
 
 @Component({
   selector: 'app-week-view',
@@ -46,7 +47,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
 })
-export class WeekViewComponent implements OnInit{
+export class WeekViewComponent implements OnInit {
 
   @Input() loading = true;
   @Input() days: Day[] = [];
@@ -92,8 +93,7 @@ export class WeekViewComponent implements OnInit{
 
 
   ngOnInit(): void {
-    this.todaysDate = new Date();
-    this.todaysDate.setHours(0, 0, 0, 0)
+    this.todaysDate = startOfDay(new Date());
     console.log(this.todaysDate)
   }
 
@@ -198,4 +198,6 @@ export class WeekViewComponent implements OnInit{
       }
     });
   }
+
+  protected readonly format = format;
 }

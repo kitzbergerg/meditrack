@@ -113,7 +113,7 @@
       <th *ngIf="range==='month'">Details</th>
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
-      'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !loading ? 'lightgray' : '#fff', 'color': (todaysDate?.toISOString() === day.date.toISOString()) ? 'var(--primary-color)' : 'black'}"
+      'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !loading ? 'lightgray' : '#fff', 'color': ( todaysDate && day.date && (format(todaysDate, 'yyyy-MM-dd') === (format(day.date, 'yyyy-MM-dd')))) ? 'var(--primary-color)' : 'black'}"
           *ngFor="let day of days; trackBy: trackByDay">{{ day.dayName }}
       </th>
     </tr>
@@ -153,7 +153,7 @@
   'color': 'white'
 }"
           [ngClass]="{'cursor-pointer': editing}"
-          (click)="editing && op.toggle($event); editing && this.setShiftType(employeeShift.shiftType)">
+          (click)="editing && op.toggle($event); editing && employeeShift ? this.setShiftType(employeeShift.shiftType) : this.setShiftType(null)">
 
 
         <ng-container *ngIf="employeeShift">

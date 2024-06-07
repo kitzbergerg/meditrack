@@ -21,6 +21,7 @@
     "@angular/platform-server": "^17.3.7",
     "@angular/router": "^17.3.7",
     "angular-oauth2-oidc": "^17.0.2",
+    "date-fns": "^3.6.0",
     "keycloak-angular": "^15.2.1",
     "keycloak-js": "^24.0.3",
     "primeflex": "^3.3.1",

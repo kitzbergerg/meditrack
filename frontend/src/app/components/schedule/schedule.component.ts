@@ -19,6 +19,21 @@ import {ShiftService} from "../../services/shift.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {MessageService} from "primeng/api";
 import {ToastModule} from "primeng/toast";
+import {
+  startOfWeek,
+  addDays,
+  format,
+  parseISO,
+  addMonths,
+  subMonths,
+  endOfMonth,
+  setHours,
+  getDate,
+  getMonth,
+  getYear,
+  startOfMonth,
+  getISOWeek
+} from 'date-fns';
 
 @Component({
   selector: 'app-schedule',
@@ -69,14 +84,15 @@ export class ScheduleComponent implements OnInit {
   }
 
   loadSchedule(): void {
-    this.startDate = this.getMondayOfCurrentWeek(new Date());
-    this.startDate.setHours(0, 0, 0, 0);
+    this.startDate = setHours(this.getMondayOfCurrentWeek(new Date()), 12);
     this.getUsersFromTeam();
     this.updateData();
   }
 
   updateData(): void {
     this.loading = true;
+    this.setMonthNumber(this.startDate);
+    this.setWeekNumber(this.startDate);
     this.generateDays();
     this.getDataIfNotCached().then();
   }
@@ -101,8 +117,8 @@ export class ScheduleComponent implements OnInit {
   }
 
   async fetchMonthSchedule(date: Date): Promise<void> {
-    const month = date.toLocaleString('en-us', {month: 'long'});
-    const year = date.getFullYear();
+    const month = format(date, 'MMMM');
+    const year = getYear(date);
     return new Promise((resolve, reject) => {
       this.scheduleService.fetchSchedule(month, year).subscribe({
         next: data => {
@@ -146,7 +162,6 @@ export class ScheduleComponent implements OnInit {
       }
       this.workDetailsMap.get(detail.userId)?.set(cacheKey, detail);
     });
-    console.log(this.workDetailsMap);
   }
 
   parseScheduleToMap(schedule: Schedule): void {
@@ -163,7 +178,7 @@ export class ScheduleComponent implements OnInit {
       }
 
       if (this.employeeShiftMap.get(employeeId)) {
-        this.employeeShiftMap.get(employeeId)?.set(shiftId.toISOString(), shift);
+        this.employeeShiftMap.get(employeeId)?.set(format(shiftId, 'yyyy-MM-dd'), shift);
       }
     });
   }
@@ -180,7 +195,6 @@ export class ScheduleComponent implements OnInit {
         if (shift.monthlyPlan === monthlyPlan) {
           keysToDelete.push(shiftId);
         }
-        console.log(shift.date);
       });
 
       // Delete the shifts with the specified monthly plan
@@ -203,24 +217,24 @@ export class ScheduleComponent implements OnInit {
 
   generateDays(): void {
     const days = [];
-    let iterateDate = new Date(this.startDate);
+    let iterateDate = this.startDate;
     for (let i = 0; i < this.range; i++) {
       const dayName = this.getDayString(iterateDate);
-      const date = new Date(iterateDate);
+      const date = iterateDate;
       days.push({dayName, date});
-      iterateDate = new Date(iterateDate.setDate(iterateDate.getDate() + 1));
+      iterateDate = addDays(iterateDate, 1);
     }
     this.days = days;
   }
 
   async getDataIfNotCached(): Promise<void> {
-    const currentDate = new Date(this.startDate);
-    const endDate = new Date(this.startDate);
-    endDate.setDate(this.startDate.getDate() + (this.range - 1));
+    const currentDate = parseISO(format(this.startDate, 'yyyy-MM-dd'));
+    const endDate = addDays(currentDate, this.range - 1);
 
-    // Check if month data of first Day and last Day are already fetched
+    // Check if month data of first day and last day are already fetched
     await this.checkAndFetchSchedule(currentDate);
     await this.checkAndFetchSchedule(endDate);
+
     this.setCurrentSchedule();
     this.transformData(endDate);
   }
@@ -254,9 +268,8 @@ export class ScheduleComponent implements OnInit {
         if (!employee.id) {
           return;
         }
-        const date = new Date(day.date);
-        date.setHours(date.getHours() + 2);
-        const shift = this.employeeShiftMap.get(employee.id) && this.employeeShiftMap.get(employee.id)?.get(date.toISOString());
+        const date = parseISO(format(day.date, 'yyyy-MM-dd'));
+        const shift = this.employeeShiftMap.get(employee.id) && this.employeeShiftMap.get(employee.id)?.get(format(date, 'yyyy-MM-dd'));
         if (shift) {
           const shiftType = this.shiftTypes[shift.shiftType];
           employee.shifts[index] = {
@@ -272,45 +285,27 @@ export class ScheduleComponent implements OnInit {
   }
 
   getMondayOfCurrentWeek(date: Date): Date {
-    const today = date;
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
-    return new Date(today.setDate(diff));
+    return startOfWeek(date, {weekStartsOn: 1});
   }
 
   setWeekNumber(date: Date): void {
-    // Copy date so that we don't modify the original date object
-    const currentDate = new Date(date.getTime());
-
-    // Set the date to the nearest Thursday: currentDate + 4 - currentDayNumber
-    // Make Sunday (0) the last day of the week
-    currentDate.setDate(currentDate.getDate() + 4 - (currentDate.getDay() || 7));
-
-    // Get the first day of the year
-    const yearStart = new Date(currentDate.getFullYear(), 0, 1);
-
-    // Calculate the difference in milliseconds
-    const diffInMs = currentDate.getTime() - yearStart.getTime();
-
-    // Calculate full weeks to the nearest Thursday
-    this.weekNumber = Math.ceil((((diffInMs / 86400000) + 1) / 7));
+    const formattedDate = parseISO(format(date, 'yyyy-MM-dd'));
+    this.weekNumber = getISOWeek(formattedDate);
   }
 
   setMonthNumber(date: Date): void {
-    // Get the month from the date object
-    // Months are zero-based in JavaScript, so we add 1 to get a 1-based month number
-    this.monthNumber = date.getMonth() + 1;
+    this.monthNumber = getMonth(date) + 1; // Months are zero-based in JavaScript, so add 1 to get a 1-based month number
   }
 
-  generateCacheKey(currentDate: Date) {
-    const month = currentDate.toLocaleString('en-us', {month: 'long'});
-    const year = currentDate.getFullYear();
+  generateCacheKey(currentDate: Date): string {
+    const month = format(currentDate, 'MMMM');
+    const year = getYear(currentDate);
     return `${month}-${year}`;
   }
 
   getDayString(date: Date): string {
-    const dayString = date.toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit'});
-    const dayOfWeekString = date.toLocaleDateString('en-GB', {weekday: 'short'});
+    const dayString = format(date, 'dd/MM');
+    const dayOfWeekString = format(date, 'EEE');
     return `${dayString} ${dayOfWeekString}`;
   }
 
@@ -318,14 +313,12 @@ export class ScheduleComponent implements OnInit {
     this.displayCreateScheduleButton = false;
     this.currentWeekOffset += offset;
     if (this.range > 14) {
-      this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + offset, 1);
-      this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, 0).getDate();
+      this.startDate = offset > 0 ? addMonths(this.startDate, offset) : subMonths(this.startDate, -offset);
+      this.range = getDate(endOfMonth(this.startDate));
     } else {
-      this.startDate.setDate(this.startDate.getDate() + (offset * this.range));
+      this.startDate = addDays(this.startDate, offset * this.range);
     }
-    this.startDate.setHours(0, 0, 0, 0);
-    this.setMonthNumber(this.startDate);
-    this.setWeekNumber(this.startDate);
+    this.startDate = setHours(this.startDate, 12);
     this.updateData()
   }
 
@@ -333,24 +326,22 @@ export class ScheduleComponent implements OnInit {
     this.displayCreateScheduleButton = false;
     switch (range) {
       case 'week':
-        this.startDate = this.getMondayOfCurrentWeek(this.startDate);
+        this.startDate = this.startDate = setHours(this.getMondayOfCurrentWeek(new Date()), 12);
         this.range = 7;
         break;
       case '2weeks':
-        this.startDate = this.getMondayOfCurrentWeek(this.startDate);
+        this.startDate = this.startDate = setHours(this.getMondayOfCurrentWeek(new Date()), 12);
         this.range = 14;
         break;
       case 'month':
-        this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth(), 1);
-        this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, 0).getDate();
+        this.startDate = startOfMonth(this.startDate);
+        this.range = getDate(endOfMonth(this.startDate));
         this.currentPlanPublished = this.cachedSchedules[this.generateCacheKey(this.startDate)].published;
         this.currentPlanId = this.cachedSchedules[this.generateCacheKey(this.startDate)].id;
         break;
       default:
         throw new Error(`Unknown range: ${range}`);
     }
-    this.setMonthNumber(this.startDate);
-    this.setWeekNumber(this.startDate);
     this.updateData();
   }
 
@@ -392,16 +383,15 @@ export class ScheduleComponent implements OnInit {
     shiftId: string | null,
     operation: string
   }): void {
-    let shiftDate = new Date(shiftInfo.day.date.toDateString());
+    const shiftDate = parseISO(format(shiftInfo.day.date, 'yyyy-MM-dd'));
+    const shiftDateString = format(shiftDate, 'yyyy-MM-dd');
+
     const cacheKey = this.generateCacheKey(shiftDate);
-    const scheduleId = this.cachedSchedules[cacheKey].id;
+    const scheduleId = this.cachedSchedules[cacheKey]?.id;
     if (shiftInfo.user.id == undefined || scheduleId == undefined || shiftInfo.shiftType.id == undefined) {
       return;
     }
     // Calculation so different timezones do not lead to wrong dates
-    const offset = shiftDate.getTimezoneOffset()
-    shiftDate = new Date(shiftDate.getTime() - (offset * 60 * 1000))
-    const shiftDateString = shiftDate.toISOString().split('T')[0]
 
     const shift: SimpleShift = {
       id: shiftInfo.shiftId,
@@ -421,7 +411,7 @@ export class ScheduleComponent implements OnInit {
           next: (response) => {
             this.messageService.add({severity: 'success', summary: 'Successfully added shift'});
             shift.id = response.id;
-            this.employeeShiftMap.get(response.users[0])?.set(shiftDate.toISOString(), shift);
+            this.employeeShiftMap.get(response.users[0])?.set(shiftDateString, shift);
             if (shiftInfo.user.id != undefined) {
               this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             }
@@ -437,9 +427,8 @@ export class ScheduleComponent implements OnInit {
         this.shiftService.deleteShift(shiftInfo.shiftId).subscribe({
           next: () => {
             this.messageService.add({severity: 'success', summary: 'Successfully deleted shift'});
-            // delete curEmployee?.shifts[shiftDate.toDateString()];
             if (curEmployee?.id) {
-              this.employeeShiftMap.get(curEmployee.id)?.delete(shiftDate.toISOString());
+              this.employeeShiftMap.get(curEmployee.id)?.delete(shiftDateString);
             }
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
           }, error: (error) => {
@@ -454,7 +443,7 @@ export class ScheduleComponent implements OnInit {
         this.shiftService.updateShift(shift).subscribe({
           next: (data) => {
             this.messageService.add({severity: 'success', summary: 'Successfully updated shift'});
-            this.employeeShiftMap.get(data.users[0])?.set(shiftDate.toISOString(), shift);
+            this.employeeShiftMap.get(data.users[0])?.set(shiftDateString, shift);
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
           }, error: (error) => {
             this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + error.toString()});
