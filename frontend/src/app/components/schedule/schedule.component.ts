@@ -68,7 +68,7 @@ export class ScheduleComponent implements OnInit {
   currentPlanId: string | null = null;
   currentPlanPublished = false;
   weekNumber: number | undefined;
-  monthNumber: number | undefined;
+  monthString: string | undefined;
 
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
@@ -91,7 +91,7 @@ export class ScheduleComponent implements OnInit {
 
   updateData(): void {
     this.loading = true;
-    this.setMonthNumber(this.startDate);
+    this.setMonthName(this.startDate);
     this.setWeekNumber(this.startDate);
     this.generateDays();
     this.getDataIfNotCached().then();
@@ -293,8 +293,8 @@ export class ScheduleComponent implements OnInit {
     this.weekNumber = getISOWeek(formattedDate);
   }
 
-  setMonthNumber(date: Date): void {
-    this.monthNumber = getMonth(date) + 1; // Months are zero-based in JavaScript, so add 1 to get a 1-based month number
+  setMonthName(date: Date): void {
+    this.monthString = format(date, 'MMMM'); // Formats the date to return the full month name
   }
 
   generateCacheKey(currentDate: Date): string {

@@ -74,7 +74,7 @@ export class WeekViewComponent implements OnInit {
   @Input() planId: string | null = null;
   @Input() currentSchedule: ScheduleWithId | undefined;
   @Input() weekNumber: number | undefined;
-  @Input() monthNumber: number | undefined;
+  @Input() monthString: string | undefined;
   currentShiftType: ShiftType | null = null
   editing = false;
   protected readonly Object = Object;
@@ -94,7 +94,6 @@ export class WeekViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.todaysDate = startOfDay(new Date());
-    console.log(this.todaysDate)
   }
 
   trackByDay(index: number, day: Day): string {
