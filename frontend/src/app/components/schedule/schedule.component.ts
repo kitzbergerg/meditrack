@@ -35,6 +35,8 @@ export class ScheduleComponent implements OnInit {
   loading = true;
   days: Day[] = [];
   employees: Map<string, EmployeeWithShifts> = new Map<string, EmployeeWithShifts>();
+  employeeShiftMap: Map<string, Map<string, SimpleShift>> = new Map<string, Map<string, SimpleShift>>();
+  workDetailsMap: Map<string, Map<string, WorkDetails>> = new Map<string, Map<string, WorkDetails>>();
   currentWeekOffset = 0;
   startDate: Date = new Date();
   range = 7;
@@ -50,6 +52,8 @@ export class ScheduleComponent implements OnInit {
   userWorkDetails: WorkDetails[] = [];
   currentPlanId: string | null = null;
   currentPlanPublished = false;
+  weekNumber: number | undefined;
+  monthNumber: number | undefined;
 
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
@@ -59,9 +63,9 @@ export class ScheduleComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchRoles();
-    this.loadSchedule();
     this.loadShiftTypes();
     this.getCurrentUser();
+    this.loadSchedule();
   }
 
   loadSchedule(): void {
@@ -73,44 +77,114 @@ export class ScheduleComponent implements OnInit {
 
   updateData(): void {
     this.loading = true;
-    this.getDataIfNotCached();
     this.generateDays();
+    this.getDataIfNotCached().then();
   }
 
   createSchedule(): void {
     this.loading = true;
     const year = this.startDate.getFullYear();
-    this.scheduleService.createSchedule(this.createScheduleMonth, year).subscribe(() => {
-      this.updateData();
+    this.scheduleService.createSchedule(this.createScheduleMonth, year).subscribe((data) => {
       const month = new Date(`${this.createScheduleMonth} 1, ${year}`).getMonth() + 1;
       this.startDate = new Date(this.startDate.getFullYear(), month, 0);
+      const cacheKey = this.generateCacheKey(this.startDate);
+      if (!this.cachedSchedules[cacheKey] && data.id != null) {
+        this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
+      }
+      this.parseScheduleToMap(data);
+      this.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
       this.changeRange("month");
       this.displayCreateScheduleButton = false;
+      this.setCurrentSchedule();
+      this.updateData();
     });
   }
 
-  fetchMonthSchedule(date: Date): void {
-    this.loading = true;
+  async fetchMonthSchedule(date: Date): Promise<void> {
     const month = date.toLocaleString('en-us', {month: 'long'});
     const year = date.getFullYear();
-    this.scheduleService.fetchSchedule(month, year).subscribe({
-      next: data => {
-        const cacheKey = this.generateCacheKey(date);
-        if(data.id == null)
-          return;
-        this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
-        this.setCurrentSchedule();
-        this.userWorkDetails = data.monthlyWorkDetails;
-        this.displayCreateScheduleButton = false;
-        this.transformData(date, data.shifts, data.monthlyWorkDetails);
-      },
-      error: err => {
-        if (err.status === 404) {
-          this.displayCreateScheduleButton = true;
-          this.createScheduleMonth = month;
-          this.loading = false;
+    return new Promise((resolve, reject) => {
+      this.scheduleService.fetchSchedule(month, year).subscribe({
+        next: data => {
+          const cacheKey = this.generateCacheKey(date);
+          if (data.id == null) {
+            resolve();
+            return;
+          }
+          if (!this.cachedSchedules[cacheKey]) {
+            this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
+            this.parseScheduleToMap(data);
+            this.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
+          }
+
+          this.userWorkDetails = data.monthlyWorkDetails;
+          this.displayCreateScheduleButton = false;
+          this.setCurrentSchedule();
+          resolve();
+        },
+        error: err => {
+          if (err.status === 404) {
+            this.displayCreateScheduleButton = true;
+            this.createScheduleMonth = month;
+            this.usersWithShifts.forEach(user => {
+              user.shifts = Array(this.days.length).fill(null);
+            });
+            this.loading = false;
+            resolve();
+          }
+          reject(err);
         }
+      });
+    });
+  }
+
+  parseWorkDetailsToMap(workDetails: WorkDetails[], cacheKey: string): void {
+    // Maps the work details to the employee work details map
+    workDetails.forEach((detail) => {
+      if (!this.workDetailsMap.has(detail.userId)) {
+        this.workDetailsMap.set(detail.userId, new Map<string, WorkDetails>());
       }
+      this.workDetailsMap.get(detail.userId)?.set(cacheKey, detail);
+    });
+    console.log(this.workDetailsMap);
+  }
+
+  parseScheduleToMap(schedule: Schedule): void {
+    // Maps the schedule to the employee shift map
+    schedule.shifts.forEach((shift) => {
+      const employeeId = shift.users[0];
+      if (!shift.date) {
+        return;
+      }
+      const shiftId = new Date(shift.date); // Create a unique shift identifier
+
+      if (!this.employeeShiftMap.has(employeeId)) {
+        this.employeeShiftMap.set(employeeId, new Map<string, SimpleShift>());
+      }
+
+      if (this.employeeShiftMap.get(employeeId)) {
+        this.employeeShiftMap.get(employeeId)?.set(shiftId.toISOString(), shift);
+      }
+    });
+  }
+
+  deleteMonthlyPlanFromMap(monthlyPlan: string): void {
+    // Iterate through each employee's shift map
+    this.employeeShiftMap.forEach((shiftMap, employeeId) => {
+      // Create a list to store keys (shift IDs) to be deleted
+      const keysToDelete: string[] = [];
+
+      // Iterate through each shift for the employee
+      shiftMap.forEach((shift, shiftId) => {
+        // Check if the shift's monthlyPlan matches the specified monthly plan
+        if (shift.monthlyPlan === monthlyPlan) {
+          keysToDelete.push(shiftId);
+        }
+        console.log(shift.date);
+      });
+
+      // Delete the shifts with the specified monthly plan
+      keysToDelete.forEach((key) => shiftMap.delete(key));
     });
   }
 
@@ -122,9 +196,11 @@ export class ScheduleComponent implements OnInit {
   mapUsers(users: User[]): UserWithShifts[] {
     return users.map(user => ({
       id: user.id, firstName: user.firstName, lastName: user.lastName,
-      workingHoursPercentage: user.workingHoursPercentage, role: user.role, shifts: {}, workDetails: {}
+      workingHoursPercentage: user.workingHoursPercentage, role: user.role, color:
+        this.getColorFromName(user.firstName + user.lastName), shifts: [], workDetails: null
     }));
   }
+
   generateDays(): void {
     const days = [];
     let iterateDate = new Date(this.startDate);
@@ -137,53 +213,59 @@ export class ScheduleComponent implements OnInit {
     this.days = days;
   }
 
-  getDataIfNotCached(): void {
+  async getDataIfNotCached(): Promise<void> {
     const currentDate = new Date(this.startDate);
     const endDate = new Date(this.startDate);
     endDate.setDate(this.startDate.getDate() + (this.range - 1));
 
     // Check if month data of first Day and last Day are already fetched
-    this.checkAndFetchSchedule(currentDate);
-    this.checkAndFetchSchedule(endDate);
+    await this.checkAndFetchSchedule(currentDate);
+    await this.checkAndFetchSchedule(endDate);
     this.setCurrentSchedule();
-    this.loading = false;
+    this.transformData(endDate);
   }
 
-  checkAndFetchSchedule(date: Date): void {
+  async checkAndFetchSchedule(date: Date): Promise<void> {
     const cacheKey = this.generateCacheKey(date);
     if (!this.cachedSchedules[cacheKey]) {
-      this.fetchMonthSchedule(date);
+      await this.fetchMonthSchedule(date);
     }
   }
 
-  transformData(calendarDate: Date, shifts: SimpleShift[], workDetails: WorkDetails[]): void {
+  transformData(calendarDate: Date): void {
     this.loading = true;
     // Iterate over shifts and parse the data, store in the respective employee's shifts map
-    shifts.forEach(shift => {
-      if (!shift.date) {
+    this.usersWithShifts.forEach(employee => {
+      if (!employee.id) {
         return;
       }
-      const date = new Date(shift.date).toDateString();
-      const userId = shift.users[0]; // Accessing the single user in the array
-
-      // Find the employee by id
-      const employee = this.usersWithShifts.find(emp => emp.id === userId);
-      if (employee) {
-        employee.shifts[date] = {
-          id: shift.id,
-          date: shift.date,
-          shiftType: shift.shiftType,
-        };
+      // Initialize the shifts array with null or empty objects to match the length of this.days
+      employee.shifts = Array(this.days.length).fill(null);
+      const details = this.workDetailsMap.get(employee.id)?.get(this.generateCacheKey(calendarDate));
+      if (details) {
+        employee.workDetails = details;
+      } else {
+        employee.workDetails = null;
       }
-    });
 
-    // Iterate over workDetails and add them to the respective employee's workDetails map
-    workDetails.forEach(detail => {
-      const employee = this.usersWithShifts.find(emp => emp.id === detail.userId);
-      if (employee) {
-        const monthYear = `${calendarDate.getMonth() + 1}/${calendarDate.getFullYear()}`; // Example format: "6/2023"
-        employee.workDetails[monthYear] = detail;
-      }
+      // Iterate over all days to populate the shifts array
+      this.days.forEach((day, index) => {
+        // Get the shift for the current day from the cached data
+        if (!employee.id) {
+          return;
+        }
+        const date = new Date(day.date);
+        date.setHours(date.getHours() + 2);
+        const shift = this.employeeShiftMap.get(employee.id) && this.employeeShiftMap.get(employee.id)?.get(date.toISOString());
+        if (shift) {
+          const shiftType = this.shiftTypes[shift.shiftType];
+          employee.shifts[index] = {
+            id: shift.id,
+            date: shift.date,
+            shiftType: shiftType,
+          };
+        }
+      });
     });
 
     this.loading = false;
@@ -194,6 +276,30 @@ export class ScheduleComponent implements OnInit {
     const day = today.getDay();
     const diff = today.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is Sunday
     return new Date(today.setDate(diff));
+  }
+
+  setWeekNumber(date: Date): void {
+    // Copy date so that we don't modify the original date object
+    const currentDate = new Date(date.getTime());
+
+    // Set the date to the nearest Thursday: currentDate + 4 - currentDayNumber
+    // Make Sunday (0) the last day of the week
+    currentDate.setDate(currentDate.getDate() + 4 - (currentDate.getDay() || 7));
+
+    // Get the first day of the year
+    const yearStart = new Date(currentDate.getFullYear(), 0, 1);
+
+    // Calculate the difference in milliseconds
+    const diffInMs = currentDate.getTime() - yearStart.getTime();
+
+    // Calculate full weeks to the nearest Thursday
+    this.weekNumber = Math.ceil((((diffInMs / 86400000) + 1) / 7));
+  }
+
+  setMonthNumber(date: Date): void {
+    // Get the month from the date object
+    // Months are zero-based in JavaScript, so we add 1 to get a 1-based month number
+    this.monthNumber = date.getMonth() + 1;
   }
 
   generateCacheKey(currentDate: Date) {
@@ -209,21 +315,21 @@ export class ScheduleComponent implements OnInit {
   }
 
   changeWeek(offset: number): void {
-    this.loading = true;
     this.displayCreateScheduleButton = false;
     this.currentWeekOffset += offset;
     if (this.range > 14) {
       this.startDate = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + offset, 1);
-      this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth()+1, 0).getDate();
+      this.range = new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, 0).getDate();
     } else {
       this.startDate.setDate(this.startDate.getDate() + (offset * this.range));
     }
     this.startDate.setHours(0, 0, 0, 0);
+    this.setMonthNumber(this.startDate);
+    this.setWeekNumber(this.startDate);
     this.updateData()
   }
 
   changeRange(range: string): void {
-    this.loading = true;
     this.displayCreateScheduleButton = false;
     switch (range) {
       case 'week':
@@ -243,6 +349,8 @@ export class ScheduleComponent implements OnInit {
       default:
         throw new Error(`Unknown range: ${range}`);
     }
+    this.setMonthNumber(this.startDate);
+    this.setWeekNumber(this.startDate);
     this.updateData();
   }
 
@@ -313,13 +421,12 @@ export class ScheduleComponent implements OnInit {
           next: (response) => {
             this.messageService.add({severity: 'success', summary: 'Successfully added shift'});
             shift.id = response.id;
-            if (curEmployee) {
-              curEmployee.shifts[shiftDate.toDateString()] = shift;
+            this.employeeShiftMap.get(response.users[0])?.set(shiftDate.toISOString(), shift);
+            if (shiftInfo.user.id != undefined) {
+              this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             }
-            if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
-            this.updateData();
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + error.toString()});
+            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + error.error().toString()});
           }
         });
         break;
@@ -330,10 +437,11 @@ export class ScheduleComponent implements OnInit {
         this.shiftService.deleteShift(shiftInfo.shiftId).subscribe({
           next: () => {
             this.messageService.add({severity: 'success', summary: 'Successfully deleted shift'});
-            delete curEmployee?.shifts[shiftDate.toDateString()];
-
+            // delete curEmployee?.shifts[shiftDate.toDateString()];
+            if (curEmployee?.id) {
+              this.employeeShiftMap.get(curEmployee.id)?.delete(shiftDate.toISOString());
+            }
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
-            this.updateData();
           }, error: (error) => {
             this.messageService.add({severity: 'error', summary: 'Deleting shift failed: ' + error.toString()});
           }
@@ -344,13 +452,10 @@ export class ScheduleComponent implements OnInit {
           return;
         }
         this.shiftService.updateShift(shift).subscribe({
-          next: () => {
+          next: (data) => {
             this.messageService.add({severity: 'success', summary: 'Successfully updated shift'});
-            if (curEmployee?.shifts[shiftDate.toDateString()]) {
-              curEmployee.shifts[shiftDate.toDateString()] = shift;
-            }
+            this.employeeShiftMap.get(data.users[0])?.set(shiftDate.toISOString(), shift);
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
-            this.updateData();
           }, error: (error) => {
             this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + error.toString()});
           }
@@ -360,12 +465,13 @@ export class ScheduleComponent implements OnInit {
   }
 
   fetchWorkDetails(userId: string, shiftDate: Date): void {
-    this.userService.getUserMonthlyDetails(userId, shiftDate.toLocaleString('default', {month: 'long'}), shiftDate.getFullYear()).subscribe((workDetails: WorkDetails) => {
+    this.userService.getUserMonthlyDetails(userId, shiftDate.toLocaleString('en-us', {month: 'long'}), shiftDate.getFullYear()).subscribe((workDetails: WorkDetails) => {
       // instead of pushing the new workDetails, we should update the existing one
       const employee = this.usersWithShifts.find(emp => emp.id === workDetails.userId);
       if (employee) {
-        const monthYear = `${shiftDate.getMonth() + 1}/${shiftDate.getFullYear()}`; // Example format: "6/2023"
-        employee.workDetails[monthYear] = workDetails;
+        const key = this.generateCacheKey(shiftDate);
+        this.workDetailsMap.get(workDetails.userId)?.set(key, workDetails);
+        this.updateData();
       }
     });
   }
@@ -375,12 +481,12 @@ export class ScheduleComponent implements OnInit {
     const shiftDate = new Date(this.startDate);
     const cacheKey = this.generateCacheKey(shiftDate);
     const scheduleId = this.cachedSchedules[cacheKey].id;
-    // TODO: add error msg
     if (scheduleId == null) {
       return;
     }
     this.scheduleService.deleteSchedule(scheduleId).subscribe(() => {
       delete this.cachedSchedules[cacheKey];
+      this.deleteMonthlyPlanFromMap(scheduleId);
       this.updateData();
       this.displayCreateScheduleButton = true;
     });
@@ -390,10 +496,10 @@ export class ScheduleComponent implements OnInit {
     if (this.currentPlanId == null) {
       return;
     }
-    this.scheduleService.publishSchedule(this.currentPlanId).subscribe( () => {
+    this.scheduleService.publishSchedule(this.currentPlanId).subscribe(() => {
       this.messageService.add({severity: 'success', summary: 'Schedule published successfully'});
-       this.cachedSchedules[this.generateCacheKey(this.startDate)].published = true;
-       this.setCurrentSchedule();
+      this.cachedSchedules[this.generateCacheKey(this.startDate)].published = true;
+      this.setCurrentSchedule();
     })
   }
 
@@ -405,6 +511,19 @@ export class ScheduleComponent implements OnInit {
           this.currentUser = response;
         }
     });
+  }
+
+  getColorFromName(name: string): string {
+    const colors = [
+      '#FFBE0B', '#FB5607', '#FF006E', '#8338EC', '#3A86FF',
+      '#1c8b71', '#26C6DA', '#E71D36', '#FF9A76', '#8AC926', '#1982C4'
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
   }
 
 }

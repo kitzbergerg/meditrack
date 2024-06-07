@@ -1,18 +1,18 @@
-<div class="flex justify-content-end p-2">
+<div class="flex justify-content-end">
 
   <p-button
-    class="m-2"
+    class="mb-2 ml-2"
     [outlined]="true"
-    *ngIf="checkEditingAuthority()  && editing && !currentSchedule?.published"
+    *ngIf="checkEditingAuthority()  && editing && !currentSchedule?.published && !displayCreateScheduleButton"
     type="button"
-    (click)="publishMonthSchedule()"
+    (click)="confirmPublish($event)"
     severity="success"
     icon="pi pi-check-circle"
     label="{{'Publish'}}"/>
 
 
   <p-button
-    class="m-2"
+    class="mb-2 ml-2"
     [outlined]="true"
     *ngIf="displayCreateScheduleButton"
     type="button"
@@ -22,7 +22,7 @@
   <p-confirmDialog/>
 
   <p-button
-    class="m-2"
+    class="mb-2 ml-2"
     [outlined]="true"
     *ngIf="checkEditingAuthority() && !displayCreateScheduleButton && editing"
     type="button"
@@ -32,7 +32,7 @@
     label="{{'Delete'}}"/>
 
   <p-button
-    class="m-2"
+    class="mb-2 ml-2"
     [outlined]="true"
     *ngIf="checkEditingAuthority() && !editing && !displayCreateScheduleButton"
     type="button"
@@ -41,27 +41,28 @@
     label="{{'Edit'}}"/>
 
   <p-button
-    class="m-2"
+    class="mb-2 ml-2"
     [outlined]="true"
-    *ngIf="checkEditingAuthority() && editing"
+    *ngIf="checkEditingAuthority() && editing && !displayCreateScheduleButton"
     type="button"
     (click)="toggleEdit()"
     icon="pi pi-check"
     label="{{'Done'}}"/>
 
 </div>
-<p-table #dt [value]="employees" [customSort]="true" class="p-mt-2" [scrollable]="true" scrollHeight='70vh'
+<p-table #dt [value]="employees" [customSort]="true" [scrollable]="true" scrollHeight='65vh'
          styleClass="p-datatable-gridlines" responsiveLayout="scroll"
          [style]="editing ? {'border': '1px solid  var(--primary-color)'} : {}"
-         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading"
-         [rowTrackBy]="trackByEmployeeId">
+         [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
       <h5 *ngIf="range==='week'" class="m-0">Calendar Week {{ weekNumber }}</h5>
       <h5 *ngIf="weekNumber && range==='2weeks'" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
       <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthNumber }}
-        <i *ngIf="currentSchedule?.published" class="pi pi-check" style="color: green; font-size: 1.2rem"></i>
-        <i *ngIf="!currentSchedule?.published" class="pi pi-file-o" style="color: gray; font-size: 1.2rem"></i>
+        <i *ngIf="currentSchedule?.published && !loading" class="pi pi-check"
+           style="color: green; font-size: 1.2rem"></i>
+        <i *ngIf="!currentSchedule?.published && !loading" class="pi pi-file-o"
+           style="color: gray; font-size: 1.2rem"></i>
       </h5>
       <div class="flex align-items-center justify-content-start">
         <p-button *ngIf="!editing"
@@ -112,18 +113,19 @@
       <th *ngIf="range==='month'">Details</th>
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
-      'background-color': day.dayName.includes('Su') || day.dayName.includes('Sa') ? 'lightgray' : '#fff'}"
-          *ngFor="let day of days; trackBy: trackByDay">{{ (day.dayName) }}
+      'background-color': (day.dayName.includes('Su') || day.dayName.includes('Sa')) && !loading ? 'lightgray' : '#fff', 'color': (todaysDate?.toISOString() === day.date.toISOString()) ? 'var(--primary-color)' : 'black'}"
+          *ngFor="let day of days; trackBy: trackByDay">{{ day.dayName }}
       </th>
     </tr>
   </ng-template>
+
   <ng-template pTemplate="body" let-employee>
     <tr>
       <td pFrozenColumn>
         <div class="flex flex-row">
           <div class="flex align-items-center mr-3">
             <div
-              [ngStyle]="{'background-color': getColorFromInitials(employee.firstName.charAt(0) + employee.lastName.charAt(0))}"
+              [ngStyle]="{'background-color': employee.color}"
               style="width: 40px; height: 40px; border-radius: 50%; background-color: #4caf50; display: flex; align-items: center; justify-content: center; color: white;">
               {{ employee.firstName.charAt(0) }}{{ employee.lastName.charAt(0) }}
             </div>
@@ -139,44 +141,47 @@
       </td>
 
       <td *ngIf="range==='month'">
-        <div style="white-space: nowrap;" *ngIf="employee && getWorkDetails(employee) as detail">
+        <div style="white-space: nowrap;" *ngIf="employee && employee.workDetails as detail">
           <div>HSW: {{ detail.hoursShouldWork }}</div>
           <div>HAW: {{ detail.hoursActuallyWorked }}</div>
           <div>OT: {{ detail.overtime }}</div>
         </div>
       </td>
-      <!-- TODO: Weekend check should be language independent -->
-      <td *ngFor="let day of days; index as i; trackBy: trackByDay"
-          [ngStyle]="getDayStyle(employee, day)"
+      <td *ngFor="let employeeShift of employee.shifts; index as i; trackBy: trackByShift"
+          [ngStyle]="{
+  'background-color': employeeShift?.shiftType?.color || ( days[i] && (days[i].dayName.includes('Su') || days[i].dayName.includes('Sa')) && !loading ? 'lightgray' : '#fff'),
+  'color': 'white'
+}"
           [ngClass]="{'cursor-pointer': editing}"
-          (click)="editing && op.toggle($event); editing && this.setShiftType(getShiftType(employee, day))">
+          (click)="editing && op.toggle($event); editing && this.setShiftType(employeeShift.shiftType)">
 
-        <ng-container *ngIf="getShiftType(employee, day) as shiftType;">
+
+        <ng-container *ngIf="employeeShift">
           <div>
             <div class="text-xl font-medium">
-              {{ shiftType.abbreviation }}
+              {{ employeeShift.shiftType.abbreviation }}
             </div>
             <span *ngIf="range!=='month'" class="text-sm">
-             {{ shiftType.startTime.slice(0, -3) }} - {{ shiftType.endTime.slice(0, -3) }}
+             {{ employeeShift.shiftType.startTime.slice(0, -3) }} - {{ employeeShift.shiftType.endTime.slice(0, -3) }}
             </span>
           </div>
         </ng-container>
         <p-overlayPanel #op>
-          <p-dropdown
-            [(ngModel)]="this.currentShiftType"
-            [options]="Object.values(shiftTypes)"
-            optionLabel="name"
-            [showClear]="true"
-            placeholder="Select a Shift Type"
+          <p-dropdown *ngIf="editing"
+                      [(ngModel)]="this.currentShiftType"
+                      [options]="Object.values(shiftTypes)"
+                      optionLabel="name"
+                      [showClear]="true"
+                      placeholder="Select a Shift Type"
           >
           </p-dropdown>
-          <div class="flex justify-content-end flex-wrap">
-            <div *ngIf="getShiftType(employee, day) as shiftType; else newShift;">
+          <div class="flex justify-content-end flex-wrap" *ngIf="editing">
+            <div *ngIf="employeeShift?.shiftType; else newShift">
               <p-button
                 class="m-2"
                 [outlined]="true"
                 type="button"
-                (click)="changeShift(employee, day, 'delete')"
+                (click)="changeShift(employee, i, this.days[i], 'delete'); op.toggle($event)"
                 label="Delete shift"
                 severity="danger">
               </p-button>
@@ -184,7 +189,7 @@
                 class="m-2"
                 [outlined]="true"
                 type="button"
-                (click)="changeShift(employee, day, 'update')"
+                (click)="changeShift(employee, i, this.days[i], 'update'); op.toggle($event)"
                 label="Update shift">
               </p-button>
             </div>
@@ -193,7 +198,7 @@
                 class="m-2"
                 [outlined]="true"
                 type="button"
-                (click)="changeShift(employee, day, 'create')"
+                (click)="changeShift(employee, i, this.days[i], 'create'); op.toggle($event)"
                 label="Create shift">
               </p-button>
             </ng-template>

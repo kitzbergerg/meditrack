@@ -1,4 +1,5 @@
 import {Role} from "./role";
+import {ShiftType} from "./shiftType";
 
 export interface RangeOption {
   label: string;
@@ -50,7 +51,7 @@ export interface SimpleShift {
 
 export interface ShiftWithIds {
   id: string | null;
-  shiftType: string;
+  shiftType: ShiftType;
   date: string | null;
 }
 
@@ -76,14 +77,11 @@ export interface UserWithShifts {
   id?: string;
   firstName: string;
   lastName: string;
+  color: string;
   workingHoursPercentage: number;
   role: Role,
-  shifts: {
-    [date: string]: ShiftWithIds;
-  };
-  workDetails: {
-    [date: string]: WorkDetails;
-  };
+  shifts: ShiftWithIds [];
+  workDetails: WorkDetails | null;
 }
 
 export interface Employee {
@@ -104,12 +102,4 @@ export interface EmployeeMap {
 
 export interface ShiftDetail {
   type: ShiftType;
-}
-
-export interface ShiftType {
-  name: string;
-  color: string;
-  startTime: string;
-  endTime: string;
-  abbreviation: string;
 }
