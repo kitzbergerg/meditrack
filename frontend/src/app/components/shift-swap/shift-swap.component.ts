@@ -18,7 +18,9 @@ export class ShiftSwapComponent {
 
   userId = '';
   loading = true;
-  currentUser : User | undefined;
+  currentUser: User | undefined;
+
+  teamUsers: User[] = []
   shiftSwaps: ShiftSwap[] = [];
   shiftSwapOffers: ShiftSwap[] = [];
   currentShifts: ShiftSwapShift[] = []
@@ -45,62 +47,93 @@ export class ShiftSwapComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
+
   }
+
+  getAllUsersFromTeam() {
+    this.userService.getAllUserFromTeam().subscribe({
+        next: response => {
+          this.teamUsers = response;
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+        }
+      }
+    );
+  }
+
+  findUser(userId: string) {
+    return this.teamUsers.find(user => user.id === userId);
+  }
+
 
   getUser(): void {
     this.userService.getUserById(this.userId).subscribe({
-      next: response => {
-        this.currentUser = response;
-        this.getAllRequestedShiftSwaps();
-        this.getShiftsFromCurrentMonth()
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-      }}
+        next: response => {
+          this.currentUser = response;
+          this.getAllRequestedShiftSwaps();
+          this.getShiftsFromCurrentMonth()
+          this.getAllUsersFromTeam()
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+        }
+      }
     );
   }
 
   getAllRequestedShiftSwaps() {
     this.shiftSwapService.getAllRequestedShiftSwapsFromUser().subscribe({
-      next: response => {
-        console.log(response)
-        this.shiftSwaps = response;
-        if (this.shiftSwaps.length > 0) {
-          this.getAllOfferedShiftSwaps();
-        } else {
-          this.shiftSwapOffers = [];
+        next: response => {
+          console.log(response)
+          this.shiftSwaps = response;
+          this.shiftSwaps.sort((a, b) =>
+            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime())
+          if (this.shiftSwaps.length > 0) {
+            this.getAllOfferedShiftSwaps();
+          } else {
+            this.shiftSwapOffers = [];
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
         }
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-      }}
+      }
     );
   }
 
   getAllOfferedShiftSwaps() {
     this.shiftSwapService.getAllOfferedShiftSwaps().subscribe({
-      next: response => {
-        console.log(response)
-        this.shiftSwapOffers = response;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-      }}
+        next: response => {
+          console.log(response)
+          this.shiftSwapOffers = response;
+          this.shiftSwapOffers.sort((a, b) =>
+            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime())
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+        }
+      }
     );
   }
 
   getShiftsFromCurrentMonth() {
     this.shiftSwapService.getAllShiftsFromCurrentMonth().subscribe({
-      next: response =>{
-        this.currentShifts = response;
-      },
-      error: (error) => {
-        console.error('Error fetching data:', error);
-      }}
+        next: response => {
+          this.currentShifts = response;
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+        }
+      }
     )
   }
 
+  getSortedShiftSwapOffers(): ShiftSwap[] {
+    console.log(this.shiftSwapOffers.map(offer => offer.requestedShift.date)); // Log dates
+    return this.shiftSwapOffers.sort((a, b) => a.requestedShift.date.getTime() - b.requestedShift.date.getTime());
+  }
 
   isSpecialDate(date: any): boolean {
     if (date == undefined) return false;
@@ -133,7 +166,6 @@ export class ShiftSwapComponent {
   }
 
 
-
   generateShiftSwap() {
     if (this.selectedDate != undefined) {
       const shift = this.findShiftFromDate(this.selectedDate)
@@ -144,7 +176,7 @@ export class ShiftSwapComponent {
           requestedShift: shift,
           requestedShiftSwapStatus: ShiftSwapStatus.ACCEPTED,
           suggestedShiftSwapStatus: ShiftSwapStatus.PENDING,
-          swapRequestingUser: this.currentUser?.id == undefined? "" : this.currentUser.id
+          swapRequestingUser: this.currentUser?.id == undefined ? "" : this.currentUser.id
         };
       } else {
         this.newShiftSwap = undefined;
@@ -155,17 +187,17 @@ export class ShiftSwapComponent {
     }
   }
 
-  createShiftSwapOffer(){
+  createShiftSwapOffer() {
     if (this.newShiftSwap !== undefined) {
       const simpleShiftSwap: SimpleShiftSwap = {
-        requestedShift: this.newShiftSwap.requestedShift.id == undefined? "" : this.newShiftSwap.requestedShift.id,
+        requestedShift: this.newShiftSwap.requestedShift.id == undefined ? "" : this.newShiftSwap.requestedShift.id,
         requestedShiftSwapStatus: ShiftSwapStatus.ACCEPTED,
         suggestedShiftSwapStatus: ShiftSwapStatus.PENDING,
-        swapRequestingUser: this.currentUser?.id == undefined? "" : this.currentUser.id
+        swapRequestingUser: this.currentUser?.id == undefined ? "" : this.currentUser.id
       }
       console.log(simpleShiftSwap)
       this.shiftSwapService.createShiftSwap(simpleShiftSwap).subscribe({
-        next: response =>{
+        next: response => {
           this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Offer '});
           this.getAllRequestedShiftSwaps()
           this.toggleDialog()
@@ -173,7 +205,8 @@ export class ShiftSwapComponent {
         error: (error) => {
           this.toggleDialog()
           this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Offer '});
-        }});
+        }
+      });
     }
   }
 

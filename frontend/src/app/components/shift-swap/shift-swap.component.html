@@ -2,7 +2,7 @@
   <div class="grid">
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
-        <h2 class="pb-2" style="text-align: center;">My Shift Swaps</h2>
+        <h2 class="pb-2" style="text-align: center;">My Shift Offers</h2>
         <ul class="list-none p-0 m-0">
           <li *ngFor="let shiftSwap of shiftSwaps" class="flex items-center mb-4">
             <div
@@ -116,7 +116,7 @@
 
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
-        <h2 style="text-align: center;">Other Shift Swap Offers</h2>
+        <h2 style="text-align: center;">Other Shift Offers</h2>
         <ul class="list-none p-0 m-0">
           <h5 *ngIf="shiftSwapOffers.length === 0" style="text-align: center; margin-top: 30px;">You have to make a shift swap first to see other offers.</h5>
           <div *ngIf="shiftSwapOffers.length !== 0">
@@ -138,10 +138,13 @@
                   </div>
                 </div>
 
-                <div class="text-center">
+                <div class="">
+
                   <div class="text-lg m-0 font-medium">{{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }} </div>
                   {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
                   {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                  <div class="text-lg">From: {{ findUser(shiftSwap.swapRequestingUser)?.firstName}}
+                    {{ findUser(shiftSwap.swapRequestingUser)?.lastName}}</div>
                 </div>
               </div>
             </li>
