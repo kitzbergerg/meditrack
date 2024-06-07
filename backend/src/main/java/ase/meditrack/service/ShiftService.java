@@ -30,7 +30,8 @@ public class ShiftService {
     private final MonthlyPlanRepository monthlyPlanRepository;
 
     public ShiftService(ShiftRepository repository, MonthlyWorkDetailsService monthlyWorkDetailsService,
-                        ShiftTypeRepository shiftTypeRepository, MonthlyPlanRepository monthlyPlanRepository, UserService userService) {
+                        ShiftTypeRepository shiftTypeRepository, MonthlyPlanRepository monthlyPlanRepository,
+                        UserService userService) {
         this.repository = repository;
         this.monthlyWorkDetailsService = monthlyWorkDetailsService;
         this.shiftTypeRepository = shiftTypeRepository;
