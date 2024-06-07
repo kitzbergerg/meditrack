@@ -162,32 +162,6 @@ public class DataGeneratorBean {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
 
-        UserDto rootUser = new UserDto(
-                null,
-                "root",
-                "root",
-                FAKER.internet().emailAddress(),
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                List.of("admin"),
-                null,
-                (float) FAKER.number().numberBetween(20, 100),
-                0,
-                List.of(FAKER.educator().course(), FAKER.educator().course()),
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        User rootEntity = userMapper.fromDto(rootUser);
-        rootEntity.setTeam(teams.get(0));
-        rootEntity.setRole(roles.get(0));
-        users.add(userService.create(rootEntity));
-
         for (Team team : teams) {
             String firstName = FAKER.name().firstName();
             String lastName = FAKER.name().lastName();

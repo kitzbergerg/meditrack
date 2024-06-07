@@ -123,8 +123,8 @@ public class ShiftService {
         if (shift.getUsers() != null) {
             dbShift.setUsers(shift.getUsers());
         }
-        if (shift.getSuggestedShiftSwaps() != null) {
-            dbShift.setSuggestedShiftSwaps(shift.getSuggestedShiftSwaps());
+        if (shift.getSuggestedShiftSwap() != null) {
+            dbShift.setSuggestedShiftSwap(shift.getSuggestedShiftSwap());
         }
         if (shift.getRequestedShiftSwap() != null) {
             dbShift.setRequestedShiftSwap(shift.getRequestedShiftSwap());

@@ -14,8 +14,8 @@ import {Role} from "../../interfaces/role";
 import {UserService} from "../../services/user.service";
 import {User} from "../../interfaces/user";
 import {ShiftTypeService} from "../../services/shiftType.service";
-import {ShiftType} from "../../interfaces/shiftType";
 import {ShiftService} from "../../services/shift.service";
+import {ShiftType} from "../../interfaces/shiftType";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {MessageService} from "primeng/api";
 import {ToastModule} from "primeng/toast";
@@ -29,7 +29,6 @@ import {
   endOfMonth,
   setHours,
   getDate,
-  getMonth,
   getYear,
   startOfMonth,
   getISOWeek
@@ -72,7 +71,7 @@ export class ScheduleComponent implements OnInit {
 
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
-              private shiftService: ShiftService, private authorizationService: AuthorizationService,
+              private authorizationService: AuthorizationService, private shiftService: ShiftService,
               private messageService: MessageService) {
   }
 
