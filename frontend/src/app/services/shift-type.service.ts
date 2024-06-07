@@ -6,7 +6,7 @@ import {SimpleShift} from "../interfaces/schedule.models";
 @Injectable({
   providedIn: 'root'
 })
-export class ShiftService {
+export class ShiftTypeService {
 
   constructor(private http: HttpClient) {
   }

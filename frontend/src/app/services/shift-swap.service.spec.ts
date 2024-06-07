@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ShiftService } from './shift.service';
+import { ShiftSwapService } from './shift-swap.service';
 
-describe('ShiftService', () => {
-  let service: ShiftService;
+describe('ShiftSwapService', () => {
+  let service: ShiftSwapService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ShiftService);
+    service = TestBed.inject(ShiftSwapService);
   });
 
   it('should be created', () => {
