@@ -43,9 +43,6 @@ public class MonthlyWorkDetailsService {
 
         LocalDate date = shift.getDate();
 
-        log.info("month: " + date.getMonth().getValue());
-        log.info("year: " + date.getYear());
-
         MonthlyWorkDetails monthlyWorkDetail = monthlyWorkDetailRepository.
                 findMonthlyWorkDetailsByUserIdAndMonthAndYear(user.getId(), date.getMonth().getValue(),
                         date.getYear());
@@ -61,7 +58,7 @@ public class MonthlyWorkDetailsService {
         double newActualHours = monthlyWorkDetail.getHoursActuallyWorked() - oldShiftDuration + shiftDuration;
         int overtime = (int) Math.round(newActualHours - monthlyWorkDetail.getHoursShouldWork());
 
-        monthlyWorkDetail.setHoursActuallyWorked(Math.round(newActualHours));
+        monthlyWorkDetail.setHoursActuallyWorked((float) newActualHours);
         monthlyWorkDetail.setOvertime(overtime);
     }
 
@@ -87,7 +84,7 @@ public class MonthlyWorkDetailsService {
         double newActualHours = monthlyWorkDetail.getHoursActuallyWorked() - shiftDuration;
         int overtime = (int) Math.round(newActualHours - monthlyWorkDetail.getHoursShouldWork());
 
-        monthlyWorkDetail.setHoursActuallyWorked(Math.round(newActualHours));
+        monthlyWorkDetail.setHoursActuallyWorked((float) newActualHours);
         monthlyWorkDetail.setOvertime(overtime);
     }
 
