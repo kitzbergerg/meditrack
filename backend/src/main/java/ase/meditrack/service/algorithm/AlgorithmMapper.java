@@ -52,7 +52,8 @@ public class AlgorithmMapper {
         List<RoleInfo> roleInfos = new ArrayList<>();
         for (int i = 0; i < roles.size(); i++) {
             Role role = roles.get(i);
-            roleInfos.add(new RoleInfo(role.getName()));
+            // TODO #86: add missing role values
+            roleInfos.add(new RoleInfo(role.getName(), 0, 0, 0, 0));
         }
 
         // Create day records for every day of month

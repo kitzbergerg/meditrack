@@ -24,7 +24,7 @@ class SolverTest {
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
         for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i));
-        List<RoleInfo> roles = List.of(new RoleInfo("Rolename"));
+        List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 0, 0));
         AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }
@@ -36,7 +36,7 @@ class SolverTest {
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
         for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i));
-        List<RoleInfo> roles = List.of(new RoleInfo("Rolename"));
+        List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 0, 0));
         AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isEmpty());
 
@@ -53,7 +53,7 @@ class SolverTest {
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
         List<DayInfo> dayInfos = new ArrayList<>();
         for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i));
-        List<RoleInfo> roles = List.of(new RoleInfo("Rolename"));
+        List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 0, 0));
         AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isEmpty());
 
