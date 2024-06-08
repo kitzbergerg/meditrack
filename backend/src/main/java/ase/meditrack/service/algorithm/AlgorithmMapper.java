@@ -59,8 +59,7 @@ public class AlgorithmMapper {
         while (!date.isAfter(endDate)) {
             DayOfWeek dayOfWeek = date.getDayOfWeek();
             String dayName = dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            boolean isHoliday = false;  // Placeholder
-            dayInfos.add(new DayInfo(dayName, isHoliday));
+            dayInfos.add(new DayInfo(dayName));
             date = date.plusDays(1);
         }
 
