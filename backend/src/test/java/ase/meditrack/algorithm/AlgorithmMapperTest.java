@@ -64,7 +64,7 @@ class AlgorithmMapperTest {
         when(shiftType.getEndTime()).thenReturn(LocalTime.of(17, 0));
         shiftTypes.add(shiftType);
 
-        algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
+        algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, team);
 
         // Use reflection to access private fields
         Field indexToShiftTypeUuidField = AlgorithmMapper.class.getDeclaredField("indexToShiftTypeUuid");
@@ -146,8 +146,7 @@ class AlgorithmMapperTest {
         when(constraints.getMinRestPeriod()).thenReturn(120);
         when(constraints.getMaximumShiftLengths()).thenReturn(8);
 
-        AlgorithmInput input =
-                algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
+        AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, team);
 
 
         assertEquals(2, input.employees().size());

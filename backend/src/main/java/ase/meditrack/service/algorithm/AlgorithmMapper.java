@@ -1,6 +1,5 @@
 package ase.meditrack.service.algorithm;
 
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
@@ -8,14 +7,11 @@ import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,14 +31,11 @@ public class AlgorithmMapper {
      * @param employees
      * @param shiftTypes
      * @param roles
-     * @param constraints
      * @param team
      * @return input for the algorithm
      */
     public AlgorithmInput mapToAlgorithmInput(int month, int year, List<User> employees, List<ShiftType> shiftTypes,
-                                              List<Role> roles, HardConstraints constraints, Team team) {
-
-        List<DayInfo> dayInfos = new ArrayList<>();
+                                              List<Role> roles, Team team) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate date = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
@@ -56,11 +49,10 @@ public class AlgorithmMapper {
             roleInfos.add(new RoleInfo(role.getName(), 0, 0, 0, 0));
         }
 
+        int numberOfDays = 0;
         // Create day records for every day of month
         while (!date.isAfter(endDate)) {
-            DayOfWeek dayOfWeek = date.getDayOfWeek();
-            String dayName = dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-            dayInfos.add(new DayInfo(dayName));
+            numberOfDays++;
             date = date.plusDays(1);
         }
 
@@ -91,7 +83,7 @@ public class AlgorithmMapper {
             // TODO #86: make sure holidays and off days are considered in this calculation
             int optimalWorkingHoursPerMonth =
                     (int) (employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours());
-            optimalWorkingHoursPerMonth = optimalWorkingHoursPerMonth * dayInfos.size() / 5;
+            optimalWorkingHoursPerMonth = optimalWorkingHoursPerMonth * numberOfDays / 5;
 
             List<Integer> worksShifts = new ArrayList<>();
             if (employee.getCanWorkShiftTypes().isEmpty()) {
@@ -107,7 +99,7 @@ public class AlgorithmMapper {
         }
 
         // TODO #86: add required people
-        return new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, 0, 0);
+        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 0, 0);
     }
 
     /**

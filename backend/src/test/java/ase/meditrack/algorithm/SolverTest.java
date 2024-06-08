@@ -2,7 +2,6 @@ package ase.meditrack.algorithm;
 
 
 import ase.meditrack.service.algorithm.AlgorithmInput;
-import ase.meditrack.service.algorithm.DayInfo;
 import ase.meditrack.service.algorithm.EmployeeInfo;
 import ase.meditrack.service.algorithm.RoleInfo;
 import ase.meditrack.service.algorithm.SchedulingSolver;
@@ -10,7 +9,6 @@ import ase.meditrack.service.algorithm.ShiftTypeInfo;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,10 +20,8 @@ class SolverTest {
     void simpleTest() {
         List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(0), 28 * 8, List.of()));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
-        List<DayInfo> dayInfos = new ArrayList<>();
-        for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i));
         List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 0, 0));
-        AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
+        AlgorithmInput input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }
 
@@ -34,15 +30,13 @@ class SolverTest {
         // empty can work -> no solution
         List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(), 28 * 8, List.of()));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
-        List<DayInfo> dayInfos = new ArrayList<>();
-        for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i));
         List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 0, 0));
-        AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
+        AlgorithmInput input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isEmpty());
 
         // set can work -> solution
         employeeInfos = List.of(new EmployeeInfo(List.of(0), 28 * 8, List.of()));
-        input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
+        input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }
 
@@ -51,15 +45,13 @@ class SolverTest {
         // Employee works 28 days with 8 hours each. There is a 20 hour overtime set. So 28 * 8 - 21 -> no solution
         List<EmployeeInfo> employeeInfos = List.of(new EmployeeInfo(List.of(0), 28 * 8 - 21, List.of()));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(18, 0), 8));
-        List<DayInfo> dayInfos = new ArrayList<>();
-        for (int i = 0; i < 28; i++) dayInfos.add(new DayInfo("Dayname_" + i));
         List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 0, 0));
-        AlgorithmInput input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
+        AlgorithmInput input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isEmpty());
 
         // 28 * 8 - 20 -> solution
         employeeInfos = List.of(new EmployeeInfo(List.of(0), 28 * 8 - 20, List.of()));
-        input = new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roles, 0, 0);
+        input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 0, 0);
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }
 

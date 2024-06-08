@@ -59,7 +59,6 @@ public class MonthlyPlanCreator {
                 users,
                 shiftTypes,
                 team.getRoles(),
-                team.getHardConstraints(),
                 team
         );
 
