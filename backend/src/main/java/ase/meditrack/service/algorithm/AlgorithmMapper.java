@@ -102,7 +102,8 @@ public class AlgorithmMapper {
                     worksShifts.add(index);
                 }
             }
-            employeeInfos.add(new EmployeeInfo(worksShifts, optimalWorkingHoursPerMonth));
+            // TODO #86: add holidays
+            employeeInfos.add(new EmployeeInfo(worksShifts, optimalWorkingHoursPerMonth, List.of()));
         }
 
         // TODO #86: add required people
