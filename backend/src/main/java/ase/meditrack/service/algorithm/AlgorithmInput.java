@@ -9,7 +9,8 @@ public record AlgorithmInput(
 
         List<RoleInfo> roles,
 
-        HardConstraintInfo hardConstraints
+        Integer daytimeRequiredPeople,
+        Integer nighttimeRequiredPeople
 
         // TODO #37: add more fields for other constraints
 ) {

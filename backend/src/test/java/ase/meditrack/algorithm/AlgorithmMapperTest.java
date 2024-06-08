@@ -166,12 +166,6 @@ class AlgorithmMapperTest {
         assertEquals(2, input.roles().size());
         assertEquals("Doctor", input.roles().get(0).name());
         assertEquals("Nurse", input.roles().get(1).name());
-
-        assertNotNull(input.hardConstraints());
-        assertEquals(2, input.hardConstraints().daytimeRequiredRoles().size());
-        assertEquals(Integer.valueOf(3), input.hardConstraints().daytimeRequiredRoles().get(0));
-        assertEquals(Integer.valueOf(1), input.hardConstraints().daytimeRequiredRoles().get(1));
-
     }
 
     @Test

@@ -25,9 +25,7 @@ public class AlgorithmMapper {
 
     private final Map<UUID, Integer> shiftTypeUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToShiftTypeUuid = new HashMap<>();
-    private final Map<UUID, Integer> employeeUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
-    private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
 
     /**
      * Converts the input to a format that can be used by the solver.
@@ -54,31 +52,8 @@ public class AlgorithmMapper {
         List<RoleInfo> roleInfos = new ArrayList<>();
         for (int i = 0; i < roles.size(); i++) {
             Role role = roles.get(i);
-            UUID id = role.getId();
-            roleUuidToIndex.put(id, i);
             roleInfos.add(new RoleInfo(role.getName()));
         }
-
-        // Map required roles
-        Map<Role, Integer> dayTimeRoles = constraints.getDaytimeRequiredRoles();
-        Map<Role, Integer> nightTimeRoles = constraints.getNighttimeRequiredRoles();
-        // Key = index of role, key = required amount of that role
-        Map<Integer, Integer> dayTimeRolesMap = new HashMap<>();
-        Map<Integer, Integer> nightTimeRolesMap = new HashMap<>();
-        for (int i = 0; i < dayTimeRoles.size(); i++) {
-            Role role = (Role) dayTimeRoles.keySet().toArray()[i];
-            int index = roleUuidToIndex.get(role.getId());
-            dayTimeRolesMap.put(index, dayTimeRoles.get(role));
-        }
-        for (int i = 0; i < nightTimeRoles.size(); i++) {
-            Role role = (Role) dayTimeRoles.keySet().toArray()[i];
-            int index = roleUuidToIndex.get(role.getId());
-            nightTimeRolesMap.put(index, nightTimeRoles.get(role));
-        }
-
-        HardConstraintInfo constraintInfo =
-                new HardConstraintInfo(dayTimeRolesMap, nightTimeRolesMap, constraints.getAllowedFlextimeTotal(),
-                        constraints.getAllowedFlextimePerMonth(), 22, 2, 2);
 
         // Create day records for every day of month
         while (!date.isAfter(endDate)) {
@@ -111,7 +86,6 @@ public class AlgorithmMapper {
         for (int i = 0; i < employees.size(); i++) {
             User employee = employees.get(i);
             UUID id = employee.getId();
-            employeeUuidToIndex.put(id, i);
             indexToEmployeeUuid.put(i, id);
 
             // TODO #86: make sure holidays and off days are considered in this calculation
@@ -130,7 +104,9 @@ public class AlgorithmMapper {
             }
             employeeInfos.add(new EmployeeInfo(worksShifts, optimalWorkingHoursPerMonth));
         }
-        return new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, constraintInfo);
+
+        // TODO #86: add required people
+        return new AlgorithmInput(employeeInfos, shiftTypeInfos, dayInfos, roleInfos, 0, 0);
     }
 
     /**
