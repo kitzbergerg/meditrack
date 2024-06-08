@@ -2,6 +2,7 @@ package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.ShiftDto;
 import ase.meditrack.model.dto.ShiftScheduleDto;
+import ase.meditrack.model.dto.SimpleShiftDto;
 import ase.meditrack.model.entity.Shift;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;
@@ -26,6 +27,16 @@ public interface ShiftMapper {
     @Mapping(target = "type", source = "shift.shiftType")
     @Mapping(target = "users", source = "shift.users")
     ShiftScheduleDto toScheduleDto(Shift shift);
+
+    @Named("toSimpleShiftDto")
+    @Mapping(target = "id", source = "shift.id")
+    @Mapping(target = "date", source = "shift.date")
+    @Mapping(target = "shiftType", source = "shift.shiftType")
+    @Mapping(target = "users", source = "shift.users")
+    SimpleShiftDto toSimpleShiftDto(Shift shift);
+
+    @IterableMapping(qualifiedByName = "toSimpleShiftDto")
+    List<SimpleShiftDto> toSimpleShiftDtoList(List<Shift> shifts);
 
     @IterableMapping(qualifiedByName = "toDto")
     List<ShiftDto> toDtoList(List<Shift> shifts);

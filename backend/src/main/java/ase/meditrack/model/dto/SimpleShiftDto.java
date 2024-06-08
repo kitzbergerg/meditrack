@@ -10,13 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-public record ShiftDto(
+public record SimpleShiftDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @FutureOrPresent(groups = CreateValidator.class) LocalDate date,
         UUID monthlyPlan,
-        UUID shiftType,
-        List<UUID> users,
-        UUID suggestedShiftSwap,
-        UUID requestedShiftSwap
+        SimpleShiftTypeDto shiftType,
+        List<UUID> users
 ) {
 }

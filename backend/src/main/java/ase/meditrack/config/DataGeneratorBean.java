@@ -8,6 +8,8 @@ import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftOffShiftIdList;
+import ase.meditrack.model.entity.ShiftSwap;
+import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
@@ -82,7 +84,7 @@ public class DataGeneratorBean {
 
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 3;
+    private static final Integer NUM_USERS_WITH_ROLES = 4;
     private static final Integer NUM_HOLIDAYS = 0;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
@@ -160,13 +162,45 @@ public class DataGeneratorBean {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
         for (Team team : teams) {
+            String firstName = FAKER.name().firstName();
+            String lastName = FAKER.name().lastName();
+            String username = (firstName.charAt(0) + lastName).toLowerCase();
+            String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
+                    + FAKER.internet().domainName();
+
+            UserDto userDm = new UserDto(
+                    null,
+                    username,
+                    "password",
+                    email,
+                    firstName,
+                    lastName,
+                    List.of("dm"),
+                    null,
+                    (float) FAKER.number().numberBetween(20, 100),
+                    null,
+                    List.of(FAKER.educator().course(), FAKER.educator().course()),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            User dmEntity = userMapper.fromDto(userDm);
+            dmEntity.setTeam(team);
+            dmEntity.setRole(roles.get(0));
+            users.add(userService.create(dmEntity));
+
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
                     for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                        String firstName = FAKER.name().firstName();
-                        String lastName = FAKER.name().lastName();
-                        String username = (firstName.charAt(0) + lastName).toLowerCase();
-                        String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
+                        firstName = FAKER.name().firstName();
+                        lastName = FAKER.name().lastName();
+                        username = (firstName.charAt(0) + lastName).toLowerCase();
+                        email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                                 + FAKER.internet().domainName();
 
                         UserDto user = new UserDto(
@@ -176,10 +210,10 @@ public class DataGeneratorBean {
                                 email,
                                 firstName,
                                 lastName,
-                                List.of("admin"),
+                                List.of("employee"),
                                 null,
                                 (float) FAKER.number().numberBetween(20, 100),
-                                0,
+                                null,
                                 List.of(FAKER.educator().course(), FAKER.educator().course()),
                                 null,
                                 null,
@@ -298,11 +332,19 @@ public class DataGeneratorBean {
                             shift.setDate(date);
                             shift.setShiftType(shiftTypes.get((int) (Math.random() * shiftTypes.size())));
                             shift.setMonthlyPlan(monthlyPlan);
+                            List<Shift> userShifts = new ArrayList<>();
+                            if (user.getShifts() != null && !user.getShifts().isEmpty()) {
+                                userShifts = user.getShifts();
+                            }
                             shift.addUser(user);
 
                             // Add the shift 1/3rd of the time
                             if (Math.random() < (1.0 / 3.0)) {
-                                shifts.add(shiftRepository.save(shift));
+                                Shift savedShift = shiftRepository.save(shift);
+                                shifts.add(savedShift);
+
+                                userShifts.add(savedShift);
+                                user.setShifts(userShifts);
                             }
                         }
                     }
@@ -360,6 +402,26 @@ public class DataGeneratorBean {
     }
 
     private void createShiftSwap() {
-        //tbd
+        int shiftSwapAmount = 3;
+        log.info("Generating {} simple shift swaps for every user...", shiftSwapAmount);
+        for (User user : users) {
+            if (user.getShifts() != null && !user.getShifts().isEmpty()) {
+                for (int i = 0; i < shiftSwapAmount; i++) {
+                    Shift selectedShift = user.getShifts().get(i % user.getShifts().size());
+                    ShiftSwap shiftswap = new ShiftSwap();
+                    shiftswap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+                    shiftswap.setSwapRequestingUser(user);
+                    shiftswap.setRequestedShift(selectedShift);
+                    List<ShiftSwap> shiftSwapList = new ArrayList<>();
+                    if (user.getRequestedShiftSwaps() != null && !user.getRequestedShiftSwaps().isEmpty()) {
+                        shiftSwapList = user.getRequestedShiftSwaps();
+                    }
+                    shiftSwapList.add(shiftswap);
+                    user.setRequestedShiftSwaps(shiftSwapList);
+                    selectedShift.setRequestedShiftSwap(shiftswap);
+                    shiftSwapRepository.save(shiftswap);
+                }
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.ShiftDto;
+import ase.meditrack.model.dto.SimpleShiftDto;
 import ase.meditrack.model.mapper.ShiftMapper;
 import ase.meditrack.service.ShiftService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,7 +45,12 @@ public class ShiftController {
         return mapper.toDtoList(service.findAll());
     }
 
-
+    @GetMapping("/month")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    public List<SimpleShiftDto> findAllByCurrentMonth(Principal principal) {
+        log.info("Fetching shifts by current month");
+        return mapper.toSimpleShiftDtoList(service.findAllByCurrentMonth(principal));
+    }
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")

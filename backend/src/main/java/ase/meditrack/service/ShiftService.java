@@ -2,10 +2,14 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +17,11 @@ import java.util.UUID;
 @Slf4j
 public class ShiftService {
     private final ShiftRepository repository;
+    private final UserService userService;
 
-    public ShiftService(ShiftRepository repository) {
+    public ShiftService(ShiftRepository repository, UserService userService) {
         this.repository = repository;
+        this.userService = userService;
     }
 
     /**
@@ -26,6 +32,23 @@ public class ShiftService {
     public List<Shift> findAll() {
         return repository.findAll();
     }
+
+    /**
+     * Fetches all shifts from the current month from a user from the database.
+     *
+     * @param principal is current user
+     * @return List of all shift from a current month from a user
+     */
+    public List<Shift> findAllByCurrentMonth(Principal principal) {
+        User user = userService.getPrincipalWithTeam(principal);
+        LocalDate today = LocalDate.now();
+        LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
+
+        List<UUID> users = new ArrayList<>();
+        users.add(user.getId());
+        return repository.findAllByUsersAndDateAfterAndDateBefore(users, today, nextMonth);
+    }
+
 
     /**
      * Fetches a shift by id from the database.
@@ -69,8 +92,8 @@ public class ShiftService {
         if (shift.getUsers() != null) {
             dbShift.setUsers(shift.getUsers());
         }
-        if (shift.getSuggestedShiftSwaps() != null) {
-            dbShift.setSuggestedShiftSwaps(shift.getSuggestedShiftSwaps());
+        if (shift.getSuggestedShiftSwap() != null) {
+            dbShift.setSuggestedShiftSwap(shift.getSuggestedShiftSwap());
         }
         if (shift.getRequestedShiftSwap() != null) {
             dbShift.setRequestedShiftSwap(shift.getRequestedShiftSwap());

@@ -6,7 +6,7 @@ import {ShiftType} from "../interfaces/shiftType";
 @Injectable({
   providedIn: 'root'
 })
-export class ShiftService {
+export class ShiftTypeService {
 
   constructor(private http: HttpClient) { }
 

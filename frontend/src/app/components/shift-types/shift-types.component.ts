@@ -1,6 +1,6 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
 import {ShiftType} from "../../interfaces/shiftType";
-import {ShiftService} from "../../services/shift.service";
+import {ShiftTypeService} from "../../services/shift-type.service";
 import {MessageService} from "primeng/api";
 import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
@@ -80,7 +80,7 @@ export class ShiftTypesComponent {
     preferredShiftTypes: []
   };
 
-  constructor(private shiftService: ShiftService,
+  constructor(private shiftService: ShiftTypeService,
               private cdr: ChangeDetectorRef,
               private messageService: MessageService,
               private userService: UserService,
@@ -100,8 +100,8 @@ export class ShiftTypesComponent {
   }
 
   getUser(): void {
-    this.userService.getUserById(this.userId).subscribe(
-      (response) => {
+    this.userService.getUserById(this.userId).subscribe({
+      next: response => {
         this.currentUser = response;
         if (response.team != null) {
           this.loadShiftTypes();
@@ -109,9 +109,9 @@ export class ShiftTypesComponent {
         }
         this.loading = false;
       },
-      (error) => {
+      error: (error) => {
         console.error('Error fetching data:', error);
-      }
+      }}
     );
   }
 
