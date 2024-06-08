@@ -70,7 +70,7 @@ public class ShiftSwapController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     @ResponseStatus(HttpStatus.CREATED)
     public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody SimpleShiftSwapDto dto) {
-        log.info("Creating shift-swap {}", dto.id());
+        log.info("Creating shift-swap {}", dto);
         return mapper.toDto(service.create(mapper.fromSimpleShiftSwapDto(dto)));
     }
 

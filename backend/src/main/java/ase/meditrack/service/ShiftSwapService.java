@@ -7,6 +7,7 @@ import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -99,10 +101,18 @@ public class ShiftSwapService {
      * @param shiftSwap the shift swap to create
      * @return the created shift swap
      */
+    @Transactional
     public ShiftSwap create(ShiftSwap shiftSwap) {
         shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
         shiftSwap.setSuggestedShiftSwapStatus(ShiftSwapStatus.PENDING);
-        return repository.save(shiftSwap);
+        ShiftSwap created = repository.save(shiftSwap);
+        Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
+        if (shift.isEmpty()) {
+            throw new NotFoundException("Could not find shift with id: " + shiftSwap.getRequestedShift().getId());
+        }
+        shift.get().setRequestedShiftSwap(shiftSwap);
+
+        return findById(created.getId());
     }
 
     /**
