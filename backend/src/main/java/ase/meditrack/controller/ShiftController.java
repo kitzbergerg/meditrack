@@ -60,9 +60,9 @@ public class ShiftController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "(hasAnyAuthority('SCOPE_dm')" +
-            "&& @monthlyPlanService.isUserInTeam(authentication.name, #dto.monthlyPlan()))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm')"
+            + "&& @monthlyPlanService.isUserInTeam(authentication.name, #dto.monthlyPlan()))")
     @ResponseStatus(HttpStatus.CREATED)
     public ShiftDto create(@Validated(CreateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Creating shift {}", dto.id());
@@ -70,9 +70,9 @@ public class ShiftController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "(hasAnyAuthority('SCOPE_dm')" +
-            "&& @monthlyPlanService.isUserInTeam(authentication.name, #dto.monthlyPlan()))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm')"
+            + "&& @monthlyPlanService.isUserInTeam(authentication.name, #dto.monthlyPlan()))")
     @ResponseStatus(HttpStatus.OK)
     public ShiftDto update(@Validated(UpdateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Updating shift {}", dto.id());
@@ -80,8 +80,8 @@ public class ShiftController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isShiftFromTeam(authentication.name, #id)")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isShiftFromTeam(authentication.name, #id)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         log.info("Deleting shift with id {}", id);

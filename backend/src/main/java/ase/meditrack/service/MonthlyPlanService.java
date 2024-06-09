@@ -11,14 +11,12 @@ import ase.meditrack.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -162,7 +160,8 @@ public class MonthlyPlanService {
             return false;
         }
         Optional<MonthlyPlan> plan = repository.findById(monthlyPlanId);
-        return plan.filter(monthlyPlan -> userService.findById(userId).getTeam().getId().equals(monthlyPlan.getTeam().getId())).isPresent();
+        return plan.filter(monthlyPlan -> userService.findById(userId).getTeam().getId()
+                .equals(monthlyPlan.getTeam().getId())).isPresent();
     }
 
     /**
@@ -181,7 +180,8 @@ public class MonthlyPlanService {
             return false;
         }
         Optional<Shift> shift = shiftRepository.findById(shiftId);
-        return shift.filter(s -> userService.findById(userId).getTeam().getId().equals(s.getMonthlyPlan().getTeam().getId())).isPresent();
+        return shift.filter(s -> userService.findById(userId).getTeam().getId()
+                .equals(s.getMonthlyPlan().getTeam().getId())).isPresent();
     }
 
     /**

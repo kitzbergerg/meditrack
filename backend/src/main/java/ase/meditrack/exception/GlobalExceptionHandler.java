@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ResourceConflictException.class)
-    public ResponseEntity<String> handleResourceConflictException(ResourceConflictException ex) {
+    private ResponseEntity<String> handleResourceConflictException(ResourceConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
 

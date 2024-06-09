@@ -22,5 +22,12 @@ public interface ShiftRepository extends JpaRepository<Shift, UUID> {
 
     List<Shift> findAllByUsersAndDateAfterAndDateBefore(List<UUID> users, LocalDate after, LocalDate before);
 
+    /**
+     * Fetches all the shifts from a user from the current month.
+     *
+     * @param users with the shift
+     * @param date is the current date
+     * @return list of shifts
+     */
     List<Shift> findAllByUsersAndDate(List<UUID> users, LocalDate date);
 }

@@ -51,16 +51,16 @@ public class MonthlyPlanController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
     public MonthlyPlanDto findById(@PathVariable UUID id) {
         log.info("Fetching monthly-plan with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') ||" +
-            "(hasAnyAuthority('SCOPE_employee') && @monthlyPlanService.isPublished(#month, #year, #principal))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') ||"
+            + "(hasAnyAuthority('SCOPE_employee') && @monthlyPlanService.isPublished(#month, #year, #principal))")
     public MonthlyPlanDto findByTeamMonthYear(@RequestParam Year year, @RequestParam Month month, Principal principal) {
         log.info("Fetching monthly-plan for user : {}, for date: {}, {}", principal.getName(), month, year);
         return mapper.toDto(service.getMonthlyPlan(month.getValue(), year.getValue(), principal));
@@ -76,8 +76,8 @@ public class MonthlyPlanController {
 
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #dto.id()))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #dto.id()))")
     @ResponseStatus(HttpStatus.OK)
     public MonthlyPlanDto update(@Validated(UpdateValidator.class) @RequestBody MonthlyPlanDto dto) {
         log.info("Updating monthly-plan {}", dto.id());
@@ -85,8 +85,8 @@ public class MonthlyPlanController {
     }
 
     @PutMapping("{id}/publish")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
     @ResponseStatus(HttpStatus.OK)
     public void publish(@PathVariable UUID id, Principal principal) {
         log.info("Publishing monthly-plan with id {}", id);
@@ -94,8 +94,8 @@ public class MonthlyPlanController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||" +
-            "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         log.info("Deleting monthly-plan with id {}", id);
