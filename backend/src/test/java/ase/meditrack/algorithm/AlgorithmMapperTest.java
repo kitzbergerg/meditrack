@@ -64,7 +64,7 @@ class AlgorithmMapperTest {
         when(shiftType.getEndTime()).thenReturn(LocalTime.of(17, 0));
         shiftTypes.add(shiftType);
 
-        algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
+        algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, team);
 
         // Use reflection to access private fields
         Field indexToShiftTypeUuidField = AlgorithmMapper.class.getDeclaredField("indexToShiftTypeUuid");
@@ -146,10 +146,8 @@ class AlgorithmMapperTest {
         when(constraints.getMinRestPeriod()).thenReturn(120);
         when(constraints.getMaximumShiftLengths()).thenReturn(8);
 
-        AlgorithmInput input =
-                algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, constraints, team);
+        AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, team);
 
-        System.out.println(input.hardConstraints().daytimeRequiredRoles());
 
         assertEquals(2, input.employees().size());
         assertEquals(Arrays.asList(0, 1), input.employees().get(0).worksShifts());
@@ -167,12 +165,6 @@ class AlgorithmMapperTest {
         assertEquals(2, input.roles().size());
         assertEquals("Doctor", input.roles().get(0).name());
         assertEquals("Nurse", input.roles().get(1).name());
-
-        assertNotNull(input.hardConstraints());
-        assertEquals(2, input.hardConstraints().daytimeRequiredRoles().size());
-        assertEquals(Integer.valueOf(3), input.hardConstraints().daytimeRequiredRoles().get(0));
-        assertEquals(Integer.valueOf(1), input.hardConstraints().daytimeRequiredRoles().get(1));
-
     }
 
     @Test

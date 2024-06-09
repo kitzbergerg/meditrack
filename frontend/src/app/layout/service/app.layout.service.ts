@@ -137,7 +137,7 @@ export class LayoutService {
     }
     replaceThemeLink(href: string) {
         const id = 'theme-css';
-        let themeLink = <HTMLLinkElement>document.getElementById(id);
+        const themeLink = <HTMLLinkElement>document.getElementById(id);
         const cloneLinkElement = <HTMLLinkElement>themeLink.cloneNode(true);
 
         cloneLinkElement.setAttribute('href', href);

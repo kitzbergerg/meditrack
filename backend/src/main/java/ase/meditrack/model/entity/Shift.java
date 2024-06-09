@@ -51,11 +51,12 @@ public class Shift {
     )
     private List<User> users;
 
-    @ManyToMany(mappedBy = "suggestedShifts")
-    private List<ShiftSwap> suggestedShiftSwaps;
-
     @OneToOne(mappedBy = "requestedShift", cascade = CascadeType.ALL)
     private ShiftSwap requestedShiftSwap;
+
+    @OneToOne(mappedBy = "suggestedShift")
+    private ShiftSwap suggestedShiftSwap;
+
 
     public void addUser(User user) {
         if (users == null) {

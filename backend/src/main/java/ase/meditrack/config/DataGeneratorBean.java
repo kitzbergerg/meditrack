@@ -8,6 +8,8 @@ import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftOffShiftIdList;
+import ase.meditrack.model.entity.ShiftSwap;
+import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
@@ -58,12 +60,12 @@ public class DataGeneratorBean {
     private final ShiftOffShiftIdListRepository shiftOffShiftIdListRepository;
 
     public DataGeneratorBean(UserService userService, TeamRepository teamRepository,
-                              ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
-                              RoleRepository roleRepository, PreferencesRepository preferencesRepository,
-                              MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
-                              HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
-                              ShiftTypeRepository shiftTypeRepository,
-                              ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
+                             ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
+                             RoleRepository roleRepository, PreferencesRepository preferencesRepository,
+                             MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
+                             HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
+                             ShiftTypeRepository shiftTypeRepository,
+                             ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
         this.userService = userService;
         this.teamRepository = teamRepository;
         this.shiftRepository = shiftRepository;
@@ -80,11 +82,11 @@ public class DataGeneratorBean {
 
     private static final Faker FAKER = new Faker();
 
-    private static final Integer NUM_TEAMS = 5;
+    private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 3;
-    private static final Integer NUM_HOLIDAYS = 2;
-    private static final Integer NUM_MONTHLY_PLANS = 3;
+    private static final Integer NUM_USERS_WITH_ROLES = 4;
+    private static final Integer NUM_HOLIDAYS = 0;
+    private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
     private List<Team> teams;
@@ -160,33 +162,73 @@ public class DataGeneratorBean {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
         for (Team team : teams) {
+            String firstName = FAKER.name().firstName();
+            String lastName = FAKER.name().lastName();
+            String username = (firstName.charAt(0) + lastName).toLowerCase();
+            String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
+                    + FAKER.internet().domainName();
+
+            UserDto userDm = new UserDto(
+                    null,
+                    username,
+                    "password",
+                    email,
+                    firstName,
+                    lastName,
+                    List.of("dm"),
+                    null,
+                    (float) FAKER.number().numberBetween(20, 100),
+                    null,
+                    List.of(FAKER.educator().course(), FAKER.educator().course()),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            User dmEntity = userMapper.fromDto(userDm);
+            dmEntity.setTeam(team);
+            dmEntity.setRole(roles.get(0));
+            users.add(userService.create(dmEntity));
+
             for (Role role : roles) {
-                for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                    UserDto user = new UserDto(
-                            null,
-                            FAKER.name().username(),
-                            "s€cr€tPa$$w0rd",
-                            FAKER.internet().emailAddress(),
-                            FAKER.name().firstName(),
-                            FAKER.name().lastName(),
-                            List.of("admin"),
-                            null,
-                            (float) FAKER.number().numberBetween(20, 100),
-                            0,
-                            List.of(FAKER.educator().course(), FAKER.educator().course()),
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
-                    );
-                    User userEntity = userMapper.fromDto(user);
-                    userEntity.setTeam(team);
-                    userEntity.setRole(role);
-                    users.add(userService.create(userEntity));
+                if (role.getTeam().getId().equals(team.getId())) {
+                    for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
+                        firstName = FAKER.name().firstName();
+                        lastName = FAKER.name().lastName();
+                        username = (firstName.charAt(0) + lastName).toLowerCase();
+                        email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
+                                + FAKER.internet().domainName();
+
+                        UserDto user = new UserDto(
+                                null,
+                                username,
+                                "password",
+                                email,
+                                firstName,
+                                lastName,
+                                List.of("employee"),
+                                null,
+                                (float) FAKER.number().numberBetween(20, 100),
+                                null,
+                                List.of(FAKER.educator().course(), FAKER.educator().course()),
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                        );
+                        User userEntity = userMapper.fromDto(user);
+                        userEntity.setTeam(team);
+                        userEntity.setRole(role);
+                        users.add(userService.create(userEntity));
+                    }
                 }
             }
         }
@@ -225,18 +267,33 @@ public class DataGeneratorBean {
             nightShift.setName("Night Shift");
             nightShift.setStartTime(LocalTime.of(22, 0));
             nightShift.setEndTime(LocalTime.of(6, 0));
+            nightShift.setBreakStartTime(LocalTime.of(2, 0));
+            nightShift.setBreakEndTime(LocalTime.of(2, 30));
+            nightShift.setAbbreviation("N10");
+            nightShift.setType("Night");
+            nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
             ShiftType morningShift = new ShiftType();
             morningShift.setName("Morning Shift");
             morningShift.setStartTime(LocalTime.of(6, 0));
             morningShift.setEndTime(LocalTime.of(14, 0));
+            morningShift.setBreakStartTime(LocalTime.of(10, 0));
+            morningShift.setBreakEndTime(LocalTime.of(10, 30));
+            morningShift.setAbbreviation("D6");
+            morningShift.setType("Day");
+            morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
             ShiftType eveningShift = new ShiftType();
             eveningShift.setName("Evening Shift");
             eveningShift.setStartTime(LocalTime.of(14, 0));
             eveningShift.setEndTime(LocalTime.of(22, 0));
+            eveningShift.setBreakStartTime(LocalTime.of(18, 0));
+            eveningShift.setBreakEndTime(LocalTime.of(18, 30));
+            eveningShift.setAbbreviation("D14");
+            eveningShift.setType("Day");
+            eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));
         }
@@ -263,23 +320,33 @@ public class DataGeneratorBean {
         for (MonthlyPlan monthlyPlan : monthlyPlans) {
             Map<UUID, List<User>> teamUsersPerRole = getTeamUsersPerRole(monthlyPlan.getTeam());
             int days = YearMonth.of(monthlyPlan.getYear(), monthlyPlan.getMonth()).lengthOfMonth();
+
             for (int i = 1; i <= days; i++) {
-                List<User> alreadyAssignedTeamUsers = new ArrayList<>();
-                for (ShiftType shiftType : shiftTypes) {
-                    //for now, for every shift type we want one shift with one user per role
-                    for (UUID key : teamUsersPerRole.keySet()) {
-                        Shift shift = new Shift();
-                        shift.setDate(LocalDate.of(monthlyPlan.getYear(), monthlyPlan.getMonth(), i));
-                        shift.setShiftType(shiftType);
-                        shift.setMonthlyPlan(monthlyPlan);
-                        for (User user : teamUsersPerRole.get(key)) {
-                            if (!alreadyAssignedTeamUsers.contains(user)) {
-                                alreadyAssignedTeamUsers.add(user);
-                                shift.addUser(user);
-                                break;
+                LocalDate date = LocalDate.of(monthlyPlan.getYear(), monthlyPlan.getMonth(), i);
+                for (UUID key : teamUsersPerRole.keySet()) {
+                    List<User> usersPerRole = teamUsersPerRole.get(key);
+                    if (usersPerRole != null && !usersPerRole.isEmpty()) {
+                        for (User user : usersPerRole) {
+                            // Create a shift with a random shift type for each user
+                            Shift shift = new Shift();
+                            shift.setDate(date);
+                            shift.setShiftType(shiftTypes.get((int) (Math.random() * shiftTypes.size())));
+                            shift.setMonthlyPlan(monthlyPlan);
+                            List<Shift> userShifts = new ArrayList<>();
+                            if (user.getShifts() != null && !user.getShifts().isEmpty()) {
+                                userShifts = user.getShifts();
+                            }
+                            shift.addUser(user);
+
+                            // Add the shift 1/3rd of the time
+                            if (Math.random() < (1.0 / 3.0)) {
+                                Shift savedShift = shiftRepository.save(shift);
+                                shifts.add(savedShift);
+
+                                userShifts.add(savedShift);
+                                user.setShifts(userShifts);
                             }
                         }
-                        shifts.add(shiftRepository.save(shift));
                     }
                 }
             }
@@ -335,6 +402,26 @@ public class DataGeneratorBean {
     }
 
     private void createShiftSwap() {
-        //tbd
+        int shiftSwapAmount = 3;
+        log.info("Generating {} simple shift swaps for every user...", shiftSwapAmount);
+        for (User user : users) {
+            if (user.getShifts() != null && !user.getShifts().isEmpty()) {
+                for (int i = 0; i < shiftSwapAmount; i++) {
+                    Shift selectedShift = user.getShifts().get(i % user.getShifts().size());
+                    ShiftSwap shiftswap = new ShiftSwap();
+                    shiftswap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+                    shiftswap.setSwapRequestingUser(user);
+                    shiftswap.setRequestedShift(selectedShift);
+                    List<ShiftSwap> shiftSwapList = new ArrayList<>();
+                    if (user.getRequestedShiftSwaps() != null && !user.getRequestedShiftSwaps().isEmpty()) {
+                        shiftSwapList = user.getRequestedShiftSwaps();
+                    }
+                    shiftSwapList.add(shiftswap);
+                    user.setRequestedShiftSwaps(shiftSwapList);
+                    selectedShift.setRequestedShiftSwap(shiftswap);
+                    shiftSwapRepository.save(shiftswap);
+                }
+            }
+        }
     }
 }

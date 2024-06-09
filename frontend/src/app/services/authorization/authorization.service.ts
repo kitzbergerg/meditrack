@@ -1,7 +1,6 @@
-import {KeycloakEventType, KeycloakService} from "keycloak-angular";
-
+import {KeycloakService} from "keycloak-angular";
 import {Injectable} from "@angular/core";
-import {User} from "../../interfaces/user";
+
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +41,6 @@ export class AuthorizationService {
 
   getUserName(): string {
     const tokenParsed = this.keycloakService.getKeycloakInstance().tokenParsed;
-    console.log(tokenParsed)
     return tokenParsed ? tokenParsed['preferred_username'] : '';
   }
 

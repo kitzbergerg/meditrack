@@ -1,5 +1,6 @@
 <div class="layout-topbar">
     <a class="layout-topbar-logo" routerLink="/dashboard">
+        <img src="assets/layout/images/logo.png" alt="logo">
         <span>MediTrack</span>
     </a>
 
@@ -14,9 +15,10 @@
     <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
 
       <div style="margin-left: 0; display: flex;  height: auto; justify-content: flex-start; padding: 1rem;">
-        <span style="font-weight: medium; display: block;">Welcome {{ preferredUsername }}</span>
+        <span style="font-weight: medium; display: block;" i18n="Welcome@@app.topbar.component.welcome">
+          Welcome {{ preferredUsername }}
+        </span>
       </div>
-
 
       <button class="p-link layout-topbar-button" [routerLink]="'/account-settings'">
             <i class="pi pi-user"></i>

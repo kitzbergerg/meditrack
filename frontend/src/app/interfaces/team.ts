@@ -4,7 +4,7 @@ export interface Team {
   workingHours?: null | number;
   users?: string[];
   roles?: string;
-  hardConstraints?: null | any;
-  monthlyPlans?: null | any;
-  shiftTypes?: null | any;
+  hardConstraints?: any;
+  monthlyPlans?: [];
+  shiftTypes?: [];
 }

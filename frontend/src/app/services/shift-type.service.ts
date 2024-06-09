@@ -6,14 +6,18 @@ import {ShiftType} from "../interfaces/shiftType";
 @Injectable({
   providedIn: 'root'
 })
-export class ShiftService {
+export class ShiftTypeService {
 
   constructor(private http: HttpClient) { }
 
   private apiUrl = 'http://localhost:8081/api/shift-type';
 
-  getAllShiftTypes(): Observable<any> {
-    return this.http.get(this.apiUrl);
+  getAllShiftTypes(): Observable<ShiftType[]> {
+    return this.http.get<ShiftType[]>(this.apiUrl);
+  }
+
+  getAllShiftTypesByTeam(): Observable<ShiftType[]> {
+    return this.http.get<ShiftType[]>(this.apiUrl + '/team');
   }
 
   getShiftType(id: number): Observable<ShiftType> {

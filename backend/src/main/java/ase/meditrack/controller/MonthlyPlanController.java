@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
@@ -56,12 +57,19 @@ public class MonthlyPlanController {
         return mapper.toDto(service.findById(id));
     }
 
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    public MonthlyPlanDto findByTeamMonthYear(@RequestParam Year year, @RequestParam Month month, Principal principal) {
+        log.info("Fetching monthly-plan for user : {}, for date: {}, {}", principal.getName(), month, year);
+        return mapper.toDto(service.getMonthlyPlan(month.getValue(), year.getValue(), principal));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.CREATED)
-    public MonthlyPlanDto create(@RequestParam Year year, @RequestParam Month month, @RequestParam UUID teamId) {
-        log.info("Creating monthly-plan for team {}, {} {}", teamId, year, month);
-        return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), teamId));
+    public MonthlyPlanDto create(@RequestParam Year year, @RequestParam Month month, Principal principal) {
+        log.info("Creating monthly-plan for user {}, {} {}", principal.getName(), year, month);
+        return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), principal));
     }
 
     @PutMapping

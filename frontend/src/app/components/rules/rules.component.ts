@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
 import {PaginatorModule} from "primeng/paginator";
-import {Rules} from "../../interfaces/rules/rulesInterface";
+import {Rules} from "../../interfaces/rules";
 import {RulesService} from "../../services/rules.service";
 import {ButtonModule} from "primeng/button";
 import {RippleModule} from "primeng/ripple";
@@ -65,13 +65,11 @@ export class RulesComponent {
           if (this.rules.maximumShiftLengths) {
             this.showMaxShiftLengths = true
           }
-          // @ts-ignore
-          if (Object.entries(this.rules.daytimeRequiredRoles).length == 0){
+          if (this.rules.daytimeRequiredRoles !== null){
             this.showDayTimeRequiredRoles = true;
           }
 
-          // @ts-ignore
-          if (Object.entries(this.rules.nighttimeRequiredRoles).length == 0){
+          if (this.rules.nighttimeRequiredRoles !== null){
             this.showNightTimeRequiredRoles = true
           }
           if (this.rules.allowedFlextimeTotal) {

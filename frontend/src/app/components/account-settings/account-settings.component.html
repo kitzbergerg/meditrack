@@ -1,22 +1,85 @@
 <div class="grid">
   <div class="col-12">
     <div class="card px-6 py-6">
-        <div class="p-d-flex p-flex-column p-ai-center">
-          <div *ngIf="data" class="p-text-center">
-            <h2>User Overview</h2>
-            <p>Username: {{ data.username }}</p>
-            <p>First Name: {{ data.firstName }}</p>
-            <p>Last Name: {{ data.lastName }}</p>
-            <p>Email: {{ data.email }}</p>
-          </div>
-
-          <button pButton
-                  pRipple
-                  (click)="changePassword()"
-                  class="p-button-sm p-button-light mt-3"
-          >Change Password
-          </button>
-        </div>
+      <div *ngIf="data" class="surface-section">
+        <div class="font-medium text-3xl text-900 mb-3" i18n="Profile@@account-settings.component.profile-title">Profile</div>
+        <ul class="list-none p-0 m-0">
+          <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium"
+                 i18n="Username@@account-settings.component.username">
+              Username
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              {{ data.username }}
+            </div>
+          </li>
+          <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium" i18n="First Name@@account-settings.component.first-name">
+              First Name
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              {{data.firstName}}
+            </div>
+          </li>
+          <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium" i18n="Last Name@@account-settings.component.last-name">
+              Last Name
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              {{ data.lastName }}
+            </div>
+          </li>
+          <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium" i18n="Email@@account-settings.component.email">
+              Email
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              {{ data.email }}
+            </div>
+          </li>
+          <li class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium"
+                 i18n="Password@@account-settings.component.password">
+              Password
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1 line-height-3">
+              *********
+            </div>
+            <div class="w-6 md:w-2 flex justify-content-end">
+              <button pButton pRipple (click)="changePassword()" label="Edit"
+                      i18n-label="Edit@@account-settings.component.edit" icon="pi pi-pencil"
+                      class="p-button-text"> </button>
+            </div>
+          </li>
+          <li *ngIf="data.workingHoursPercentage !== 0"
+              class="flex align-items-center py-3 px-2 border-top-1  surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium"
+                 i18n="Work Percent@@account-settings.component.work-percent">
+              Work %
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              {{ data.workingHoursPercentage }} %
+            </div>
+          </li>
+          <li  class="flex align-items-center py-3 px-2 border-top-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium" i18n="Role@@account-settings.component.role">
+              Role
+            </div>
+            <div class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              <p-chip *ngIf="data.role !== null" label="{{ data.role.name }}" class="mr-2"></p-chip>
+            </div>
+          </li>
+          <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium"
+                 i18n="Work Shifts@@account-settings.component.work-shifts">
+              Work Shifts
+            </div>
+            <div *ngFor="let shift of data.canWorkShiftTypes" class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              <p-chip *ngIf="data.canWorkShiftTypes && data.canWorkShiftTypes.length > 0" label="{{shift.name}}" class="mr-2"></p-chip>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
