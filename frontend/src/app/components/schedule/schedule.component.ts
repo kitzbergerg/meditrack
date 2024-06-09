@@ -242,7 +242,9 @@ export class ScheduleComponent implements OnInit {
 
     // Check if month data of first day and last day are already fetched
     await this.checkAndFetchSchedule(currentDate);
-    await this.checkAndFetchSchedule(endDate);
+    if (currentDate.getMonth() !== endDate.getMonth()) {
+      await this.checkAndFetchSchedule(endDate);
+    }
 
     this.setCurrentSchedule();
     this.transformData(endDate);

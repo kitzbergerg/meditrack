@@ -14,7 +14,7 @@
   <p-button
     class="mb-2 ml-2"
     [outlined]="true"
-    *ngIf="displayCreateScheduleButton"
+    *ngIf="displayCreateScheduleButton && checkEditingAuthority()"
     type="button"
     (click)="createNewSchedule()"
     label="{{'Create plan for ' + missingMonth}}"/>
