@@ -2,9 +2,11 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftSwapDto;
+import ase.meditrack.model.dto.SimpleShiftDto;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.mapper.ShiftMapper;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
 import ase.meditrack.repository.UserRepository;
@@ -51,6 +53,8 @@ class ShiftSwapControllerIT {
     private UserRepository userRepository;
     @Autowired
     private ShiftRepository shiftRepository;
+    @Autowired
+    private ShiftMapper shiftMapper;
     private User user;
     private Shift shift;
 
@@ -131,10 +135,13 @@ class ShiftSwapControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftSwap_succeeds() throws Exception {
+        SimpleShiftDto shiftDto = shiftMapper.toSimpleShiftDto(shift);
         ShiftSwapDto shiftSwapDto = new ShiftSwapDto(
                 null,
                 user.getId(),
-                shift.getId(),
+                shiftDto,
+                null,
+                null,
                 null,
                 null
                 );
@@ -168,10 +175,13 @@ class ShiftSwapControllerIT {
         ShiftSwap savedShiftSwap = shiftSwapRepository.findById(shiftSwap.getId()).get();
 
         Shift newRequest = shiftRepository.save(new Shift());
+        SimpleShiftDto newRequestDto = shiftMapper.toSimpleShiftDto(newRequest);
         ShiftSwapDto updatedShiftSwapDto = new ShiftSwapDto(
                 savedShiftSwap.getId(),
                 user.getId(),
-                newRequest.getId(),
+                newRequestDto,
+                null,
+                null,
                 null,
                 null);
 

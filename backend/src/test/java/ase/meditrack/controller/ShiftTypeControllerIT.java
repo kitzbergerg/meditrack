@@ -245,6 +245,7 @@ class ShiftTypeControllerIT {
                 team.getId(),
                 null,
                 null,
+                null,
                 null);
 
         String response = mockMvc.perform(
@@ -285,6 +286,7 @@ class ShiftTypeControllerIT {
                 "#ffff00",
                 "ST",
                 team.getId(),
+                null,
                 null,
                 null,
                 null);
@@ -339,6 +341,7 @@ class ShiftTypeControllerIT {
                 "#000000",
                 "STD",
                 team.getId(),
+                null,
                 null,
                 null,
                 null);

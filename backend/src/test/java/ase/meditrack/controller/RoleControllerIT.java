@@ -218,7 +218,8 @@ class RoleControllerIT {
         roleRepository.save(role);
         Role savedRole = roleRepository.findById(role.getId()).get();
 
-        RoleDto updatedRoleDto = new RoleDto(savedRole.getId(), "Updated Role", "#000000", "UR", null, null);
+        RoleDto updatedRoleDto = new RoleDto(savedRole.getId(), "Updated Role", "#000000", "UR",
+                null, null, null);
 
         String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/role")
                         .contentType("application/json")
@@ -276,7 +277,8 @@ class RoleControllerIT {
                 "#FF0000",
                 "TR",
                 null,
-                team.getId()
+                team.getId(),
+                null
         );
 
         mockMvc.perform(
@@ -293,7 +295,8 @@ class RoleControllerIT {
                 "#FF0000",
                 "RT",
                 null,
-                team.getId()
+                team.getId(),
+                null
         );
 
         MockHttpServletResponse secondResponse = mockMvc.perform(
