@@ -149,6 +149,14 @@ export class ScheduleComponent implements OnInit {
             this.loading = false;
             resolve();
           }
+          if (err.status === 403) {
+            this.displayCreateScheduleButton = false;
+            if (this.range > 14) {
+              this.messageService.add({severity: 'info', summary: 'Schedule not published yet!'});
+            }
+            this.loading = false;
+            resolve();
+          }
           reject(err);
         }
       });
@@ -417,7 +425,7 @@ export class ScheduleComponent implements OnInit {
               this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             }
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + error.error().toString()});
+            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + error.error});
           }
         });
         break;
@@ -433,7 +441,7 @@ export class ScheduleComponent implements OnInit {
             }
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Deleting shift failed: ' + error.toString()});
+            this.messageService.add({severity: 'error', summary: 'Deleting shift failed: ' + error.error});
           }
         })
         break;
@@ -447,7 +455,7 @@ export class ScheduleComponent implements OnInit {
             this.employeeShiftMap.get(data.users[0])?.set(shiftDateString, shift);
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + error.toString()});
+            this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + error.error});
           }
         })
         break;

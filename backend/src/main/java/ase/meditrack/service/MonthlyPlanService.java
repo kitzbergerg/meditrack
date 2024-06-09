@@ -6,26 +6,39 @@ import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
+import ase.meditrack.repository.ShiftRepository;
+import ase.meditrack.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @Slf4j
 public class MonthlyPlanService {
+    private final ShiftRepository shiftRepository;
+    private final TeamRepository teamRepository;
     private final MonthlyPlanRepository repository;
     private final UserService userService;
     private final RealmResource meditrackRealm;
 
-    public MonthlyPlanService(MonthlyPlanRepository repository, UserService userService, RealmResource meditrackRealm) {
+    public MonthlyPlanService(MonthlyPlanRepository repository, UserService userService, RealmResource meditrackRealm,
+                              TeamRepository teamRepository,
+                              ShiftRepository shiftRepository) {
         this.repository = repository;
         this.userService = userService;
         this.meditrackRealm = meditrackRealm;
+        this.teamRepository = teamRepository;
+        this.shiftRepository = shiftRepository;
     }
 
     /**
@@ -59,16 +72,11 @@ public class MonthlyPlanService {
     public MonthlyPlan getMonthlyPlan(int month, int year, Principal principal) {
         User user = userService.findById(UUID.fromString(principal.getName()));
         Team team = user.getTeam();
-        log.info("Fetching monthly plan for user {}", team);
+        log.info("Fetching monthly plan for team {}", team.getId());
         MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month, year);
         if (plan == null) {
             throw new NotFoundException("Could not find monthly plan for month: " + month + "!");
-        } else if (false) {
-            throw new RuntimeException("Monthly plan is not published yet!");
         }
-
-        // else if (!Objects.equals(user.getUserRepresentation().getRealmRoles().get(0), "dm")
-        // && !plan.getPublished()) {
 
         List<Shift> shifts = plan.getShifts();
         for (Shift shift : shifts) {
@@ -114,7 +122,7 @@ public class MonthlyPlanService {
      * Publishes a monthly plan.
      *
      * @param principal that publishes the plan
-     * @param id of the monthly plan to publish
+     * @param id        of the monthly plan to publish
      */
     @Transactional
     public void publish(UUID id, Principal principal) {
@@ -136,5 +144,58 @@ public class MonthlyPlanService {
      */
     public void delete(UUID id) {
         repository.deleteById(id);
+    }
+
+    /**
+     * Checks if a user is in a team.
+     *
+     * @param userId        the id of the user
+     * @param monthlyPlanId the id of the monthly plan
+     * @return true if the user is in the team, false otherwise
+     */
+    public boolean isUserInTeam(UUID userId, UUID monthlyPlanId) {
+        if (userId == null || monthlyPlanId == null) {
+            return false;
+        }
+        User user = userService.findById(userId);
+        if (user.getTeam() == null) {
+            return false;
+        }
+        Optional<MonthlyPlan> plan = repository.findById(monthlyPlanId);
+        return plan.filter(monthlyPlan -> userService.findById(userId).getTeam().getId().equals(monthlyPlan.getTeam().getId())).isPresent();
+    }
+
+    /**
+     * Checks if a shift is from the users team.
+     *
+     * @param userId  the id of the user
+     * @param shiftId the id of the shift
+     * @return true if the shift is from the users team, false otherwise
+     */
+    public boolean isShiftFromTeam(UUID userId, UUID shiftId) {
+        if (userId == null || shiftId == null) {
+            return false;
+        }
+        User user = userService.findById(userId);
+        if (user.getTeam() == null) {
+            return false;
+        }
+        Optional<Shift> shift = shiftRepository.findById(shiftId);
+        return shift.filter(s -> userService.findById(userId).getTeam().getId().equals(s.getMonthlyPlan().getTeam().getId())).isPresent();
+    }
+
+    /**
+     * Checks if a monthly plan is published.
+     *
+     * @param month     of the plan
+     * @param year      of the plan
+     * @param principal that fetches the plan
+     * @return true if the plan is published, false otherwise
+     */
+    public boolean isPublished(Month month, Year year, Principal principal) {
+        User user = userService.getPrincipalWithTeam(principal);
+        Team team = user.getTeam();
+        MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month.getValue(), year.getValue());
+        return plan == null || plan.getPublished();
     }
 }

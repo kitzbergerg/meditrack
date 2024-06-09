@@ -95,7 +95,6 @@ public class ShiftService {
         }
         shift.setShiftType(type.get());
         shift.setMonthlyPlan(plan.get());
-        validateShiftSequence(shift, type.get());
         shiftValidator.validateShift(shift);
         Shift createdShift = repository.save(shift);
         monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(createdShift, null);
@@ -116,7 +115,6 @@ public class ShiftService {
         if (newShiftType.isEmpty() || oldShiftType.isEmpty() || plan.isEmpty()) {
             throw new NotFoundException("Could not find shift type or plan of shift!");
         }
-        validateShiftSequence(shift, newShiftType.get());
         shift.setShiftType(newShiftType.get());
         shift.setMonthlyPlan(plan.get());
         shiftValidator.validateShift(shift);

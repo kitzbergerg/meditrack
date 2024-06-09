@@ -45,7 +45,7 @@ public class RoleController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
     public List<RoleDto> findAllByTeam(Principal principal) {
         log.info("Fetching roles");
         return mapper.toDtoList(service.findAllByTeam(principal));
