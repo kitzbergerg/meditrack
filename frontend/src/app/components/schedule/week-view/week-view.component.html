@@ -50,7 +50,7 @@
     label="{{'Done'}}"/>
 
 </div>
-<p-table #dt [value]="employees" [customSort]="true" [scrollable]="true" scrollHeight='65vh'
+<p-table #dt [value]="employees" [customSort]="true" [scrollable]="true" scrollHeight='60vh'
          styleClass="p-datatable-gridlines" responsiveLayout="scroll"
          [style]="editing ? {'border': '1px solid  var(--primary-color)'} : {}"
          [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading">

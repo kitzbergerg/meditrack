@@ -33,13 +33,15 @@ import {
   startOfMonth,
   getISOWeek
 } from 'date-fns';
+import {ScheduleLegendComponent} from "./schedule-legend/schedule-legend.component";
 
 @Component({
   selector: 'app-schedule',
   standalone: true,
   imports: [
     WeekViewComponent,
-    ToastModule
+    ToastModule,
+    ScheduleLegendComponent
   ],
   templateUrl: './schedule.component.html',
   styleUrl: './schedule.component.scss'

@@ -1,6 +1,6 @@
-<div class="grid">
+<div class="grid p-overflow-auto border">
   <div class="col-12">
-    <div class="card px-6" style="height: calc(100vh - 13rem);">
+    <div class="card px-6 overflow-auto">
       <div class="p-d-flex p-flex-column p-h-100">
         <p-toast></p-toast>
         <app-week-view [days]="days" [startDate]="startDate" (weekChange)="changeWeek($event)"
@@ -16,8 +16,9 @@
                        [planId]="currentPlanId"
                        [currentSchedule]="currentSchedule"
                        [weekNumber]="weekNumber"
-                       [monthString]="monthString"
-                       class="p-flex-1 p-overflow-auto"></app-week-view>
+                       [monthString]="monthString"></app-week-view>
+
+        <app-schedule-legend [shiftTypes]="shiftTypes"></app-schedule-legend>
       </div>
     </div>
   </div>
