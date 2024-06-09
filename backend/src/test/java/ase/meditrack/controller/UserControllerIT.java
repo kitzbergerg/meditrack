@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -95,9 +96,11 @@ class UserControllerIT {
         List<UserDto> users = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals("admin", users.get(0).username());
+        assertAll(
+                () -> assertNotNull(users),
+                () -> assertEquals(1, users.size()),
+                () -> assertEquals("admin", users.get(0).username())
+        );
     }
 
     @Test
@@ -166,11 +169,12 @@ class UserControllerIT {
                 .andReturn().getResponse().getContentAsString();
         UserDto created = objectMapper.readValue(response, UserDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(dto.username(), created.username());
-        assertEquals(2, userService.findAll().size());
-
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(dto.username(), created.username()),
+                () -> assertEquals(2, userService.findAll().size())
+        );
 
         // execute request as user test
         String responseGetTestUser = mockMvc.perform(
@@ -182,9 +186,11 @@ class UserControllerIT {
                 .andReturn().getResponse().getContentAsString();
         UserDto testUser = objectMapper.readValue(responseGetTestUser, UserDto.class);
 
-        assertNotNull(testUser);
-        assertEquals(created.id(), testUser.id());
-        assertEquals(created.username(), testUser.username());
+        assertAll(
+                () -> assertNotNull(testUser),
+                () -> assertEquals(created.id(), testUser.id()),
+                () -> assertEquals(created.username(), testUser.username())
+        );
     }
 
     @Test
@@ -252,9 +258,11 @@ class UserControllerIT {
                 .andReturn().getResponse().getContentAsString();
         UserDto updated = objectMapper.readValue(response, UserDto.class);
 
-        assertNotNull(updated);
-        assertEquals(updated.id(), updateUserDto.id());
-        assertEquals(updated.username(), updateUserDto.username());
+        assertAll(
+                () -> assertNotNull(updated),
+                () -> assertEquals(updated.id(), updateUserDto.id()),
+                () -> assertEquals(updated.username(), updateUserDto.username())
+        );
     }
 
     @Test
@@ -282,7 +290,9 @@ class UserControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/" + savedUser.getId()))
                 .andExpect(status().isNoContent());
 
-        assertFalse(userRepository.existsById(savedUser.getId()));
-        assertEquals(1, userRepository.count()); // admin user still in repository
+        assertAll(
+                () -> assertFalse(userRepository.existsById(savedUser.getId())),
+                () -> assertEquals(1, userRepository.count()) // admin user still in repository
+        );
     }
 }

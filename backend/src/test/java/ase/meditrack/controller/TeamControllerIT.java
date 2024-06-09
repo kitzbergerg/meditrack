@@ -25,8 +25,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -77,8 +78,10 @@ class TeamControllerIT {
         List<TeamDto> teams = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(teams);
-        assertEquals(0, teams.size());
+        assertAll(
+                () -> assertNotNull(teams),
+                () -> assertEquals(0, teams.size())
+        );
     }
 
     @Test
@@ -123,8 +126,10 @@ class TeamControllerIT {
 
         TeamDto foundTeam = objectMapper.readValue(response, TeamDto.class);
 
-        assertEquals(created.id(), foundTeam.id());
-        assertEquals(created.name(), foundTeam.name());
+        assertAll(
+                () -> assertEquals(created.id(), foundTeam.id()),
+                () -> assertEquals(created.name(), foundTeam.name())
+        );
     }
 
     @Test
@@ -168,9 +173,11 @@ class TeamControllerIT {
 
         TeamDto responseTeam = objectMapper.readValue(response, TeamDto.class);
 
-        assertEquals(updatedTeamDto.id(), responseTeam.id());
-        assertEquals(updatedTeamDto.name(), responseTeam.name());
-        assertEquals(1, teamRepository.count());
+        assertAll(
+                () -> assertEquals(updatedTeamDto.id(), responseTeam.id()),
+                () -> assertEquals(updatedTeamDto.name(), responseTeam.name()),
+                () -> assertEquals(1, teamRepository.count())
+        );
     }
 
     @Test
@@ -196,9 +203,11 @@ class TeamControllerIT {
                 .andReturn().getResponse().getContentAsString();
         TeamDto created = objectMapper.readValue(response, TeamDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(dto.name(), created.name());
-        assertEquals(1, teamRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(dto.name(), created.name()),
+                () -> assertEquals(1, teamRepository.count())
+        );
     }
 }

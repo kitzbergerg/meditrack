@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -89,8 +90,10 @@ class ShiftTypeControllerIT {
         List<ShiftTypeDto> shiftTypes = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(shiftTypes);
-        assertEquals(0, shiftTypes.size());
+        assertAll(
+                () -> assertNotNull(shiftTypes),
+                () -> assertEquals(0, shiftTypes.size())
+        );
     }
 
     @Test
@@ -154,11 +157,12 @@ class ShiftTypeControllerIT {
         List<ShiftTypeDto> allShiftTypes = objectMapper.readValue(responseAll, new TypeReference<>() {
         });
 
-        assertNotNull(shiftTypesInTeam);
-        assertEquals(1, shiftTypesInTeam.size());
-
-        assertNotNull(allShiftTypes);
-        assertEquals(2, allShiftTypes.size());
+        assertAll(
+                () -> assertNotNull(shiftTypesInTeam),
+                () -> assertEquals(1, shiftTypesInTeam.size()),
+                () -> assertNotNull(allShiftTypes),
+                () -> assertEquals(2, allShiftTypes.size())
+        );
     }
 
     @Test
@@ -180,8 +184,10 @@ class ShiftTypeControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/shift-type/" + savedShiftType.getId()))
                 .andExpect(status().isNoContent());
 
-        assertFalse(shiftTypeRepository.existsById(savedShiftType.getId()));
-        assertEquals(0, shiftTypeRepository.count());
+        assertAll(
+                () -> assertFalse(shiftTypeRepository.existsById(savedShiftType.getId())),
+                () -> assertEquals(0, shiftTypeRepository.count())
+        );
     }
 
     @Test
@@ -205,16 +211,19 @@ class ShiftTypeControllerIT {
 
         ShiftTypeDto foundShiftType = objectMapper.readValue(response, ShiftTypeDto.class);
 
-        assertEquals(savedShiftType.getId(), foundShiftType.id());
-        assertEquals(shiftType.getName(), foundShiftType.name());
-        assertEquals(shiftType.getColor(), foundShiftType.color());
-        assertEquals(shiftType.getAbbreviation(), foundShiftType.abbreviation());
+        assertAll(
+                () -> assertEquals(savedShiftType.getId(), foundShiftType.id()),
+                () -> assertEquals(shiftType.getName(), foundShiftType.name()),
+                () -> assertEquals(shiftType.getColor(), foundShiftType.color()),
+                () -> assertEquals(shiftType.getAbbreviation(), foundShiftType.abbreviation())
+        );
     }
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findShiftTypeByNonExistingId_returns404() throws Exception {
-        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-type/" + "11111111-1111-1111-1111-111111111111"))
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get(
+                "/api/shift-type/" + "11111111-1111-1111-1111-111111111111"))
                 .andReturn().getResponse();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
@@ -248,16 +257,18 @@ class ShiftTypeControllerIT {
 
         ShiftTypeDto created = objectMapper.readValue(response, ShiftTypeDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(shiftTypeDto.name(), created.name());
-        assertEquals(shiftTypeDto.startTime(), created.startTime());
-        assertEquals(shiftTypeDto.endTime(), created.endTime());
-        assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime());
-        assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime());
-        assertEquals(shiftTypeDto.color(), created.color());
-        assertEquals(shiftTypeDto.abbreviation(), created.abbreviation());
-        assertEquals(1, shiftTypeRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(shiftTypeDto.name(), created.name()),
+                () -> assertEquals(shiftTypeDto.startTime(), created.startTime()),
+                () -> assertEquals(shiftTypeDto.endTime(), created.endTime()),
+                () -> assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime()),
+                () -> assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime()),
+                () -> assertEquals(shiftTypeDto.color(), created.color()),
+                () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation()),
+                () -> assertEquals(1, shiftTypeRepository.count())
+        );
     }
 
     @Test
@@ -288,16 +299,18 @@ class ShiftTypeControllerIT {
 
         ShiftTypeDto created = objectMapper.readValue(response, ShiftTypeDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(shiftTypeDto.name(), created.name());
-        assertEquals(shiftTypeDto.startTime(), created.startTime());
-        assertEquals(shiftTypeDto.endTime(), created.endTime());
-        assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime());
-        assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime());
-        assertEquals(shiftTypeDto.color(), created.color());
-        assertEquals(shiftTypeDto.abbreviation(), created.abbreviation());
-        assertEquals(1, shiftTypeRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(shiftTypeDto.name(), created.name()),
+                () -> assertEquals(shiftTypeDto.startTime(), created.startTime()),
+                () -> assertEquals(shiftTypeDto.endTime(), created.endTime()),
+                () -> assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime()),
+                () -> assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime()),
+                () -> assertEquals(shiftTypeDto.color(), created.color()),
+                () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation()),
+                () -> assertEquals(1, shiftTypeRepository.count())
+        );
     }
 
     @Test
@@ -338,14 +351,16 @@ class ShiftTypeControllerIT {
 
         ShiftTypeDto responseShiftType = objectMapper.readValue(response, ShiftTypeDto.class);
 
-        assertEquals(savedShiftType.getId(), responseShiftType.id());
-        assertEquals(updatedShiftTypeDto.name(), responseShiftType.name());
-        assertEquals(updatedShiftTypeDto.startTime(), responseShiftType.startTime());
-        assertEquals(updatedShiftTypeDto.endTime(), responseShiftType.endTime());
-        assertEquals(updatedShiftTypeDto.breakStartTime(), responseShiftType.breakStartTime());
-        assertEquals(updatedShiftTypeDto.breakEndTime(), responseShiftType.breakEndTime());
-        assertEquals(updatedShiftTypeDto.color(), responseShiftType.color());
-        assertEquals(updatedShiftTypeDto.abbreviation(), responseShiftType.abbreviation());
-        assertEquals(1, shiftTypeRepository.count());
+        assertAll(
+                () -> assertEquals(savedShiftType.getId(), responseShiftType.id()),
+                () -> assertEquals(updatedShiftTypeDto.name(), responseShiftType.name()),
+                () -> assertEquals(updatedShiftTypeDto.startTime(), responseShiftType.startTime()),
+                () -> assertEquals(updatedShiftTypeDto.endTime(), responseShiftType.endTime()),
+                () -> assertEquals(updatedShiftTypeDto.breakStartTime(), responseShiftType.breakStartTime()),
+                () -> assertEquals(updatedShiftTypeDto.breakEndTime(), responseShiftType.breakEndTime()),
+                () -> assertEquals(updatedShiftTypeDto.color(), responseShiftType.color()),
+                () -> assertEquals(updatedShiftTypeDto.abbreviation(), responseShiftType.abbreviation()),
+                () -> assertEquals(1, shiftTypeRepository.count())
+        );
     }
 }

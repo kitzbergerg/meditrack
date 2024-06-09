@@ -27,8 +27,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -80,8 +81,10 @@ class HolidayControllerIT {
         List<HolidayDto> holidays = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(holidays);
-        assertEquals(0, holidays.size());
+        assertAll(
+                () -> assertNotNull(holidays),
+                () -> assertEquals(0, holidays.size())
+        );
     }
 
     @Test
@@ -98,8 +101,11 @@ class HolidayControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/holiday/" + savedHoliday.getId()))
                 .andExpect(status().isNoContent());
 
-        assertFalse(holidayRepository.existsById(savedHoliday.getId()));
-        assertEquals(0, holidayRepository.count());
+
+        assertAll(
+                () -> assertFalse(holidayRepository.existsById(savedHoliday.getId())),
+                () -> assertEquals(0, holidayRepository.count())
+        );
     }
 
     @Test
@@ -119,11 +125,13 @@ class HolidayControllerIT {
 
         HolidayDto foundHoliday = objectMapper.readValue(response, HolidayDto.class);
 
-        assertEquals(savedHoliday.getId(), foundHoliday.id());
-        assertEquals(holiday.getStartDate(), foundHoliday.startDate());
-        assertEquals(holiday.getEndDate(), foundHoliday.endDate());
-        assertEquals(holiday.getIsApproved(), foundHoliday.isApproved());
-        assertEquals(holiday.getUser().getId(), foundHoliday.user());
+        assertAll(
+                () -> assertEquals(savedHoliday.getId(), foundHoliday.id()),
+                () -> assertEquals(holiday.getStartDate(), foundHoliday.startDate()),
+                () -> assertEquals(holiday.getEndDate(), foundHoliday.endDate()),
+                () -> assertEquals(holiday.getIsApproved(), foundHoliday.isApproved()),
+                () -> assertEquals(holiday.getUser().getId(), foundHoliday.user())
+        );
     }
 
     @Test
@@ -137,7 +145,13 @@ class HolidayControllerIT {
         holidayRepository.save(holiday);
         Holiday savedHoliday = holidayRepository.findById(holiday.getId()).get();
 
-        HolidayDto updatedHolidayDto = new HolidayDto(savedHoliday.getId(), LocalDate.now().plusDays(5), LocalDate.now().plusDays(10), true, user.getId());
+        HolidayDto updatedHolidayDto = new HolidayDto(
+                savedHoliday.getId(),
+                LocalDate.now().plusDays(5),
+                LocalDate.now().plusDays(10),
+                true,
+                user.getId()
+        );
 
         String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/holiday")
                         .contentType("application/json")
@@ -147,12 +161,14 @@ class HolidayControllerIT {
 
         HolidayDto responseHoliday = objectMapper.readValue(response, HolidayDto.class);
 
-        assertEquals(savedHoliday.getId(), responseHoliday.id());
-        assertEquals(updatedHolidayDto.startDate(), responseHoliday.startDate());
-        assertEquals(updatedHolidayDto.endDate(), responseHoliday.endDate());
-        assertEquals(updatedHolidayDto.isApproved(), responseHoliday.isApproved());
-        assertEquals(updatedHolidayDto.user(), responseHoliday.user());
-        assertEquals(1, holidayRepository.count());
+        assertAll(
+                () -> assertEquals(savedHoliday.getId(), responseHoliday.id()),
+                () -> assertEquals(updatedHolidayDto.startDate(), responseHoliday.startDate()),
+                () -> assertEquals(updatedHolidayDto.endDate(), responseHoliday.endDate()),
+                () -> assertEquals(updatedHolidayDto.isApproved(), responseHoliday.isApproved()),
+                () -> assertEquals(updatedHolidayDto.user(), responseHoliday.user()),
+                () -> assertEquals(1, holidayRepository.count())
+        );
     }
 
     @Test
@@ -175,12 +191,14 @@ class HolidayControllerIT {
                 .andReturn().getResponse().getContentAsString();
         HolidayDto created = objectMapper.readValue(response, HolidayDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(dto.startDate(), created.startDate());
-        assertEquals(dto.endDate(), created.endDate());
-        assertEquals(dto.isApproved(), created.isApproved());
-        assertEquals(dto.user(), created.user());
-        assertEquals(1, holidayRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(dto.startDate(), created.startDate()),
+                () -> assertEquals(dto.endDate(), created.endDate()),
+                () -> assertEquals(dto.isApproved(), created.isApproved()),
+                () -> assertEquals(dto.user(), created.user()),
+                () -> assertEquals(1, holidayRepository.count())
+        );
     }
 }

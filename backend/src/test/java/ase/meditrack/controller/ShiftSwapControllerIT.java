@@ -4,12 +4,10 @@ import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftSwapDto;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
 import ase.meditrack.repository.UserRepository;
-import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,8 +84,10 @@ class ShiftSwapControllerIT {
         List<ShiftSwapDto> shiftSwaps = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(shiftSwaps);
-        assertEquals(0, shiftSwaps.size());
+        assertAll(
+                () -> assertNotNull(shiftSwaps),
+                () -> assertEquals(0, shiftSwaps.size())
+        );
     }
 /*
     @Test
@@ -122,9 +121,11 @@ class ShiftSwapControllerIT {
 
         ShiftSwapDto foundShiftSwap = objectMapper.readValue(response, ShiftSwapDto.class);
 
-        assertEquals(savedShiftSwap.getId(), foundShiftSwap.id());
-        assertEquals(shiftSwap.getSwapRequestingUser().getId(), foundShiftSwap.swapRequestingUser());
-        assertEquals(shiftSwap.getRequestedShift().getId(), foundShiftSwap.requestedShift());
+        assertAll(
+                () -> assertEquals(savedShiftSwap.getId(), foundShiftSwap.id()),
+                () -> assertEquals(shiftSwap.getSwapRequestingUser().getId(), foundShiftSwap.swapRequestingUser()),
+                () -> assertEquals(shiftSwap.getRequestedShift().getId(), foundShiftSwap.requestedShift())
+        );
     }
 
     @Test
@@ -148,11 +149,13 @@ class ShiftSwapControllerIT {
 
         ShiftSwapDto created = objectMapper.readValue(response, ShiftSwapDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(shiftSwapDto.swapRequestingUser(), created.swapRequestingUser());
-        assertEquals(shiftSwapDto.requestedShift(), created.requestedShift());
-        assertEquals(1, shiftSwapRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(shiftSwapDto.swapRequestingUser(), created.swapRequestingUser()),
+                () -> assertEquals(shiftSwapDto.requestedShift(), created.requestedShift()),
+                () -> assertEquals(1, shiftSwapRepository.count())
+        );
     }
 
     @Test
@@ -180,9 +183,11 @@ class ShiftSwapControllerIT {
 
         ShiftSwapDto responseShiftSwap = objectMapper.readValue(response, ShiftSwapDto.class);
 
-        assertEquals(savedShiftSwap.getId(), responseShiftSwap.id());
-        assertEquals(updatedShiftSwapDto.swapRequestingUser(), responseShiftSwap.swapRequestingUser());
-        assertEquals(updatedShiftSwapDto.requestedShift(), responseShiftSwap.requestedShift());
-        assertEquals(1, shiftSwapRepository.count());
+        assertAll(
+                () -> assertEquals(savedShiftSwap.getId(), responseShiftSwap.id()),
+                () -> assertEquals(updatedShiftSwapDto.swapRequestingUser(), responseShiftSwap.swapRequestingUser()),
+                () -> assertEquals(updatedShiftSwapDto.requestedShift(), responseShiftSwap.requestedShift()),
+                () -> assertEquals(1, shiftSwapRepository.count())
+        );
     }
 }

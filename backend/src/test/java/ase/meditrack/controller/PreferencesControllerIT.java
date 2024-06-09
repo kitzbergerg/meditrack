@@ -27,8 +27,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -80,8 +81,10 @@ class PreferencesControllerIT {
         List<PreferencesDto> preferences = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(preferences);
-        assertEquals(0, preferences.size());
+        assertAll(
+                () -> assertNotNull(preferences),
+                () -> assertEquals(0, preferences.size())
+        );
     }
 
     @Test
@@ -115,8 +118,10 @@ class PreferencesControllerIT {
 
         PreferencesDto foundPreferences = objectMapper.readValue(response, PreferencesDto.class);
 
-        assertEquals(savedPreferences.getId(), foundPreferences.id());
-        assertEquals(preferences.getOffDays().size(), foundPreferences.offDays().size());
+        assertAll(
+                () -> assertEquals(savedPreferences.getId(), foundPreferences.id()),
+                () -> assertEquals(preferences.getOffDays().size(), foundPreferences.offDays().size())
+        );
     }
 
     @Test
@@ -129,7 +134,9 @@ class PreferencesControllerIT {
         preferencesRepository.save(preferences);
         Preferences savedPreferences = preferencesRepository.findById(preferences.getId()).get();
 
-        PreferencesDto updatedPreferencesDto = new PreferencesDto(savedPreferences.getId(), Arrays.asList(LocalDate.now(),  LocalDate.now().plusDays(1), LocalDate.now().plusDays(2)));
+        PreferencesDto updatedPreferencesDto = new PreferencesDto(savedPreferences.getId(),
+                Arrays.asList(LocalDate.now(),  LocalDate.now().plusDays(1),
+                        LocalDate.now().plusDays(2)));
 
         String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/preferences")
                         .contentType("application/json")
@@ -139,9 +146,11 @@ class PreferencesControllerIT {
 
         PreferencesDto responsePreferences = objectMapper.readValue(response, PreferencesDto.class);
 
-        assertEquals(savedPreferences.getId(), responsePreferences.id());
-        assertEquals(updatedPreferencesDto.offDays().size(), responsePreferences.offDays().size());
-        assertEquals(1, preferencesRepository.count());
+        assertAll(
+                () -> assertEquals(savedPreferences.getId(), responsePreferences.id()),
+                () -> assertEquals(updatedPreferencesDto.offDays().size(), responsePreferences.offDays().size()),
+                () -> assertEquals(1, preferencesRepository.count())
+        );
     }
 /*
     @Test

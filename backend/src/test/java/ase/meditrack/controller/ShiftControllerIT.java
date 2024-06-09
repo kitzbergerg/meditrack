@@ -22,8 +22,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -51,8 +52,10 @@ class ShiftControllerIT {
         List<ShiftDto> shifts = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(shifts);
-        assertEquals(0, shifts.size());
+        assertAll(
+                () -> assertNotNull(shifts),
+                () -> assertEquals(0, shifts.size())
+        );
     }
 
     @Test
@@ -67,8 +70,10 @@ class ShiftControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/shift/" + savedShift.getId()))
                 .andExpect(status().isNoContent());
 
-        assertFalse(shiftRepository.existsById(savedShift.getId()));
-        assertEquals(0, shiftRepository.count());
+        assertAll(
+                () -> assertFalse(shiftRepository.existsById(savedShift.getId())),
+                () -> assertEquals(0, shiftRepository.count())
+        );
     }
 
     @Test
@@ -85,8 +90,10 @@ class ShiftControllerIT {
 
         ShiftDto foundShift = objectMapper.readValue(response, ShiftDto.class);
 
-        assertEquals(savedShift.getId(), foundShift.id());
-        assertEquals(shift.getDate(), foundShift.date());
+        assertAll(
+                () -> assertEquals(savedShift.getId(), foundShift.id()),
+                () -> assertEquals(shift.getDate(), foundShift.date())
+        );
     }
 
     @Test
@@ -111,10 +118,12 @@ class ShiftControllerIT {
 
         ShiftDto created = objectMapper.readValue(response, ShiftDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(shiftDto.date(), created.date());
-        assertEquals(1, shiftRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(shiftDto.date(), created.date()),
+                () -> assertEquals(1, shiftRepository.count())
+        );
     }
 
     @Test
@@ -142,8 +151,10 @@ class ShiftControllerIT {
 
         ShiftDto responseShift = objectMapper.readValue(response, ShiftDto.class);
 
-        assertEquals(savedShift.getId(), responseShift.id());
-        assertEquals(updatedShiftDto.date(), responseShift.date());
-        assertEquals(1, shiftRepository.count());
+        assertAll(
+                () -> assertEquals(savedShift.getId(), responseShift.id()),
+                () -> assertEquals(updatedShiftDto.date(), responseShift.date()),
+                () -> assertEquals(1, shiftRepository.count())
+        );
     }
 }

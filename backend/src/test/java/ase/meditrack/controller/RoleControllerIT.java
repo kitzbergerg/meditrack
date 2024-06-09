@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -89,8 +90,10 @@ class RoleControllerIT {
         List<RoleDto> roles = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertNotNull(roles);
-        assertEquals(0, roles.size());
+        assertAll(
+                () -> assertNotNull(roles),
+                () -> assertEquals(0, roles.size())
+        );
     }
 
     @Test
@@ -148,11 +151,12 @@ class RoleControllerIT {
         List<RoleDto> allRoles = objectMapper.readValue(responseAll, new TypeReference<>() {
         });
 
-        assertNotNull(rolesInTeam);
-        assertEquals(1, rolesInTeam.size());
-
-        assertNotNull(allRoles);
-        assertEquals(2, allRoles.size());
+        assertAll(
+                () -> assertNotNull(rolesInTeam),
+                () -> assertEquals(1, rolesInTeam.size()),
+                () -> assertNotNull(allRoles),
+                () -> assertEquals(2, allRoles.size())
+        );
     }
 
     @Test
@@ -170,8 +174,10 @@ class RoleControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/role/" + savedRole.getId()))
                 .andExpect(status().isNoContent());
 
-        assertFalse(roleRepository.existsById(savedRole.getId()));
-        assertEquals(0, roleRepository.count());
+        assertAll(
+                () -> assertFalse(roleRepository.existsById(savedRole.getId())),
+                () -> assertEquals(0, roleRepository.count())
+        );
     }
 
     @Test
@@ -192,10 +198,12 @@ class RoleControllerIT {
 
         RoleDto foundRole = objectMapper.readValue(response, RoleDto.class);
 
-        assertEquals(savedRole.getId(), foundRole.id());
-        assertEquals(role.getName(), foundRole.name());
-        assertEquals(role.getColor(), foundRole.color());
-        assertEquals(role.getAbbreviation(), foundRole.abbreviation());
+        assertAll(
+                () -> assertEquals(savedRole.getId(), foundRole.id()),
+                () -> assertEquals(role.getName(), foundRole.name()),
+                () -> assertEquals(role.getColor(), foundRole.color()),
+                () -> assertEquals(role.getAbbreviation(), foundRole.abbreviation())
+        );
     }
 
     @Test
@@ -220,11 +228,13 @@ class RoleControllerIT {
 
         RoleDto responseRole = objectMapper.readValue(response, RoleDto.class);
 
-        assertEquals(savedRole.getId(), responseRole.id());
-        assertEquals(updatedRoleDto.name(), responseRole.name());
-        assertEquals(updatedRoleDto.color(), responseRole.color());
-        assertEquals(updatedRoleDto.abbreviation(), responseRole.abbreviation());
-        assertEquals(1, roleRepository.count());
+        assertAll(
+                () -> assertEquals(savedRole.getId(), responseRole.id()),
+                () -> assertEquals(updatedRoleDto.name(), responseRole.name()),
+                () -> assertEquals(updatedRoleDto.color(), responseRole.color()),
+                () -> assertEquals(updatedRoleDto.abbreviation(), responseRole.abbreviation()),
+                () -> assertEquals(1, roleRepository.count())
+        );
     }
 
     @Test
@@ -248,10 +258,12 @@ class RoleControllerIT {
                 .andReturn().getResponse().getContentAsString();
         RoleDto created = objectMapper.readValue(response, RoleDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(dto.name(), created.name());
-        assertEquals(1, roleRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(dto.name(), created.name()),
+                () -> assertEquals(1, roleRepository.count())
+        );
     }
 
     @Test

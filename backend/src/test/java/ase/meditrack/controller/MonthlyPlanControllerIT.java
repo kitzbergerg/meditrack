@@ -31,10 +31,11 @@ import java.time.Month;
 import java.time.Year;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -119,14 +120,16 @@ class MonthlyPlanControllerIT {
                 .andReturn().getResponse().getContentAsString();
         MonthlyPlanDto created = objectMapper.readValue(response, MonthlyPlanDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertFalse(created.shifts().isEmpty());
-        assertEquals(Year.of(2024), created.year());
-        assertEquals(Month.APRIL, created.month());
-        assertEquals(team.getId(), created.team());
-
-        assertEquals(1, monthlyPlanRepository.count());
-        assertTrue(shiftRepository.count() > 0);
+        Team finalTeam = team;
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertFalse(created.shifts().isEmpty()),
+                () -> assertEquals(Year.of(2024), created.year()),
+                () -> assertEquals(Month.APRIL, created.month()),
+                () -> assertEquals(finalTeam.getId(), created.team()),
+                () -> assertEquals(1, monthlyPlanRepository.count()),
+                () -> assertTrue(shiftRepository.count() > 0)
+        );
     }
 }
