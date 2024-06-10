@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 @Slf4j
 public final class SchedulingSolver {
@@ -61,6 +62,11 @@ public final class SchedulingSolver {
 
         CpSolverStatus status = solver.solve(model);
 
+        if (status == CpSolverStatus.INFEASIBLE) {
+            log.warn("Infeasible solution.");
+            log.warn(solver.sufficientAssumptionsForInfeasibility().toString());
+            return Optional.empty();
+        }
         if (status == CpSolverStatus.UNKNOWN) {
             log.warn("To little time to solve problem.");
             return Optional.empty();
@@ -145,6 +151,8 @@ public final class SchedulingSolver {
 
     private static void addOptimization(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
         LinearExprBuilder objective = LinearExpr.newBuilder();
+
+        // Make sure employees work hours close to their working time
         for (int n = 0; n < input.employees().size(); n++) {
             List<LinearExpr> monthlyHours = new ArrayList<>();
             for (int d = 0; d < input.numberOfDays() - 1; d++) {
@@ -155,17 +163,54 @@ public final class SchedulingSolver {
             }
             LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
             LinearExpr optimalHours = LinearExpr.constant(input.employees().get(n).optimalWorkingHoursPerMonth());
-            IntVar deviation = model.newIntVar(0, Integer.MAX_VALUE, "deviation_n" + n);
+            IntVar deviation = model.newIntVar(0, Integer.MAX_VALUE, "deviation_workingHours_" + n);
 
             // Add constraints to link the deviation with the actual and optimal hours
-            model.addGreaterOrEqual(deviation,
+            model.addAbsEquality(deviation,
                     LinearExpr.sum(new LinearArgument[] {totalMonthlyHours, LinearExpr.term(optimalHours, -1)}));
-            model.addGreaterOrEqual(deviation,
-                    LinearExpr.sum(new LinearArgument[] {optimalHours, LinearExpr.term(totalMonthlyHours, -1)}));
 
             // Add the deviation to the objective
             objective.add(deviation);
         }
+
+        // Make sure employees work the same shift type as much as possible
+        for (int n = 0; n < input.employees().size(); n++) {
+            LinearExpr[] shiftTypeCounts = new LinearExpr[input.shiftTypes().size()];
+            for (int s = 0; s < input.shiftTypes().size(); s++) {
+                int finalS = s;
+                shiftTypeCounts[s] = LinearExpr.sum(Arrays.stream(shifts[n])
+                        .map(el -> el[finalS])
+                        .toArray(BoolVar[]::new));
+            }
+
+            // Make sure that shiftTypeCounts is shifted towards 1 value. I.e [10,0,0] is good; [4,3,3] is bad.
+
+            // Calculate the average shift count.
+            // addDivisionEquality doesn't work since we use IntVars and the result might be a float.
+            // So the below is more or less rounding.
+            LinearExpr totalShifts = LinearExpr.sum(shiftTypeCounts);
+            IntVar avgShiftCount = model.newIntVar(0, Integer.MAX_VALUE, "avgShiftCount_" + n);
+            LinearExpr useToCalcAverage = LinearExpr.term(avgShiftCount, input.shiftTypes().size());
+            model.addGreaterOrEqual(totalShifts, useToCalcAverage);
+            model.addLessOrEqual(totalShifts, LinearExpr.sum(
+                    new LinearArgument[] {useToCalcAverage, LinearExpr.constant(input.shiftTypes().size())}));
+
+            int finalN = n;
+            LinearExpr[] deviationFromShift = IntStream.range(0, input.shiftTypes().size())
+                    .mapToObj(s -> {
+                        IntVar deviationFromAverage =
+                                model.newIntVar(0, Integer.MAX_VALUE, "deviation_sameShift_" + finalN + "_" + s);
+                        model.addAbsEquality(deviationFromAverage,
+                                LinearExpr.sum(
+                                        new LinearArgument[] {shiftTypeCounts[s], LinearExpr.term(avgShiftCount, -1)}));
+                        return LinearExpr.sum(
+                                new LinearArgument[] {totalShifts, LinearExpr.term(deviationFromAverage, -1)});
+                    })
+                    .toArray(LinearExpr[]::new);
+
+            objective.addSum(deviationFromShift);
+        }
+
         model.minimize(objective);
     }
 }
