@@ -2,9 +2,11 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftTypeDto;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.TeamService;
@@ -26,13 +28,15 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -51,6 +55,8 @@ class ShiftTypeControllerIT {
     private ObjectMapper objectMapper;
     @Autowired
     private ShiftTypeRepository shiftTypeRepository;
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -202,6 +208,17 @@ class ShiftTypeControllerIT {
         shiftType.setColor("FF0000");
         shiftType.setAbbreviation("TR");
         shiftType.setTeam(team);
+
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        role.setUsers(null);
+        role.setTeam(team);
+        roleRepository.save(role);
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+        shiftType.setRequiredRoles(roles);
         shiftTypeRepository.save(shiftType);
         ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
 
@@ -313,6 +330,118 @@ class ShiftTypeControllerIT {
                 () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation()),
                 () -> assertEquals(1, shiftTypeRepository.count())
         );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_createShiftTypeWithInvalidData_throws422() throws Exception {
+        ShiftTypeDto shiftTypeDtoEnd = new ShiftTypeDto(
+                null,
+                "Shift Type",
+                LocalTime.of(8, 0, 0, 0),
+                LocalTime.of(16, 0, 0, 0),
+                LocalTime.of(12, 0, 0, 0),
+                LocalTime.of(17, 30, 0, 0),
+                "Day",
+                "#ff0000",
+                "ST",
+                team.getId(),
+                null,
+                null,
+                null,
+                null);
+
+        String responseEnd = mockMvc.perform(
+                            MockMvcRequestBuilders.post("/api/shift-type")
+                                    .contentType("application/json")
+                                    .content(objectMapper.writeValueAsString(shiftTypeDtoEnd))
+                    )
+                    .andExpect(status().isUnprocessableEntity())
+                    .andReturn().getResponse().getContentAsString();
+
+        assertTrue(responseEnd.equals("Break Ending Time has to be within the working hours"));
+
+        ShiftTypeDto shiftTypeDtoStart = new ShiftTypeDto(
+                null,
+                "Shift Type",
+                LocalTime.of(8, 0, 0, 0),
+                LocalTime.of(16, 0, 0, 0),
+                LocalTime.of(6, 0, 0, 0),
+                LocalTime.of(12, 30, 0, 0),
+                "Day",
+                "#ff0000",
+                "ST",
+                team.getId(),
+                null,
+                null,
+                null,
+                null);
+
+        String responseStart = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/shift-type")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftTypeDtoStart))
+                )
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn().getResponse().getContentAsString();
+
+        assertTrue(responseStart.equals("Break Starting Time has to be within the working hours"));
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_createOvernightShiftTypeWithInvalidData_throws422() throws Exception {
+        ShiftTypeDto shiftTypeDtoEnd = new ShiftTypeDto(
+                null,
+                "Shift Type",
+                LocalTime.of(21, 0, 0, 0),
+                LocalTime.of(3, 0, 0, 0),
+                LocalTime.of(0, 0, 0, 0),
+                LocalTime.of(4, 30, 0, 0),
+                "Night",
+                "#ffff00",
+                "ST",
+                team.getId(),
+                null,
+                null,
+                null,
+                null);
+
+        String responseEnd = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/shift-type")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftTypeDtoEnd))
+                )
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn().getResponse().getContentAsString();
+
+        assertTrue(responseEnd.equals("Break Ending Time has to be within the working hours for overnight shifts"));
+
+        ShiftTypeDto shiftTypeDtoStart = new ShiftTypeDto(
+                null,
+                "Shift Type",
+                LocalTime.of(21, 0, 0, 0),
+                LocalTime.of(3, 0, 0, 0),
+                LocalTime.of(20, 0, 0, 0),
+                LocalTime.of(0, 30, 0, 0),
+                "Night",
+                "#ffff00",
+                "ST",
+                team.getId(),
+                null,
+                null,
+                null,
+                null);
+
+        String responseStart = mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/shift-type")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftTypeDtoStart))
+                )
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn().getResponse().getContentAsString();
+
+        assertTrue(responseStart.equals("Break Starting Time has to be within the working hours for overnight shifts"));
     }
 
     @Test

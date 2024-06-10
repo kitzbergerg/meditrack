@@ -49,7 +49,6 @@ public class ShiftService {
         return repository.findAllByUsersAndDateAfterAndDateBefore(users, today, nextMonth);
     }
 
-
     /**
      * Fetches a shift by id from the database.
      *

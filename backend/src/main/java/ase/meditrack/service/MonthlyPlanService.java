@@ -58,7 +58,7 @@ public class MonthlyPlanService {
     public MonthlyPlan getMonthlyPlan(int month, int year, Principal principal) {
         User user = userService.getPrincipalWithTeam(principal);
         Team team = user.getTeam();
-        log.info("Fetching monthly plan for user {}", team);
+        // log.info("Fetching monthly plan for user {}", team); // TODO : causes stack overflow
         MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month, year);
         if (plan == null) {
             throw new NotFoundException("Could not find monthly plan for month: " + month + "!");

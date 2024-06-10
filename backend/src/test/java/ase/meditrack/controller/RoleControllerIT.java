@@ -3,9 +3,11 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
+import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,13 +28,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -52,14 +56,17 @@ class RoleControllerIT {
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
+    private ShiftTypeRepository shiftTypeRepository;
+    @Autowired
     private UserRepository userRepository;
+    private User user;
     @Autowired
     private TeamService teamService;
     private Team team;
 
     @BeforeEach
     void setup() {
-        userRepository.save(new User(
+        user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
                 null,
                 1f,
@@ -241,14 +248,30 @@ class RoleControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createRole_succeeds() throws Exception {
+        List<UUID> users = new ArrayList<>();
+        users.add(user.getId());
+
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("ShiftType");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftType.setColor("FF0000");
+        shiftType.setAbbreviation("TR");
+        shiftType.setTeam(team);
+        shiftTypeRepository.save(shiftType);
+        List<UUID> shiftTypes = new ArrayList<>();
+        shiftTypes.add(shiftType.getId());
+
         RoleDto dto = new RoleDto(
                 null,
                 "testRole",
                 "#000000",
                 "TR",
-                null,
+                users,
                 team.getId(),
-                null
+                shiftTypes
         );
 
         String response = mockMvc.perform(

@@ -4,15 +4,23 @@ import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftSwapDto;
 import ase.meditrack.model.dto.SimpleShiftDto;
 import ase.meditrack.model.dto.SimpleShiftSwapDto;
-import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.dto.SimpleShiftTypeDto;
 import ase.meditrack.model.entity.ShiftSwap;
+import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.mapper.ShiftMapper;
-import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
+import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.repository.MonthlyPlanRepository;
+import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -26,6 +34,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,9 +66,16 @@ class ShiftSwapControllerIT {
     @Autowired
     private ShiftRepository shiftRepository;
     @Autowired
+    private ShiftTypeRepository shiftTypeRepository;
+    @Autowired
     private ShiftMapper shiftMapper;
     private User user;
     private Shift shift;
+    @Autowired
+    private TeamService teamService;
+    private Team team;
+    @Autowired
+    private MonthlyPlanRepository monthlyPlanRepository;
 
     @BeforeEach
     void setup() {
@@ -78,6 +96,10 @@ class ShiftSwapControllerIT {
                 null
         ));
         shift = shiftRepository.save(new Shift());
+        team = teamService.create(
+                new Team(null, "test team", 40, null, null, null, null, null),
+                () -> USER_ID
+        );
     }
 
     @Test
@@ -92,6 +114,45 @@ class ShiftSwapControllerIT {
         assertAll(
                 () -> assertNotNull(shiftSwaps),
                 () -> assertEquals(0, shiftSwaps.size())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_employee"}, username = USER_ID)
+    void test_findShiftSwapsByUserAndCurrentMonth_succeeds() throws Exception {
+        Shift shiftBefore = new Shift();
+        shiftBefore.setDate(LocalDate.now().minusDays(4));
+        List<User> usersBefore = new ArrayList<>();
+        usersBefore.add(user);
+        shiftBefore.setUsers(usersBefore);
+        shiftRepository.save(shiftBefore);
+
+        ShiftSwap shiftSwapBefore = new ShiftSwap();
+        shiftSwapBefore.setSwapRequestingUser(user);
+        shiftSwapBefore.setRequestedShift(shiftBefore);
+        shiftSwapRepository.save(shiftSwapBefore);
+
+        Shift shiftComing = new Shift();
+        shiftComing.setDate(LocalDate.now().plusDays(1));
+        List<User> usersComing = new ArrayList<>();
+        usersComing.add(user);
+        shiftComing.setUsers(usersComing);
+        shiftRepository.save(shiftComing);
+
+        ShiftSwap shiftSwap = new ShiftSwap();
+        shiftSwap.setSwapRequestingUser(user);
+        shiftSwap.setRequestedShift(shiftComing);
+        shiftSwapRepository.save(shiftSwap);
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-swap/month"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<ShiftSwapDto> shiftSwaps = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        assertAll(
+                () -> Assert.assertEquals(2, shiftSwapRepository.count()),
+                () -> Assert.assertEquals(1, shiftSwaps.size())
         );
     }
 
@@ -133,6 +194,18 @@ class ShiftSwapControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftSwap_succeeds() throws Exception {
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("ShiftType");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftType.setColor("FF0000");
+        shiftType.setAbbreviation("TR");
+        shiftType.setTeam(team);
+        shiftTypeRepository.save(shiftType);
+        shift.setShiftType(shiftType);
+
         SimpleShiftDto shiftDto = shiftMapper.toSimpleShiftDto(shift);
         SimpleShiftSwapDto shiftSwapDto = new SimpleShiftSwapDto(
                 null,
@@ -172,8 +245,31 @@ class ShiftSwapControllerIT {
         shiftSwapRepository.save(shiftSwap);
         ShiftSwap savedShiftSwap = shiftSwapRepository.findById(shiftSwap.getId()).get();
 
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        monthlyPlanRepository.save(monthlyPlan);
+        List<UUID> users = new ArrayList<>();
+        users.add(user.getId());
+        SimpleShiftTypeDto simpleShiftTypeDto = new SimpleShiftTypeDto(null,
+                "Simple",
+                LocalTime.of(8, 0, 0),
+                LocalTime.of(16, 0, 0),
+                LocalTime.of(12, 0, 0),
+                LocalTime.of(12, 30, 0),
+                "Day",
+                "#FF0000",
+                "SD",
+                team.getId()
+                );
         Shift newRequest = shiftRepository.save(new Shift());
-        SimpleShiftDto newRequestDto = shiftMapper.toSimpleShiftDto(newRequest);
+        SimpleShiftDto newRequestDto = new SimpleShiftDto(newRequest.getId(),
+                newRequest.getDate(),
+                monthlyPlan.getId(),
+                simpleShiftTypeDto,
+                users);
         ShiftSwapDto updatedShiftSwapDto = new ShiftSwapDto(
                 savedShiftSwap.getId(),
                 user.getId(),

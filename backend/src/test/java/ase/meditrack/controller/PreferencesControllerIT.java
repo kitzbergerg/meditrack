@@ -26,10 +26,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -157,7 +157,7 @@ class PreferencesControllerIT {
     @WithMockUser(authorities = "SCOPE_admin")
     void test_createPreferences_succeeds() throws Exception {
         PreferencesDto dto = new PreferencesDto(
-                UUID.fromString(USER_ID),
+                UUID.randomUUID(),
                 Arrays.asList(LocalDate.now(), LocalDate.now().plusDays(1)));
 
         String response = mockMvc.perform(
@@ -169,11 +169,13 @@ class PreferencesControllerIT {
                 .andReturn().getResponse().getContentAsString();
         PreferencesDto created = objectMapper.readValue(response, PreferencesDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertEquals(dto.id(), created.id());
-        assertEquals(dto.offDays().size(), created.offDays().size());
-        assertEquals(1, preferencesRepository.count());
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertEquals(dto.id(), created.id()),
+                () -> assertEquals(dto.offDays().size(), created.offDays().size()),
+                () -> assertEquals(1, preferencesRepository.count())
+        );
     }
 
  */

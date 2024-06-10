@@ -4,8 +4,12 @@ import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.TeamDto;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.repository.MonthlyPlanRepository;
+import ase.meditrack.repository.ShiftTypeRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +26,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -48,6 +54,10 @@ class TeamControllerIT {
     private TeamRepository teamRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MonthlyPlanRepository monthlyPlanRepository;
+    @Autowired
+    private ShiftTypeRepository shiftTypeRepository;
 
     @BeforeEach
     void setup() {
@@ -183,15 +193,41 @@ class TeamControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createTeam_succeeds() throws Exception {
+        List<UUID> users = new ArrayList<>();
+        users.add(UUID.fromString(USER_ID));
+
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("Test ShiftType");
+        shiftType.setColor("#FF0000");
+        shiftType.setAbbreviation("TS");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeRepository.save(shiftType);
+        List<UUID> shiftTypes = new ArrayList<>();
+        shiftTypes.add(shiftType.getId());
+
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        monthlyPlanRepository.save(monthlyPlan);
+        List<UUID> monthlyPlans = new ArrayList<>();
+        monthlyPlans.add(monthlyPlan.getId());
+
+        List<UUID> roles = new ArrayList<>();
+        roles.add(UUID.randomUUID());
+
         TeamDto dto = new TeamDto(
                 null,
                 "testTeam",
                 0,
+                roles,
+                users,
                 null,
-                null,
-                null,
-                null,
-                null
+                monthlyPlans,
+                shiftTypes
         );
 
         String response = mockMvc.perform(

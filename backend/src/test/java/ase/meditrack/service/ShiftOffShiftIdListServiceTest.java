@@ -13,7 +13,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Arrays;
@@ -34,8 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @MockBean(RealmResource.class)
 public class ShiftOffShiftIdListServiceTest {
 
-    @Autowired
-    private MockMvc mockMvc;
     @Autowired
     private ShiftOffShiftIdListRepository repository;
     @Autowired

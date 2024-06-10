@@ -2,10 +2,16 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftDto;
+import ase.meditrack.model.dto.SimpleShiftDto;
 import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftRepository;
+import ase.meditrack.repository.UserRepository;
+import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +25,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -35,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
 class ShiftControllerIT {
+    private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,6 +51,36 @@ class ShiftControllerIT {
     private ObjectMapper objectMapper;
     @Autowired
     private ShiftRepository shiftRepository;
+    @Autowired
+    private UserRepository userRepository;
+    private User user;
+    @Autowired
+    private TeamService teamService;
+    private Team team;
+
+    @BeforeEach
+    void setup() {
+        user = userRepository.save(new User(
+                UUID.fromString(USER_ID),
+                null,
+                1f,
+                0,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ));
+        team = teamService.create(
+                new Team(null, "test team", 40, null, null, null, null, null),
+                () -> USER_ID
+        );
+    }
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin")
@@ -73,6 +112,36 @@ class ShiftControllerIT {
         assertAll(
                 () -> assertFalse(shiftRepository.existsById(savedShift.getId())),
                 () -> assertEquals(0, shiftRepository.count())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_employee"}, username = USER_ID)
+    void test_findShiftByCurrentMonth_succeeds() throws Exception {
+        Shift shiftNextMonth = new Shift();
+        shiftNextMonth.setDate(LocalDate.now().plusDays(30));
+        List<User> usersNextMonth = new ArrayList<>();
+        usersNextMonth.add(user);
+        shiftNextMonth.setUsers(usersNextMonth);
+        shiftRepository.save(shiftNextMonth);
+
+        Shift shift = new Shift();
+        shift.setDate(LocalDate.now().plusDays(1));
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        shift.setUsers(users);
+        shiftRepository.save(shift);
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift/month"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<SimpleShiftDto> shifts = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        assertAll(
+                () -> assertEquals(2, shiftRepository.count()),
+                () -> assertEquals(1, shifts.size()),
+                () -> assertEquals(shift.getDate().getMonth(), shifts.get(0).date().getMonth())
         );
     }
 
