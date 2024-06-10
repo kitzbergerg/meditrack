@@ -53,7 +53,7 @@ public class MonthlyPlanController {
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public MonthlyPlanDto findById(@PathVariable UUID id) {
-        // TODO: add check if dm can view/edit plan
+        // TODO #92: add check if dm can view/edit plan
         log.info("Fetching monthly-plan with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
@@ -61,7 +61,7 @@ public class MonthlyPlanController {
     @GetMapping("/team")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public MonthlyPlanDto findByTeamMonthYear(@RequestParam Year year, @RequestParam Month month, Principal principal) {
-        // TODO: add check if dm can view/edit plan
+        // TODO #92: add check if dm can view/edit plan
         log.info("Fetching monthly-plan for user : {}, for date: {}, {}", principal.getName(), month, year);
         return mapper.toDto(service.getMonthlyPlan(month.getValue(), year.getValue(), principal));
     }
@@ -70,7 +70,7 @@ public class MonthlyPlanController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     @ResponseStatus(HttpStatus.CREATED)
     public MonthlyPlanDto create(@RequestParam Year year, @RequestParam Month month, Principal principal) {
-        // TODO: add check if dm can view/edit plan
+        // TODO #92: add check if dm can view/edit plan
         log.info("Creating monthly-plan for user {}, {} {}", principal.getName(), year, month);
         return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), principal));
     }
@@ -79,7 +79,7 @@ public class MonthlyPlanController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     @ResponseStatus(HttpStatus.OK)
     public MonthlyPlanDto update(@Validated(UpdateValidator.class) @RequestBody MonthlyPlanDto dto) {
-        // TODO: add check if dm can view/edit plan
+        // TODO #92: add check if dm can view/edit plan
         log.info("Updating monthly-plan {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
@@ -88,7 +88,7 @@ public class MonthlyPlanController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        // TODO: add check if dm can view/edit plan
+        // TODO #92: add check if dm can view/edit plan
         log.info("Deleting monthly-plan with id {}", id);
         service.delete(id);
     }
