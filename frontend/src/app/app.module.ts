@@ -31,6 +31,7 @@ import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
+import {Rules1Component} from "./components/rules1/rules1.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -61,6 +62,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     AccountSettingsComponent,
     EmployeesComponent,
     RolesComponent,
+    Rules1Component,
     DashboardComponent,
     ShiftTypesComponent,
     TeamComponent,

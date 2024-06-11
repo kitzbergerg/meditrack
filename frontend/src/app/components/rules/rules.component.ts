@@ -49,7 +49,7 @@ export class RulesComponent {
 
   constructor(private rulesService: RulesService) {
     rulesService.getRules().subscribe({
-      next: (x: Rules) => {
+     /* next: (x: Rules) => {
         if (x == null) {
           this.rules = this.emptyRules()
           console.log('null', this.rules);
@@ -84,7 +84,7 @@ export class RulesComponent {
       error: (err) => {
         console.log('Error getting role:', err)
         this.rules = this.emptyRules()
-      }
+      }*/
     })
   }
 

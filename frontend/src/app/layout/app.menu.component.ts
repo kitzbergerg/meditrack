@@ -29,6 +29,7 @@ export class AppMenuComponent implements OnInit {
                   { label: $localize`Roles`, icon: 'pi pi-fw pi-lock', routerLink: ['/roles'], visible: this.isDM },
                   { label: $localize`Holidays`, icon: 'pi pi-fw pi-sun', routerLink: ['/todo'], visible: this.isEmployee  },
                   { label: $localize`Rules`, icon: 'pi pi-fw pi-cog', routerLink: ['/rules'], visible: this.isDM },
+                  { label: $localize`Rules1`, icon: 'pi pi-fw pi-cog', routerLink: ['/rules1'], visible: this.isDM },
                   { label: $localize`Shift Swapping`, icon: 'pi pi-fw pi-sync', routerLink: ['/shift-swap'], visible: this.isEmployee }
                 ]
             }
