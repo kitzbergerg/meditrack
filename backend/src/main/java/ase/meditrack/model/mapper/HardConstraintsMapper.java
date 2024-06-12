@@ -1,17 +1,26 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.HardConstraintsDto;
+import ase.meditrack.model.dto.RoleHardConstraintsDto;
 import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.Role;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 
 @Mapper(uses = EntityUuidMapper.class)
 public interface HardConstraintsMapper {
-    @Mapping(target = "shiftOffShift", ignore = true)
     HardConstraintsDto toDto(HardConstraints hardConstraints);
 
-    @Mapping(target = "shiftOffShift", ignore = true)
-    @Mapping(target = "team", ignore = true)
     HardConstraints fromDto(HardConstraintsDto dto);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "allowedFlextimeTotal", target = "allowedFlextimeTotal")
+    @Mapping(source = "allowedFlextimePerMonth", target = "allowedFlextimePerMonth")
+    @Mapping(source = "daytimeRequiredPeople", target = "daytimeRequiredPeople")
+    @Mapping(source = "nighttimeRequiredPeople", target = "nighttimeRequiredPeople")
+    RoleHardConstraintsDto toRoleHardconstraintsDto(Role x);
+
+    //Role fromDto(RoleHardConstraintsDto roleHardConstraintsDto);
 }

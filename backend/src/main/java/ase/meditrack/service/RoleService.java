@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.dto.RoleHardConstraintsDto;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
@@ -110,5 +111,15 @@ public class RoleService {
      */
     public void delete(UUID id) {
         repository.deleteById(id);
+    }
+
+    public Role updateRoleConstraints(RoleHardConstraintsDto dto) {
+        Role  role = findById(dto.roleId());
+        role.setAllowedFlextimeTotal(dto.allowedFlexitimeTotal());
+        role.setAllowedFlextimePerMonth(dto.allowedFlexitimeMonthly());
+        role.setDaytimeRequiredPeople(dto.daytimeRequiredPeople());
+        role.setNighttimeRequiredPeople(dto.nighttimeRequiredPeople());
+        repository.save(role);
+        return role;
     }
 }

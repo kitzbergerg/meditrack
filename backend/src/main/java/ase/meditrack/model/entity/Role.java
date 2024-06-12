@@ -48,6 +48,14 @@ public class Role {
 
     private String abbreviation;
 
+    private Integer allowedFlextimeTotal;
+
+    private Integer allowedFlextimePerMonth;
+
+    private Integer daytimeRequiredPeople;
+
+    private Integer nighttimeRequiredPeople;
+
     @OneToMany(mappedBy = "role")
     private List<User> users;
 
