@@ -7,7 +7,7 @@ export interface Rule {
 }
 
 export interface RoleRules {
-  role: Role;
+  role: number; //TODO change name
   daytimeRequiredPeople: number | null,
   nighttimeRequiredPeople: number | null
   allowedFlexitimeTotal: number | null,

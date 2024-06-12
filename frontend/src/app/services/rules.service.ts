@@ -28,6 +28,10 @@ export class RulesService {
     return this.http.get<any>(`${this.apiUrl}`, this.httpOptions);
   }
 
+  getAllRoleRulesFromTeam(): Observable<RoleRules[]> {
+    return this.http.get<RoleRules[]>(`${this.apiUrl}/roleRules`, this.httpOptions);
+  }
+
   updateRule(rule: Rule): Observable<Rule> {
     return this.http.put<Rule>(`${this.apiUrl}/rules/`, rule, this.httpOptions);
   }
@@ -37,6 +41,6 @@ export class RulesService {
   }
 
   updateRoleRule(roleRules: RoleRules) {
-    return this.http.put<RoleRules>(`${this.apiUrl}/roleRules/${roleRules.role.id}`, roleRules, this.httpOptions);
+    return this.http.put<RoleRules>(`${this.apiUrl}/roleRules/${roleRules.role}`, roleRules, this.httpOptions);
   }
 }

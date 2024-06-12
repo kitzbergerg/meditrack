@@ -57,6 +57,19 @@ export class Rules1Component implements OnInit {
 
   loadRoleRules(): void {
     //todo convert to role rules
+    this.rulesService.getAllRoleRulesFromTeam().subscribe((fetchedRoleRoles) => {
+      for (const roleRule of fetchedRoleRoles) {
+        this.roleRules.push({
+          role: roleRule.role,
+          daytimeRequiredPeople: roleRule.daytimeRequiredPeople,
+          nighttimeRequiredPeople: roleRule.nighttimeRequiredPeople,
+          allowedFlexitimeMonthly: roleRule.allowedFlexitimeMonthly,
+          allowedFlexitimeTotal: roleRule.allowedFlexitimeTotal
+        })
+      }
+    })
+/*
+
     this.rolesService.getAllRolesFromTeam().subscribe((fetchedRoles) => {
       this.roles = fetchedRoles;
       this.loading = false;
@@ -66,7 +79,7 @@ export class Rules1Component implements OnInit {
           daytimeRequiredPeople: 0, nighttimeRequiredPeople: 0,
           allowedFlexitimeMonthly: 0, allowedFlexitimeTotal: 0})
       }
-    });
+    });*/
   }
 
   selectRoleRule(role: RoleRules) {
@@ -166,5 +179,9 @@ export class Rules1Component implements OnInit {
         this.selectRoleRule(item as RoleRules);
       }
     }
+  }
+
+  getNameOfRole(role: RoleRules) {
+    return this.roles.find(x => x.id == role.role)?.name;
   }
 }
