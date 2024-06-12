@@ -9,10 +9,11 @@ import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftOffShiftIdList;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.HardConstraintsRepository;
 import ase.meditrack.repository.HolidayRepository;
@@ -241,7 +242,7 @@ public class DataGeneratorBean {
                 Holiday holiday = new Holiday();
                 holiday.setStartDate(generateValidRandomFutureDate());
                 holiday.setEndDate(holiday.getStartDate().plusDays(1));
-                holiday.setIsApproved(false);
+                holiday.setStatus(HolidayRequestStatus.REQUESTED);
                 holiday.setUser(user);
                 holidayRepository.save(holiday);
             }

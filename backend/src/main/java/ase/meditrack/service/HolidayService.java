@@ -2,10 +2,16 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Holiday;
+import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
 import ase.meditrack.repository.HolidayRepository;
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,9 +19,50 @@ import java.util.UUID;
 @Slf4j
 public class HolidayService {
     private final HolidayRepository repository;
+    private final UserService userService;
 
-    public HolidayService(HolidayRepository repository) {
+    public HolidayService(HolidayRepository repository, UserService userService) {
         this.repository = repository;
+        this.userService = userService;
+    }
+
+    /**
+     * Creates a holiday for the current user in the database.
+     *
+     * @param holiday the holiday to create
+     * @param userId the id of the user
+     * @return the created holiday
+     */
+    public Holiday create(Holiday holiday, String userId) {
+        User user = userService.findById(UUID.fromString(userId));
+        holiday.setUser(user);
+        holiday.setStatus(HolidayRequestStatus.REQUESTED);
+        return repository.save(holiday);
+    }
+
+    /**
+     * Fetches all holidays from the database for a specific user.
+     *
+     * @param userId the id of the user
+     * @return List of all holidays for a specific user
+     */
+    public List<Holiday> findAllByUser(String userId) {
+        User user = userService.findById(UUID.fromString(userId));
+        return repository.findAllByUser(user);
+    }
+
+    /**
+     * Fetches all holidays from the database for a specific user and id.
+     *
+     * @param id the id of the holiday
+     * @param userId the id of the user
+     * @return the holiday with the specific id for the user
+     */
+    public Holiday findByIdAndUser(UUID id, String userId) {
+        User user = userService.findById(UUID.fromString(userId));
+        return repository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new NotFoundException("Could not find holiday with id: " + id + " for user with " +
+                        "id: " + userId + "!"));
     }
 
     /**
@@ -39,38 +86,55 @@ public class HolidayService {
     }
 
     /**
-     * Creates a holiday in the database.
+     * Fetches all holidays from the database for a specific team.
      *
-     * @param holiday the holiday to create
-     * @return the created holiday
+     * @param principal the principal
+     * @return List of all holidays for a specific team
      */
-    public Holiday create(Holiday holiday) {
-        return repository.save(holiday);
+    public List<Holiday> findAllByTeam(Principal principal) {
+        return repository.findByUserIn(userService.findByTeam(principal));
     }
 
     /**
-     * Updates a holiday in the database.
+     * Updates a holiday for the current user in the database.
      *
      * @param holiday the holiday to update
+     * @param userId the id of the user
      * @return the updated holiday
      */
-    public Holiday update(Holiday holiday) {
+    public Holiday update(Holiday holiday, String userId) {
         Holiday dbHoliday = findById(holiday.getId());
+
+        if (!dbHoliday.getUser().getId().equals(UUID.fromString(userId))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "You are not allowed to update this holiday! Only the owner can update it.");
+        }
 
         if (holiday.getStartDate() != null) {
             dbHoliday.setStartDate(holiday.getStartDate());
+            dbHoliday.setStatus(HolidayRequestStatus.REQUESTED); // reset status to requested if there are changes
         }
         if (holiday.getEndDate() != null) {
             dbHoliday.setEndDate(holiday.getEndDate());
+            dbHoliday.setStatus(HolidayRequestStatus.REQUESTED); // reset status to requested if there are changes
         }
-        if (holiday.getIsApproved() != null) {
-            dbHoliday.setIsApproved(holiday.getIsApproved());
-        }
-        if (holiday.getUser() != null) {
-            dbHoliday.setUser(holiday.getUser());
+        // only allow updating the status to cancelled for the user
+        if (holiday.getStatus() != null && holiday.getStatus() == HolidayRequestStatus.CANCELLED) {
+            dbHoliday.setStatus(holiday.getStatus());
         }
 
         return repository.save(dbHoliday);
+    }
+
+    public Holiday updateStatus(UUID id, HolidayRequestStatus status, Principal principal) {
+        Holiday holiday = findById(id);
+        // check if holiday is in the list of the dm's team holidays
+        if (!findAllByTeam(principal).contains(holiday)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "You are not allowed to update the status of this holiday! Only the team lead can update it.");
+        }
+        holiday.setStatus(status);
+        return repository.save(holiday);
     }
 
     /**
@@ -79,6 +143,11 @@ public class HolidayService {
      * @param id the id of the holiday
      */
     public void delete(UUID id) {
+        Holiday holiday = findById(id);
+        if (holiday.getStatus() == HolidayRequestStatus.APPROVED
+                || holiday.getStatus() == HolidayRequestStatus.REQUESTED) {
+            throw new ValidationException("Only holidays with status 'REJECTED' or 'CANCELLED' can be deleted!");
+        }
         repository.deleteById(id);
     }
 }

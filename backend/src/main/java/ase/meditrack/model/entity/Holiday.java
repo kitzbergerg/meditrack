@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,7 +32,7 @@ public class Holiday {
 
     private LocalDate endDate;
 
-    private Boolean isApproved;
+    private HolidayRequestStatus status;
 
     @ManyToOne
     @JoinColumn(name = "users_id")

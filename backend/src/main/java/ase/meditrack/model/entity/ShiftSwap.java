@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

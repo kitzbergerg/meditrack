@@ -2,8 +2,8 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.repository.ShiftSwapRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
