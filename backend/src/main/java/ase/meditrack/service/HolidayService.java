@@ -61,8 +61,8 @@ public class HolidayService {
     public Holiday findByIdAndUser(UUID id, String userId) {
         User user = userService.findById(UUID.fromString(userId));
         return repository.findByIdAndUser(id, user)
-                .orElseThrow(() -> new NotFoundException("Could not find holiday with id: " + id + " for user with " +
-                        "id: " + userId + "!"));
+                .orElseThrow(() -> new NotFoundException("Could not find holiday with id: " + id + " for user with "
+                        + "id: " + userId + "!"));
     }
 
     /**
@@ -126,6 +126,13 @@ public class HolidayService {
         return repository.save(dbHoliday);
     }
 
+    /**
+     * Updates the status of a holiday in the database.
+     * @param id the id of the holiday
+     * @param status the new status
+     * @param principal the principal
+     * @return the updated holiday
+     */
     public Holiday updateStatus(UUID id, HolidayRequestStatus status, Principal principal) {
         Holiday holiday = findById(id);
         // check if holiday is in the list of the dm's team holidays
