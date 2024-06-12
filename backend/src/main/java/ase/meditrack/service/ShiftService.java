@@ -1,9 +1,15 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
+import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.validator.ShiftValidator;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +17,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -18,10 +25,21 @@ import java.util.UUID;
 public class ShiftService {
     private final ShiftRepository repository;
     private final UserService userService;
+    private final ShiftTypeRepository shiftTypeRepository;
 
-    public ShiftService(ShiftRepository repository, UserService userService) {
+    private final MonthlyWorkDetailsService monthlyWorkDetailsService;
+    private final MonthlyPlanRepository monthlyPlanRepository;
+    private final ShiftValidator shiftValidator;
+
+    public ShiftService(ShiftRepository repository, MonthlyWorkDetailsService monthlyWorkDetailsService,
+                        ShiftTypeRepository shiftTypeRepository, MonthlyPlanRepository monthlyPlanRepository,
+                        UserService userService, ShiftValidator shiftValidator) {
         this.repository = repository;
+        this.monthlyWorkDetailsService = monthlyWorkDetailsService;
+        this.shiftTypeRepository = shiftTypeRepository;
+        this.monthlyPlanRepository = monthlyPlanRepository;
         this.userService = userService;
+        this.shiftValidator = shiftValidator;
     }
 
     /**
@@ -67,8 +85,19 @@ public class ShiftService {
      * @param shift the shift to create
      * @return the created shift
      */
+    @Transactional
     public Shift create(Shift shift) {
-        return repository.save(shift);
+        Optional<ShiftType> type = shiftTypeRepository.findById(shift.getShiftType().getId());
+        Optional<MonthlyPlan> plan = monthlyPlanRepository.findById(shift.getMonthlyPlan().getId());
+        if (type.isEmpty() || plan.isEmpty()) {
+            throw new NotFoundException("Could not find shift type or plan of shift!");
+        }
+        shift.setShiftType(type.get());
+        shift.setMonthlyPlan(plan.get());
+        shiftValidator.validateShift(shift);
+        Shift createdShift = repository.save(shift);
+        monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(createdShift, null);
+        return createdShift;
     }
 
     /**
@@ -79,15 +108,23 @@ public class ShiftService {
      */
     public Shift update(Shift shift) {
         Shift dbShift = findById(shift.getId());
+        Optional<ShiftType> oldShiftType = shiftTypeRepository.findById(dbShift.getShiftType().getId());
+        Optional<ShiftType> newShiftType = shiftTypeRepository.findById(shift.getShiftType().getId());
+        Optional<MonthlyPlan> plan = monthlyPlanRepository.findById(shift.getMonthlyPlan().getId());
+        if (newShiftType.isEmpty() || oldShiftType.isEmpty() || plan.isEmpty()) {
+            throw new NotFoundException("Could not find shift type or plan of shift!");
+        }
+        shift.setShiftType(newShiftType.get());
+        shift.setMonthlyPlan(plan.get());
+        shiftValidator.validateShift(shift);
+        Shift createdShift = repository.save(shift);
+        monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(createdShift, oldShiftType.get());
 
         if (shift.getDate() != null) {
             dbShift.setDate(shift.getDate());
         }
         if (shift.getMonthlyPlan() != null) {
             dbShift.setMonthlyPlan(shift.getMonthlyPlan());
-        }
-        if (shift.getShiftType() != null) {
-            dbShift.setShiftType(shift.getShiftType());
         }
         if (shift.getUsers() != null) {
             dbShift.setUsers(shift.getUsers());
@@ -99,7 +136,7 @@ public class ShiftService {
             dbShift.setRequestedShiftSwap(shift.getRequestedShiftSwap());
         }
 
-        return repository.save(dbShift);
+        return repository.save(createdShift);
     }
 
     /**
@@ -108,6 +145,18 @@ public class ShiftService {
      * @param id the id of the shift to delete
      */
     public void delete(UUID id) {
+        Optional<Shift> shift = repository.findById(id);
+        if (shift.isEmpty()) {
+            throw new NotFoundException("Could not find shift to delete!");
+        }
+
+        Optional<ShiftType> newShiftType = shiftTypeRepository.findById(shift.get().getShiftType().getId());
+        Optional<MonthlyPlan> plan = monthlyPlanRepository.findById(shift.get().getMonthlyPlan().getId());
+        if (newShiftType.isEmpty() || plan.isEmpty()) {
+            throw new NotFoundException("Could not find shift type or plan of shift!");
+        }
+
+        monthlyWorkDetailsService.updateMonthlyWorkDetailsForDeletedShift(shift.get());
         repository.deleteById(id);
     }
 }

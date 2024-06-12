@@ -11,6 +11,7 @@ import {FilterService, MessageService} from "primeng/api";
 import {ShiftTypeService} from "../../services/shift-type.service";
 import {ShiftType} from "../../interfaces/shiftType";
 import {Role} from "../../interfaces/role";
+import {ShiftService} from "../../services/shift.service";
 
 @Component({
   selector: 'app-employees',
@@ -90,7 +91,8 @@ export class EmployeesComponent {
               private teamService: TeamService,
               private rolesService: RolesService,
               private formBuilder: FormBuilder,
-              private shiftService: ShiftTypeService,
+              private shiftService: ShiftService,
+              private shiftTypeService: ShiftTypeService,
               private messageService: MessageService,
               private filterService: FilterService
   ) {
@@ -147,12 +149,12 @@ export class EmployeesComponent {
   }
 
   loadShiftTypes() {
-    this.shiftService.getAllShiftTypesByTeam().subscribe({
-      next: (response) => {
+    this.shiftTypeService.getAllShiftTypesByTeam().subscribe({
+      next: (response: ShiftType[]) => {
         this.shiftTypes = response;
         console.log("Fetched Shift Types successfully")
       },
-      error: (error) => {
+      error: (error: { error: any; }) => {
         this.messageService.add({severity: 'error', summary: 'Error fetching Shift Types: ', detail: error.error});
       },
     });

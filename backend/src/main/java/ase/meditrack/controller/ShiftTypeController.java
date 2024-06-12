@@ -43,7 +43,7 @@ public class ShiftTypeController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
     public List<ShiftTypeDto> findAllByTeam(Principal principal) {
         log.info("Fetching shift types from team");
         return mapper.toDtoList(service.findAllByTeam(principal));

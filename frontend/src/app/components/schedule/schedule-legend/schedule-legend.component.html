@@ -1,0 +1,22 @@
+<div class="flex flex-row flex-wrap border-1 border-solid border-200 my-3 surface-50 p-3 p-component">
+  <div *ngFor="let shift of shiftTypes | keyvalue" class="flex align-items-center m-2">
+    <div
+      class="flex justify-content-center align-items-center mr-3"
+      [ngStyle]="{
+        'background-color': shift.value.color,
+        'border-radius': '5px',
+        'width': '40px',
+        'height': '40px',
+        'color': '#fff',
+        'font-weight': 'bold'
+      }"
+    >
+      {{ shift.value.abbreviation }}
+    </div>
+    <div class="flex flex-column">
+      <div class="font-bold">{{ shift.value.name }}</div>
+      <div>{{ shift.value.startTime.slice(0, -3) }} - {{ shift.value.breakStartTime.slice(0, -3) }}
+         {{ shift.value.breakEndTime.slice(0, -3) }} - {{ shift.value.endTime.slice(0, -3) }}</div>
+    </div>
+  </div>
+</div>

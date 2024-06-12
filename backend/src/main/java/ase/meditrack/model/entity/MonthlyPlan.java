@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,8 +41,11 @@ public class MonthlyPlan {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToMany(mappedBy = "monthlyPlan")
+    @OneToMany(mappedBy = "monthlyPlan", cascade = { CascadeType.REMOVE})
     private List<Shift> shifts;
+
+    @OneToMany(mappedBy = "monthlyPlan", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MonthlyWorkDetails> monthlyWorkDetails;
 
     @Override
     public final boolean equals(final Object o) {
