@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ShiftTypeService } from './shift-type.service';
+import { ShiftTypeService } from './shiftType.service';
 
 describe('ShiftService', () => {
   let service: ShiftTypeService;

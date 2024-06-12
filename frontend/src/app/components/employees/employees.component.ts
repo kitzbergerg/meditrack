@@ -7,10 +7,11 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ShiftTypeService} from "../../services/shiftType.service";
-import {MessageService} from "primeng/api";
+import {FilterService, MessageService} from "primeng/api";
+import {ShiftTypeService} from "../../services/shift-type.service";
 import {ShiftType} from "../../interfaces/shiftType";
 import {Role} from "../../interfaces/role";
+import {ShiftService} from "../../services/shift.service";
 
 @Component({
   selector: 'app-employees',
@@ -47,7 +48,7 @@ export class EmployeesComponent {
     specialSkills: [],
     suggestedShiftSwaps: [],
     team: "",
-    workingHoursPercentage: 1
+    workingHoursPercentage: 100
   };
 
   selectedUsers: User[] = [];
@@ -90,17 +91,26 @@ export class EmployeesComponent {
               private teamService: TeamService,
               private rolesService: RolesService,
               private formBuilder: FormBuilder,
-              private shiftService: ShiftTypeService,
+              private shiftService: ShiftService,
+              private shiftTypeService: ShiftTypeService,
               private messageService: MessageService,
+              private filterService: FilterService
   ) {
     this.newUserForm = this.formBuilder.group({
       username: ['', this.usernameValidator.bind(this)],
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      workingHoursPercentage: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
+      workingHoursPercentage: [100, [Validators.required, Validators.min(1), Validators.max(100)]],
       role: [null, Validators.required],
       canWorkShiftTypes: [[]]
+    });
+
+    this.filterService.register('customFilter', (value: any[], filter: string): boolean => {
+      if (!filter || !value) {
+        return true;
+      }
+      return value.some(shiftType => shiftType.abbreviation === filter);
     });
   }
 
@@ -139,12 +149,12 @@ export class EmployeesComponent {
   }
 
   loadShiftTypes() {
-    this.shiftService.getAllShiftTypesByTeam().subscribe({
-      next: (response) => {
+    this.shiftTypeService.getAllShiftTypesByTeam().subscribe({
+      next: (response: ShiftType[]) => {
         this.shiftTypes = response;
         console.log("Fetched Shift Types successfully")
       },
-      error: (error) => {
+      error: (error: { error: any; }) => {
         this.messageService.add({severity: 'error', summary: 'Error fetching Shift Types: ', detail: error.error});
       },
     });
@@ -318,9 +328,9 @@ export class EmployeesComponent {
       suggestedShiftSwaps: [],
       team: "",
       username: "",
-      workingHoursPercentage: 1
+      workingHoursPercentage: 100
     };
-    this.newUserForm.reset({workingHoursPercentage: 1});
+    this.newUserForm.reset({workingHoursPercentage: 100});
   }
 
   onGlobalFilter(table: Table, event: Event) {
