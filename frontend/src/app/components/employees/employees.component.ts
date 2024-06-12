@@ -7,8 +7,8 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FilterService, MessageService} from "primeng/api";
 import {ShiftTypeService} from "../../services/shift-type.service";
-import {MessageService} from "primeng/api";
 import {ShiftType} from "../../interfaces/shiftType";
 import {Role} from "../../interfaces/role";
 
@@ -47,7 +47,7 @@ export class EmployeesComponent {
     specialSkills: [],
     suggestedShiftSwaps: [],
     team: "",
-    workingHoursPercentage: 1
+    workingHoursPercentage: 100
   };
 
   selectedUsers: User[] = [];
@@ -92,15 +92,23 @@ export class EmployeesComponent {
               private formBuilder: FormBuilder,
               private shiftService: ShiftTypeService,
               private messageService: MessageService,
+              private filterService: FilterService
   ) {
     this.newUserForm = this.formBuilder.group({
       username: ['', this.usernameValidator.bind(this)],
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      workingHoursPercentage: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
+      workingHoursPercentage: [100, [Validators.required, Validators.min(1), Validators.max(100)]],
       role: [null, Validators.required],
       canWorkShiftTypes: [[]]
+    });
+
+    this.filterService.register('customFilter', (value: any[], filter: string): boolean => {
+      if (!filter || !value) {
+        return true;
+      }
+      return value.some(shiftType => shiftType.abbreviation === filter);
     });
   }
 
@@ -318,9 +326,9 @@ export class EmployeesComponent {
       suggestedShiftSwaps: [],
       team: "",
       username: "",
-      workingHoursPercentage: 1
+      workingHoursPercentage: 100
     };
-    this.newUserForm.reset({workingHoursPercentage: 1});
+    this.newUserForm.reset({workingHoursPercentage: 100});
   }
 
   onGlobalFilter(table: Table, event: Event) {
