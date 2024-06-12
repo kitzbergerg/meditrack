@@ -13,7 +13,7 @@ import {RolesService} from "../../services/roles.service";
 import {Role} from "../../interfaces/role";
 import {UserService} from "../../services/user.service";
 import {User} from "../../interfaces/user";
-import {ShiftTypeService} from "../../services/shiftType.service";
+import {ShiftTypeService} from "../../services/shift-type.service";
 import {ShiftService} from "../../services/shift.service";
 import {ShiftType} from "../../interfaces/shiftType";
 import {AuthorizationService} from "../../services/authorization/authorization.service";

@@ -1,6 +1,6 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
 import {ShiftType} from "../../interfaces/shiftType";
-import {ShiftTypeService} from "../../services/shiftType.service";
+import {ShiftTypeService} from "../../services/shift-type.service";
 import {MessageService} from "primeng/api";
 import {User} from "../../interfaces/user";
 import {UserService} from "../../services/user.service";
