@@ -67,7 +67,7 @@ public class User {
     @OneToMany(mappedBy = "swapRequestingUser")
     private List<ShiftSwap> requestedShiftSwaps;
 
-    @ManyToMany(mappedBy = "swapSuggestingUsers")
+    @OneToMany(mappedBy = "swapSuggestingUser")
     private List<ShiftSwap> suggestedShiftSwaps;
 
     @ManyToMany(mappedBy = "users")

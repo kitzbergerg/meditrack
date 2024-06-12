@@ -30,6 +30,7 @@ import { MessageService } from 'primeng/api';
 import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
 import {InputNumberModule} from "primeng/inputnumber";
+import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -62,7 +63,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     RolesComponent,
     DashboardComponent,
     ShiftTypesComponent,
-    TeamComponent
+    TeamComponent,
+    ShiftSwapComponent
   ],
     imports: [
         BrowserModule,

@@ -7,8 +7,8 @@ import {Team} from "../../interfaces/team";
 import {Table} from "primeng/table";
 import {RolesService} from "../../services/roles.service";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {ShiftService} from "../../services/shift.service";
 import {FilterService, MessageService} from "primeng/api";
+import {ShiftTypeService} from "../../services/shift-type.service";
 import {ShiftType} from "../../interfaces/shiftType";
 import {Role} from "../../interfaces/role";
 
@@ -47,7 +47,7 @@ export class EmployeesComponent {
     specialSkills: [],
     suggestedShiftSwaps: [],
     team: "",
-    workingHoursPercentage: 1
+    workingHoursPercentage: 100
   };
 
   selectedUsers: User[] = [];
@@ -90,7 +90,7 @@ export class EmployeesComponent {
               private teamService: TeamService,
               private rolesService: RolesService,
               private formBuilder: FormBuilder,
-              private shiftService: ShiftService,
+              private shiftService: ShiftTypeService,
               private messageService: MessageService,
               private filterService: FilterService
   ) {
@@ -99,7 +99,7 @@ export class EmployeesComponent {
       email: ['', [Validators.required, Validators.email]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      workingHoursPercentage: [1, [Validators.required, Validators.min(1), Validators.max(100)]],
+      workingHoursPercentage: [100, [Validators.required, Validators.min(1), Validators.max(100)]],
       role: [null, Validators.required],
       canWorkShiftTypes: [[]]
     });
@@ -326,9 +326,9 @@ export class EmployeesComponent {
       suggestedShiftSwaps: [],
       team: "",
       username: "",
-      workingHoursPercentage: 1
+      workingHoursPercentage: 100
     };
-    this.newUserForm.reset({workingHoursPercentage: 1});
+    this.newUserForm.reset({workingHoursPercentage: 100});
   }
 
   onGlobalFilter(table: Table, event: Event) {

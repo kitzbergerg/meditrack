@@ -7,28 +7,24 @@ import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
-import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MonthlyPlanCreator {
 
     private final ShiftRepository shiftRepository;
     private final MonthlyPlanRepository monthlyPlanRepository;
-    private final TeamRepository teamRepository;
     private final UserService userService;
 
     public MonthlyPlanCreator(ShiftRepository shiftRepository, MonthlyPlanRepository monthlyPlanRepository,
-                              TeamRepository teamRepository, UserService userService) {
+                              UserService userService) {
         this.shiftRepository = shiftRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
-        this.teamRepository = teamRepository;
         this.userService = userService;
     }
 
@@ -48,7 +44,7 @@ public class MonthlyPlanCreator {
         Team team = user.getTeam();
         List<ShiftType> shiftTypes = team.getShiftTypes();
         List<User> users = userService.findByTeam(principal);
-        users = users.stream().filter(u -> u.getId() != user.getId()).collect(Collectors.toList());
+        users = users.stream().filter(u -> u.getId() != user.getId()).toList();
 
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();
@@ -59,7 +55,6 @@ public class MonthlyPlanCreator {
                 users,
                 shiftTypes,
                 team.getRoles(),
-                team.getHardConstraints(),
                 team
         );
 

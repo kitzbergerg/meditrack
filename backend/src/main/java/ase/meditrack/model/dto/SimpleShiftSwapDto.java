@@ -8,15 +8,13 @@ import jakarta.validation.constraints.Null;
 
 import java.util.UUID;
 
-public record ShiftSwapDto(
+public record SimpleShiftSwapDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotNull(groups = CreateValidator.class) UUID swapRequestingUser,
-        @NotNull(groups = CreateValidator.class) SimpleShiftDto requestedShift,
-        @NotNull(groups = CreateValidator.class)
+        @NotNull(groups = CreateValidator.class) UUID requestedShift,
         ShiftSwapStatus requestedShiftSwapStatus,
         UUID swapSuggestingUser,
-        SimpleShiftDto suggestedShift,
+        UUID suggestedShift,
         ShiftSwapStatus suggestedShiftSwapStatus
 ) {
 }
-
