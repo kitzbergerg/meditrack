@@ -161,6 +161,7 @@ public class DataGeneratorBean {
     private void createUsers() {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
+
         for (Team team : teams) {
             String firstName = FAKER.name().firstName();
             String lastName = FAKER.name().lastName();
