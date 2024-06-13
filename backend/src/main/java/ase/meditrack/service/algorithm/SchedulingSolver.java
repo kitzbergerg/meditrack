@@ -222,6 +222,18 @@ public final class SchedulingSolver {
             objective.addSum(deviationFromShift);
         }
 
+        // OffDays - Employees should not have to work on off days
+        for (int n = 0; n < input.employees().size(); n++) {
+            List<LinearExpr> workingOnOffDays = new ArrayList<>();
+            for (Integer offDay : input.employees().get(n).offDays()) {
+                for (int s = 0; s < input.shiftTypes().size(); s++) {
+                    // high coeff means high importance for this optimization
+                    workingOnOffDays.add(LinearExpr.term(shifts[n][offDay][s], 100));
+                }
+            }
+            objective.addSum(workingOnOffDays.toArray(LinearExpr[]::new));
+        }
+
         model.minimize(objective);
     }
 }

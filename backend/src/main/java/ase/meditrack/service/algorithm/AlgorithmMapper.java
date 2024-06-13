@@ -121,7 +121,9 @@ public class AlgorithmMapper {
                     // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
                     optimalWorkingHoursPerMonth + 20,
                     optimalWorkingHoursOvertime,
-                    holidayDays
+                    holidayDays,
+                    employee.getPreferences().getOffDays().stream().map(LocalDate::getDayOfMonth)
+                            .collect(Collectors.toSet())
             ));
         }
 

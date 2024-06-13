@@ -11,12 +11,14 @@ import java.util.Set;
  *                                    Should already consider things like number of days in a month,
  *                                    working percentage, holidays, ...
  * @param holidays                    days of the month when the employee is on holiday
+ * @param offDays                     days of the month when the user doesn't want to work
  */
 public record EmployeeInfo(
         List<Integer> worksShifts,
         int minWorkingHoursPerMonth,
         int maxWorkingHoursPerMonth,
         int optimalWorkingHoursPerMonth,
-        Set<Integer> holidays
+        Set<Integer> holidays,
+        Set<Integer> offDays
 ) {
 }
