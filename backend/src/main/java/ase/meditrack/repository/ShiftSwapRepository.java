@@ -13,26 +13,57 @@ import java.util.UUID;
 @Repository
 public interface ShiftSwapRepository extends JpaRepository<ShiftSwap, UUID> {
 
+
     /**
-     * Fetches all the shift swaps from a user from the remaining days of the month.
+     * Deletes all shift swaps by the shift id of the requesting user.
      *
-     * @param user from the requested shift swap
+     * @param shiftId from the shift
+     */
+    void deleteAllByRequestedShiftId(UUID shiftId);
+
+    /**
+     * Fetches all the shift swap offers from a user from the remaining days of the month.
+     *
+     * @param userId from the requested shift swap
      * @param after is the current date
      * @param before is the first date of the next month
-     * @return list of shifts
+     * @return list of shift swaps
      */
 
-    List<ShiftSwap> findAllBySwapRequestingUserIdAndRequestedShiftDateAfterAndRequestedShiftDateBefore(
-            UUID user, LocalDate after, LocalDate before);
+    @Query("SELECT s From shift_swap s WHERE s.swapRequestingUser.id = :userId "
+            + "AND s.requestedShift.date > :after AND s.requestedShift.date < :before "
+            + "AND s.requestedShiftSwapStatus = 'ACCEPTED' "
+            + "AND s.suggestedShift IS NULL AND s.swapSuggestingUser IS NULL")
+    List<ShiftSwap> findAllCreatedShiftSwapOffers(
+            @Param("userId") UUID userId,
+            @Param("after") LocalDate after,
+            @Param("before") LocalDate before);
 
     /**
-     * Fetches all the shift swaps from the remaining days of the month of all users.
+     * Fetches all the shift swap requests from a user from the remaining days of the month.
+     *
+     * @param userId the user from the shift swap requests
+     * @param after is the current date
+     * @param before is the first date of the next month
+     * @return list of shift swap requests
+     */
+    @Query("SELECT s From shift_swap s WHERE s.swapRequestingUser.id = :userId "
+            + "AND s.requestedShift.date > :after AND s.requestedShift.date < :before "
+            + "AND s.requestedShiftSwapStatus = 'ACCEPTED' AND s.suggestedShiftSwapStatus = 'PENDING' "
+            + "AND s.suggestedShift IS NOT NULL AND s.swapSuggestingUser IS NOT NULL")
+    List<ShiftSwap> findAllShiftSwapRequests(
+            @Param("userId") UUID userId,
+            @Param("after") LocalDate after,
+            @Param("before") LocalDate before);
+
+    /**
+     * Fetches all the shift swaps from the remaining days of the month of all users in a team.
      *
      * @param teamId of the user
      * @param userId whose requests should not be considered
      * @param after is the current date
      * @param before is the first date of the next month
-     * @return list of shifts
+     * @return list of shift swaps
      */
     @Query("SELECT s FROM shift_swap s WHERE s.swapRequestingUser.id != :userId "
             + "AND s.swapRequestingUser.team.id = :teamId AND s.requestedShift.date > :after "
