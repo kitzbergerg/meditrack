@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -34,7 +33,7 @@ public class ShiftSwap {
     @JoinColumn(name = "requesting_user_id")
     private User swapRequestingUser;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "requested_shift_id")
     private Shift requestedShift;
 
@@ -51,7 +50,7 @@ public class ShiftSwap {
     private User swapSuggestingUser;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinTable(
             name = "shift_swap_suggestion",
             joinColumns = @JoinColumn(name = "shift_swap_id"),
