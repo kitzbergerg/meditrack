@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -109,10 +110,11 @@ public final class SchedulingSolver {
 
         // Shift Compatability - Employees work only shifts they agreed to.
         for (int n = 0; n < input.employees().size(); n++) {
-            for (int d = 0; d < input.numberOfDays(); d++) {
-                List<Integer> worksShift = input.employees().get(n).worksShifts();
-                for (int s = 0; s < input.shiftTypes().size(); s++) {
-                    if (!worksShift.contains(s)) model.addEquality(shifts[n][d][s], 0);
+            List<Integer> worksShift = input.employees().get(n).worksShifts();
+            for (int s = 0; s < input.shiftTypes().size(); s++) {
+                boolean canWorkShift = worksShift.contains(s);
+                for (int d = 0; d < input.numberOfDays(); d++) {
+                    if (!canWorkShift) model.addEquality(shifts[n][d][s], 0);
                 }
             }
         }
@@ -134,6 +136,16 @@ public final class SchedulingSolver {
             model.addGreaterOrEqual(totalMonthlyHours, input.employees().get(n).minWorkingHoursPerMonth());
         }
 
+        // Holidays - Employees do not work on holidays
+        for (int n = 0; n < input.employees().size(); n++) {
+            Set<Integer> holidays = input.employees().get(n).holidays();
+            for (int d = 0; d < input.numberOfDays(); d++) {
+                boolean isHoliday = holidays.contains(d);
+                for (int s = 0; s < input.shiftTypes().size(); s++) {
+                    if (isHoliday) model.addEquality(shifts[n][d][s], 0);
+                }
+            }
+        }
 
         // Every shiftType on a day has to have at least one employee
         // TODO #86: this should be changed in the long run

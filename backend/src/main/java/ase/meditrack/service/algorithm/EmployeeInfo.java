@@ -1,6 +1,7 @@
 package ase.meditrack.service.algorithm;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @param worksShifts                 shifts the employee is allowed to work
@@ -16,6 +17,6 @@ public record EmployeeInfo(
         int minWorkingHoursPerMonth,
         int maxWorkingHoursPerMonth,
         int optimalWorkingHoursPerMonth,
-        List<Integer> holidays
+        Set<Integer> holidays
 ) {
 }
