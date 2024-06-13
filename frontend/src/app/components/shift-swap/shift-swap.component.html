@@ -5,8 +5,7 @@
         <h2 class="pb-2" style="text-align: center;">My Shift Offers</h2>
         <ul class="list-none p-0 m-0"
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-          <li *ngFor="let shiftSwap of shiftSwaps" class="flex items-center mb-4">
-
+          <li *ngFor="let shiftSwap of ownShiftSwapsOffers" class="flex items-center mb-4">
             <p-card
               [header]="shiftSwap.requestedShift.shiftType.abbreviation + '-' + shiftSwap.requestedShift.shiftType.name"
               [style]="{maxWidth: '360px', maxHeight: '280px'}" styleClass="p-card-shadow">
@@ -21,6 +20,7 @@
                 <div class="p-1"> {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
                   -  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
                 </div>
+                {{shiftSwap.suggestedShift}}
               </div>
               <ng-template pTemplate="footer">
                 <div class="flex justify-content-end gap-2">
@@ -67,32 +67,30 @@
             <ng-template pTemplate="content">
 
               <div *ngIf="newShiftSwap !== undefined">
-                <div
-                  class="p-3 m-3 border-round-lg flex flex-column justify-content-center align-items-start"
-                  [ngStyle]="{backgroundColor: 'inherit',
-                    border: '5px solid ' + newShiftSwap.requestedShift.shiftType.color}"
-                  style="width: 200px;">
+                <p-card
+                  [header]="newShiftSwap.requestedShift.shiftType.abbreviation + '-' + newShiftSwap.requestedShift.shiftType.name"
+                  [style]="{maxWidth: '250px', maxHeight: '280px'}" styleClass="p-card-shadow">
+                  <ng-template pTemplate="header">
+                    <div class="text-xl font-bold"
+                         [ngStyle]="{color: 'white', backgroundColor: newShiftSwap.requestedShift.shiftType.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
 
-                  <div class="flex justify-content-center align-items-center mb-2">
-                <span
-                  style="width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border: 1px solid; border-radius: 50%;"
-                >
-                  {{ newShiftSwap.requestedShift.shiftType.abbreviation }}
-                </span>
-                    <div class="ml-2">
-                      <span class="text-lg font-medium">{{ newShiftSwap.requestedShift.shiftType.name }}</span>
                     </div>
-                  </div>
-
-                  <div class="text-center">
-                    <div class="text-lg m-0 font-medium">{{ newShiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}
+                  </ng-template>
+                  <div class="text-lg font-semibold">
+                    <div class="p-1"> {{ newShiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}</div>
+                    <div class="p-1"> {{ newShiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
+                      -  {{ newShiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
                     </div>
-                    {{ newShiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
-                    {{ newShiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                    {{newShiftSwap.suggestedShift}}
                   </div>
-                </div>
+                </p-card>
                 <p-toast></p-toast>
-                <p-button label="Offer Shift" (onClick)="createShiftSwapOffer()"></p-button>
+                <div class="flex flex-row justify-content-end mt-3">
+                  <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
+                            (click)="toggleDialog()"></p-button>
+                  <p-button label="Create" icon="pi pi-check" [text]="true"
+                            (click)="createShiftSwapOffer()"></p-button>
+                </div>
               </div>
 
             </ng-template>
@@ -149,12 +147,11 @@
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Other Shift Offers</h2>
-
-        <h5 *ngIf="shiftSwapOffers.length === 0 && shiftSwaps.length !== 0"
+        <h5 *ngIf="shiftSwapOffers.length === 0 && ownShiftSwapsOffers.length !== 0"
             style="text-align: center; margin-top: 30px;">There are no shift swap offers available.</h5>
-        <h5 *ngIf="shiftSwaps.length === 0" style="text-align: center; margin-top: 30px;">You have to make a shift swap
+        <h5 *ngIf="ownShiftSwapsOffers.length === 0" style="text-align: center; margin-top: 30px;">You have to make a shift swap
           first to see other offers.</h5>
-        <div *ngIf="shiftSwapOffers.length !== 0">
+        <div *ngIf="shiftSwapOffers.length !== 0 && ownShiftSwapsOffers.length !== 0">
           <ul class="list-none p-0 m-0"
               style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
             <li *ngFor="let shiftSwap of shiftSwapOffers" class="flex items-center mb-4">
@@ -269,7 +266,7 @@
               </div>
               <ng-template pTemplate="footer">
                 <div class="flex justify-content-end gap-2">
-                  <p-button label="Retract" icon="pi pi-trash" [outlined]="true"></p-button>
+                  <p-button (onClick)="retractRequest(requestSwap)" severity="danger" label="Retract" icon="pi pi-trash" [outlined]="true"></p-button>
                 </div>
               </ng-template>
             </p-card>

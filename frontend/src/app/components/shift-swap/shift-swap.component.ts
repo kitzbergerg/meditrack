@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {User} from "../../interfaces/user";
@@ -21,7 +21,7 @@ export class ShiftSwapComponent {
   currentUser: User | undefined;
 
   teamUsers: User[] = []
-  shiftSwaps: ShiftSwap[] = [];
+  ownShiftSwapsOffers: ShiftSwap[] = [];
   requestedShiftSwaps: ShiftSwap[] = [];
   shiftSwapOffers: ShiftSwap[] = [];
   currentShifts: ShiftSwapShift[] = []
@@ -44,7 +44,8 @@ export class ShiftSwapComponent {
   constructor(private messageService: MessageService,
               private userService: UserService,
               private authorizationService: AuthorizationService,
-              private shiftSwapService: ShiftSwapService
+              private shiftSwapService: ShiftSwapService,
+              private confirmationService: ConfirmationService,
   ) {
   }
 
@@ -76,58 +77,49 @@ export class ShiftSwapComponent {
         next: response => {
           this.currentUser = response;
           this.getAllRequestedShiftSwaps();
-          this.getShiftsFromCurrentMonth()
-          this.getAllUsersFromTeam()
+          this.getAllOwnShiftSwapOffers();
+          this.getShiftsFromCurrentMonth();
+          this.getAllUsersFromTeam();
+          this.getAllShiftSwapsOffers();
           this.loading = false;
         },
         error: (error) => {
           console.error('Error fetching data:', error);
         }
-      }
-    );
+    });
   }
 
   getAllRequestedShiftSwaps() {
-    this.shiftSwapService.getAllRequestedShiftSwapsFromUser().subscribe({
+    this.shiftSwapService.getAllShiftSwapRequests().subscribe({
         next: response => {
-          console.log(response)
-          this.shiftSwaps = response;
-          this.shiftSwaps.sort((a, b) =>
+          this.requestedShiftSwaps = response;
+          this.requestedShiftSwaps.sort((a, b) =>
             new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
-          this.requestedShiftSwaps = this.filteredShiftSwaps(this.shiftSwaps, "requested");
-          if (this.shiftSwaps.length > 0) {
-            this.getAllOfferedShiftSwaps();
-          } else {
-            this.shiftSwapOffers = [];
-          }
         },
         error: (error) => {
           console.error('Error fetching data:', error);
         }
-      }
-    );
+    });
   }
 
-  filteredShiftSwaps(toFilterArray: ShiftSwap[], type: string): ShiftSwap[] {
-    switch (type) {
-      case "requested":
-          return toFilterArray.filter(swap => swap.swapRequestingUser == this.userId
-            && swap.swapSuggestingUser != null && swap.suggestedShiftSwapStatus == ShiftSwapStatus.PENDING
-            && swap.requestedShiftSwapStatus == ShiftSwapStatus.ACCEPTED);
-      case "suggested":
-        return toFilterArray.filter(swap => swap.swapSuggestingUser == this.userId
-          && swap.suggestedShiftSwapStatus == ShiftSwapStatus.PENDING
-          && swap.requestedShiftSwapStatus == ShiftSwapStatus.ACCEPTED);
-      default:
-        console.log("Wrong filter")
-        return [];
-    }
+
+  getAllOwnShiftSwapOffers() {
+    this.shiftSwapService.getAllOwnShiftSwapOffers().subscribe({
+        next: response => {
+          this.ownShiftSwapsOffers = response;
+          this.ownShiftSwapsOffers.sort((a, b) =>
+            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
+        },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+        }
+    });
   }
 
-  getAllOfferedShiftSwaps() {
+
+  getAllShiftSwapsOffers() {
     this.shiftSwapService.getAllOfferedShiftSwaps().subscribe({
         next: response => {
-          console.log(response)
           this.shiftSwapOffers = response;
           this.shiftSwapOffers.sort((a, b) =>
             new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime())
@@ -185,7 +177,7 @@ export class ShiftSwapComponent {
   generateShiftSwapOffer() {
     if (this.selectedDate != undefined) {
       const shift = this.findShiftFromDate(this.selectedDate)
-      if (shift !== undefined && this.shiftSwaps.filter(tempShift => tempShift.requestedShift.id == shift.id).length == 0) {
+      if (shift !== undefined && this.ownShiftSwapsOffers.filter(tempShift => tempShift.requestedShift.id == shift.id).length == 0) {
         this.valid = true;
         this.toggleDialog()
         this.newShiftSwap = {
@@ -204,23 +196,25 @@ export class ShiftSwapComponent {
   }
 
   createShiftSwapOffer() {
-    if (this.newShiftSwap !== undefined) {
-      const simpleShiftSwap: SimpleShiftSwap = {
-        requestedShift: this.newShiftSwap.requestedShift.id == undefined ? "" : this.newShiftSwap.requestedShift.id,
+    if (this.newShiftSwap !== undefined && this.newShiftSwap.requestedShift != undefined) {
+      const shiftSwap: ShiftSwap = {
+        requestedShift: this.newShiftSwap.requestedShift,
         requestedShiftSwapStatus: ShiftSwapStatus.ACCEPTED,
         suggestedShiftSwapStatus: ShiftSwapStatus.PENDING,
         swapRequestingUser: this.currentUser?.id == undefined ? "" : this.currentUser.id
-      }
-      this.shiftSwapService.createShiftSwap(simpleShiftSwap).subscribe({
+      };
+      this.shiftSwapService.createShiftSwap(shiftSwap).subscribe({
         next: response => {
-          console.log(response)
           this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Offer '});
-          //this.shiftSwaps.push(response);
-          this.getAllRequestedShiftSwaps()
+          this.ownSelectedOffer = undefined;
+          this.otherSelectedOffer = undefined;
+          this.ownShiftSwapsOffers.push(response);
           this.toggleDialog()
         },
         error: (error) => {
           this.toggleDialog()
+          this.ownSelectedOffer = undefined;
+          this.otherSelectedOffer = undefined;
           this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Offer '});
         }
       });
@@ -233,77 +227,144 @@ export class ShiftSwapComponent {
   }
 
   selectOwnOffer(shiftSwap: ShiftSwap) {
+    const temp : ShiftSwap = {
+      requestedShift: shiftSwap.requestedShift,
+      requestedShiftSwapStatus: shiftSwap.requestedShiftSwapStatus,
+      swapRequestingUser: shiftSwap.swapRequestingUser};
     if (this.ownSelectedOffer == shiftSwap) {
       this.ownSelectedOffer = undefined;
     } else {
-      this.ownSelectedOffer = shiftSwap;
+      this.ownSelectedOffer = temp;
     }
   }
 
   selectOtherOffer(shiftSwap: ShiftSwap) {
+    const temp : ShiftSwap = {
+      requestedShift: shiftSwap.requestedShift,
+      requestedShiftSwapStatus: shiftSwap.requestedShiftSwapStatus,
+      swapRequestingUser: shiftSwap.swapRequestingUser};
     if (this.otherSelectedOffer == shiftSwap) {
       this.otherSelectedOffer = undefined;
     } else {
-      this.otherSelectedOffer = shiftSwap;
+      this.otherSelectedOffer = temp;
     }
   }
 
   createRequest() {
-
-    if (this.ownSelectedOffer == undefined  || this.otherSelectedOffer == undefined) {
+    if (this.ownSelectedOffer == undefined || this.otherSelectedOffer == undefined) {
       this.messageService.add({severity: 'error', summary: 'Two Shifts Offers have to be selected '});
       return;
     }
+    // set id to undefined, since a shift can be included in many shift swap requests
+    this.ownSelectedOffer.id = undefined;
     // add the shift offer from the other person to the own shift offer to create an actual shift swap request
     this.ownSelectedOffer.swapSuggestingUser = this.otherSelectedOffer?.swapRequestingUser;
     this.ownSelectedOffer.suggestedShift = this.otherSelectedOffer?.requestedShift;
     this.ownSelectedOffer.suggestedShiftSwapStatus = ShiftSwapStatus.PENDING;
 
-    this.shiftSwapService.updateShiftSwap(this.ownSelectedOffer).subscribe({
+    this.shiftSwapService.createShiftSwap(this.ownSelectedOffer).subscribe({
       next: (response) => {
+        this.ownSelectedOffer = undefined;
+        this.otherSelectedOffer = undefined;
         this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap'});
-        console.log(response);
-
+        this.requestedShiftSwaps.push(response);
       },
       error: (error) => {
         this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap ', detail: error.error});
       },
     })
 
-      /*
-      }
+    /*
+    }
 
-      this.shiftSwapService.updateShiftSwap(this.ownOffer).subscribe({
-        next: response => {
-          this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Request '});
-        },
-        error: (error) => {
-          this.toggleDialog()
-          this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Request '});
-        }
-      });
-       */
+    this.shiftSwapService.updateShiftSwap(this.ownOffer).subscribe({
+      next: response => {
+        this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Request '});
+      },
+      error: (error) => {
+        this.toggleDialog()
+        this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Request '});
+      }
+    });
+     */
   }
 
   retractOffer(id: string | undefined) {
     if (id != undefined) {
-      this.shiftSwapService.deleteShiftSwap(id)
-        .subscribe(response => {
-          console.log('Shift Swap Offer deleted successfully');
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Successfully Deleted Shift Swap Offer'
-          });
-          this.shiftSwaps.filter(s => s.id !=id);
-          //this.getAllRequestedShiftSwaps();
-        }, error => {
-          console.error('Error deleting shift swap:', error);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Deleting Shift Swap Offer Failed',
-            detail: error.error
-          });
+
+      this.shiftSwapService.deleteShiftSwap(id).subscribe(
+        {
+          next: response => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successfully Deleted Shift Swap Offer'
+            });
+            this.ownShiftSwapsOffers = this.ownShiftSwapsOffers.filter(s => s.id != id);
+            this.getAllRequestedShiftSwaps();
+          }, error: error => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Deleting Shift Swap Offer Failed',
+              detail: error.error
+            });
+          }
         });
     }
   }
+
+  retractRequest(requestSwap : ShiftSwap) {
+    if (requestSwap.id != undefined) {
+      this.shiftSwapService.retractShiftSwapRequest(requestSwap.id).subscribe(
+        {
+          next: response => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successfully Retract Shift Swap Request'
+            });
+            this.requestedShiftSwaps = this.requestedShiftSwaps.filter(s => s.id != requestSwap.id);
+          }, error: error => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Retracting Shift Swap Request Failed',
+              detail: error.error
+            });
+          }
+        });
+    }
+  }
+
+  confirmOffer(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to create this offer?',
+      header: 'Offer Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-success p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "pi pi-check mr-2",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.createShiftSwapOffer()
+      }
+    });
+  }
+
+  confirmRequest(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to create this request?',
+      header: 'Request Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-success p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "pi pi-check mr-2",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.createRequest()
+      }
+    });
+  }
+
 }
