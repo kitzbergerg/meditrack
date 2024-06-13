@@ -151,8 +151,8 @@ class AlgorithmMapperTest {
 
 
         assertEquals(2, input.employees().size());
-        assertEquals(Arrays.asList(0, 1), input.employees().get(0).worksShifts());
-        assertEquals(List.of(0), input.employees().get(1).worksShifts());
+        assertEquals(Arrays.asList(0, 1), input.employees().get(0).worksShiftTypes());
+        assertEquals(List.of(0), input.employees().get(1).worksShiftTypes());
 
         assertEquals(2, input.shiftTypes().size());
         assertEquals(LocalTime.of(9, 0), input.shiftTypes().get(0).startTime());

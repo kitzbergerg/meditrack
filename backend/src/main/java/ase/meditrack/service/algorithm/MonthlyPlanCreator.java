@@ -11,7 +11,6 @@ import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftRepository;
-import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.service.MonthlyWorkDetailsService;
 import ase.meditrack.service.UserService;
 import org.springframework.stereotype.Service;
@@ -36,8 +35,7 @@ public class MonthlyPlanCreator {
     private final HolidayRepository holidayRepository;
 
     public MonthlyPlanCreator(ShiftRepository shiftRepository, MonthlyPlanRepository monthlyPlanRepository,
-                              TeamRepository teamRepository, UserService userService,
-                              MonthlyWorkDetailsRepository monthlyWorkDetailsRepository,
+                              UserService userService, MonthlyWorkDetailsRepository monthlyWorkDetailsRepository,
                               MonthlyWorkDetailsService monthlyWorkDetailsService,
                               HolidayRepository holidayRepository) {
         this.shiftRepository = shiftRepository;

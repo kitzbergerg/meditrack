@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @param worksShifts                 shifts the employee is allowed to work
+ * @param worksShiftTypes             shift types the employee is allowed to work
  * @param minWorkingHoursPerMonth     the minimum working time an employee should work in a given month
  * @param maxWorkingHoursPerMonth     the maximum working time an employee should work in a given month
  * @param optimalWorkingHoursPerMonth the optimal working time an employee should work in a given month.
@@ -14,7 +14,7 @@ import java.util.Set;
  * @param offDays                     days of the month when the user doesn't want to work
  */
 public record EmployeeInfo(
-        List<Integer> worksShifts,
+        List<Integer> worksShiftTypes,
         int minWorkingHoursPerMonth,
         int maxWorkingHoursPerMonth,
         int optimalWorkingHoursPerMonth,

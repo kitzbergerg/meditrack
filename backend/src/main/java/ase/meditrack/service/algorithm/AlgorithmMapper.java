@@ -89,13 +89,13 @@ public class AlgorithmMapper {
             UUID id = employee.getId();
             indexToEmployeeUuid.put(i, id);
 
-            List<Integer> worksShifts = new ArrayList<>();
+            List<Integer> worksShiftTypes = new ArrayList<>();
             if (employee.getCanWorkShiftTypes().isEmpty()) {
-                worksShifts.addAll(shiftTypeUuidToIndex.values());
+                worksShiftTypes.addAll(shiftTypeUuidToIndex.values());
             } else {
                 for (ShiftType type : employee.getCanWorkShiftTypes()) {
                     int index = shiftTypeUuidToIndex.get(type.getId());
-                    worksShifts.add(index);
+                    worksShiftTypes.add(index);
                 }
             }
 
@@ -116,7 +116,7 @@ public class AlgorithmMapper {
             int optimalWorkingHoursOvertime = optimalWorkingHoursPerMonth - employee.getCurrentOverTime() / 2;
 
             employeeInfos.add(new EmployeeInfo(
-                    worksShifts,
+                    worksShiftTypes,
                     optimalWorkingHoursPerMonth / 2,
                     // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
                     optimalWorkingHoursPerMonth + 20,

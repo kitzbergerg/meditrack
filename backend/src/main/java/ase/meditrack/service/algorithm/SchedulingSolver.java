@@ -110,7 +110,7 @@ public final class SchedulingSolver {
 
         // Shift Compatability - Employees work only shifts they agreed to.
         for (int n = 0; n < input.employees().size(); n++) {
-            List<Integer> worksShift = input.employees().get(n).worksShifts();
+            List<Integer> worksShift = input.employees().get(n).worksShiftTypes();
             for (int s = 0; s < input.shiftTypes().size(); s++) {
                 boolean canWorkShift = worksShift.contains(s);
                 for (int d = 0; d < input.numberOfDays(); d++) {
