@@ -103,8 +103,8 @@ public class AlgorithmMapper {
             Set<Integer> holidayDays = new TreeSet<>();
             for (Holiday holiday : holidays) {
                 holiday.getStartDate()
-                        .plusDays(1)
-                        .datesUntil(holiday.getEndDate())
+                        .datesUntil(holiday.getEndDate().plusDays(1))
+                        .filter(day -> yearMonth.getMonth() == day.getMonth())
                         .forEach(day -> holidayDays.add(day.getDayOfMonth()));
             }
 
