@@ -95,7 +95,13 @@ public class AlgorithmMapper {
                 }
             }
             // TODO #86: add holidays
-            employeeInfos.add(new EmployeeInfo(worksShifts, optimalWorkingHoursPerMonth, List.of()));
+            employeeInfos.add(new EmployeeInfo(
+                    worksShifts,
+                    optimalWorkingHoursPerMonth / 2,
+                    // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
+                    optimalWorkingHoursPerMonth + 20,
+                    optimalWorkingHoursPerMonth, List.of()
+            ));
         }
 
         // TODO #86: add required people
