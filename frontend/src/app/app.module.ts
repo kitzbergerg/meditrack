@@ -31,6 +31,7 @@ import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
+import {CardModule} from "primeng/card";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -90,6 +91,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
         ToastModule,
         ChipModule,
         InputNumberModule,
+        CardModule,
     ],
   providers: [
     MessageService,

@@ -409,18 +409,24 @@ public class DataGeneratorBean {
             if (user.getShifts() != null && !user.getShifts().isEmpty()) {
                 for (int i = 0; i < shiftSwapAmount; i++) {
                     Shift selectedShift = user.getShifts().get(i % user.getShifts().size());
-                    ShiftSwap shiftswap = new ShiftSwap();
-                    shiftswap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
-                    shiftswap.setSwapRequestingUser(user);
-                    shiftswap.setRequestedShift(selectedShift);
+                    ShiftSwap shiftSwap = new ShiftSwap();
+                    shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+                    shiftSwap.setSwapRequestingUser(user);
+                    shiftSwap.setRequestedShift(selectedShift);
                     List<ShiftSwap> shiftSwapList = new ArrayList<>();
                     if (user.getRequestedShiftSwaps() != null && !user.getRequestedShiftSwaps().isEmpty()) {
                         shiftSwapList = user.getRequestedShiftSwaps();
                     }
-                    shiftSwapList.add(shiftswap);
+                    shiftSwapList.add(shiftSwap);
                     user.setRequestedShiftSwaps(shiftSwapList);
-                    selectedShift.setRequestedShiftSwap(shiftswap);
-                    shiftSwapRepository.save(shiftswap);
+                    List<ShiftSwap> shiftSwaps = new ArrayList<>();
+                    if (selectedShift.getRequestedShiftSwap() != null
+                            && !selectedShift.getRequestedShiftSwap().isEmpty()) {
+                        shiftSwaps = selectedShift.getRequestedShiftSwap();
+                    }
+                    shiftSwaps.add(shiftSwap);
+                    selectedShift.setRequestedShiftSwap(shiftSwaps);
+                    shiftSwapRepository.save(shiftSwap);
                 }
             }
         }

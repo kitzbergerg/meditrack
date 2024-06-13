@@ -14,20 +14,36 @@ export class ShiftSwapService {
   private apiUrl = 'http://localhost:8081/api/shift-swap';
   private shiftUrl = 'http://localhost:8081/api/shift';
 
-  getAllRequestedShiftSwaps(): Observable<ShiftSwap[]> {
+  getAllShiftSwaps(): Observable<ShiftSwap[]> {
     return this.http.get<ShiftSwap[]>(this.apiUrl);
   }
 
-  getAllRequestedShiftSwapsFromUser(): Observable<ShiftSwap[]> {
-    return this.http.get<ShiftSwap[]>(this.apiUrl + '/month');
+  getAllOwnShiftSwapOffers(): Observable<ShiftSwap[]> {
+    return this.http.get<ShiftSwap[]>(this.apiUrl + '/own-offers');
   }
 
-  createShiftSwap(shiftSwap: SimpleShiftSwap): Observable<ShiftSwap> {
+  getAllShiftSwapRequests(): Observable<ShiftSwap[]> {
+    return this.http.get<ShiftSwap[]>(this.apiUrl + '/requests');
+  }
+
+  getAllOfferedShiftSwaps(): Observable<ShiftSwap[]> {
+    return this.http.get<ShiftSwap[]>(this.apiUrl + '/offers');
+  }
+
+  createShiftSwap(shiftSwap: ShiftSwap): Observable<ShiftSwap> {
     return this.http.post<ShiftSwap>(`${this.apiUrl}`, shiftSwap);
   }
 
   updateShiftSwap(shiftSwap: ShiftSwap): Observable<ShiftSwap> {
     return this.http.put<ShiftSwap>(`${this.apiUrl}`, shiftSwap);
+  }
+
+  deleteShiftSwap(id: string) {
+    return this.http.delete(this.apiUrl+`/${id}`);
+  }
+
+  retractShiftSwapRequest(id: string): Observable<ShiftSwap> {
+    return this.http.delete<ShiftSwap>(`${this.apiUrl}` + '/retract' + `/${id}`);
   }
 
   getAllShiftsFromCurrentMonth() {
