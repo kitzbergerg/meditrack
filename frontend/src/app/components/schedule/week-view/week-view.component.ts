@@ -1,14 +1,28 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {Day, EmployeeWithShifts, RangeOption} from "../../../interfaces/schedule.models";
-import {DatePipe, NgForOf, NgIf, NgStyle} from "@angular/common";
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input, OnInit,
+  Output,
+} from '@angular/core';
+import {
+  Day,
+  RangeOption, ScheduleWithId, ShiftWithIds, UserWithShifts
+} from "../../../interfaces/schedule.models";
+import {DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
 import {InputTextModule} from "primeng/inputtext";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DropdownModule} from "primeng/dropdown";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
+import {OverlayPanelModule} from "primeng/overlaypanel";
+import {ShiftType} from "../../../interfaces/shiftType";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {format, startOfDay} from 'date-fns';
 
 @Component({
   selector: 'app-week-view',
@@ -23,28 +37,49 @@ import {User} from "../../../interfaces/user";
     FormsModule,
     DropdownModule,
     ProgressSpinnerModule,
-    DatePipe
+    DatePipe,
+    OverlayPanelModule,
+    JsonPipe,
+    ReactiveFormsModule,
+    NgClass,
+    ConfirmDialogModule,
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
 })
-export class WeekViewComponent implements OnChanges {
+export class WeekViewComponent implements OnInit {
 
   @Input() loading = true;
   @Input() days: Day[] = [];
-  @Input() employees: Map<string, EmployeeWithShifts> = new Map<string, EmployeeWithShifts>();
   @Input() startDate: Date | undefined;
   @Input() roles: Role[] | undefined;
+  @Input() employees: UserWithShifts[] = [];
   @Output() weekChange = new EventEmitter<number>();
   @Output() createSchedule = new EventEmitter<void>();
   @Output() rangeChange = new EventEmitter<string>();
+  @Output() deleteSchedule = new EventEmitter<void>();
+  @Output() updateShift = new EventEmitter<{
+    user: UserWithShifts,
+    day: Day,
+    shiftType: ShiftType,
+    shiftId: string | null,
+    operation: string
+  }>();
+  @Output() publishSchedule = new EventEmitter<string>();
   @Input() displayCreateScheduleButton = false;
   @Input() users: User[] = [];
+  @Input() shiftTypes: { [id: string]: ShiftType } = {};
   @Input() missingMonth = "";
-  weekNumber: number | undefined;
-  monthNumber: number | undefined;
-
+  @Input() currentUser: User | undefined;
+  @Input() planId: string | null = null;
+  @Input() currentSchedule: ScheduleWithId | undefined;
+  @Input() weekNumber: number | undefined;
+  @Input() monthString: string | undefined;
+  currentShiftType: ShiftType | null = null
+  editing = false;
+  protected readonly Object = Object;
   range = 'week'; // Default value set to week = 7 days
+  todaysDate: Date | undefined;
 
   rangeOptions: RangeOption[] = [
     {label: 'Week', value: 'week'},
@@ -52,43 +87,31 @@ export class WeekViewComponent implements OnChanges {
     {label: 'Month', value: 'month'}
   ];
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes && this.startDate) {
-      this.weekNumber = this.getWeekNumber(this.startDate);
-      this.monthNumber = this.getMonthNumber(this.startDate);
-    }
+
+  constructor(private messageService: MessageService, private confirmationService: ConfirmationService, private cdr: ChangeDetectorRef) {
+  }
+
+
+  ngOnInit(): void {
+    this.todaysDate = startOfDay(new Date());
+  }
+
+  trackByDay(index: number, day: Day): string {
+    return day.dayName;
+  }
+
+  trackByShift(index: number, shift: ShiftWithIds): string {
+    return shift?.shiftType?.toString() || "";
   }
 
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  getWeekNumber(date: Date): number {
-    // Copy date so that we don't modify the original date object
-    const currentDate = new Date(date.getTime());
-
-    // Set the date to the nearest Thursday: currentDate + 4 - currentDayNumber
-    // Make Sunday (0) the last day of the week
-    currentDate.setDate(currentDate.getDate() + 4 - (currentDate.getDay() || 7));
-
-    // Get the first day of the year
-    const yearStart = new Date(currentDate.getFullYear(), 0, 1);
-
-    // Calculate the difference in milliseconds
-    const diffInMs = currentDate.getTime() - yearStart.getTime();
-
-    // Calculate full weeks to the nearest Thursday
-    return Math.ceil((((diffInMs / 86400000) + 1) / 7));
-  }
-
-  getMonthNumber(date: Date): number {
-    // Get the month from the date object
-    // Months are zero-based in JavaScript, so we add 1 to get a 1-based month number
-    return date.getMonth() + 1;
-  }
-
   createNewSchedule(): void {
+    this.range = 'month';
     this.createSchedule.emit();
+    this.editing = true;
   }
 
   previousWeek(): void {
@@ -104,4 +127,76 @@ export class WeekViewComponent implements OnChanges {
     this.rangeChange.emit(range);
   }
 
+  setShiftType(type: ShiftType | null): void {
+    if (type == null) {
+      this.currentShiftType = null;
+    }
+    this.currentShiftType = type;
+  }
+
+  changeShift(user: UserWithShifts, i: number, day: Day, operation: string): void {
+    const shiftType = this.currentShiftType;
+    if (shiftType) {
+      const shiftId = user.shifts[i]?.id || null;
+      this.updateShift.emit({user, day, shiftType, shiftId, operation});
+    }
+  }
+
+  toggleEdit() {
+    this.editing = !this.editing;
+    this.setRange('month');
+  }
+
+  deleteMonthSchedule(): void {
+    this.editing = false;
+    this.deleteSchedule.emit();
+  }
+
+  publishMonthSchedule(): void {
+    this.editing = false;
+    this.publishSchedule.emit()
+  }
+
+  checkEditingAuthority(): boolean {
+    if (!this.currentUser?.roles) {
+      return false;
+    }
+    return this.currentUser.roles[0] === 'admin' || this.currentUser.roles[0] === 'dm';
+  }
+
+  confirmDelete(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this schedule?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-danger p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "pi pi-trash mr-2",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.deleteMonthSchedule();
+      }
+    });
+  }
+
+  confirmPublish(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to publish this schedule?',
+      header: 'Publish Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-success p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "pi pi-check mr-2",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.publishMonthSchedule();
+      }
+    });
+  }
+
+  protected readonly format = format;
 }
