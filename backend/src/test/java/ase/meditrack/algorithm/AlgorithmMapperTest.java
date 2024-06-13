@@ -67,6 +67,11 @@ class AlgorithmMapperTest {
         when(shiftType.getEndTime()).thenReturn(LocalTime.of(17, 0));
         shiftTypes.add(shiftType);
 
+        HardConstraints hardConstraints = new HardConstraints();
+        hardConstraints.setAllowedFlextimePerMonth(20);
+        hardConstraints.setAllowedFlextimeTotal(40);
+        when(team.getHardConstraints()).thenReturn(hardConstraints);
+
         algorithmMapper.mapToAlgorithmInput(month, year, employees, Map.of(user.getId(), List.of()), shiftTypes, roles,
                 team);
 
@@ -140,7 +145,11 @@ class AlgorithmMapperTest {
         when(role2.getName()).thenReturn("Nurse");
         roles.add(role2);
 
+        HardConstraints hardConstraints = new HardConstraints();
+        hardConstraints.setAllowedFlextimePerMonth(20);
+        hardConstraints.setAllowedFlextimeTotal(40);
         when(team.getWorkingHours()).thenReturn(160);
+        when(team.getHardConstraints()).thenReturn(hardConstraints);
 
         Map<Role, Integer> requiredRoles = new HashMap<>();
         requiredRoles.put(role, 3);

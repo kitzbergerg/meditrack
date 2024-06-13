@@ -112,15 +112,18 @@ public class AlgorithmMapper {
             // this is close enough for the algorithm to get good results
             float averageWorkingHoursPerDay = employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours() / 7;
             int numberOfWorkingDays = numberOfDays - holidayDays.size();
-            int optimalWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
-            int optimalWorkingHoursOvertime = optimalWorkingHoursPerMonth - employee.getCurrentOverTime() / 2;
+            int averageWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
+
+            int maxAllowedChangePlus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
+                    team.getHardConstraints().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
+            int maxAllowedChangeMinus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
+                    team.getHardConstraints().getAllowedFlextimeTotal() + employee.getCurrentOverTime());
 
             employeeInfos.add(new EmployeeInfo(
                     worksShiftTypes,
-                    optimalWorkingHoursPerMonth / 2,
-                    // TODO #86: instead of hardcoding 20, get it from hardConstraints and overtime values
-                    optimalWorkingHoursPerMonth + 20,
-                    optimalWorkingHoursOvertime,
+                    averageWorkingHoursPerMonth - maxAllowedChangeMinus,
+                    averageWorkingHoursPerMonth + maxAllowedChangePlus,
+                    averageWorkingHoursPerMonth - employee.getCurrentOverTime() / 2,
                     holidayDays,
                     employee.getPreferences().getOffDays().stream().map(LocalDate::getDayOfMonth)
                             .collect(Collectors.toSet())
