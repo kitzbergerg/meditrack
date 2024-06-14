@@ -20,6 +20,7 @@ public interface HolidayRepository extends JpaRepository<Holiday, UUID> {
      * @return a list of holidays that have days between startDate and endDate
      */
     @Query("SELECT h FROM holiday h WHERE h.user.id = :userId "
+            + "AND h.isApproved "
             + "AND (h.startDate BETWEEN :startDate AND :endDate "
             + "OR h.endDate BETWEEN :startDate AND :endDate "
             + "OR (h.startDate <= :startDate AND h.endDate >= :endDate))")
