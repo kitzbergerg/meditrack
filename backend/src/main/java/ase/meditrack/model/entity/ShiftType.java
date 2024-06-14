@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalTime;
@@ -36,7 +35,6 @@ import java.util.UUID;
 @Entity(name = "shift_type")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ShiftType {

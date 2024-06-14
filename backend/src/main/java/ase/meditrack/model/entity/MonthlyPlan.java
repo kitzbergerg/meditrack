@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.List;
@@ -22,7 +21,6 @@ import java.util.UUID;
 @Entity(name = "monthly_plan")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class MonthlyPlan {
@@ -41,7 +39,7 @@ public class MonthlyPlan {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToMany(mappedBy = "monthlyPlan", cascade = { CascadeType.REMOVE})
+    @OneToMany(mappedBy = "monthlyPlan", cascade = {CascadeType.REMOVE})
     private List<Shift> shifts;
 
     @OneToMany(mappedBy = "monthlyPlan", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -19,7 +19,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 import org.keycloak.representations.idm.UserRepresentation;
 
@@ -31,7 +30,6 @@ import java.util.UUID;
 @Entity(name = "users")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
