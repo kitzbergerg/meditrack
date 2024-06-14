@@ -12,6 +12,7 @@ import com.google.ortools.sat.LinearExprBuilder;
 import com.google.ortools.sat.Literal;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -98,7 +99,6 @@ public final class SchedulingSolver {
     }
 
     private static void addHardConstraints(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
-        // TODO #86: add constraints
         // One Shift Per Day - Each employee works at most one shift per day.
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.numberOfDays(); d++) {
@@ -119,7 +119,7 @@ public final class SchedulingSolver {
             }
         }
 
-        // Maximum Monthly Hours - Employees cannot work more than optimalWorkingHoursPerMonth + overtime per month
+        // Maximum and Minimum Monthly Hours - Employees cannot work less/more than max/min working hours
         for (int n = 0; n < input.employees().size(); n++) {
             List<LinearExpr> monthlyHours = new ArrayList<>();
             for (int d = 0; d < input.numberOfDays(); d++) {
@@ -147,17 +147,54 @@ public final class SchedulingSolver {
             }
         }
 
-        // Every shiftType on a day has to have at least one employee
-        // TODO #86: this should be changed in the long run
+        // Staffing Level Per Day/Nighttime - There have to always be at least day/nighttimeRequiredPeople present
         for (int d = 0; d < input.numberOfDays(); d++) {
+            // TODO #86: handle first day of the month (i.e. include shifts that carry over to the next day)
+            // 1 slot for every half hour
+            LinearExpr[] timeSlots = IntStream.range(0, 48)
+                    .mapToObj(i -> LinearExpr.constant(0))
+                    .toArray(LinearExpr[]::new);
             for (int s = 0; s < input.shiftTypes().size(); s++) {
-                List<Literal> employeesToShiftTypes = new ArrayList<>();
+                List<LinearExpr> employeesWorkingShift = new ArrayList<>();
                 for (int n = 0; n < input.employees().size(); n++) {
-                    employeesToShiftTypes.add(shifts[n][d][s]);
+                    employeesWorkingShift.add(LinearExpr.term(shifts[n][d][s], 1));
                 }
-                model.addAtLeastOne(employeesToShiftTypes);
+                LinearExpr numOfEmployeesWorkingShift =
+                        LinearExpr.sum(employeesWorkingShift.toArray(LinearExpr[]::new));
+
+                ShiftTypeInfo shiftTypeInfo = input.shiftTypes().get(s);
+                int startIndex = timeToSlotIndex(shiftTypeInfo.startTime());
+                for (int slot = startIndex; slot - startIndex <= shiftTypeInfo.duration() * 2; slot++) {
+                    if (slot >= timeSlots.length) {
+                        // TODO #86: handle cases where slot is on new day
+                        break;
+                    }
+                    timeSlots[slot] =
+                            LinearExpr.sum(new LinearArgument[] {timeSlots[slot], numOfEmployeesWorkingShift});
+                }
+            }
+
+            for (int slot = 0; slot < 24; slot++) {
+                model.addGreaterOrEqual(timeSlots[slot], input.daytimeRequiredPeople());
+            }
+            for (int slot = 24; slot < 48; slot++) {
+                model.addGreaterOrEqual(timeSlots[slot], input.nighttimeRequiredPeople());
             }
         }
+    }
+
+    /**
+     * Converts the time to a slot. Days are split into 30min slots, where 8:00-8:30 is slot 0, 8:30-9:00 is slot 2, ...
+     *
+     * @param time
+     * @return the index of the slot. int between 0 and 47 (since 24h per day; times 2 for 30min)
+     */
+    private static int timeToSlotIndex(LocalTime time) {
+        if (!time.isBefore(LocalTime.of(8, 0))) {
+            return time.minusHours(8).getHour() * 2;
+        }
+        // Time 0:00 - 8:00 loops around and is at the end
+        return 31 + time.getHour() * 2;
     }
 
     private static void addOptimization(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {

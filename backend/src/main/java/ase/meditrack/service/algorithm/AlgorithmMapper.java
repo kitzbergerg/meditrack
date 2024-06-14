@@ -131,7 +131,7 @@ public class AlgorithmMapper {
         }
 
         // TODO #86: add required people
-        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 0, 0);
+        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 2, 0);
     }
 
     /**

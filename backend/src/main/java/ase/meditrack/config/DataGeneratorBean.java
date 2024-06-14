@@ -84,7 +84,7 @@ public class DataGeneratorBean {
 
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 4;
+    private static final Integer NUM_USERS_WITH_ROLES = 8;
     private static final Integer NUM_HOLIDAYS = 0;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
@@ -266,8 +266,8 @@ public class DataGeneratorBean {
         for (Team team : teams) {
             ShiftType nightShift = new ShiftType();
             nightShift.setName("Night Shift");
-            nightShift.setStartTime(LocalTime.of(22, 0));
-            nightShift.setEndTime(LocalTime.of(6, 0));
+            nightShift.setStartTime(LocalTime.of(0, 0));
+            nightShift.setEndTime(LocalTime.of(8, 0));
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
@@ -277,8 +277,8 @@ public class DataGeneratorBean {
             shiftTypes.add(shiftTypeRepository.save(nightShift));
             ShiftType morningShift = new ShiftType();
             morningShift.setName("Morning Shift");
-            morningShift.setStartTime(LocalTime.of(6, 0));
-            morningShift.setEndTime(LocalTime.of(14, 0));
+            morningShift.setStartTime(LocalTime.of(8, 0));
+            morningShift.setEndTime(LocalTime.of(16, 0));
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
@@ -288,8 +288,8 @@ public class DataGeneratorBean {
             shiftTypes.add(shiftTypeRepository.save(morningShift));
             ShiftType eveningShift = new ShiftType();
             eveningShift.setName("Evening Shift");
-            eveningShift.setStartTime(LocalTime.of(14, 0));
-            eveningShift.setEndTime(LocalTime.of(22, 0));
+            eveningShift.setStartTime(LocalTime.of(16, 0));
+            eveningShift.setEndTime(LocalTime.of(0, 0));
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");

@@ -60,7 +60,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Holiday> holidays;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)
     @PrimaryKeyJoinColumn
     private Preferences preferences;
 
