@@ -2,6 +2,7 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.RoleDto;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
@@ -54,7 +55,7 @@ class RoleControllerIT {
 
     @BeforeEach
     void setup() {
-        userRepository.save(new User(
+        User user = new User(
                 UUID.fromString(USER_ID),
                 null,
                 1f,
@@ -70,7 +71,10 @@ class RoleControllerIT {
                 null,
                 null,
                 null
-        ));
+        );
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        userRepository.save(user);
         team = teamService.create(
                 new Team(null, "test team", 40, null, null, null, null, null),
                 () -> USER_ID

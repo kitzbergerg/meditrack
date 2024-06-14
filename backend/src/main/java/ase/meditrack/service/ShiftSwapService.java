@@ -1,9 +1,9 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.ShiftSwapValidator;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
@@ -26,12 +26,17 @@ public class ShiftSwapService {
     private final ShiftSwapRepository repository;
     private final ShiftRepository shiftRepository;
     private final UserService userService;
+    private final ShiftSwapValidator validator;
 
-    public ShiftSwapService(ShiftSwapRepository repository, UserService userService, ShiftRepository shiftRepository) {
+    public ShiftSwapService(ShiftSwapRepository repository,
+                            UserService userService,
+                            ShiftRepository shiftRepository,
+                            ShiftSwapValidator validator) {
 
         this.repository = repository;
         this.shiftRepository = shiftRepository;
         this.userService = userService;
+        this.validator = validator;
     }
 
     /**
@@ -72,6 +77,20 @@ public class ShiftSwapService {
     }
 
     /**
+     * Fetches all shift swap suggestions from the current month from a user from the database.
+     *
+     * @param principal is current user
+     * @return List of all shift swap suggestions from the current month from a user
+     */
+    public List<ShiftSwap> findAllSuggestions(Principal principal) {
+        User user = userService.getPrincipalWithTeam(principal);
+        LocalDate today = LocalDate.now();
+        LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
+
+        return repository.findAllShiftSwapSuggestions(user.getId(), today, nextMonth);
+    }
+
+    /**
      * Fetches all shift swap offers from the current month from one team.
      * from user with the same role from the database.
      *
@@ -83,17 +102,8 @@ public class ShiftSwapService {
         LocalDate today = LocalDate.now();
         LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
 
-        List<ShiftSwap> allOffers
-                = repository.findAllShiftSwapOffersWithSameRole(
-                        user.getTeam().getId(), user.getId(), today, nextMonth);
-
-        List<ShiftSwap> filteredOffers = new ArrayList<>();
-        for (ShiftSwap offer : allOffers) {
-            if (offer.getSwapRequestingUser().getRole().equals(user.getRole())) {
-                filteredOffers.add(offer);
-            }
-        }
-        return filteredOffers;
+        return repository.findAllShiftSwapOffersWithSameRole(
+                user.getTeam().getId(), user.getRole().getId(), user.getId(), today, nextMonth);
     }
 
     /**
@@ -115,8 +125,8 @@ public class ShiftSwapService {
      */
     @Transactional
     public ShiftSwap create(ShiftSwap shiftSwap) {
-        shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
-        shiftSwap.setSuggestedShiftSwapStatus(ShiftSwapStatus.PENDING);
+        validator.shiftSwapCreateValidation(shiftSwap);
+
         ShiftSwap created = repository.save(shiftSwap);
         Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
         if (shift.isEmpty()) {
@@ -264,11 +274,17 @@ public class ShiftSwapService {
      */
     public boolean isShiftFromUser(Principal principal, ShiftSwap shiftSwap) {
         User user = userService.getPrincipalWithTeam(principal);
+        if (shiftSwap.getRequestedShift() == null) {
+            return false;
+        }
         Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
         if (shift.isEmpty()) {
             return false;
         }
         if (!shift.get().getUsers().get(0).getId().equals(user.getId())) {
+            return false;
+        }
+        if (shiftSwap.getSwapRequestingUser() == null) {
             return false;
         }
         return user.getId().equals(shiftSwap.getSwapRequestingUser().getId());

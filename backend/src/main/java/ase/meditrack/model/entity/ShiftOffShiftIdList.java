@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import java.util.UUID;
 @Entity(name = "shift_off_shift_id_list")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 public class ShiftOffShiftIdList {
 

@@ -74,7 +74,6 @@ public class MonthlyPlanController {
         return mapper.toDto(monthlyPlanCreator.createMonthlyPlan(month.getValue(), year.getValue(), principal));
     }
 
-
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
             + "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #dto.id()))")

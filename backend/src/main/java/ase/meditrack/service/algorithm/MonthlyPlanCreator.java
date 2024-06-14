@@ -1,23 +1,28 @@
 package ase.meditrack.service.algorithm;
 
+import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftRepository;
-import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.service.MonthlyWorkDetailsService;
 import ase.meditrack.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MonthlyPlanCreator {
@@ -27,16 +32,18 @@ public class MonthlyPlanCreator {
     private final UserService userService;
     private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
     private final MonthlyWorkDetailsService monthlyWorkDetailsService;
+    private final HolidayRepository holidayRepository;
 
     public MonthlyPlanCreator(ShiftRepository shiftRepository, MonthlyPlanRepository monthlyPlanRepository,
-                              TeamRepository teamRepository, UserService userService,
-                              MonthlyWorkDetailsRepository monthlyWorkDetailsRepository,
-                              MonthlyWorkDetailsService monthlyWorkDetailsService) {
+                              UserService userService, MonthlyWorkDetailsRepository monthlyWorkDetailsRepository,
+                              MonthlyWorkDetailsService monthlyWorkDetailsService,
+                              HolidayRepository holidayRepository) {
         this.shiftRepository = shiftRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
         this.userService = userService;
         this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
         this.monthlyWorkDetailsService = monthlyWorkDetailsService;
+        this.holidayRepository = holidayRepository;
     }
 
 
@@ -56,6 +63,12 @@ public class MonthlyPlanCreator {
         List<ShiftType> shiftTypes = team.getShiftTypes();
         List<User> users = userService.findByTeam(principal);
         users = users.stream().filter(u -> u.getId() != user.getId()).toList();
+        Map<UUID, List<Holiday>> holidaysPerUser = users.stream().collect(Collectors.toMap(
+                User::getId,
+                u -> holidayRepository.findHolidaysForUserInCurrentMonth(u.getId(), YearMonth.of(year, month).atDay(1),
+                        YearMonth.of(year, month).atEndOfMonth()),
+                (existing, replacement) -> existing
+        ));
 
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();
@@ -64,6 +77,7 @@ public class MonthlyPlanCreator {
                 month,
                 year,
                 users,
+                holidaysPerUser,
                 shiftTypes,
                 team.getRoles(),
                 team

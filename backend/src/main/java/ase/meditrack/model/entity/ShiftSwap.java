@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @Entity(name = "shift_swap")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 public class ShiftSwap {
 

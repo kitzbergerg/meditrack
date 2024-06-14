@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
@@ -25,7 +24,6 @@ import java.util.UUID;
 @Entity(name = "shift")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 public class Shift {
 
