@@ -26,6 +26,10 @@ export class ShiftSwapService {
     return this.http.get<ShiftSwap[]>(this.apiUrl + '/requests');
   }
 
+  getAllShiftSwapSuggestions(): Observable<ShiftSwap[]> {
+    return this.http.get<ShiftSwap[]>(this.apiUrl + '/suggestions');
+  }
+
   getAllOfferedShiftSwaps(): Observable<ShiftSwap[]> {
     return this.http.get<ShiftSwap[]>(this.apiUrl + '/offers');
   }

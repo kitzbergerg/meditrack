@@ -154,6 +154,8 @@ public class ShiftSwapValidator {
 
 
             shiftValidator.validateShiftWithCustomData(requestedShift, suggestedUserShifts);
+
+            // check for same shift swap but requested and suggested swapped
         }
     }
 

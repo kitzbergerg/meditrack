@@ -77,6 +77,20 @@ public class ShiftSwapService {
     }
 
     /**
+     * Fetches all shift swap suggestions from the current month from a user from the database.
+     *
+     * @param principal is current user
+     * @return List of all shift swap suggestions from the current month from a user
+     */
+    public List<ShiftSwap> findAllSuggestions(Principal principal) {
+        User user = userService.getPrincipalWithTeam(principal);
+        LocalDate today = LocalDate.now();
+        LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
+
+        return repository.findAllShiftSwapSuggestions(user.getId(), today, nextMonth);
+    }
+
+    /**
      * Fetches all shift swap offers from the current month from one team.
      * from user with the same role from the database.
      *
@@ -88,17 +102,8 @@ public class ShiftSwapService {
         LocalDate today = LocalDate.now();
         LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
 
-        List<ShiftSwap> allOffers
-                = repository.findAllShiftSwapOffersWithSameRole(
-                        user.getTeam().getId(), user.getId(), today, nextMonth);
-
-        List<ShiftSwap> filteredOffers = new ArrayList<>();
-        for (ShiftSwap offer : allOffers) {
-            if (offer.getSwapRequestingUser().getRole().equals(user.getRole())) {
-                filteredOffers.add(offer);
-            }
-        }
-        return filteredOffers;
+        return repository.findAllShiftSwapOffersWithSameRole(
+                user.getTeam().getId(), user.getRole().getId(), user.getId(), today, nextMonth);
     }
 
     /**

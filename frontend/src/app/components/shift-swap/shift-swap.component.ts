@@ -23,6 +23,7 @@ export class ShiftSwapComponent {
   teamUsers: User[] = []
   ownShiftSwapsOffers: ShiftSwap[] = [];
   requestedShiftSwaps: ShiftSwap[] = [];
+  suggestedShiftSwaps: ShiftSwap[] = [];
   shiftSwapOffers: ShiftSwap[] = [];
   currentShifts: ShiftSwapShift[] = []
   selectedDate: Date | undefined;
@@ -52,7 +53,6 @@ export class ShiftSwapComponent {
   ngOnInit(): void {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
-
   }
 
   getAllUsersFromTeam() {
@@ -71,7 +71,6 @@ export class ShiftSwapComponent {
     return this.teamUsers.find(user => user.id === userId);
   }
 
-
   getUser(): void {
     this.userService.getUserById(this.userId).subscribe({
         next: response => {
@@ -81,7 +80,7 @@ export class ShiftSwapComponent {
           this.getShiftsFromCurrentMonth();
           this.getAllUsersFromTeam();
           this.getAllShiftSwapsOffers();
-          this.loading = false;
+          this.getAllSuggestedShiftSwaps()
         },
         error: (error) => {
           console.error('Error fetching data:', error);
@@ -99,6 +98,21 @@ export class ShiftSwapComponent {
         error: (error) => {
           console.error('Error fetching data:', error);
         }
+    });
+  }
+
+  getAllSuggestedShiftSwaps() {
+    this.shiftSwapService.getAllShiftSwapSuggestions().subscribe({
+      next: response => {
+        this.suggestedShiftSwaps = response;
+        this.suggestedShiftSwaps.sort((a, b) =>
+          new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+        this.loading = false;
+      }
     });
   }
 
@@ -164,7 +178,6 @@ export class ShiftSwapComponent {
     } else {
       currentDate = new Date(date.year, date.month, date.day);
     }
-
     currentDate.setHours(currentDate.getHours() + 2);
 
     return this.currentShifts.find(shift => {
