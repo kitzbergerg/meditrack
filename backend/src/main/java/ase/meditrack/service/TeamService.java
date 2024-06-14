@@ -84,7 +84,7 @@ public class TeamService {
                     Map.of(),
                     Map.of(),
                     Map.of(),
-                    20,
+                    40,
                     20,
                     2,
                     120,

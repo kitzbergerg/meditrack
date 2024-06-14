@@ -3,6 +3,7 @@ package ase.meditrack.service;
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
@@ -117,6 +118,13 @@ public class UserService {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user.setCurrentOverTime(0);
+        if (user.getPreferences() == null) {
+            user.setPreferences(new Preferences(
+                    null,
+                    List.of(),
+                    user
+            ));
+        }
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
@@ -264,8 +272,8 @@ public class UserService {
      * Fetches work details from the principal, given a month and year.
      *
      * @param userId of user
-     * @param month of the work details
-     * @param year of the work details
+     * @param month  of the work details
+     * @param year   of the work details
      * @return monthly work details for the user, given the month and year
      */
     public MonthlyWorkDetails findWorkDetailsByIdAndMonthAndYear(UUID userId, Month month, Year year) {
