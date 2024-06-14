@@ -1,13 +1,13 @@
 import {APP_INITIALIZER, NgModule} from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { RouterModule } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { HttpClientModule } from '@angular/common/http';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
+import {RouterModule} from '@angular/router';
+import {LoginComponent} from './components/login/login.component';
+import {HttpClientModule} from '@angular/common/http';
 import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
-import { ButtonModule } from 'primeng/button';
+import {ButtonModule} from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
 import {AccountSettingsComponent} from './components/account-settings/account-settings.component';
 import {EmployeesComponent} from './components/employees/employees.component';
@@ -22,15 +22,16 @@ import {DropdownModule} from "primeng/dropdown";
 import {InputTextModule} from "primeng/inputtext";
 import {ImageModule} from "primeng/image";
 import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
-import { ColorPickerModule } from 'primeng/colorpicker';
-import { CalendarModule } from "primeng/calendar";
+import {ColorPickerModule} from 'primeng/colorpicker';
+import {CalendarModule} from "primeng/calendar";
 import {MultiSelectModule} from "primeng/multiselect";
 import {ToastModule} from "primeng/toast";
-import { MessageService } from 'primeng/api';
+import {MessageService} from 'primeng/api';
 import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
+import {HolidaysComponent} from "./components/holidays/holidays.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -64,7 +65,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     DashboardComponent,
     ShiftTypesComponent,
     TeamComponent,
-    ShiftSwapComponent
+    ShiftSwapComponent,
+    HolidaysComponent
   ],
     imports: [
         BrowserModule,
