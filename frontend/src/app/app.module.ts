@@ -31,6 +31,8 @@ import {TeamComponent} from "./components/team/team.component";
 import {ChipModule} from "primeng/chip";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
+import {CardModule} from "primeng/card";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -66,31 +68,33 @@ function initializeKeycloak(keycloak: KeycloakService) {
     TeamComponent,
     ShiftSwapComponent
   ],
-    imports: [
-        BrowserModule,
-        ButtonModule,
-        AppRoutingModule,
-        RouterModule,
-        HttpClientModule,
-        KeycloakAngularModule,
-        FormsModule,
-        StyleClassModule,
-        RippleModule,
-        AppLayoutModule,
-        ReactiveFormsModule,
-        ToolbarModule,
-        TableModule,
-        DialogModule,
-        DropdownModule,
-        InputTextModule,
-        ImageModule,
-        CalendarModule,
-        ColorPickerModule,
-        MultiSelectModule,
-        ToastModule,
-        ChipModule,
-        InputNumberModule,
-    ],
+  imports: [
+    BrowserModule,
+    ButtonModule,
+    AppRoutingModule,
+    RouterModule,
+    HttpClientModule,
+    KeycloakAngularModule,
+    FormsModule,
+    StyleClassModule,
+    RippleModule,
+    AppLayoutModule,
+    ReactiveFormsModule,
+    ToolbarModule,
+    TableModule,
+    DialogModule,
+    DropdownModule,
+    InputTextModule,
+    ImageModule,
+    CalendarModule,
+    ColorPickerModule,
+    MultiSelectModule,
+    ToastModule,
+    ChipModule,
+    InputNumberModule,
+    CardModule,
+    ConfirmDialogModule,
+  ],
   providers: [
     MessageService,
     ConfirmationService,

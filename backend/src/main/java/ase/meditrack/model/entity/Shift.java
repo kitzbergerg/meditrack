@@ -9,7 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -49,11 +49,11 @@ public class Shift {
     )
     private List<User> users;
 
-    @OneToOne(mappedBy = "requestedShift", cascade = CascadeType.ALL)
-    private ShiftSwap requestedShiftSwap;
+    @OneToMany(mappedBy = "requestedShift", cascade = CascadeType.ALL)
+    private List<ShiftSwap> requestedShiftSwap;
 
-    @OneToOne(mappedBy = "suggestedShift")
-    private ShiftSwap suggestedShiftSwap;
+    @OneToMany(mappedBy = "suggestedShift")
+    private List<ShiftSwap> suggestedShiftSwap;
 
 
     public void addUser(User user) {

@@ -70,12 +70,17 @@
             </div>
           </li>
           <li class="flex align-items-center py-3 px-2 border-top-1 border-bottom-1 surface-border flex-wrap">
-            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium"
-                 i18n="Work Shifts@@account-settings.component.work-shifts">
+            <div class="text-500 mt-0_75r mb-0_75r w-6 md:w-2 font-medium" i18n="Work Shifts@@account-settings.component.work-shifts">
               Work Shifts
             </div>
-            <div *ngFor="let shift of data.canWorkShiftTypes" class="text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
-              <p-chip *ngIf="data.canWorkShiftTypes && data.canWorkShiftTypes.length > 0" label="{{shift.name}}" class="mr-2"></p-chip>
+            <div class="flex flex-wrap text-900 mt-0_75r mb-0_75r w-full md:w-8 md:flex-order-0 flex-order-1">
+              <ng-container *ngIf="data.canWorkShiftTypes && data.canWorkShiftTypes.length > 0">
+                <p-chip *ngFor="let shiftType of data.canWorkShiftTypes"
+                        label="{{shiftType.name}}"
+                        [ngStyle]="{'color': shiftType.color, 'border-color': shiftType.color, 'margin-right': '0.5rem','border-radius': '15px' }"
+                        class="mr-2">
+                </p-chip>
+              </ng-container>
             </div>
           </li>
         </ul>
