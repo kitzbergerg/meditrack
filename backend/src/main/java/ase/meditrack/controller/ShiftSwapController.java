@@ -58,6 +58,13 @@ public class ShiftSwapController {
         return mapper.toDtoList(service.findAllRequests(principal));
     }
 
+    @GetMapping("/suggestions")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    public List<ShiftSwapDto> findAllSuggestions(Principal principal) {
+        log.info("Fetching shift-swaps suggestions from a user from the current month");
+        return mapper.toDtoList(service.findAllSuggestions(principal));
+    }
+
     @GetMapping("/offers")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     public List<ShiftSwapDto> findAllFromCurrentMonth(Principal principal) {

@@ -8,7 +8,7 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
-import ase.meditrack.validator.ShiftValidator;
+import ase.meditrack.model.ShiftValidator;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
