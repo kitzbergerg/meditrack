@@ -199,7 +199,8 @@ public class DataGeneratorBean {
                 if (role.getTeam().getId().equals(team.getId())) {
                     for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
                         firstName = FAKER.name().firstName();
-                        lastName = FAKER.name().lastName();
+                        // use UUID to avoid duplicates
+                        lastName = FAKER.name().lastName() + "_" + UUID.randomUUID();
                         username = (firstName.charAt(0) + lastName).toLowerCase();
                         email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                                 + FAKER.internet().domainName();
