@@ -55,7 +55,7 @@ public class AlgorithmMapper {
         List<RoleInfo> roleInfos = new ArrayList<>();
         for (Role role : roles) {
             // TODO #86: add missing role values
-            roleInfos.add(new RoleInfo(role.getName(), 0, 0, 0, 0));
+            roleInfos.add(new RoleInfo(role.getName(), 0, 0));
         }
 
         int numberOfDays = 0;
@@ -114,6 +114,7 @@ public class AlgorithmMapper {
             int numberOfWorkingDays = numberOfDays - holidayDays.size();
             int averageWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
 
+            // TODO #86: get flexitime from role instead of hard constraint
             int maxAllowedChangePlus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
                     team.getHardConstraints().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
             int maxAllowedChangeMinus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
