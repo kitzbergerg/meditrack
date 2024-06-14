@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.ShiftSwapValidator;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.ShiftSwapStatus;
@@ -26,12 +27,17 @@ public class ShiftSwapService {
     private final ShiftSwapRepository repository;
     private final ShiftRepository shiftRepository;
     private final UserService userService;
+    private final ShiftSwapValidator validator;
 
-    public ShiftSwapService(ShiftSwapRepository repository, UserService userService, ShiftRepository shiftRepository) {
+    public ShiftSwapService(ShiftSwapRepository repository,
+                            UserService userService,
+                            ShiftRepository shiftRepository,
+                            ShiftSwapValidator validator) {
 
         this.repository = repository;
         this.shiftRepository = shiftRepository;
         this.userService = userService;
+        this.validator = validator;
     }
 
     /**
@@ -115,8 +121,8 @@ public class ShiftSwapService {
      */
     @Transactional
     public ShiftSwap create(ShiftSwap shiftSwap) {
-        shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
-        shiftSwap.setSuggestedShiftSwapStatus(ShiftSwapStatus.PENDING);
+        validator.shiftSwapCreateValidation(shiftSwap);
+
         ShiftSwap created = repository.save(shiftSwap);
         Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
         if (shift.isEmpty()) {
@@ -264,11 +270,17 @@ public class ShiftSwapService {
      */
     public boolean isShiftFromUser(Principal principal, ShiftSwap shiftSwap) {
         User user = userService.getPrincipalWithTeam(principal);
+        if (shiftSwap.getRequestedShift() == null) {
+            return false;
+        }
         Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
         if (shift.isEmpty()) {
             return false;
         }
         if (!shift.get().getUsers().get(0).getId().equals(user.getId())) {
+            return false;
+        }
+        if (shiftSwap.getSwapRequestingUser() == null) {
             return false;
         }
         return user.getId().equals(shiftSwap.getSwapRequestingUser().getId());
