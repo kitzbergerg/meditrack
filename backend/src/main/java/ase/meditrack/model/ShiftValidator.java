@@ -39,7 +39,7 @@ public class ShiftValidator {
     }
 
     /**
-     * Validates shift for shift swap
+     * Validates shift for shift swap.
      *
      * @param shift to validate
      * @param allShifts array to check conflicts

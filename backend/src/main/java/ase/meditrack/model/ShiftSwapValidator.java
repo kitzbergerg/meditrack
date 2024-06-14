@@ -12,7 +12,6 @@ import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +37,11 @@ public class ShiftSwapValidator {
         this.shiftValidator = shiftValidator;
     }
 
+    /**
+     * Validates shift swaps when created.
+     *
+     * @param shiftSwap to be validated
+     */
     public void shiftSwapCreateValidation(ShiftSwap shiftSwap) {
         LocalDate today = LocalDate.now();
         LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
@@ -111,9 +115,9 @@ public class ShiftSwapValidator {
             }
 
             if (dbAllShiftSwaps.stream().anyMatch(swap ->
-                    swap.getRequestedShift().getId().equals(dbRequestedShift.getId()) &&
-                    swap.getSuggestedShift() != null &&
-                    swap.getSuggestedShift().getId().equals(dbSuggestedShift.getId()))) {
+                    swap.getRequestedShift().getId().equals(dbRequestedShift.getId())
+                    && swap.getSuggestedShift() != null
+                    && swap.getSuggestedShift().getId().equals(dbSuggestedShift.getId()))) {
                 throw new ResourceConflictException("Shift swap request already exist");
             }
 
@@ -153,8 +157,5 @@ public class ShiftSwapValidator {
         }
     }
 
-    public void shiftSwapUpdateValidation(ShiftSwap shiftSwap, Principal principal) {
-
-    }
 
 }

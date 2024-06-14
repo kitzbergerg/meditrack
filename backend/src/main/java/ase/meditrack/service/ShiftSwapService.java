@@ -4,7 +4,6 @@ import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.ShiftSwapValidator;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
