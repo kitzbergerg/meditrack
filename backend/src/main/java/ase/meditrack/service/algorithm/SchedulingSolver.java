@@ -159,12 +159,17 @@ public final class SchedulingSolver {
         }
 
         // Staffing Level Per Day/Nighttime - There have to always be at least day/nighttimeRequiredPeople present
+        List<LinearExpr[]> timeSlotsPerDay = new ArrayList<>();
         for (int d = 0; d < input.numberOfDays(); d++) {
-            // TODO #86: handle first day of the month (i.e. include shifts that carry over to the next day)
             // 1 slot for every half hour
             LinearExpr[] timeSlots = IntStream.range(0, 48)
                     .mapToObj(i -> LinearExpr.constant(0))
                     .toArray(LinearExpr[]::new);
+            timeSlotsPerDay.add(timeSlots);
+        }
+        for (int d = 0; d < input.numberOfDays(); d++) {
+            // TODO #86: handle first day of the month (i.e. include shifts that carry over to the next day)
+            LinearExpr[] timeSlots = timeSlotsPerDay.get(d);
             for (int s = 0; s < input.shiftTypes().size(); s++) {
                 List<LinearExpr> employeesWorkingShift = new ArrayList<>();
                 for (int n = 0; n < input.employees().size(); n++) {
@@ -176,12 +181,23 @@ public final class SchedulingSolver {
                 ShiftTypeInfo shiftTypeInfo = input.shiftTypes().get(s);
                 int startIndex = timeToSlotIndex(shiftTypeInfo.startTime());
                 for (int slot = startIndex; slot - startIndex <= shiftTypeInfo.duration() * 2; slot++) {
-                    if (slot >= timeSlots.length) {
-                        // TODO #86: handle cases where slot is on new day
+                    if (slot < timeSlots.length) {
+                        timeSlots[slot] = LinearExpr.sum(
+                                new LinearArgument[] {timeSlots[slot], numOfEmployeesWorkingShift}
+                        );
+                        continue;
+                    }
+                    // we have carry over i.e. a shift starts on the current day and ends on the next day
+                    if (d + 1 >= input.numberOfDays()) {
+                        // carry over to next month -> ignored
                         break;
                     }
-                    timeSlots[slot] =
-                            LinearExpr.sum(new LinearArgument[] {timeSlots[slot], numOfEmployeesWorkingShift});
+                    LinearExpr[] timeSlotsNextDay = timeSlotsPerDay.get(d + 1);
+                    int slotNextDay = slot % timeSlots.length;
+                    timeSlotsNextDay[slotNextDay] = LinearExpr.sum(
+                            new LinearArgument[] {timeSlotsNextDay[slotNextDay], numOfEmployeesWorkingShift}
+                    );
+                    break;
                 }
             }
 
