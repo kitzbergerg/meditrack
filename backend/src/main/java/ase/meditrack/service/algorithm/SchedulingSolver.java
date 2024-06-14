@@ -168,7 +168,9 @@ public final class SchedulingSolver {
             timeSlotsPerDay.add(timeSlots);
         }
         for (int d = 0; d < input.numberOfDays(); d++) {
-            // TODO #86: handle first day of the month (i.e. include shifts that carry over to the next day)
+            // TODO #86: handle first day of the month
+            //  Currently if we have no shiftType that starts at 8:00 there is no solution.
+            //  The solution might however still be valid due to carry over from the prev month
             LinearExpr[] timeSlots = timeSlotsPerDay.get(d);
             for (int s = 0; s < input.shiftTypes().size(); s++) {
                 List<LinearExpr> employeesWorkingShift = new ArrayList<>();
