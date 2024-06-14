@@ -200,7 +200,9 @@ export class ShiftSwapComponent {
           swapRequestingUser: this.currentUser?.id == undefined ? "" : this.currentUser.id
         };
       } else {
+        console.log("here")
         this.newShiftSwap = undefined;
+        this.selectedDate = undefined;
         this.valid = false;
       }
     } else {
@@ -219,15 +221,17 @@ export class ShiftSwapComponent {
       this.shiftSwapService.createShiftSwap(shiftSwap).subscribe({
         next: response => {
           this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Offer '});
-          this.ownSelectedOffer = undefined;
-          this.otherSelectedOffer = undefined;
           this.ownShiftSwapsOffers.push(response);
           this.toggleDialog()
+          this.ownSelectedOffer = undefined;
+          this.otherSelectedOffer = undefined;
+          this.selectedDate = undefined;
         },
         error: (error) => {
           this.toggleDialog()
           this.ownSelectedOffer = undefined;
           this.otherSelectedOffer = undefined;
+          this.selectedDate = undefined;
           this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Offer '});
         }
       });
@@ -236,7 +240,6 @@ export class ShiftSwapComponent {
 
   toggleDialog() {
     this.shiftSwapDialog = !this.shiftSwapDialog
-    this.valid = true;
   }
 
   selectOwnOffer(shiftSwap: ShiftSwap) {
@@ -244,7 +247,7 @@ export class ShiftSwapComponent {
       requestedShift: shiftSwap.requestedShift,
       requestedShiftSwapStatus: shiftSwap.requestedShiftSwapStatus,
       swapRequestingUser: shiftSwap.swapRequestingUser};
-    if (this.ownSelectedOffer == shiftSwap) {
+    if (this.ownSelectedOffer?.requestedShift == shiftSwap.requestedShift) {
       this.ownSelectedOffer = undefined;
     } else {
       this.ownSelectedOffer = temp;
@@ -256,7 +259,7 @@ export class ShiftSwapComponent {
       requestedShift: shiftSwap.requestedShift,
       requestedShiftSwapStatus: shiftSwap.requestedShiftSwapStatus,
       swapRequestingUser: shiftSwap.swapRequestingUser};
-    if (this.otherSelectedOffer == shiftSwap) {
+    if (this.otherSelectedOffer?.requestedShift == shiftSwap.requestedShift) {
       this.otherSelectedOffer = undefined;
     } else {
       this.otherSelectedOffer = temp;
@@ -283,6 +286,8 @@ export class ShiftSwapComponent {
         this.requestedShiftSwaps.push(response);
       },
       error: (error) => {
+        this.ownSelectedOffer = undefined;
+        this.otherSelectedOffer = undefined;
         this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap ', detail: error.error});
       },
     })
@@ -312,8 +317,10 @@ export class ShiftSwapComponent {
               severity: 'success',
               summary: 'Successfully Deleted Shift Swap Offer'
             });
+            const deletedShiftSwap = this.ownShiftSwapsOffers.find(s => s.id == id)
             this.ownShiftSwapsOffers = this.ownShiftSwapsOffers.filter(s => s.id != id);
-            this.getAllRequestedShiftSwaps();
+            this.requestedShiftSwaps = this.requestedShiftSwaps.filter(s => s.requestedShift.id != deletedShiftSwap?.requestedShift.id);
+            this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.suggestedShift?.id != deletedShiftSwap?.requestedShift?.id)
           }, error: error => {
             this.messageService.add({
               severity: 'error',
@@ -346,11 +353,11 @@ export class ShiftSwapComponent {
     }
   }
 
-  confirmOffer(event: Event) {
+  confirmRetractRequest(event: Event, requestedSwap: ShiftSwap) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Do you want to create this offer?',
-      header: 'Offer Confirmation',
+      message: 'Do you want to retract this request?',
+      header: 'Retract Confirmation',
       icon: 'pi pi-info-circle',
       acceptButtonStyleClass: "p-button-success p-button-text",
       rejectButtonStyleClass: "p-button-text p-button-text",
@@ -358,16 +365,17 @@ export class ShiftSwapComponent {
       rejectIcon: "none",
 
       accept: () => {
-        this.createShiftSwapOffer()
+        this.retractRequest(requestedSwap)
       }
     });
   }
 
-  confirmRequest(event: Event) {
+  confirmRetractOffer(event: Event, id: string | undefined) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: 'Do you want to create this request?',
-      header: 'Request Confirmation',
+      message: 'Do you want to delete this offer?<br>' +
+        'This will delete all associated shift swap requests and offers',
+      header: 'Delete Confirmation',
       icon: 'pi pi-info-circle',
       acceptButtonStyleClass: "p-button-success p-button-text",
       rejectButtonStyleClass: "p-button-text p-button-text",
@@ -375,7 +383,7 @@ export class ShiftSwapComponent {
       rejectIcon: "none",
 
       accept: () => {
-        this.createRequest()
+        this.retractOffer(id);
       }
     });
   }
