@@ -182,7 +182,11 @@ public final class SchedulingSolver {
             int finalR = r;
             TreeSet<Integer> employeesWithRole = IntStream.range(0, input.employees().size())
                     .boxed()
-                    .filter(employeeIndex -> input.employees().get(employeeIndex).role() == finalR)
+                    .filter(employeeIndex -> {
+                        EmployeeInfo employeeInfo = input.employees().get(employeeIndex);
+                        if (employeeInfo.role().isEmpty()) return false;
+                        return employeeInfo.role().get() == finalR;
+                    })
                     .collect(Collectors.toCollection(TreeSet::new));
 
             addRequiredPeopleConstraint(

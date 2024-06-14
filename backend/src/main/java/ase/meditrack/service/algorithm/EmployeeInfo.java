@@ -1,6 +1,7 @@
 package ase.meditrack.service.algorithm;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -12,6 +13,7 @@ import java.util.Set;
  *                                    working percentage, holidays, ...
  * @param holidays                    days of the month when the employee is on holiday
  * @param offDays                     days of the month when the user doesn't want to work
+ * @param role                        the role of the employee
  */
 public record EmployeeInfo(
         List<Integer> worksShiftTypes,
@@ -20,6 +22,6 @@ public record EmployeeInfo(
         int optimalWorkingHoursPerMonth,
         Set<Integer> holidays,
         Set<Integer> offDays,
-        Integer role
+        Optional<Integer> role
 ) {
 }
