@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class AlgorithmMapper {
 
     private final Map<UUID, Integer> shiftTypeUuidToIndex = new HashMap<>();
+    private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToShiftTypeUuid = new HashMap<>();
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
 
@@ -53,9 +54,11 @@ public class AlgorithmMapper {
 
         // Map role entities to records
         List<RoleInfo> roleInfos = new ArrayList<>();
-        for (Role role : roles) {
+        for (int i = 0; i < roles.size(); i++) {
             // TODO #86: add required people
+            Role role = roles.get(i);
             roleInfos.add(new RoleInfo(role.getName(), 0, 0));
+            roleUuidToIndex.put(role.getId(), i);
         }
 
         int numberOfDays = 0;
@@ -127,7 +130,8 @@ public class AlgorithmMapper {
                     averageWorkingHoursPerMonth - employee.getCurrentOverTime() / 2,
                     holidayDays,
                     employee.getPreferences().getOffDays().stream().map(LocalDate::getDayOfMonth)
-                            .collect(Collectors.toSet())
+                            .collect(Collectors.toSet()),
+                    roleUuidToIndex.get(employee.getRole().getId())
             ));
         }
 

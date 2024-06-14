@@ -19,6 +19,7 @@ public record EmployeeInfo(
         int maxWorkingHoursPerMonth,
         int optimalWorkingHoursPerMonth,
         Set<Integer> holidays,
-        Set<Integer> offDays
+        Set<Integer> offDays,
+        Integer role
 ) {
 }

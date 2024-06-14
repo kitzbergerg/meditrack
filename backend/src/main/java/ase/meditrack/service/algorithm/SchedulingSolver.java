@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -51,6 +53,9 @@ public final class SchedulingSolver {
             if (employeeInfo.optimalWorkingHoursPerMonth() < employeeInfo.minWorkingHoursPerMonth()
                     || employeeInfo.optimalWorkingHoursPerMonth() > employeeInfo.maxWorkingHoursPerMonth()) {
                 throw new RuntimeException("invalid employeeInfo optimalWorkingHoursPerMonth");
+            }
+            if (employeeInfo.role() == null) {
+                throw new RuntimeException("invalid employeeInfo role");
             }
         }
 
@@ -159,28 +164,70 @@ public final class SchedulingSolver {
         }
 
         // Staffing Level Per Day/Nighttime - There have to always be at least day/nighttimeRequiredPeople present
+        addRequiredPeopleConstraint(
+                model,
+                shifts,
+                input.numberOfDays(),
+                input.shiftTypes(),
+                input.daytimeRequiredPeople(),
+                input.nighttimeRequiredPeople(),
+                IntStream.range(0, input.employees().size()).boxed().collect(Collectors.toCollection(TreeSet::new))
+        );
+
+        // Staffing Level Per Day/Nighttime Per Role
+        for (int r = 0; r < input.roles().size(); r++) {
+            RoleInfo roleInfo = input.roles().get(r);
+            if (roleInfo.daytimeRequiredPeople() == 0 && roleInfo.nighttimeRequiredPeople() == 0) continue;
+
+            int finalR = r;
+            TreeSet<Integer> employeesWithRole = IntStream.range(0, input.employees().size())
+                    .boxed()
+                    .filter(employeeIndex -> input.employees().get(employeeIndex).role() == finalR)
+                    .collect(Collectors.toCollection(TreeSet::new));
+
+            addRequiredPeopleConstraint(
+                    model,
+                    shifts,
+                    input.numberOfDays(),
+                    input.shiftTypes(),
+                    roleInfo.daytimeRequiredPeople(),
+                    roleInfo.nighttimeRequiredPeople(),
+                    employeesWithRole
+            );
+        }
+    }
+
+    private static void addRequiredPeopleConstraint(
+            CpModel model,
+            BoolVar[][][] shifts,
+            int numberOfDays,
+            List<ShiftTypeInfo> shiftTypes,
+            int daytimeRequiredPeople,
+            int nighttimeRequiredPeople,
+            TreeSet<Integer> employees
+    ) {
         List<LinearExpr[]> timeSlotsPerDay = new ArrayList<>();
-        for (int d = 0; d < input.numberOfDays(); d++) {
+        for (int d = 0; d < numberOfDays; d++) {
             // 1 slot for every half hour
             LinearExpr[] timeSlots = IntStream.range(0, 48)
                     .mapToObj(i -> LinearExpr.constant(0))
                     .toArray(LinearExpr[]::new);
             timeSlotsPerDay.add(timeSlots);
         }
-        for (int d = 0; d < input.numberOfDays(); d++) {
+        for (int d = 0; d < numberOfDays; d++) {
             // TODO #86: handle first day of the month
             //  Currently if we have no shiftType that starts at 8:00 there is no solution.
             //  The solution might however still be valid due to carry over from the prev month
             LinearExpr[] timeSlots = timeSlotsPerDay.get(d);
-            for (int s = 0; s < input.shiftTypes().size(); s++) {
+            for (int s = 0; s < shiftTypes.size(); s++) {
                 List<LinearExpr> employeesWorkingShift = new ArrayList<>();
-                for (int n = 0; n < input.employees().size(); n++) {
+                for (Integer n : employees) {
                     employeesWorkingShift.add(LinearExpr.term(shifts[n][d][s], 1));
                 }
                 LinearExpr numOfEmployeesWorkingShift =
                         LinearExpr.sum(employeesWorkingShift.toArray(LinearExpr[]::new));
 
-                ShiftTypeInfo shiftTypeInfo = input.shiftTypes().get(s);
+                ShiftTypeInfo shiftTypeInfo = shiftTypes.get(s);
                 int startIndex = timeToSlotIndex(shiftTypeInfo.startTime());
                 for (int slot = startIndex; slot - startIndex <= shiftTypeInfo.duration() * 2; slot++) {
                     if (slot < timeSlots.length) {
@@ -190,7 +237,7 @@ public final class SchedulingSolver {
                         continue;
                     }
                     // we have carry over i.e. a shift starts on the current day and ends on the next day
-                    if (d + 1 >= input.numberOfDays()) {
+                    if (d + 1 >= numberOfDays) {
                         // carry over to next month -> ignored
                         break;
                     }
@@ -204,10 +251,10 @@ public final class SchedulingSolver {
             }
 
             for (int slot = 0; slot < 24; slot++) {
-                model.addGreaterOrEqual(timeSlots[slot], input.daytimeRequiredPeople());
+                model.addGreaterOrEqual(timeSlots[slot], daytimeRequiredPeople);
             }
             for (int slot = 24; slot < 48; slot++) {
-                model.addGreaterOrEqual(timeSlots[slot], input.nighttimeRequiredPeople());
+                model.addGreaterOrEqual(timeSlots[slot], nighttimeRequiredPeople);
             }
         }
     }
