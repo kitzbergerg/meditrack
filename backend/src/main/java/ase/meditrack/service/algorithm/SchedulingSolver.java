@@ -42,6 +42,17 @@ public final class SchedulingSolver {
                 || input.shiftTypes().isEmpty()) {
             throw new RuntimeException("invalid input");
         }
+        for (ShiftTypeInfo shiftTypeInfo : input.shiftTypes()) {
+            if (shiftTypeInfo.duration() <= 0 || shiftTypeInfo.duration() > 12) {
+                throw new RuntimeException("invalid shiftTypeInfo duration");
+            }
+        }
+        for (EmployeeInfo employeeInfo : input.employees()) {
+            if (employeeInfo.optimalWorkingHoursPerMonth() < employeeInfo.minWorkingHoursPerMonth()
+                    || employeeInfo.optimalWorkingHoursPerMonth() > employeeInfo.maxWorkingHoursPerMonth()) {
+                throw new RuntimeException("invalid employeeInfo optimalWorkingHoursPerMonth");
+            }
+        }
 
         CpModel model = new CpModel();
 

@@ -54,7 +54,7 @@ public class AlgorithmMapper {
         // Map role entities to records
         List<RoleInfo> roleInfos = new ArrayList<>();
         for (Role role : roles) {
-            // TODO #86: add missing role values
+            // TODO #86: add required people
             roleInfos.add(new RoleInfo(role.getName(), 0, 0));
         }
 
