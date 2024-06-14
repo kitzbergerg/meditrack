@@ -44,14 +44,14 @@ public class PreferencesController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     public PreferencesDto findById(@PathVariable UUID id) {
         log.info("Fetching preferences with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     @ResponseStatus(HttpStatus.CREATED)
     public PreferencesDto create(@Validated(CreateValidator.class) @RequestBody PreferencesDto dto) {
         log.info("Creating preferences {}", dto.id());
@@ -59,7 +59,7 @@ public class PreferencesController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     @ResponseStatus(HttpStatus.OK)
     public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto) {
         log.info("Updating preferences {}", dto.id());
@@ -67,7 +67,7 @@ public class PreferencesController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         log.info("Deleting preferences with id {}", id);

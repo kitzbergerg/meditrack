@@ -19,6 +19,8 @@ public interface ShiftTypeMapper {
 
     ShiftType fromDto(ShiftTypeDto dto);
 
+    // TODO : this is not used
+/*
     @Named("toScheduleDto")
     @Mapping(target = "name", source = "shiftType.name")
     @Mapping(target = "startTime", source = "shiftType.startTime")
@@ -27,6 +29,7 @@ public interface ShiftTypeMapper {
     @Mapping(target = "breakEndTime", source = "shiftType.breakEndTime")
     @Mapping(target = "abbreviation", source = "shiftType.abbreviation")
     ShiftTypeScheduleDto toScheduleDto(ShiftType shiftType);
+*/
 
     @Named("toSimpleDto")
     SimpleShiftTypeDto toSimpleDto(ShiftType canWorkShiftType);

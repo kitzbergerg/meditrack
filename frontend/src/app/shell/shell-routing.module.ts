@@ -11,6 +11,7 @@ import {RulesComponent} from "../components/rules/rules.component";
 import {ShiftTypesComponent} from "../components/shift-types/shift-types.component";
 import {ScheduleComponent} from "../components/schedule/schedule.component";
 import {ShiftSwapComponent} from "../components/shift-swap/shift-swap.component";
+import {PreferencesComponent} from "../components/preferences/preferences.component";
 
 const routes: Routes = [
   {
@@ -41,6 +42,11 @@ const routes: Routes = [
     path: 'schedule',
     canActivate: [employeeGuard],
     component: ScheduleComponent,
+  },
+  {
+    path: 'holidays',
+    canActivate: [employeeGuard],
+    component: PreferencesComponent,
   },
   {
     path: 'rules',

@@ -1,0 +1,110 @@
+<div class="grid">
+  <div class="col-12 md:col-6">
+    <div class="card px-6 py-6">
+      <h2 class="pb-2" style="text-align: center;">Off Days</h2>
+      <ul class="list-none p-0 m-0"
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+        <li *ngFor="let offDay of offDays" class="flex items-center mb-4">
+          <p-card
+            [style]="{width: '400px', maxHeight: '60px'}" styleClass="p-card-shadow">
+            <div class="flex">
+              <div class="pi pi-calendar mr-2" style="display: block; font-size: 1.8rem; width: 50px; margin-top: -19px">
+              </div>
+                <div class="text font-medium" style="display: block; font-size: 1.4rem; width: 100%; margin-top: -17px">
+              {{ offDay | date:'dd.MM.YYYY' }}
+                </div>
+            </div>
+          </p-card>
+          <div class="flex" style="margin-top: 12px; margin-left: 10px">
+            <p-button (click)="updatePreferences(offDay)" icon="pi pi-pencil" [outlined]="true"
+                      severity="info"></p-button>
+          </div>
+          <div class="flex" style="margin-top: 12px; margin-left: 10px">
+            <p-button (click)="removePreferences(offDay)" icon="pi pi-trash" [outlined]="true"
+                      severity="danger"></p-button>
+          </div>
+        </li>
+
+        <p-dialog [(visible)]="offDayDialog" [style]="{ width: '450px'}" header="Off Day" [modal]="true"
+                  class="p-fluid">
+          <ng-template pTemplate="content">
+            <div *ngIf="selectedDate !== undefined">
+              <div class="p-1">
+                <p>Would you like to set the following date as your off day?</p>
+                <div class="text-lg font-semibold" style="display: block; text-align: center; margin-top: 10px;">
+                  {{ selectedDate | date:'dd.MM.YYYY' }}
+                </div>
+              </div>
+              <ng-template pTemplate="header">
+                <div class="text-xl font-bold"
+                     [ngStyle]="{color: 'white', height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+
+                </div>
+              </ng-template>
+              <p-toast></p-toast>
+              <div class="flex flex-row justify-content-end mt-3">
+                <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
+                          (click)="toggleDialog()"></p-button>
+                <p-button label="Save" icon="pi pi-check" [text]="true"
+                          (click)="savePreferences()"></p-button>
+              </div>
+            </div>
+
+          </ng-template>
+
+        </p-dialog>
+
+        <div class="flex flex-column">
+          <div class="flex center">
+            <p-toast></p-toast>
+            <p-calendar
+              [selectOtherMonths]="false"
+              [iconDisplay]="'input'"
+              [showOtherMonths]="false"
+              [showIcon]="true"
+              [minDate]="currentDate"
+              [(ngModel)]="selectedDate"
+              [dateFormat]="'dd.mm.yy'"
+              [readonlyInput]="true"
+              (selectionchange)="generateOffDay()"
+              (onSelect)="generateOffDay()"
+              placeholder="Choose Off Day">
+
+              <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
+                   (click)="clickCallBack($event)"> </i>
+              </ng-template>
+
+              <ng-template pTemplate="date" let-date>
+                <div [ngStyle]="{
+                        backgroundColor: 'inherit',
+                        border: (isOffDay(date)) ? '5px solid #FFFFFF' : '1px solid transparent',
+                        width: '30px',
+                        height: '30px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxSizing: 'border-box',
+                        opacity: (isOffDay(date)) ? '0.5' : '1',
+                        pointerEvents: (isOffDay(date)) ? 'none' : 'auto'
+                      }">
+                  {{ date.day }}
+                </div>
+              </ng-template>
+
+            </p-calendar>
+          </div>
+        </div>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-12 md:col-6">
+    <div class="card px-6 py-6">
+      <h2 style="text-align: center;">Holidays</h2>
+        <ul class="list-none p-0 m-0"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+        </ul>
+    </div>
+  </div>
+</div>
