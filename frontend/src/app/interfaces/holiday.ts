@@ -2,8 +2,8 @@ export interface Holiday {
   id?: string;
   startDate: string;
   endDate: string;
-  user: string;
-  status: HolidayRequestStatus
+  user?: string;
+  status?: HolidayRequestStatus
 }
 
 export enum HolidayRequestStatus {

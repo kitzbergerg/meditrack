@@ -1,1 +1,62 @@
-<p>holidays works!</p>
+<div *ngIf="!loading">
+  <div class="grid">
+    <div class="col-12 md:col-6">
+      <div class="card px-6 py-6">
+        <h2 style="text-align: center;">Holidays</h2>
+        <ul class="list-none p-0 m-0">
+          <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-0">
+            <span class="text-xl font-bold mr-2 md:mb-2">Begin</span>
+            <span class="text-xl font-bold mr-2 md:mb-2">End</span>
+            <span class="text-xl font-bold mr-2 md:mb-2">Status</span>
+          </li>
+          <li *ngFor="let holiday of holidays"
+              class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.status }}</span>
+          </li>
+        </ul>
+        <div class="plusButtonContainer">
+          <button (click)="showCreateForm()" pbutton="" pripple="" type="button" icon="pi pi-plus" class="p-element p-ripple p-button-rounded p-button p-button p-component p-button-icon-only">
+            <span class="p-button-icon pi pi-plus" aria-hidden="true"></span>
+            <span class="p-ink" aria-hidden="true" role="presentation"></span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+    <div class="col-12 md:col-6">
+      <div class="card p-fluid">
+        <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
+        <div class="field grid">
+          <label htmlfor="startDate" class="col-12 mb-2 md:col-2 md:mb-0">Start date</label>
+          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+            <input pInputText id="startDate" type="date" class="p-inputtext p-component p-element"
+                   [(ngModel)]="holiday.startDate"
+                   [ngClass]="{'ng-invalid ng-dirty': submitted && holiday.startDate === ''}">
+            <small *ngIf="submitted && holiday.startDate === ''">Start date is required.</small>
+          </div>
+        </div>
+        <div class="field grid">
+          <label htmlfor="endDate" class="col-12 mb-2 md:col-2 md:mb-0">End date</label>
+          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+            <input pInputText id="endDate" type="date" class="p-inputtext p-component p-element"
+                   [(ngModel)]="holiday.endDate"
+                   [ngClass]="{'ng-invalid ng-dirty': submitted && holiday.endDate === ''}">
+            <small *ngIf="submitted && holiday.endDate === ''">End date is required.</small>
+          </div>
+        </div>
+        <p-toast></p-toast>
+        <div class="button-container">
+          <button *ngIf="formMode === 'create'"
+                  (click)="createOrUpdateHoliday()"
+                  style="height: 35px; width: 150px;"
+                  pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
+            <span class="p-button-label">{{ formAction }}</span>
+            <span class="p-ink" aria-hidden="true" role="presentation"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

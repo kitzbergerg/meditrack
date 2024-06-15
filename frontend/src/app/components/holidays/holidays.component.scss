@@ -1,0 +1,35 @@
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.plusButtonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.p-input-icon-right,
+.p-label {
+  padding-left: 20px;
+  max-width: 200px;
+}
+
+.field label {
+  width: 120px;
+}
+
+.buttonset {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.buttonset button {
+  width: 100px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}

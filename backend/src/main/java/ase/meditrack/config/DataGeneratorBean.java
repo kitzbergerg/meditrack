@@ -86,7 +86,7 @@ public class DataGeneratorBean {
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
     private static final Integer NUM_USERS_WITH_ROLES = 4;
-    private static final Integer NUM_HOLIDAYS = 0;
+    private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
