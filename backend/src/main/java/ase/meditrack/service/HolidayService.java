@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,14 +42,17 @@ public class HolidayService {
     }
 
     /**
-     * Fetches all holidays from the database for a specific user.
+     * Fetches all upcoming holidays from the database for a specific user.
      *
      * @param userId the id of the user
      * @return List of all holidays for a specific user
      */
     public List<Holiday> findAllByUser(String userId) {
         User user = userService.findById(UUID.fromString(userId));
-        return repository.findAllByUser(user);
+        return repository.findAllByUser(user)
+                .stream()
+                .filter(holiday -> holiday.getStartDate().isAfter(LocalDate.now().minusDays(1)))
+                .toList();
     }
 
     /**
@@ -86,13 +90,16 @@ public class HolidayService {
     }
 
     /**
-     * Fetches all holidays from the database for a specific team.
+     * Fetches all upcoming holidays from the database for a specific team.
      *
      * @param principal the principal
      * @return List of all holidays for a specific team
      */
     public List<Holiday> findAllByTeam(Principal principal) {
-        return repository.findByUserIn(userService.findByTeam(principal));
+        return repository.findByUserIn(userService.findByTeam(principal))
+                .stream()
+                .filter(holiday -> holiday.getStartDate().isAfter(LocalDate.now().minusDays(1)))
+                .toList();
     }
 
     /**
