@@ -2,7 +2,9 @@ package ase.meditrack.controller;
 
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
+import ase.meditrack.model.dto.MonthlyWorkDetailsDto;
 import ase.meditrack.model.dto.UserDto;
+import ase.meditrack.model.mapper.MonthlyWorkDetailsMapper;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +19,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -33,10 +38,12 @@ import java.util.UUID;
 public class UserController {
     private final UserService service;
     private final UserMapper mapper;
+    private final MonthlyWorkDetailsMapper monthlyWorkDetailsMapper;
 
-    public UserController(UserService service, UserMapper mapper) {
+    public UserController(UserService service, UserMapper mapper, MonthlyWorkDetailsMapper monthlyWorkDetailsMapper) {
         this.service = service;
         this.mapper = mapper;
+        this.monthlyWorkDetailsMapper = monthlyWorkDetailsMapper;
     }
 
     @GetMapping
@@ -47,7 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
     public List<UserDto> findByTeam(Principal principal) {
         log.info("Fetching users from dm team");
         try {
@@ -90,5 +97,18 @@ public class UserController {
     public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting user with id {}", id);
         service.delete(id, principal);
+    }
+
+    @GetMapping("/monthly-details")
+    public MonthlyWorkDetailsDto getMonthlyWorkDetails(@RequestParam Year year,
+                                                       @RequestParam Month month, @RequestParam UUID userId) {
+        log.info("Fetching monthly work details from user");
+        try {
+            return monthlyWorkDetailsMapper.toDto(service.findWorkDetailsByIdAndMonthAndYear(userId, month, year));
+        } catch (NoSuchElementException e) {
+            log.error("NoSuchElementException: GET /api/user/monthly-details", e);
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Error getting monthly details from user: " + e.getMessage(), e);
+        }
     }
 }

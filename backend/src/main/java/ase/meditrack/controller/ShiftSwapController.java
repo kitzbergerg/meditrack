@@ -3,7 +3,6 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.ShiftSwapDto;
-import ase.meditrack.model.dto.SimpleShiftSwapDto;
 import ase.meditrack.model.mapper.ShiftSwapMapper;
 import ase.meditrack.service.ShiftSwapService;
 import lombok.extern.slf4j.Slf4j;
@@ -45,41 +44,77 @@ public class ShiftSwapController {
         return mapper.toDtoList(service.findAll());
     }
 
-    @GetMapping("/month")
+    @GetMapping("/own-offers")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
     public List<ShiftSwapDto> findAllFromUserAndCurrentMonth(Principal principal) {
         log.info("Fetching shift-swaps from a user from the current month");
         return mapper.toDtoList(service.findAllByCurrentMonth(principal));
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/requests")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
-    public ShiftSwapDto findById(@PathVariable UUID id) {
+    public List<ShiftSwapDto> findAllRequests(Principal principal) {
+        log.info("Fetching shift-swaps requests from a user from the current month");
+        return mapper.toDtoList(service.findAllRequests(principal));
+    }
+
+    @GetMapping("/suggestions")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    public List<ShiftSwapDto> findAllSuggestions(Principal principal) {
+        log.info("Fetching shift-swaps suggestions from a user from the current month");
+        return mapper.toDtoList(service.findAllSuggestions(principal));
+    }
+
+    @GetMapping("/offers")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    public List<ShiftSwapDto> findAllFromCurrentMonth(Principal principal) {
+        log.info("Fetching shift-swaps offers from the current month");
+        return mapper.toDtoList(service.findAllOffersByCurrentMonth(principal));
+    }
+
+    @GetMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
+    public ShiftSwapDto findById(@PathVariable UUID id, Principal principal) {
         log.info("Fetching shift-swap with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee') && "
+            + "@shiftSwapService.isShiftFromUser(#principal, @shiftSwapMapperImpl.fromDto(#dto)))")
     @ResponseStatus(HttpStatus.CREATED)
-    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody SimpleShiftSwapDto dto) {
-        log.info("Creating shift-swap {}", dto.id());
-        return mapper.toDto(service.create(mapper.fromSimpleShiftSwapDto(dto)));
+    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
+        log.info("Creating shift-swap {}", dto);
+        return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #dto.id()))")
     @ResponseStatus(HttpStatus.OK)
-    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto) {
+    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
         log.info("Updating shift-swap {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
+
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting shift-swap with id {}", id);
         service.delete(id);
+    }
+
+    @DeleteMapping("/retract/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void retract(@PathVariable UUID id, Principal principal) {
+        log.info("Retract shift-swap request {}", id);
+        service.retract(id);
     }
 }

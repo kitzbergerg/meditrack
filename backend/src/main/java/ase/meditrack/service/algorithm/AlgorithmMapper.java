@@ -1,5 +1,6 @@
 package ase.meditrack.service.algorithm;
 
+import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
@@ -13,13 +14,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class AlgorithmMapper {
 
-
     private final Map<UUID, Integer> shiftTypeUuidToIndex = new HashMap<>();
+    private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToShiftTypeUuid = new HashMap<>();
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
 
@@ -29,13 +33,21 @@ public class AlgorithmMapper {
      * @param month
      * @param year
      * @param employees
+     * @param holidaysPerUser
      * @param shiftTypes
      * @param roles
      * @param team
      * @return input for the algorithm
      */
-    public AlgorithmInput mapToAlgorithmInput(int month, int year, List<User> employees, List<ShiftType> shiftTypes,
-                                              List<Role> roles, Team team) {
+    public AlgorithmInput mapToAlgorithmInput(
+            int month,
+            int year,
+            List<User> employees,
+            Map<UUID, List<Holiday>> holidaysPerUser,
+            List<ShiftType> shiftTypes,
+            List<Role> roles,
+            Team team
+    ) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate date = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
@@ -44,9 +56,10 @@ public class AlgorithmMapper {
         // Map role entities to records
         List<RoleInfo> roleInfos = new ArrayList<>();
         for (int i = 0; i < roles.size(); i++) {
+            // TODO #86: add required people
             Role role = roles.get(i);
-            // TODO #86: add missing role values
-            roleInfos.add(new RoleInfo(role.getName(), 0, 0, 0, 0));
+            roleInfos.add(new RoleInfo(role.getName(), 0, 0));
+            roleUuidToIndex.put(role.getId(), i);
         }
 
         int numberOfDays = 0;
@@ -80,26 +93,53 @@ public class AlgorithmMapper {
             UUID id = employee.getId();
             indexToEmployeeUuid.put(i, id);
 
-            // TODO #86: make sure holidays and off days are considered in this calculation
-            int optimalWorkingHoursPerMonth =
-                    (int) (employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours());
-            optimalWorkingHoursPerMonth = optimalWorkingHoursPerMonth * numberOfDays / 5;
-
-            List<Integer> worksShifts = new ArrayList<>();
+            List<Integer> worksShiftTypes = new ArrayList<>();
             if (employee.getCanWorkShiftTypes().isEmpty()) {
-                worksShifts.addAll(shiftTypeUuidToIndex.values());
+                worksShiftTypes.addAll(shiftTypeUuidToIndex.values());
             } else {
                 for (ShiftType type : employee.getCanWorkShiftTypes()) {
                     int index = shiftTypeUuidToIndex.get(type.getId());
-                    worksShifts.add(index);
+                    worksShiftTypes.add(index);
                 }
             }
-            // TODO #86: add holidays
-            employeeInfos.add(new EmployeeInfo(worksShifts, optimalWorkingHoursPerMonth, List.of()));
+
+            List<Holiday> holidays = holidaysPerUser.get(id);
+            Set<Integer> holidayDays = new TreeSet<>();
+            for (Holiday holiday : holidays) {
+                holiday.getStartDate()
+                        .datesUntil(holiday.getEndDate().plusDays(1))
+                        .filter(day -> yearMonth.getMonth() == day.getMonth())
+                        .forEach(day -> holidayDays.add(day.getDayOfMonth()));
+            }
+
+            // we do not consider public holidays or weekends
+            // this is close enough for the algorithm to get good results
+            float averageWorkingHoursPerDay = employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours() / 7;
+            int numberOfWorkingDays = numberOfDays - holidayDays.size();
+            int averageWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
+
+            // TODO #86: get flexitime from role instead of hard constraint
+            int maxAllowedChangePlus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
+                    team.getHardConstraints().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
+            int maxAllowedChangeMinus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
+                    team.getHardConstraints().getAllowedFlextimeTotal() + employee.getCurrentOverTime());
+
+            employeeInfos.add(new EmployeeInfo(
+                    worksShiftTypes,
+                    averageWorkingHoursPerMonth - maxAllowedChangeMinus,
+                    averageWorkingHoursPerMonth + maxAllowedChangePlus,
+                    averageWorkingHoursPerMonth - employee.getCurrentOverTime() / 2,
+                    holidayDays,
+                    employee.getPreferences().getOffDays().stream().map(LocalDate::getDayOfMonth)
+                            .collect(Collectors.toSet()),
+                    employee.getRole() == null
+                            ? Optional.empty()
+                            : Optional.of(roleUuidToIndex.get(employee.getRole().getId()))
+            ));
         }
 
         // TODO #86: add required people
-        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 0, 0);
+        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 2, 0);
     }
 
     /**
@@ -113,8 +153,14 @@ public class AlgorithmMapper {
      * @param year
      * @return a list of shifts that satisfy the constraints
      */
-    public List<Shift> mapFromAlgorithmOutput(AlgorithmOutput output, List<ShiftType> shiftTypes, List<User> users,
-                                              MonthlyPlan monthlyPlan, Integer month, Integer year) {
+    public List<Shift> mapFromAlgorithmOutput(
+            AlgorithmOutput output,
+            List<ShiftType> shiftTypes,
+            List<User> users,
+            MonthlyPlan monthlyPlan,
+            Integer month,
+            Integer year
+    ) {
         // Create maps, key = UUID, value = entity
         Map<UUID, ShiftType> shiftTypeMap =
                 shiftTypes.stream().collect(Collectors.toMap(ShiftType::getId, shiftType -> shiftType));

@@ -46,21 +46,23 @@ public class ShiftController {
     }
 
     @GetMapping("/month")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
     public List<SimpleShiftDto> findAllByCurrentMonth(Principal principal) {
         log.info("Fetching shifts by current month");
         return mapper.toSimpleShiftDtoList(service.findAllByCurrentMonth(principal));
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || hasAnyAuthority('SCOPE_dm')")
     public ShiftDto findById(@PathVariable UUID id) {
         log.info("Fetching shift with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm')"
+            + "&& @monthlyPlanService.isUserInTeam(authentication.name, #dto.monthlyPlan()))")
     @ResponseStatus(HttpStatus.CREATED)
     public ShiftDto create(@Validated(CreateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Creating shift {}", dto.id());
@@ -68,7 +70,9 @@ public class ShiftController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm')"
+            + "&& @monthlyPlanService.isUserInTeam(authentication.name, #dto.monthlyPlan()))")
     @ResponseStatus(HttpStatus.OK)
     public ShiftDto update(@Validated(UpdateValidator.class) @RequestBody ShiftDto dto) {
         log.info("Updating shift {}", dto.id());
@@ -76,7 +80,8 @@ public class ShiftController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isShiftFromTeam(authentication.name, #id)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         log.info("Deleting shift with id {}", id);
