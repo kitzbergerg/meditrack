@@ -43,43 +43,41 @@ export class Rules1Component implements OnInit {
 
   loadRules(): void {
     this.rulesService.getAllRulesFromTeam().subscribe((fetchedRules) => {
-        for (const key in fetchedRules) {
-          if (Object.prototype.hasOwnProperty.call(fetchedRules, key)) {
-            const rule = this.teamConstraints.find(x => x.name === key)
-            console.log(key, ' . ', fetchedRules[key])
-            if(rule != undefined) {
-              rule.value = fetchedRules[key];
-            }
-          }
-        }
+      this.teamConstraints[0].value = fetchedRules.workingHours;
+      this.teamConstraints[1].value = fetchedRules.maxWeeklyHours;
+      this.teamConstraints[2].value = fetchedRules.maxConsecutiveShifts;
+      this.teamConstraints[3].value = fetchedRules.daytimeRequiredPeople;
+      this.teamConstraints[4].value = fetchedRules.nighttimeRequiredPeople;
     });
   }
 
   loadRoleRules(): void {
     //todo convert to role rules
-    this.rulesService.getAllRoleRulesFromTeam().subscribe((fetchedRoleRoles) => {
-      for (const roleRule of fetchedRoleRoles) {
-        this.roleRules.push({
-          role: roleRule.role,
-          daytimeRequiredPeople: roleRule.daytimeRequiredPeople,
-          nighttimeRequiredPeople: roleRule.nighttimeRequiredPeople,
-          allowedFlexitimeMonthly: roleRule.allowedFlexitimeMonthly,
-          allowedFlexitimeTotal: roleRule.allowedFlexitimeTotal
-        })
-      }
-    })
-/*
-
     this.rolesService.getAllRolesFromTeam().subscribe((fetchedRoles) => {
-      this.roles = fetchedRoles;
-      this.loading = false;
 
-      for (const role of this.roles) {
-        this.roleRules.push({role: role,
-          daytimeRequiredPeople: 0, nighttimeRequiredPeople: 0,
-          allowedFlexitimeMonthly: 0, allowedFlexitimeTotal: 0})
+      console.log('roles')
+      for (const key of fetchedRoles) {
+        console.log(key)
       }
-    });*/
+      this.roles = fetchedRoles;
+    });
+
+    this.rulesService.getAllRoleRulesFromTeam().subscribe((fetchedRoleRules) => {
+      console.log('fetchedRoleRoles', fetchedRoleRules)
+      this.roleRules = fetchedRoleRules;
+    })
+    /*
+
+        this.rolesService.getAllRolesFromTeam().subscribe((fetchedRoles) => {
+          this.roles = fetchedRoles;
+          this.loading = false;
+
+          for (const role of this.roles) {
+            this.roleRules.push({role: role,
+              daytimeRequiredPeople: 0, nighttimeRequiredPeople: 0,
+              allowedFlexitimeMonthly: 0, allowedFlexitimeTotal: 0})
+          }
+        });*/
   }
 
   selectRoleRule(role: RoleRules) {
@@ -89,7 +87,7 @@ export class Rules1Component implements OnInit {
     this.showRulesEditCard = false;
     this.selectedRoleRules = role
     this.formMode = 'details';
-    this.selectedRule = {name: '', label: '',value: 0,}; // Initialize selectedRule to avoid errors
+    this.selectedRule = {name: '', label: '', value: 0,}; // Initialize selectedRule to avoid errors
   }
 
   selectRule(rule: Rule, type: 'team' | 'role') {
@@ -137,17 +135,9 @@ export class Rules1Component implements OnInit {
 
   updateRule() {
     if (this.showRulesEditCard) {
-      this.rulesService.updateRule(this.selectedRule!).subscribe({
-        next: () => {
-          this.messageService.add({severity: 'success', summary: 'Successfully Updated Rule'});
-          this.loadRules();
-          this.resetForm();
-        },
-        error: (error) => {
-          console.error('Error updating rule:', error);
-          this.messageService.add({severity: 'error', summary: 'Updating Rule Failed', detail: error.error});
-        },
-      });
+      console.log('updateRule this.showRulesEditCard')
+      this.teamConstraints.find(x => x.name == this.selectedRule!.name)!.value = this.selectedRule!.value;
+      this.rulesService.saveRules(this.teamConstraints).subscribe();
     } else {
       this.rulesService.updateRoleRule(this.selectedRoleRules!).subscribe({
         next: () => {
@@ -182,6 +172,11 @@ export class Rules1Component implements OnInit {
   }
 
   getNameOfRole(role: RoleRules) {
-    return this.roles.find(x => x.id == role.role)?.name;
+    //console.log('getNameOfRole')
+    return this.roles.find(x => {
+/*      console.log('x, role.id')
+      console.log(x, role)*/
+      return x.id == role.roleId
+    })?.name;
   }
 }

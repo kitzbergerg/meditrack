@@ -70,20 +70,20 @@
               <label htmlFor="allowedFlexitimeTotal" class="col-12 mb-2 md:col-2 md:mb-0">Allowed Flexitime Total</label>
               <div class="col-12 md:col-10" style="padding-left: 20px;">
                 <input pInputText="" id="allowedFlexitimeTotal" type="number" class="p-inputtext p-component p-element"
-                       [(ngModel)]="selectedRoleRules.allowedFlexitimeTotal"
-                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlexitimeTotal === null}"
+                       [(ngModel)]="selectedRoleRules.allowedFlextimeTotal"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimeTotal === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.allowedFlexitimeTotal === null">Value is required.</small>
+                <small *ngIf="submitted && selectedRoleRules.allowedFlextimeTotal === null">Value is required.</small>
               </div>
             </div>
             <div class="field grid input-container">
               <label htmlFor="allowedFlexitimeMonthly" class="col-12 mb-2 md:col-2 md:mb-0">Allowed Flexitime Monthly</label>
               <div class="col-12 md:col-10" style="padding-left: 20px;">
                 <input pInputText="" id="allowedFlexitimeMonthly" type="number" class="p-inputtext p-component p-element"
-                       [(ngModel)]="selectedRoleRules.allowedFlexitimeMonthly"
-                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlexitimeMonthly === null}"
+                       [(ngModel)]="selectedRoleRules.allowedFlextimePerMonth"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimePerMonth === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.allowedFlexitimeMonthly === null">Value is required.</small>
+                <small *ngIf="submitted && selectedRoleRules.allowedFlextimePerMonth === null">Value is required.</small>
               </div>
             </div>
           </div>

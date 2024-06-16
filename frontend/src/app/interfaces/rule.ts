@@ -1,4 +1,3 @@
-import {Role} from "./role";
 
 export interface Rule {
   name: string;
@@ -7,9 +6,17 @@ export interface Rule {
 }
 
 export interface RoleRules {
-  role: number; //TODO change name
+  roleId: number;
   daytimeRequiredPeople: number | null,
   nighttimeRequiredPeople: number | null
-  allowedFlexitimeTotal: number | null,
-  allowedFlexitimeMonthly: number | null,
+  allowedFlextimeTotal: number | null,
+  allowedFlextimePerMonth: number | null,
+}
+
+export interface HardConstraintsDto {
+  workingHours: number | null,
+  maxWeeklyHours: number | null,
+  maxConsecutiveShifts: number | null,
+  daytimeRequiredPeople: number | null,
+  nighttimeRequiredPeople: number | null,
 }

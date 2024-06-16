@@ -48,7 +48,7 @@ export class RulesComponent {
   showAllowedFlexTimePerMonth = false;
 
   constructor(private rulesService: RulesService) {
-    rulesService.getRules().subscribe({
+    //rulesService.getRules().subscribe({
      /* next: (x: Rules) => {
         if (x == null) {
           this.rules = this.emptyRules()
@@ -85,7 +85,7 @@ export class RulesComponent {
         console.log('Error getting role:', err)
         this.rules = this.emptyRules()
       }*/
-    })
+    //})
   }
 
   emptyRules() {
@@ -109,15 +109,15 @@ export class RulesComponent {
 
   save() {
     console.log("save", this.rules)
-    this.rulesService.saveRules(this.rules!).subscribe({
-        next: (response) => {
-          console.log('Rules created successfully:', response);
-        },
-        error: (error) => {
-          console.error('Error creating rule:', error);
-        }
-      }
-    )
+    // this.rulesService.saveRules(this.rules!).subscribe({
+    //     next: (response) => {
+    //       console.log('Rules created successfully:', response);
+    //     },
+    //     error: (error) => {
+    //       console.error('Error creating rule:', error);
+    //     }
+    //   }
+    // )
   }
 
 

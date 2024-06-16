@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Rules} from "../interfaces/rules";
-import {RoleRules, Rule} from "../interfaces/rule";
+import {HardConstraintsDto, RoleRules, Rule} from "../interfaces/rule";
 
 @Injectable({
   providedIn: 'root'
@@ -15,32 +14,33 @@ export class RulesService {
 
   private apiUrl = 'http://localhost:8081/api/rules';
 
-  getRules(): Observable<any> {
-    return this.http.get<any>(this.apiUrl)
+  getAllRulesFromTeam(): Observable<HardConstraintsDto> {
+    return this.http.get<HardConstraintsDto>(`${this.apiUrl}`, this.httpOptions);
   }
 
-  saveRules(rules: Rules): Observable<Rules> {
+  saveRules(rules: Rule[]): Observable<HardConstraintsDto> {
+    const dto: HardConstraintsDto = {
+      workingHours: null,
+      maxWeeklyHours: null,
+      maxConsecutiveShifts: null,
+      daytimeRequiredPeople: null,
+      nighttimeRequiredPeople: null,
+    };
 
-    return this.http.post<Rules>(this.apiUrl, rules, this.httpOptions);
-  }
+    rules.forEach(rule => {
+      if (rule.name in dto) {
+        dto[rule.name as keyof HardConstraintsDto] = rule.value;
+      }
+    });
+   return this.http.post<HardConstraintsDto>(this.apiUrl, dto, this.httpOptions);
 
-  getAllRulesFromTeam(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}`, this.httpOptions);
   }
 
   getAllRoleRulesFromTeam(): Observable<RoleRules[]> {
     return this.http.get<RoleRules[]>(`${this.apiUrl}/roleRules`, this.httpOptions);
   }
 
-  updateRule(rule: Rule): Observable<Rule> {
-    return this.http.put<Rule>(`${this.apiUrl}/rules/`, rule, this.httpOptions);
-  }
-
-  getRulesFromRole(ruleId: number): Observable<RoleRules> {
-    return this.http.get<RoleRules>(`${this.apiUrl}/rules/${ruleId}`, this.httpOptions);
-  }
-
   updateRoleRule(roleRules: RoleRules) {
-    return this.http.put<RoleRules>(`${this.apiUrl}/roleRules/${roleRules.role}`, roleRules, this.httpOptions);
+    return this.http.put<RoleRules>(`${this.apiUrl}/roleRules`, roleRules, this.httpOptions);
   }
 }
