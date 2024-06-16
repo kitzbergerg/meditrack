@@ -53,7 +53,7 @@ public class Role {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @ManyToMany(mappedBy = "requiredRoles")
+    @ManyToMany
     private List<ShiftType> shiftTypes;
 
     @Override

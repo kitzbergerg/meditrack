@@ -12,5 +12,4 @@ export interface ShiftType {
   color: string;
   abbreviation: string;
   team?: Team;
-  requiredRoles: Role[];
 }

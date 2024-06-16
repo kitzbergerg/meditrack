@@ -39,8 +39,7 @@ export class ShiftTypesComponent {
     breakEndTime: '',
     type: this.selectedOption.name,
     color: '#ff0000',
-    abbreviation: '',
-    requiredRoles: []
+    abbreviation: ''
   };
 
   initialLoad = false;
@@ -53,7 +52,6 @@ export class ShiftTypesComponent {
   endTimeDate: Date | null = this.emptyTime;
   breakStartTimeDate: Date | null = this.emptyTime;
   breakEndTimeDate: Date | null = this.emptyTime;
-  requiredRoles: Role[] = [];
 
   formTitle = '';
   formAction = '';
@@ -161,16 +159,12 @@ export class ShiftTypesComponent {
         console.log('Shift Type retrieved successfully:', response);
         this.shiftType = response;
 
-        const shiftTypeRoleIds = response.requiredRoles.map(role => role.id);
-        const selectedRoles = this.roles.filter(role => shiftTypeRoleIds.includes(role.id));
-
         this.startTimeDate = this.getTime(this.shiftType.startTime);
         this.endTimeDate = this.getTime(this.shiftType.endTime);
         this.breakStartTimeDate = this.getTime(this.shiftType.breakStartTime);
         this.breakEndTimeDate = this.getTime(this.shiftType.breakEndTime);
 
         this.selectedOption.name = this.shiftType.type;
-        this.requiredRoles = selectedRoles;
 
         this.loadShiftTypes();
       }, error => {
@@ -217,11 +211,8 @@ export class ShiftTypesComponent {
         }) : '',
         type: this.selectedOption.name,
         color: this.shiftType.color,
-        abbreviation: this.shiftType.abbreviation,
-        requiredRoles: this.requiredRoles
+        abbreviation: this.shiftType.abbreviation
       };
-
-      console.log(this.requiredRoles)
 
       this.shiftService.createShiftType(newShiftType)
         .subscribe(response => {
@@ -283,8 +274,7 @@ export class ShiftTypesComponent {
         }) : this.shiftType.breakEndTime,
         type: this.selectedOption.name,
         color: this.shiftType.color,
-        abbreviation: this.shiftType.abbreviation,
-        requiredRoles: this.requiredRoles
+        abbreviation: this.shiftType.abbreviation
       };
 
       console.log(shiftTypeToUpdate)
@@ -348,7 +338,7 @@ export class ShiftTypesComponent {
     this.valid = (this.shiftType.name !== '') && (this.startTimeDate !== null)
       && (this.endTimeDate !== null) && (this.breakStartTimeDate !== null)
       && (this.breakEndTimeDate !== null) && (this.selectedOption.name !== 'Choose Type')
-      && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '') && (this.requiredRoles.length !== 0);
+      && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '');
 
     if (this.formMode === 'create') {
       this.createShiftType();
@@ -376,7 +366,6 @@ export class ShiftTypesComponent {
     this.endTimeDate = this.emptyTime;
     this.breakStartTimeDate = this.emptyTime;
     this.breakEndTimeDate = this.emptyTime;
-    this.requiredRoles = [];
     this.shiftType = {
       id: 0,
       name: '',
@@ -386,8 +375,7 @@ export class ShiftTypesComponent {
       breakEndTime: '',
       type: this.selectedOption.name,
       color: '#ff0000',
-      abbreviation: '',
-      requiredRoles: []
+      abbreviation: ''
     };
   }
 }
