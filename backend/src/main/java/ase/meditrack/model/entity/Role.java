@@ -35,7 +35,8 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Role {
 
-    public Role (UUID id, String name, String color, String abbreviation, List<User> users, Team team, List<ShiftType> shiftTypes) {
+    public Role(UUID id, String name, String color, String abbreviation, List<User> users, Team team,
+                 List<ShiftType> shiftTypes) {
         this.id = id;
         this.name = name;
         this.color = color;

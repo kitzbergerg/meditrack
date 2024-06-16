@@ -1,12 +1,7 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapKeyEnumerated;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -15,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,15 +23,15 @@ public class HardConstraints {
     @Id
     private UUID id;
 
-    Integer workingHours;
+    private Integer workingHours;
 
-    Integer maxWeeklyHours;
+    private Integer maxWeeklyHours;
 
-    Integer maxConsecutiveShifts;
+    private Integer maxConsecutiveShifts;
 
-    Integer daytimeRequiredPeople;
+    private Integer daytimeRequiredPeople;
 
-    Integer nighttimeRequiredPeople;
+    private Integer nighttimeRequiredPeople;
 
     @OneToOne
     @MapsId

@@ -43,7 +43,7 @@ public class HardConstraintsService {
     }
 
     /**
-     * Fetches the hardconstraint from a team from the database.
+     * Fetches the hard constraint from a team from the database.
      * @param principal – the current user
      * @return the hardConstraints of the team
      */
@@ -69,6 +69,7 @@ public class HardConstraintsService {
      * Updates a hard constraints in the database.
      *
      * @param hardConstraints the hard constraints to update
+     * @param principal the current user
      * @return the updated hard constraints
      */
     public HardConstraints update(HardConstraints hardConstraints, Principal principal) {

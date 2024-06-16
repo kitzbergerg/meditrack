@@ -6,7 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.UUID;
 
-public record RoleHardConstraintsDto (
+public record RoleHardConstraintsDto(
     @NotNull UUID roleId,
     @Nullable @PositiveOrZero Integer daytimeRequiredPeople,
     @Nullable @PositiveOrZero Integer nighttimeRequiredPeople,

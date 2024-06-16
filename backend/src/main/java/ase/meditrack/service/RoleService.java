@@ -119,6 +119,11 @@ public class RoleService {
         repository.deleteById(id);
     }
 
+
+    /**
+     * @param dto for which to update role hard constraints
+     * @return updated role
+     */
     public Role updateRoleConstraints(RoleHardConstraintsDto dto) {
         Role  role = findById(dto.roleId());
         role.setAllowedFlextimeTotal(dto.allowedFlextimeTotal());

@@ -13,6 +13,7 @@ import ase.meditrack.service.algorithm.AlgorithmMapper;
 import ase.meditrack.service.algorithm.AlgorithmOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -51,13 +52,16 @@ class AlgorithmMapperTest {
         // Create mock data
         Preferences preferences = new Preferences();
         preferences.setOffDays(List.of());
-        User user = mock(User.class);
+        User user = mock(User.class,  Mockito.RETURNS_DEEP_STUBS);
         UUID userUuid = UUID.randomUUID();
         when(user.getId()).thenReturn(userUuid);
         when(user.getWorkingHoursPercentage()).thenReturn(1.0f);
         when(user.getCurrentOverTime()).thenReturn(0);
         when(user.getCanWorkShiftTypes()).thenReturn(shiftTypes);
         when(user.getPreferences()).thenReturn(preferences);
+        when(user.getRole().getId()).thenReturn(null);
+        when(user.getRole().getAllowedFlextimeTotal()).thenReturn(10);
+        when(user.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
         employees.add(user);
 
         ShiftType shiftType = mock(ShiftType.class);
@@ -110,20 +114,26 @@ class AlgorithmMapperTest {
         // Create mock data
         Preferences preferences = new Preferences();
         preferences.setOffDays(List.of());
-        User user = mock(User.class);
+        User user = mock(User.class, Mockito.RETURNS_DEEP_STUBS);
         when(user.getId()).thenReturn(UUID.randomUUID());
         when(user.getWorkingHoursPercentage()).thenReturn(1.0f);
         when(user.getCurrentOverTime()).thenReturn(0);
         when(user.getCanWorkShiftTypes()).thenReturn(shiftTypes);
         when(user.getPreferences()).thenReturn(preferences);
+        when(user.getRole().getId()).thenReturn(null);
+        when(user.getRole().getAllowedFlextimeTotal()).thenReturn(10);
+        when(user.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
         employees.add(user);
 
-        User user2 = mock(User.class);
+        User user2 = mock(User.class, Mockito.RETURNS_DEEP_STUBS);
         when(user2.getId()).thenReturn(UUID.randomUUID());
         when(user2.getWorkingHoursPercentage()).thenReturn(1.0f);
         when(user2.getCurrentOverTime()).thenReturn(0);
         when(user2.getCanWorkShiftTypes()).thenReturn(shiftTypes2);
         when(user2.getPreferences()).thenReturn(preferences);
+        when(user2.getRole().getId()).thenReturn(null);
+        when(user2.getRole().getAllowedFlextimeTotal()).thenReturn(10);
+        when(user2.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
         employees.add(user2);
 
         ShiftType shiftType = mock(ShiftType.class);
@@ -150,22 +160,9 @@ class AlgorithmMapperTest {
         roles.add(role2);
 
         HardConstraints hardConstraints = new HardConstraints();
-/*        hardConstraints.setAllowedFlextimePerMonth(20);
-        hardConstraints.setAllowedFlextimeTotal(40);*/
+
         when(team.getWorkingHours()).thenReturn(160);
         when(team.getHardConstraints()).thenReturn(hardConstraints);
-
-/*        Map<Role, Integer> requiredRoles = new HashMap<>();
-        requiredRoles.put(role, 3);
-        requiredRoles.put(role2, 1);*/
-
-/*        when(constraints.getDaytimeRequiredRoles()).thenReturn(requiredRoles);
-        when(constraints.getNighttimeRequiredRoles()).thenReturn(requiredRoles);
-        when(constraints.getAllowedFlextimeTotal()).thenReturn(10);
-        when(constraints.getAllowedFlextimePerMonth()).thenReturn(5);
-        when(constraints.getMandatoryOffDays()).thenReturn(2);
-        when(constraints.getMinRestPeriod()).thenReturn(120);
-        when(constraints.getMaximumShiftLengths()).thenReturn(8);*/
 
         when(constraints.getWorkingHours()).thenReturn(40);
         when(constraints.getMaxWeeklyHours()).thenReturn(80);
