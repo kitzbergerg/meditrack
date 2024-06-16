@@ -1,28 +1,23 @@
 <div class="grid">
   <div class="col-12 md:col-6">
     <div class="card px-6 py-6">
-      <h2 class="pb-2" style="text-align: center;">Off Days</h2>
+      <h2 class="pb-2" style="text-align: center;">Preferred Off Days</h2>
       <ul class="list-none p-0 m-0"
           style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
         <li *ngFor="let offDay of offDays" class="flex items-center mb-4">
-          <p-card
-            [style]="{width: '400px', maxHeight: '60px'}" styleClass="p-card-shadow">
-            <div class="flex">
-              <div class="pi pi-calendar mr-2" style="display: block; font-size: 1.8rem; width: 50px; margin-top: -19px">
+          <p-card [style]="{width: '500px', maxHeight: '60px'}" styleClass="p-card-shadow">
+            <div class="flex" style="display: flex; align-items: center; margin-top: -25px">
+              <div class="pi pi-calendar mr-2" style="font-size: 1.8rem; width: 50px;"></div>
+              <div class="text font-medium" style="font-size: 1.4rem; flex-grow: 1;">
+                {{ offDay | date:'dd.MM.YYYY' }}
               </div>
-                <div class="text font-medium" style="display: block; font-size: 1.4rem; width: 100%; margin-top: -17px">
-              {{ offDay | date:'dd.MM.YYYY' }}
-                </div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <p-button (click)="updatePreferences(offDay)" icon="pi pi-pencil" [outlined]="true" severity="info"></p-button>
+                <p-button (click)="confirmDeleteOffDay($event, offDay)" icon="pi pi-trash" [outlined]="true" severity="danger"></p-button>
+              </div>
             </div>
+            <p-confirmDialog/>
           </p-card>
-          <div class="flex" style="margin-top: 12px; margin-left: 10px">
-            <p-button (click)="updatePreferences(offDay)" icon="pi pi-pencil" [outlined]="true"
-                      severity="info"></p-button>
-          </div>
-          <div class="flex" style="margin-top: 12px; margin-left: 10px">
-            <p-button (click)="removePreferences(offDay)" icon="pi pi-trash" [outlined]="true"
-                      severity="danger"></p-button>
-          </div>
         </li>
 
         <p-dialog [(visible)]="offDayDialog" [style]="{ width: '450px'}" header="Off Day" [modal]="true"
@@ -58,9 +53,7 @@
           <div class="flex center">
             <p-toast></p-toast>
             <p-calendar
-              [selectOtherMonths]="false"
               [iconDisplay]="'input'"
-              [showOtherMonths]="false"
               [showIcon]="true"
               [minDate]="currentDate"
               [(ngModel)]="selectedDate"

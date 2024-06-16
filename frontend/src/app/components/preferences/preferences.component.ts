@@ -15,6 +15,7 @@ import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {PreferencesService} from "../../services/preferences.service";
 import {Preferences} from "../../interfaces/preferences";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 @Component({
   selector: 'app-holidays',
@@ -34,7 +35,8 @@ import {Preferences} from "../../interfaces/preferences";
     CardModule,
     DatePipe,
     DialogModule,
-    NgStyle
+    NgStyle,
+    ConfirmDialogModule
   ],
   styleUrl: './preferences.component.scss'
 })
@@ -123,8 +125,7 @@ export class PreferencesComponent {
               severity: 'success',
               summary: 'Successfully Saved Off Day'
             });
-            this.offDays = [];
-            this.getPreferences();
+            this.reset();
           }, error: error => {
             this.messageService.add({
               severity: 'error',
@@ -153,8 +154,7 @@ export class PreferencesComponent {
               severity: 'success',
               summary: 'Successfully Updated Preferences'
             });
-            this.offDays = [];
-            this.getPreferences();
+            this.reset();
           }, error: error => {
             this.messageService.add({
               severity: 'error',
@@ -171,10 +171,11 @@ export class PreferencesComponent {
     // if array empty then delete preference of user
     // if not update preference
 
+    // when do we delete the whole preferences entity from the db?
     if (this.preference != undefined) {
       // filter out the chosen off day
       this.preference.offDays = this.preference.offDays.filter(offDay => offDay !== day);
-      // update the preference now
+
       this.preferencesService.updatePreferences(this.preference).subscribe(
         {
           next: response => {
@@ -182,34 +183,11 @@ export class PreferencesComponent {
               severity: 'success',
               summary: 'Successfully Removed Off Day Preference'
             });
-            this.offDays = [];
-            this.getPreferences();
+            this.reset();
           }, error: error => {
             this.messageService.add({
               severity: 'error',
               summary: 'Removing Off Day Preference Failed',
-              detail: error.error
-            });
-          }
-        });
-    }
-
-    // if no more preferences selected remove it from the db completely
-    if (this.offDays.length === 0 && this.preference != undefined && this.preference.id != undefined) {
-      // this.preference.id
-      this.preferencesService.deletePreferences(this.userId).subscribe(
-        {
-          next: response => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Successfully Deleted Preferences'
-            });
-            this.offDays = [];
-            this.getPreferences();
-          }, error: error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Deleting Preferences Failed',
               detail: error.error
             });
           }
@@ -250,5 +228,28 @@ export class PreferencesComponent {
     return this.preference?.offDays.find(day => {
       return day.getTime() === currentDate.getTime();
     });
+  }
+
+  confirmDeleteOffDay(event: Event, offDay: Date) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this off day?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-success p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "pi pi-check mr-2",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.removePreferences(offDay);
+      }
+    });
+  }
+
+  reset() {
+    this.selectedDate = undefined;
+    this.offDays = [];
+    this.getPreferences();
   }
 }
