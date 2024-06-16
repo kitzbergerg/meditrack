@@ -72,7 +72,8 @@ public class ShiftValidator {
             for (Shift previousShift : previousShifts) {
                 LocalTime previousShiftStartTime = previousShift.getShiftType().getStartTime();
 
-                boolean isPreviousNightShift = previousShiftStartTime.isBefore(dayStart) || !previousShiftStartTime.isBefore(nightStart);
+                boolean isPreviousNightShift = previousShiftStartTime.isBefore(dayStart)
+                        || !previousShiftStartTime.isBefore(nightStart);
 
                 if (isPreviousNightShift) {
                     throw new ResourceConflictException("A day shift cannot follow a night shift.");
@@ -92,7 +93,8 @@ public class ShiftValidator {
         if (isNightShift) {
             for (Shift nextShift : nextShifts) {
                 LocalTime nextShiftStartTime = nextShift.getShiftType().getStartTime();
-                boolean isNextDayShift = !nextShiftStartTime.isBefore(dayStart) && nextShiftStartTime.isBefore(nightStart);
+                boolean isNextDayShift = !nextShiftStartTime.isBefore(dayStart)
+                        && nextShiftStartTime.isBefore(nightStart);
 
                 if (isNextDayShift) {
                     throw new ResourceConflictException("A night shift cannot precede a day shift.");
