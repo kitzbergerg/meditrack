@@ -85,7 +85,7 @@ public class DataGeneratorBean {
 
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 4;
+    private static final Integer NUM_USERS_WITH_ROLES = 8;
     private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
@@ -162,6 +162,7 @@ public class DataGeneratorBean {
     private void createUsers() {
         log.info("Generating {} users per role for every team...", NUM_USERS_WITH_ROLES);
         users = new ArrayList<>();
+
         for (Team team : teams) {
             String firstName = FAKER.name().firstName();
             String lastName = FAKER.name().lastName();
@@ -199,7 +200,8 @@ public class DataGeneratorBean {
                 if (role.getTeam().getId().equals(team.getId())) {
                     for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
                         firstName = FAKER.name().firstName();
-                        lastName = FAKER.name().lastName();
+                        // use UUID to avoid duplicates
+                        lastName = FAKER.name().lastName() + "_" + UUID.randomUUID();
                         username = (firstName.charAt(0) + lastName).toLowerCase();
                         email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                                 + FAKER.internet().domainName();
@@ -266,8 +268,8 @@ public class DataGeneratorBean {
         for (Team team : teams) {
             ShiftType nightShift = new ShiftType();
             nightShift.setName("Night Shift");
-            nightShift.setStartTime(LocalTime.of(22, 0));
-            nightShift.setEndTime(LocalTime.of(6, 0));
+            nightShift.setStartTime(LocalTime.of(0, 0));
+            nightShift.setEndTime(LocalTime.of(8, 0));
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
@@ -277,8 +279,8 @@ public class DataGeneratorBean {
             shiftTypes.add(shiftTypeRepository.save(nightShift));
             ShiftType morningShift = new ShiftType();
             morningShift.setName("Morning Shift");
-            morningShift.setStartTime(LocalTime.of(6, 0));
-            morningShift.setEndTime(LocalTime.of(14, 0));
+            morningShift.setStartTime(LocalTime.of(8, 0));
+            morningShift.setEndTime(LocalTime.of(16, 0));
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
@@ -288,8 +290,8 @@ public class DataGeneratorBean {
             shiftTypes.add(shiftTypeRepository.save(morningShift));
             ShiftType eveningShift = new ShiftType();
             eveningShift.setName("Evening Shift");
-            eveningShift.setStartTime(LocalTime.of(14, 0));
-            eveningShift.setEndTime(LocalTime.of(22, 0));
+            eveningShift.setStartTime(LocalTime.of(16, 0));
+            eveningShift.setEndTime(LocalTime.of(0, 0));
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");
@@ -409,18 +411,24 @@ public class DataGeneratorBean {
             if (user.getShifts() != null && !user.getShifts().isEmpty()) {
                 for (int i = 0; i < shiftSwapAmount; i++) {
                     Shift selectedShift = user.getShifts().get(i % user.getShifts().size());
-                    ShiftSwap shiftswap = new ShiftSwap();
-                    shiftswap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
-                    shiftswap.setSwapRequestingUser(user);
-                    shiftswap.setRequestedShift(selectedShift);
+                    ShiftSwap shiftSwap = new ShiftSwap();
+                    shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+                    shiftSwap.setSwapRequestingUser(user);
+                    shiftSwap.setRequestedShift(selectedShift);
                     List<ShiftSwap> shiftSwapList = new ArrayList<>();
                     if (user.getRequestedShiftSwaps() != null && !user.getRequestedShiftSwaps().isEmpty()) {
                         shiftSwapList = user.getRequestedShiftSwaps();
                     }
-                    shiftSwapList.add(shiftswap);
+                    shiftSwapList.add(shiftSwap);
                     user.setRequestedShiftSwaps(shiftSwapList);
-                    selectedShift.setRequestedShiftSwap(shiftswap);
-                    shiftSwapRepository.save(shiftswap);
+                    List<ShiftSwap> shiftSwaps = new ArrayList<>();
+                    if (selectedShift.getRequestedShiftSwap() != null
+                            && !selectedShift.getRequestedShiftSwap().isEmpty()) {
+                        shiftSwaps = selectedShift.getRequestedShiftSwap();
+                    }
+                    shiftSwaps.add(shiftSwap);
+                    selectedShift.setRequestedShiftSwap(shiftSwaps);
+                    shiftSwapRepository.save(shiftSwap);
                 }
             }
         }

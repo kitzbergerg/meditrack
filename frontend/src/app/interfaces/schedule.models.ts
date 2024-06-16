@@ -1,8 +1,5 @@
-export interface Schedule {
-  month: string;
-  year: number;
-  days: Day[];
-}
+import {Role} from "./role";
+import {ShiftType} from "./shiftType";
 
 export interface RangeOption {
   label: string;
@@ -28,20 +25,40 @@ export interface Schedule {
   "year": number,
   "published": boolean,
   "team": string,
-  "shifts": Shift[]
+  "shifts": SimpleShift[],
+  "monthlyWorkDetails": WorkDetails[]
 }
+
+export interface ScheduleWithId {
+  id: string,
+  published: boolean,
+}
+
+export interface WorkDetails {
+  userId: string,
+  hoursShouldWork : number,
+  hoursActuallyWorked: number,
+  overtime: number
+}
+
 export interface SimpleShift {
   id: string | null;
-  date: string;
-  type: ShiftType;
+  date: string | null;
+  monthlyPlan: string;
+  shiftType: string;
+  users: string[];
+}
+
+export interface ShiftWithIds {
+  id: string | null;
+  shiftType: ShiftType;
+  date: string | null;
 }
 
 export interface EmployeeWithShifts {
-  name: string;
-  role: string;
-  workingPercentage: string;
+  id: string;
   shifts: {
-    [date: string]: SimpleShift;
+    [date: string]: ShiftWithIds;
   };
 }
 
@@ -54,6 +71,17 @@ interface User {
     id: string;
     name: string;
   };
+}
+
+export interface UserWithShifts {
+  id?: string;
+  firstName: string;
+  lastName: string;
+  color: string;
+  workingHoursPercentage: number;
+  role: Role,
+  shifts: ShiftWithIds [];
+  workDetails: WorkDetails | null;
 }
 
 export interface Employee {
@@ -74,12 +102,4 @@ export interface EmployeeMap {
 
 export interface ShiftDetail {
   type: ShiftType;
-}
-
-export interface ShiftType {
-  name: string;
-  color: string;
-  startTime: string;
-  endTime: string;
-  abbreviation: string;
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from "rxjs";
 import {User} from "../interfaces/user";
+import {WorkDetails} from "../interfaces/schedule.models";
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +39,9 @@ export class UserService {
   updateUser(user: User): Observable<User> {
     user.username = undefined;
     return this.http.put<User>(this.apiUrl, user);
+  }
+
+  getUserMonthlyDetails(userId: string, month: string, year: number): Observable<WorkDetails> {
+    return this.http.get<WorkDetails>(`${this.apiUrl}/monthly-details?userId=${userId}&month=${month}&year=${year}`);
   }
 }

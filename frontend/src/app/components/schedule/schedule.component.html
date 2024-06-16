@@ -1,12 +1,24 @@
-<div class="grid">
+<div class="grid p-overflow-auto border">
   <div class="col-12">
-    <div class="card px-6 py-6">
+    <div class="card px-6 overflow-auto">
       <div class="p-d-flex p-flex-column p-h-100">
-        <app-week-view [days]="days" [employees]="employees" [startDate]="startDate" (weekChange)="changeWeek($event)"
+        <p-toast></p-toast>
+        <app-week-view [days]="days" [startDate]="startDate" (weekChange)="changeWeek($event)"
                        (rangeChange)="changeRange($event)" [loading]="loading" [roles]="roles" [users]="users"
                        [missingMonth]="createScheduleMonth"
                        [displayCreateScheduleButton]="displayCreateScheduleButton" (createSchedule)="createSchedule()"
-                       class="p-flex-1 p-overflow-auto"></app-week-view>
+                       [shiftTypes]="shiftTypes"
+                       (updateShift)="updateShift($event)"
+                       [currentUser]="currentUser"
+                       (deleteSchedule)="deleteSchedule()"
+                       (publishSchedule)="publishSchedule()"
+                       [employees]="usersWithShifts"
+                       [planId]="currentPlanId"
+                       [currentSchedule]="currentSchedule"
+                       [weekNumber]="weekNumber"
+                       [monthString]="monthString"></app-week-view>
+
+        <app-schedule-legend [shiftTypes]="shiftTypes"></app-schedule-legend>
       </div>
     </div>
   </div>
