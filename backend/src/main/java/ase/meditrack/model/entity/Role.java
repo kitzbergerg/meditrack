@@ -35,6 +35,21 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Role {
 
+    public Role (UUID id, String name, String color, String abbreviation, List<User> users, Team team, List<ShiftType> shiftTypes) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.abbreviation = abbreviation;
+        this.users = users;
+        this.team = team;
+        this.shiftTypes = shiftTypes;
+
+        this.allowedFlextimeTotal = 1;
+        this.allowedFlextimePerMonth = 1;
+        this.daytimeRequiredPeople = 1;
+        this.nighttimeRequiredPeople = 1;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

@@ -45,18 +45,18 @@ public class HardConstraintsController {
             @Validated(CreateValidator.class)
             @RequestBody HardConstraintsDto dto,
             Principal principal) {
-        log.info("Creating hardConstraints");
-        return mapper.toDto(service.create(mapper.fromDto(dto), principal));
+        log.info("Updating hardConstraints");
+        return mapper.toDto(service.update(mapper.fromDto(dto), principal));
     }
 
-    @GetMapping("")
+    @GetMapping("/roleRules")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public List<RoleHardConstraintsDto> findRoleHardConstraintsByTeam(Principal principal) {
         log.info("Fetching role hardConstraints");
         return roleService.findAll().stream().map(mapper::toRoleHardconstraintsDto).collect(Collectors.toList());
     }
 
-    @PutMapping
+    @PutMapping("/roleRules")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public RoleHardConstraintsDto updateRoleHardConstraints(

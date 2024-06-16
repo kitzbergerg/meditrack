@@ -71,32 +71,23 @@ public class HardConstraintsService {
      * @param hardConstraints the hard constraints to update
      * @return the updated hard constraints
      */
-    public HardConstraints update(HardConstraints hardConstraints) {
-        HardConstraints dbHardConstraints = findById(hardConstraints.getId());
-
-        if (hardConstraints.getShiftOffShift() != null) {
-            dbHardConstraints.setShiftOffShift(hardConstraints.getShiftOffShift());
+    public HardConstraints update(HardConstraints hardConstraints, Principal principal) {
+        HardConstraints dbHardConstraints = findByTeam(principal);
+        hardConstraints.setId(dbHardConstraints.getId());
+        if (hardConstraints.getWorkingHours() != null) {
+            dbHardConstraints.setWorkingHours(hardConstraints.getWorkingHours());
         }
-        if (hardConstraints.getDaytimeRequiredRoles() != null) {
-            dbHardConstraints.setDaytimeRequiredRoles(hardConstraints.getDaytimeRequiredRoles());
+        if (hardConstraints.getMaxWeeklyHours() != null) {
+            dbHardConstraints.setMaxWeeklyHours(hardConstraints.getMaxWeeklyHours());
         }
-        if (hardConstraints.getNighttimeRequiredRoles() != null) {
-            dbHardConstraints.setNighttimeRequiredRoles(hardConstraints.getNighttimeRequiredRoles());
+        if (hardConstraints.getMaxConsecutiveShifts() != null) {
+            dbHardConstraints.setMaxConsecutiveShifts(hardConstraints.getMaxConsecutiveShifts());
         }
-        if (hardConstraints.getAllowedFlextimeTotal() != null) {
-            dbHardConstraints.setAllowedFlextimeTotal(hardConstraints.getAllowedFlextimeTotal());
+        if (hardConstraints.getDaytimeRequiredPeople() != null) {
+            dbHardConstraints.setDaytimeRequiredPeople(hardConstraints.getDaytimeRequiredPeople());
         }
-        if (hardConstraints.getAllowedFlextimePerMonth() != null) {
-            dbHardConstraints.setAllowedFlextimePerMonth(hardConstraints.getAllowedFlextimePerMonth());
-        }
-        if (hardConstraints.getMandatoryOffDays() != null) {
-            dbHardConstraints.setMandatoryOffDays(hardConstraints.getMandatoryOffDays());
-        }
-        if (hardConstraints.getMinRestPeriod() != null) {
-            dbHardConstraints.setMinRestPeriod(hardConstraints.getMinRestPeriod());
-        }
-        if (hardConstraints.getMaximumShiftLengths() != null) {
-            dbHardConstraints.setMaximumShiftLengths(hardConstraints.getMaximumShiftLengths());
+        if (hardConstraints.getNighttimeRequiredPeople() != null) {
+            dbHardConstraints.setNighttimeRequiredPeople(hardConstraints.getNighttimeRequiredPeople());
         }
         if (hardConstraints.getTeam() != null) {
             dbHardConstraints.setTeam(hardConstraints.getTeam());

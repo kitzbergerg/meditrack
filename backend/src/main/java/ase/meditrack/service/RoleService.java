@@ -73,6 +73,12 @@ public class RoleService {
         if (dm.getTeam().getRoles() != null) {
             roles = dm.getTeam().getRoles();
         }
+
+        role.setDaytimeRequiredPeople(0);
+        role.setNighttimeRequiredPeople(0);
+        role.setAllowedFlextimeTotal(0);
+        role.setAllowedFlextimePerMonth(0);
+
         roles.add(role);
         dm.getTeam().setRoles(roles);
         role.setTeam(dm.getTeam());
@@ -115,8 +121,8 @@ public class RoleService {
 
     public Role updateRoleConstraints(RoleHardConstraintsDto dto) {
         Role  role = findById(dto.roleId());
-        role.setAllowedFlextimeTotal(dto.allowedFlexitimeTotal());
-        role.setAllowedFlextimePerMonth(dto.allowedFlexitimeMonthly());
+        role.setAllowedFlextimeTotal(dto.allowedFlextimeTotal());
+        role.setAllowedFlextimePerMonth(dto.allowedFlextimePerMonth());
         role.setDaytimeRequiredPeople(dto.daytimeRequiredPeople());
         role.setNighttimeRequiredPeople(dto.nighttimeRequiredPeople());
         repository.save(role);

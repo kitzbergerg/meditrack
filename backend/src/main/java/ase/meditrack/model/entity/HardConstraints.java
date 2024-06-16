@@ -29,29 +29,15 @@ public class HardConstraints {
     @Id
     private UUID id;
 
-    @ElementCollection
-    @CollectionTable(name = "shift_off_shift", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    private Map<ShiftOffShiftIdList, UUID> shiftOffShift;
+    Integer workingHours;
 
-    @ElementCollection
-    @CollectionTable(name = "daytime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Role, Integer> daytimeRequiredRoles;
+    Integer maxWeeklyHours;
 
-    @ElementCollection
-    @CollectionTable(name = "nighttime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Role, Integer> nighttimeRequiredRoles;
+    Integer maxConsecutiveShifts;
 
-    private Integer allowedFlextimeTotal;
+    Integer daytimeRequiredPeople;
 
-    private Integer allowedFlextimePerMonth;
-
-    private Integer mandatoryOffDays;
-
-    private Integer minRestPeriod;
-
-    private Integer maximumShiftLengths;
+    Integer nighttimeRequiredPeople;
 
     @OneToOne
     @MapsId

@@ -10,7 +10,7 @@ public record RoleHardConstraintsDto (
     @NotNull UUID roleId,
     @Nullable @PositiveOrZero Integer daytimeRequiredPeople,
     @Nullable @PositiveOrZero Integer nighttimeRequiredPeople,
-    @Nullable @PositiveOrZero Integer allowedFlexitimeTotal,
-    @Nullable @PositiveOrZero Integer allowedFlexitimeMonthly
+    @Nullable @PositiveOrZero Integer allowedFlextimeTotal,
+    @Nullable @PositiveOrZero Integer allowedFlextimePerMonth
 ) {
 }

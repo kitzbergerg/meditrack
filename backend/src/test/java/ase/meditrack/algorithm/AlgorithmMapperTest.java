@@ -68,8 +68,12 @@ class AlgorithmMapperTest {
         shiftTypes.add(shiftType);
 
         HardConstraints hardConstraints = new HardConstraints();
-        hardConstraints.setAllowedFlextimePerMonth(20);
-        hardConstraints.setAllowedFlextimeTotal(40);
+
+        hardConstraints.setWorkingHours(40);
+        hardConstraints.setMaxWeeklyHours(80);
+        hardConstraints.setMaxConsecutiveShifts(3);
+        hardConstraints.setDaytimeRequiredPeople(20);
+        hardConstraints.setNighttimeRequiredPeople(20);
         when(team.getHardConstraints()).thenReturn(hardConstraints);
 
         algorithmMapper.mapToAlgorithmInput(month, year, employees, Map.of(user.getId(), List.of()), shiftTypes, roles,
@@ -146,22 +150,29 @@ class AlgorithmMapperTest {
         roles.add(role2);
 
         HardConstraints hardConstraints = new HardConstraints();
-        hardConstraints.setAllowedFlextimePerMonth(20);
-        hardConstraints.setAllowedFlextimeTotal(40);
+/*        hardConstraints.setAllowedFlextimePerMonth(20);
+        hardConstraints.setAllowedFlextimeTotal(40);*/
         when(team.getWorkingHours()).thenReturn(160);
         when(team.getHardConstraints()).thenReturn(hardConstraints);
 
-        Map<Role, Integer> requiredRoles = new HashMap<>();
+/*        Map<Role, Integer> requiredRoles = new HashMap<>();
         requiredRoles.put(role, 3);
-        requiredRoles.put(role2, 1);
+        requiredRoles.put(role2, 1);*/
 
-        when(constraints.getDaytimeRequiredRoles()).thenReturn(requiredRoles);
+/*        when(constraints.getDaytimeRequiredRoles()).thenReturn(requiredRoles);
         when(constraints.getNighttimeRequiredRoles()).thenReturn(requiredRoles);
         when(constraints.getAllowedFlextimeTotal()).thenReturn(10);
         when(constraints.getAllowedFlextimePerMonth()).thenReturn(5);
         when(constraints.getMandatoryOffDays()).thenReturn(2);
         when(constraints.getMinRestPeriod()).thenReturn(120);
-        when(constraints.getMaximumShiftLengths()).thenReturn(8);
+        when(constraints.getMaximumShiftLengths()).thenReturn(8);*/
+
+        when(constraints.getWorkingHours()).thenReturn(40);
+        when(constraints.getMaxWeeklyHours()).thenReturn(80);
+        when(constraints.getMaxConsecutiveShifts()).thenReturn(3);
+        when(constraints.getDaytimeRequiredPeople()).thenReturn(20);
+        when(constraints.getNighttimeRequiredPeople()).thenReturn(20);
+
 
         AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(
                 month,

@@ -58,7 +58,7 @@ public class AlgorithmMapper {
         for (int i = 0; i < roles.size(); i++) {
             // TODO #86: add required people
             Role role = roles.get(i);
-            roleInfos.add(new RoleInfo(role.getName(), 0, 0));
+            roleInfos.add(new RoleInfo(role.getName(), role.getDaytimeRequiredPeople(), role.getNighttimeRequiredPeople()));
             roleUuidToIndex.put(role.getId(), i);
         }
 
@@ -119,10 +119,10 @@ public class AlgorithmMapper {
             int averageWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
 
             // TODO #86: get flexitime from role instead of hard constraint
-            int maxAllowedChangePlus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
-                    team.getHardConstraints().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
-            int maxAllowedChangeMinus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
-                    team.getHardConstraints().getAllowedFlextimeTotal() + employee.getCurrentOverTime());
+            int maxAllowedChangePlus = Math.min(employee.getRole().getAllowedFlextimePerMonth(),
+                    employee.getRole().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
+            int maxAllowedChangeMinus = Math.min(employee.getRole().getAllowedFlextimePerMonth(),
+                    employee.getRole().getAllowedFlextimeTotal() + employee.getCurrentOverTime());
 
             employeeInfos.add(new EmployeeInfo(
                     worksShiftTypes,
@@ -139,7 +139,8 @@ public class AlgorithmMapper {
         }
 
         // TODO #86: add required people
-        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 2, 0);
+        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos,
+                team.getHardConstraints().getDaytimeRequiredPeople(), team.getHardConstraints().getNighttimeRequiredPeople());
     }
 
     /**

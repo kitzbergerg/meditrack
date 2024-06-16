@@ -129,14 +129,11 @@ public class DataGeneratorBean {
             team.setWorkingHours(FAKER.number().numberBetween(20, 40));
             team.setHardConstraints(new HardConstraints(
                     null,
-                    Map.of(),
-                    Map.of(),
-                    Map.of(),
-                    20,
-                    20,
+                    40,
+                    80,
                     2,
-                    120,
-                    480,
+                    20,
+                    20,
                     team
             ));
             teams.add(teamRepository.save(team));
@@ -151,6 +148,10 @@ public class DataGeneratorBean {
                 Role role = new Role();
                 role.setName(roleName);
                 role.setTeam(team);
+                role.setAllowedFlextimeTotal(0); //TODO
+                role.setAllowedFlextimePerMonth(0);
+                role.setDaytimeRequiredPeople(0);
+                role.setNighttimeRequiredPeople(0);
                 role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
                 role.setColor(FAKER.color().hex());
                 roles.add(roleRepository.save(role));
@@ -371,15 +372,11 @@ public class DataGeneratorBean {
         for (Team team : teams) {
             HardConstraints hardConstraints = team.getHardConstraints();
             hardConstraints.setId(team.getId());
-            hardConstraints.setDaytimeRequiredRoles(Map.of(roles.get(0), 2, roles.get(1), 1));
-            hardConstraints.setNighttimeRequiredRoles(Map.of(roles.get(0), 1, roles.get(1), 1));
-            hardConstraints.setAllowedFlextimeTotal(10);
-            hardConstraints.setAllowedFlextimePerMonth(5);
-            hardConstraints.setMandatoryOffDays(2);
-            hardConstraints.setMinRestPeriod(120);
-            hardConstraints.setMaximumShiftLengths(8);
-            hardConstraints.setShiftOffShift(Map.of(createShiftOffShiftIdList(),
-                    shifts.get(FAKER.number().numberBetween(0, shifts.size())).getId()));
+            hardConstraints.setWorkingHours(40);
+            hardConstraints.setMaxWeeklyHours(80);
+            hardConstraints.setMaxConsecutiveShifts(3);
+            hardConstraints.setDaytimeRequiredPeople(20);
+            hardConstraints.setNighttimeRequiredPeople(20);
             hardConstraints.setTeam(team);
             hardConstraintsRepository.save(hardConstraints);
         }
