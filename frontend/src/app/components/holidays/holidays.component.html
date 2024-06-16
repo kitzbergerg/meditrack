@@ -9,7 +9,7 @@
             <span class="text-xl font-bold mr-2 md:mb-2">End</span>
             <span class="text-xl font-bold mr-2 md:mb-2">Status</span>
           </li>
-          <li *ngFor="let holiday of holidays"
+          <li *ngFor="let holiday of holidays" (click)="selectHoliday(holiday)"
               class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
             <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
             <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
@@ -22,9 +22,9 @@
             <span class="p-ink" aria-hidden="true" role="presentation"></span>
           </button>
         </div>
-
       </div>
     </div>
+
     <div class="col-12 md:col-6">
       <div class="card p-fluid">
         <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
@@ -46,6 +46,7 @@
             <small *ngIf="submitted && holiday.endDate === ''">End date is required.</small>
           </div>
         </div>
+
         <p-toast></p-toast>
         <div class="button-container">
           <button *ngIf="formMode === 'create'"
@@ -53,6 +54,33 @@
                   style="height: 35px; width: 150px;"
                   pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
             <span class="p-button-label">{{ formAction }}</span>
+            <span class="p-ink" aria-hidden="true" role="presentation"></span>
+          </button>
+        </div>
+
+        <div class="buttonset" *ngIf="formMode !== 'create'">
+          <button *ngIf="formMode === 'details'" (click)="editHoliday()" pbutton="" pripple="" label="Edit" icon="pi pi-pencil"
+                  class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px;">
+            <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
+            <span class="p-button-label">Edit</span>
+            <span class="p-ink" aria-hidden="true" role="presentation"></span>
+          </button>
+
+          <p-toast></p-toast>
+          <button (click)="createOrUpdateHoliday()"
+                  *ngIf="formMode === 'edit'"
+                  class="p-element p-ripple p-button-success p-button p-component"
+                  label="Success" pbutton="" pripple="" style="height: 35px;"
+                  type="button">
+            <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
+            <span class="p-button-label">{{ formAction }}</span>
+            <span class="p-ink" aria-hidden="true" role="presentation"></span>
+          </button>
+
+          <button *ngIf="formMode === 'edit'" (click)="cancelEditing()" pbutton="" pripple="" label="Cancel" icon="pi pi-times" class="p-element p-ripple p-button-raised p-button-secondary p-button p-component"
+                  style="height: 35px;">
+            <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true"></span>
+            <span class="p-button-label">Cancel</span>
             <span class="p-ink" aria-hidden="true" role="presentation"></span>
           </button>
         </div>

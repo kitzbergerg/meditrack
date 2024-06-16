@@ -21,29 +21,32 @@ export class HolidaysComponent {
 
   initialLoad = false;
 
-  formTitle= 'Request Holiday';
-  formAction= 'Submit';
-  formMode: 'create' | 'edit' = 'create';
+  formTitle= '';
+  formAction= '';
+  formMode: 'create' | 'edit' | 'details' = 'details';
 
   constructor(private holidaysService: HolidaysService,
               private authorizationService: AuthorizationService,
               private messageService: MessageService
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getAllHolidaysFromUser();
-    this.showCreateForm();
   }
 
-  getAllHolidaysFromUser(): void {
+  getAllHolidaysFromUser() {
     this.holidaysService.getAllHolidaysByUser()
       .subscribe({
         next: (response) => {
           this.holidays = response.sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
           this.loading = false;
+          if (this.holidays.length === 0) {
+            this.formMode = 'create';
+          }
           if (this.holidays.length > 0 && !this.initialLoad) {
             this.initialLoad = true;
+            this.selectHoliday(this.holidays[0])
           }
         }, error: (error) => {
           console.error('Error fetching data:', error);
@@ -51,18 +54,19 @@ export class HolidaysComponent {
       });
   }
 
-  getHolidayById(id: string): void {
+  getHolidayById(id: string) {
     this.holidaysService.getHolidayByIdAndUser(id)
       .subscribe({
         next: (response) => {
           this.holiday = response;
+          this.getAllHolidaysFromUser();
         }, error: (error) => {
           console.error('Error fetching data:', error);
         }
       });
   }
 
-  createHoliday(): void {
+  createHoliday() {
     this.submitted = true;
     if (this.valid) {
       const holiday: Holiday = {
@@ -85,12 +89,58 @@ export class HolidaysComponent {
         });
     } else {
       this.messageService.add({severity: 'warn', summary: 'Validation failed', detail: 'Validation failed! End date' +
-          ' must be same as start or after and dates must be in the future!'});
+          ' must be after start date and dates must be in the future!'});
     }
   }
 
-  updateHoliday(): void {
-    //todo
+  updateHoliday() {
+    this.submitted = true;
+    if (this.valid) {
+      this.holidaysService.updateHoliday(this.holiday)
+        .subscribe({
+          next: (response) => {
+            console.log('Holiday successfully updated:', response);
+            this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday updated successfully'});
+            this.selectHoliday(this.holiday);
+            this.resetForm();
+          }, error: (error) => {
+            this.messageService.add({severity: 'error', summary: 'Updating holiday failed', detail: error.error});
+          }
+        });
+    } else {
+      this.messageService.add({severity: 'warn', summary: 'Validation failed', detail: 'Validation failed! End date' +
+          ' must be after start date and dates must be in the future!'});
+    }
+  }
+
+  showCreateForm() {
+    this.resetForm();
+    this.formMode = 'create';
+  }
+
+  selectHoliday(holiday: Holiday){
+    if (holiday.id != undefined) {
+      this.getHolidayById(holiday.id);
+      this.formMode = 'details';
+    }
+  }
+
+  editHoliday() {
+    this.formMode = 'edit';
+  }
+
+  getFormTitle() {
+    if (this.formMode === 'create') {
+      this.formTitle = 'Request Holiday';
+      this.formAction = 'Submit';
+    } else if (this.formMode === 'edit') {
+      this.formTitle = 'Edit Holiday';
+      this.formAction = 'Request';
+    } else {
+      this.formTitle = 'Holiday Details';
+      this.formAction = 'Request';
+    }
+    return this.formTitle;
   }
 
   createOrUpdateHoliday() {
@@ -114,36 +164,9 @@ export class HolidaysComponent {
     return (startDate <= endDate && startDate > Date.now());
   }
 
-  selectHoliday(holiday: Holiday){
-    if (holiday.id != undefined) {
-      this.getHolidayById(holiday.id);
-      this.formMode = 'edit';
-    }
-  }
-
-  showCreateForm() {
-    this.resetForm();
-    this.formMode = 'create';
-  }
-
   resetForm() {
     this.submitted = false;
     this.holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
-  }
-
-  getFormTitle(): string {
-    if (this.formMode === 'edit') {
-      this.formTitle = 'Edit holiday';
-      this.formAction = 'Request change';
-    } else {
-      this.formTitle = 'Request holiday';
-      this.formAction = 'Submit';
-    }
-    return this.formTitle;
-  }
-
-  editHoliday() {
-    this.formMode = 'edit';
   }
 
   cancelEditing() {
