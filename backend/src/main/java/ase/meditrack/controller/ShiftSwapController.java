@@ -90,8 +90,8 @@ public class ShiftSwapController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && " +
-            "@shiftSwapService.isShiftSwapFromUser(#principal, #dto.id())")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && "
+            + "@shiftSwapService.isShiftSwapFromUser(#principal, #dto.id())")
     @ResponseStatus(HttpStatus.OK)
     public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
         log.info("Updating shift-swap {}", dto.id());
@@ -100,8 +100,8 @@ public class ShiftSwapController {
 
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') " +
-            "&& @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') "
+            + "&& @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting shift-swap with id {}", id);
@@ -109,8 +109,8 @@ public class ShiftSwapController {
     }
 
     @DeleteMapping("/retract/{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') " +
-            "&& @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') "
+            + "&& @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void retract(@PathVariable UUID id, Principal principal) {
         log.info("Retract shift-swap request {}", id);

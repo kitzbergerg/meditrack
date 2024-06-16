@@ -75,8 +75,8 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (hasAnyAuthority('SCOPE_dm') && " +
-            "@userService.isCorrectUserSystemRole(#dto.roles(), #principal))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (hasAnyAuthority('SCOPE_dm') && "
+            + "@userService.isCorrectUserSystemRole(#dto.roles(), #principal))")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
@@ -101,8 +101,8 @@ public class UserController {
     }
 
     @GetMapping("/monthly-details")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_user') && " +
-            "@userService.isSameTeam(#principal, #userId))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_user') && "
+            + "@userService.isSameTeam(#principal, #userId))")
     public MonthlyWorkDetailsDto getMonthlyWorkDetails(@RequestParam Year year,
                                                        @RequestParam Month month, @RequestParam UUID userId,
                                                        Principal principal) {

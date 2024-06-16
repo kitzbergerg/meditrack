@@ -2,8 +2,6 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Role;
-import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
