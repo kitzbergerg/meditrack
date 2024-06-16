@@ -96,7 +96,6 @@ public class ShiftTypeService {
         if (shiftType.getShifts() != null) dbShiftType.setShifts(shiftType.getShifts());
         if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
         if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
-        if (shiftType.getRequiredRoles() != null) dbShiftType.setRequiredRoles(shiftType.getRequiredRoles());
 
         validator.shiftTypeValidation(dbShiftType);
 

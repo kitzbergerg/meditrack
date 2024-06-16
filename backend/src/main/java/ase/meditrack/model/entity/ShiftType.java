@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -62,13 +61,6 @@ public class ShiftType {
     private String color;
 
     private String abbreviation;
-
-    @ManyToMany()
-    @JoinTable(name = "shiftTypeRoles",
-            joinColumns = @JoinColumn(name = "shiftType_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> requiredRoles;
 
     @ManyToOne
     @JoinColumn(name = "team_id")

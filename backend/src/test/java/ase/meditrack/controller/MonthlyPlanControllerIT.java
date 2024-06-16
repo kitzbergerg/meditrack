@@ -102,7 +102,6 @@ class MonthlyPlanControllerIT {
                 "Day",
                 "#000000",
                 "t",
-                null,
                 team,
                 null,
                 null,

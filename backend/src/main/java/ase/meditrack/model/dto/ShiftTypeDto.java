@@ -38,7 +38,6 @@ public record ShiftTypeDto(
         @Length(max = 4, groups = {CreateValidator.class, UpdateValidator.class})
         String abbreviation,
         UUID team,
-        List<SimpleRoleDto> requiredRoles,
         List<UUID> shifts,
         List<UUID> workUsers,
         List<UUID> preferUsers
