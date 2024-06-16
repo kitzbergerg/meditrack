@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.HolidayDto;
 import ase.meditrack.model.entity.Holiday;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.enums.HolidayRequestStatus;
 import ase.meditrack.repository.HolidayRepository;
@@ -59,7 +60,7 @@ class HolidayControllerIT {
 
     @BeforeEach
     void setup() {
-        user = userRepository.save(new User(
+        User user = new User(
                 UUID.fromString(USER_ID),
                 null,
                 1f,
@@ -73,8 +74,12 @@ class HolidayControllerIT {
                 null,
                 null,
                 null,
+                null,
                 null
-        ));
+        );
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        userRepository.save(user);
     }
 
     @Test
