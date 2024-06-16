@@ -81,14 +81,11 @@ public class TeamService {
         if (team.getHardConstraints() == null) {
             team.setHardConstraints(new HardConstraints(
                     null,
-                    Map.of(),
-                    Map.of(),
-                    Map.of(),
                     40,
+                    80,
+                    3,
                     20,
-                    2,
-                    120,
-                    480,
+                    20,
                     team
             ));
         }
