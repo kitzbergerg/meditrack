@@ -2,6 +2,8 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -62,7 +65,7 @@ public class RoleService {
      * Creates a role in the database.
      *
      * @param principal the current user
-     * @param role the role to create
+     * @param role      the role to create
      * @return the created role
      */
     @Transactional
@@ -111,4 +114,30 @@ public class RoleService {
     public void delete(UUID id) {
         repository.deleteById(id);
     }
+
+
+    /**
+     * Checks if the role belongs to the team.
+     *
+     * @param principal current user
+     * @param roleId    of the role
+     * @return true, if the role belongs to the team, false otherwise
+     */
+    public boolean isRoleFromTeam(Principal principal, UUID roleId) {
+        Role role = findById(roleId);
+        return isUserTeamSameAsRoleTeam(principal, role.getTeam().getId());
+    }
+
+    /**
+     * Checks if the team of the role is the same as the user team.
+     *
+     * @param principal current user
+     * @param teamId of the role
+     * @return true, if the team of the role is the same as the one of the user, false otherwise
+     */
+    public boolean isUserTeamSameAsRoleTeam(Principal principal, UUID teamId) {
+        User user = userService.getPrincipalWithTeam(principal);
+        return user.getTeam().getId().equals(teamId);
+    }
+
 }

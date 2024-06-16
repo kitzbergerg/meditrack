@@ -49,13 +49,6 @@ public class ShiftTypeController {
         return mapper.toDtoList(service.findAllByTeam(principal));
     }
 
-    @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public ShiftTypeDto findById(@PathVariable UUID id) { // Principal principal
-        log.info("Fetching shift type {}", id);
-        return mapper.toDto(service.findById(id));
-    }
-
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto, Principal principal) {

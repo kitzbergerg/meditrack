@@ -3,7 +3,6 @@ package ase.meditrack.service;
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
-import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
@@ -118,13 +117,6 @@ public class UserService {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user.setCurrentOverTime(0);
-        if (user.getPreferences() == null) {
-            user.setPreferences(new Preferences(
-                    null,
-                    List.of(),
-                    user
-            ));
-        }
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
@@ -272,13 +264,45 @@ public class UserService {
      * Fetches work details from the principal, given a month and year.
      *
      * @param userId of user
-     * @param month  of the work details
-     * @param year   of the work details
+     * @param month of the work details
+     * @param year of the work details
      * @return monthly work details for the user, given the month and year
      */
     public MonthlyWorkDetails findWorkDetailsByIdAndMonthAndYear(UUID userId, Month month, Year year) {
-        MonthlyWorkDetails details = monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
+        return monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
                 userId, month.getValue(), year.getValue());
-        return details;
     }
+
+    /**
+     * Checks if the principal has the authority to create a user with a specific role.
+     *
+     * @param roles string array of system roles
+     * @param principal the current user
+     * @return ture if the principal has the right authority for creating user with its role, false otherwise
+     */
+    public boolean isCorrectUserSystemRole(List<String> roles, Principal principal) {
+        User dm = getPrincipalWithTeam(principal);
+
+        if (dm.getUserRepresentation().getRealmRoles().contains("admin")) {
+            return true;
+        }
+
+        return roles.stream().noneMatch(role
+                -> role.equals("admin") || role.equals("dm"));
+    }
+
+    /**
+     * Checks if the user is in the same team as the principal.
+     *
+     * @param principal the current user
+     * @param userId of the user to check
+     * @return true if the user and the current user are from the same team, false otherwise
+     */
+    public boolean isSameTeam(Principal principal, UUID userId) {
+        User dm = getPrincipalWithTeam(principal);
+        User user = findById(userId);
+        return dm.getTeam().getId().equals(user.getTeam().getId());
+    }
+
+
 }

@@ -47,7 +47,7 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public List<UserDto> findAll() {
         log.info("Fetching users");
         return mapper.toDtoList(service.findAll());
@@ -75,8 +75,9 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) { // Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (hasAnyAuthority('SCOPE_dm') && " +
+            "@userService.isCorrectUserSystemRole(#dto.roles(), #principal))")
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
@@ -100,8 +101,11 @@ public class UserController {
     }
 
     @GetMapping("/monthly-details")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_user') && " +
+            "@userService.isSameTeam(#principal, #userId))")
     public MonthlyWorkDetailsDto getMonthlyWorkDetails(@RequestParam Year year,
-                                                       @RequestParam Month month, @RequestParam UUID userId) {
+                                                       @RequestParam Month month, @RequestParam UUID userId,
+                                                       Principal principal) {
         log.info("Fetching monthly work details from user");
         try {
             return monthlyWorkDetailsMapper.toDto(service.findWorkDetailsByIdAndMonthAndYear(userId, month, year));
