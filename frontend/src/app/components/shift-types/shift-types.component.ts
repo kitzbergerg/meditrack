@@ -23,13 +23,6 @@ export class ShiftTypesComponent {
 
   roles: Role[] = [];
 
-  dropdownOptions: { name: string }[] = [
-    {name: 'Choose Type'},
-    {name: 'Day'},
-    {name: 'Night'}
-  ];
-  selectedOption = {name: 'Choose Type'};
-
   shiftType: ShiftType = {
     id: 0,
     name: '',
@@ -37,7 +30,6 @@ export class ShiftTypesComponent {
     endTime: '',
     breakStartTime: '',
     breakEndTime: '',
-    type: this.selectedOption.name,
     color: '#ff0000',
     abbreviation: '',
     requiredRoles: []
@@ -169,7 +161,6 @@ export class ShiftTypesComponent {
         this.breakStartTimeDate = this.getTime(this.shiftType.breakStartTime);
         this.breakEndTimeDate = this.getTime(this.shiftType.breakEndTime);
 
-        this.selectedOption.name = this.shiftType.type;
         this.requiredRoles = selectedRoles;
 
         this.loadShiftTypes();
@@ -215,7 +206,6 @@ export class ShiftTypesComponent {
           minute: '2-digit',
           second: '2-digit'
         }) : '',
-        type: this.selectedOption.name,
         color: this.shiftType.color,
         abbreviation: this.shiftType.abbreviation,
         requiredRoles: this.requiredRoles
@@ -281,7 +271,6 @@ export class ShiftTypesComponent {
           minute: '2-digit',
           second: '2-digit'
         }) : this.shiftType.breakEndTime,
-        type: this.selectedOption.name,
         color: this.shiftType.color,
         abbreviation: this.shiftType.abbreviation,
         requiredRoles: this.requiredRoles
@@ -347,8 +336,8 @@ export class ShiftTypesComponent {
   createOrUpdateShiftType() {
     this.valid = (this.shiftType.name !== '') && (this.startTimeDate !== null)
       && (this.endTimeDate !== null) && (this.breakStartTimeDate !== null)
-      && (this.breakEndTimeDate !== null) && (this.selectedOption.name !== 'Choose Type')
-      && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '') && (this.requiredRoles.length !== 0);
+      && (this.breakEndTimeDate !== null) && (this.shiftType.color !== '') && (this.shiftType.abbreviation !== '')
+      && (this.requiredRoles.length !== 0);
 
     if (this.formMode === 'create') {
       this.createShiftType();
@@ -371,7 +360,6 @@ export class ShiftTypesComponent {
 
   resetForm() {
     this.submitted = false;
-    this.selectedOption = {name: 'Choose Type'};
     this.startTimeDate = this.emptyTime;
     this.endTimeDate = this.emptyTime;
     this.breakStartTimeDate = this.emptyTime;
@@ -384,7 +372,6 @@ export class ShiftTypesComponent {
       endTime: '',
       breakStartTime: '',
       breakEndTime: '',
-      type: this.selectedOption.name,
       color: '#ff0000',
       abbreviation: '',
       requiredRoles: []

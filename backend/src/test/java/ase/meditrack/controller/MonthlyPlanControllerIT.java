@@ -99,7 +99,6 @@ class MonthlyPlanControllerIT {
                 LocalTime.of(12, 0, 0),
                 LocalTime.of(10, 0, 0),
                 LocalTime.of(10, 30, 0),
-                "Day",
                 "#000000",
                 "t",
                 null,

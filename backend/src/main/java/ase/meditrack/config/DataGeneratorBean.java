@@ -272,7 +272,6 @@ public class DataGeneratorBean {
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
-            nightShift.setType("Night");
             nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
@@ -283,7 +282,6 @@ public class DataGeneratorBean {
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
-            morningShift.setType("Day");
             morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
@@ -294,7 +292,6 @@ public class DataGeneratorBean {
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");
-            eveningShift.setType("Day");
             eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));

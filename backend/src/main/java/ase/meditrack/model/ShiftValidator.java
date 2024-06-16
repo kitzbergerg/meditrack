@@ -6,6 +6,7 @@ import ase.meditrack.repository.ShiftRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,9 +61,20 @@ public class ShiftValidator {
     }
 
     private void validateDayShiftAfterNightShift(Shift shift, List<Shift> previousShifts) {
-        if ("day".equalsIgnoreCase(shift.getShiftType().getType())) {
+        LocalTime dayStart = LocalTime.of(8, 0);
+        LocalTime nightStart = LocalTime.of(20, 0);
+
+        LocalTime shiftStartTime = shift.getShiftType().getStartTime();
+
+        boolean isDayShift = !shiftStartTime.isBefore(dayStart) && shiftStartTime.isBefore(nightStart);
+
+        if (isDayShift) {
             for (Shift previousShift : previousShifts) {
-                if ("night".equalsIgnoreCase(previousShift.getShiftType().getType())) {
+                LocalTime previousShiftStartTime = previousShift.getShiftType().getStartTime();
+
+                boolean isPreviousNightShift = previousShiftStartTime.isBefore(dayStart) || !previousShiftStartTime.isBefore(nightStart);
+
+                if (isPreviousNightShift) {
                     throw new ResourceConflictException("A day shift cannot follow a night shift.");
                 }
             }
@@ -70,9 +82,19 @@ public class ShiftValidator {
     }
 
     private void validateNightShiftBeforeDayShift(Shift shift, List<Shift> nextShifts) {
-        if ("night".equalsIgnoreCase(shift.getShiftType().getType())) {
+        LocalTime dayStart = LocalTime.of(8, 0);
+        LocalTime nightStart = LocalTime.of(20, 0);
+
+        LocalTime shiftStartTime = shift.getShiftType().getStartTime();
+
+        boolean isNightShift = shiftStartTime.isBefore(dayStart) || !shiftStartTime.isBefore(nightStart);
+
+        if (isNightShift) {
             for (Shift nextShift : nextShifts) {
-                if ("day".equalsIgnoreCase(nextShift.getShiftType().getType())) {
+                LocalTime nextShiftStartTime = nextShift.getShiftType().getStartTime();
+                boolean isNextDayShift = !nextShiftStartTime.isBefore(dayStart) && nextShiftStartTime.isBefore(nightStart);
+
+                if (isNextDayShift) {
                     throw new ResourceConflictException("A night shift cannot precede a day shift.");
                 }
             }

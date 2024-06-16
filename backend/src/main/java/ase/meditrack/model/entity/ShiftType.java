@@ -56,9 +56,6 @@ public class ShiftType {
 
     private LocalTime breakEndTime;
 
-    @Pattern(regexp = "Day|Night", message = "Shift Type must be either 'Day' or 'Night'")
-    private String type;
-
     private String color;
 
     private String abbreviation;
