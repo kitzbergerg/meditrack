@@ -70,7 +70,7 @@
           <button (click)="createOrUpdateHoliday()"
                   *ngIf="formMode === 'edit'"
                   class="p-element p-ripple p-button-success p-button p-component"
-                  label="Success" pbutton="" pripple="" style="height: 35px;"
+                  label="Success" pbutton="" pripple="" style="height: 35px; width: 110px;"
                   type="button">
             <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
             <span class="p-button-label">{{ formAction }}</span>
@@ -83,6 +83,93 @@
             <span class="p-button-label">Cancel</span>
             <span class="p-ink" aria-hidden="true" role="presentation"></span>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="isUserDm && !loadingTeamHolidays">
+  <div class="grid">
+    <div class="col-12 md:col-6">
+      <div class="card px-6 py-6">
+        <h2 style="text-align: center;">Team Holidays</h2>
+        <ul class="list-none p-0 m-0">
+          <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-0">
+            <span class="text-xl font-bold mr-2 md:mb-2">Employee</span>
+            <span class="text-xl font-bold mr-2 md:mb-2">Begin</span>
+            <span class="text-xl font-bold mr-2 md:mb-2">End</span>
+            <span class="text-xl font-bold mr-2 md:mb-2">Status</span>
+          </li>
+          <li *ngFor="let holiday of teamHolidays" (click)="selectTeamHoliday(holiday)"
+              class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+            <span
+              class="text-xl font-medium mr-2 md:mb-0">{{ getUsernameFromId(holiday.user != undefined ? holiday.user
+              : '')}}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.status }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-12 md:col-6">
+      <div class="card p-fluid">
+        <h2 style="text-align: center;">Approvals</h2>
+        <div class="field grid">
+          <label htmlfor="user" class="col-12 mb-2 md:col-2 md:mb-0">User</label>
+          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+            <input pInputText id="user" type="text" class="p-inputtext p-component p-element"
+                   [(ngModel)]="teamUserName" disabled>
+          </div>
+        </div>
+        <div class="field grid">
+          <label htmlfor="startDate" class="col-12 mb-2 md:col-2 md:mb-0">Start date</label>
+          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+            <input pInputText id="startDateTeam" type="date" class="p-inputtext p-component p-element"
+                   [(ngModel)]="teamHoliday.startDate" disabled>
+          </div>
+        </div>
+        <div class="field grid">
+          <label htmlfor="endDate" class="col-12 mb-2 md:col-2 md:mb-0">End date</label>
+          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+            <input pInputText id="endDateTeam" type="date" class="p-inputtext p-component p-element"
+                   [(ngModel)]="teamHoliday.endDate" disabled>
+          </div>
+        </div>
+        <div class="field grid">
+          <label htmlfor="status" class="col-12 mb-2 md:col-2 md:mb-0">Status</label>
+          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
+            <input pInputText id="status" type="text" class="p-inputtext p-component p-element"
+                   [(ngModel)]="teamHoliday.status" disabled>
+          </div>
+        </div>
+        <p-toast></p-toast>
+        <div class="button-container">
+          <div class="buttonset">
+            <button *ngIf="isApprovable()" (click)="updateStatus(HolidayRequestStatus.APPROVED)" pbutton="" pripple=""
+                    label="Success" class="p-element p-ripple p-button-success p-button p-component"
+                    style="height: 35px; width: 110px;">
+              <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
+              <span class="p-button-label">Approve</span>
+              <span class="p-ink" aria-hidden="true" role="presentation"></span>
+            </button>
+            <button *ngIf="isApprovable()" (click)="updateStatus(HolidayRequestStatus.REJECTED)" pbutton="" pripple=""
+                    label="Danger" icon="pi pi-trash" class="p-element p-ripple p-button-danger p-button p-component"
+                    style="height: 35px; width: 100px;">
+              <span class="p-button-icon p-button-icon-left pi pi-trash" aria-hidden="true"></span>
+              <span class="p-button-label">Reject</span>
+              <span class="p-ink" aria-hidden="true" role="presentation"></span>
+
+            </button>
+            <button *ngIf="isCancelable()" (click)="updateStatus(HolidayRequestStatus.CANCELLED)" pbutton="" pripple=""
+                    label="Cancel" icon="pi pi-times"
+                    class="p-element p-ripple p-button-raised p-button-secondary p-button p-component"
+                    style="height: 35px; width: 100px">
+              <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true"></span>
+              <span class="p-button-label">Cancel</span>
+              <span class="p-ink" aria-hidden="true" role="presentation"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
