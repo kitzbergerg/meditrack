@@ -239,7 +239,7 @@ export class HolidaysComponent {
 
   getUsernameFromId(id: string) {
     if (this.userIdNameMap.has(id)) {
-      return this.userIdNameMap.get(id);
+      return this.userIdNameMap.get(id)?.split('_')[0];
     }
     return '';
   }
