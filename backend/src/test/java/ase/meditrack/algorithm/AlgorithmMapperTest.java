@@ -2,6 +2,7 @@ package ase.meditrack.algorithm;
 
 import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
@@ -12,6 +13,7 @@ import ase.meditrack.service.algorithm.AlgorithmMapper;
 import ase.meditrack.service.algorithm.AlgorithmOutput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
@@ -46,15 +48,20 @@ class AlgorithmMapperTest {
         List<ShiftType> shiftTypes = new ArrayList<>();
         List<Role> roles = new ArrayList<>();
         Team team = mock(Team.class);
-        HardConstraints constraints = mock(HardConstraints.class);
 
         // Create mock data
-        User user = mock(User.class);
+        Preferences preferences = new Preferences();
+        preferences.setOffDays(List.of());
+        User user = mock(User.class,  Mockito.RETURNS_DEEP_STUBS);
         UUID userUuid = UUID.randomUUID();
         when(user.getId()).thenReturn(userUuid);
         when(user.getWorkingHoursPercentage()).thenReturn(1.0f);
         when(user.getCurrentOverTime()).thenReturn(0);
         when(user.getCanWorkShiftTypes()).thenReturn(shiftTypes);
+        when(user.getPreferences()).thenReturn(preferences);
+        when(user.getRole().getId()).thenReturn(null);
+        when(user.getRole().getAllowedFlextimeTotal()).thenReturn(10);
+        when(user.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
         employees.add(user);
 
         ShiftType shiftType = mock(ShiftType.class);
@@ -64,7 +71,17 @@ class AlgorithmMapperTest {
         when(shiftType.getEndTime()).thenReturn(LocalTime.of(17, 0));
         shiftTypes.add(shiftType);
 
-        algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, team);
+        HardConstraints hardConstraints = new HardConstraints();
+
+        hardConstraints.setWorkingHours(40);
+        hardConstraints.setMaxWeeklyHours(80);
+        hardConstraints.setMaxConsecutiveShifts(3);
+        hardConstraints.setDaytimeRequiredPeople(20);
+        hardConstraints.setNighttimeRequiredPeople(20);
+        when(team.getHardConstraints()).thenReturn(hardConstraints);
+
+        algorithmMapper.mapToAlgorithmInput(month, year, employees, Map.of(user.getId(), List.of()), shiftTypes, roles,
+                team);
 
         // Use reflection to access private fields
         Field indexToShiftTypeUuidField = AlgorithmMapper.class.getDeclaredField("indexToShiftTypeUuid");
@@ -83,7 +100,7 @@ class AlgorithmMapperTest {
     }
 
     @Test
-    void testMapToAlgorithmInput() throws NoSuchFieldException, IllegalAccessException {
+    void testMapToAlgorithmInput() {
         int month = 5;
         int year = 2024;
 
@@ -95,18 +112,28 @@ class AlgorithmMapperTest {
         HardConstraints constraints = mock(HardConstraints.class);
 
         // Create mock data
-        User user = mock(User.class);
+        Preferences preferences = new Preferences();
+        preferences.setOffDays(List.of());
+        User user = mock(User.class, Mockito.RETURNS_DEEP_STUBS);
         when(user.getId()).thenReturn(UUID.randomUUID());
         when(user.getWorkingHoursPercentage()).thenReturn(1.0f);
         when(user.getCurrentOverTime()).thenReturn(0);
         when(user.getCanWorkShiftTypes()).thenReturn(shiftTypes);
+        when(user.getPreferences()).thenReturn(preferences);
+        when(user.getRole().getId()).thenReturn(null);
+        when(user.getRole().getAllowedFlextimeTotal()).thenReturn(10);
+        when(user.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
         employees.add(user);
 
-        User user2 = mock(User.class);
+        User user2 = mock(User.class, Mockito.RETURNS_DEEP_STUBS);
         when(user2.getId()).thenReturn(UUID.randomUUID());
         when(user2.getWorkingHoursPercentage()).thenReturn(1.0f);
         when(user2.getCurrentOverTime()).thenReturn(0);
         when(user2.getCanWorkShiftTypes()).thenReturn(shiftTypes2);
+        when(user2.getPreferences()).thenReturn(preferences);
+        when(user2.getRole().getId()).thenReturn(null);
+        when(user2.getRole().getAllowedFlextimeTotal()).thenReturn(10);
+        when(user2.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
         employees.add(user2);
 
         ShiftType shiftType = mock(ShiftType.class);
@@ -132,26 +159,32 @@ class AlgorithmMapperTest {
         when(role2.getName()).thenReturn("Nurse");
         roles.add(role2);
 
+        HardConstraints hardConstraints = new HardConstraints();
+
         when(team.getWorkingHours()).thenReturn(160);
+        when(team.getHardConstraints()).thenReturn(hardConstraints);
 
-        Map<Role, Integer> requiredRoles = new HashMap<>();
-        requiredRoles.put(role, 3);
-        requiredRoles.put(role2, 1);
+        when(constraints.getWorkingHours()).thenReturn(40);
+        when(constraints.getMaxWeeklyHours()).thenReturn(80);
+        when(constraints.getMaxConsecutiveShifts()).thenReturn(3);
+        when(constraints.getDaytimeRequiredPeople()).thenReturn(20);
+        when(constraints.getNighttimeRequiredPeople()).thenReturn(20);
 
-        when(constraints.getDaytimeRequiredRoles()).thenReturn(requiredRoles);
-        when(constraints.getNighttimeRequiredRoles()).thenReturn(requiredRoles);
-        when(constraints.getAllowedFlextimeTotal()).thenReturn(10);
-        when(constraints.getAllowedFlextimePerMonth()).thenReturn(5);
-        when(constraints.getMandatoryOffDays()).thenReturn(2);
-        when(constraints.getMinRestPeriod()).thenReturn(120);
-        when(constraints.getMaximumShiftLengths()).thenReturn(8);
 
-        AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(month, year, employees, shiftTypes, roles, team);
+        AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(
+                month,
+                year,
+                employees,
+                Map.of(user.getId(), List.of(), user2.getId(), List.of()),
+                shiftTypes,
+                roles,
+                team
+        );
 
 
         assertEquals(2, input.employees().size());
-        assertEquals(Arrays.asList(0, 1), input.employees().get(0).worksShifts());
-        assertEquals(List.of(0), input.employees().get(1).worksShifts());
+        assertEquals(Arrays.asList(0, 1), input.employees().get(0).worksShiftTypes());
+        assertEquals(List.of(0), input.employees().get(1).worksShiftTypes());
 
         assertEquals(2, input.shiftTypes().size());
         assertEquals(LocalTime.of(9, 0), input.shiftTypes().get(0).startTime());

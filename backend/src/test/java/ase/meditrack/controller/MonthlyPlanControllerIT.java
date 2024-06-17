@@ -90,6 +90,7 @@ class MonthlyPlanControllerIT {
                 null,
                 null,
                 null,
+                null,
                 null
         ));
         team = teamService.create(

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MaxShiftLengthsComponent } from './max-shift-lengths.component';
+import { ScheduleLegendComponent } from './schedule-legend.component';
 
-describe('MaxShiftLengthsComponent', () => {
-  let component: MaxShiftLengthsComponent;
-  let fixture: ComponentFixture<MaxShiftLengthsComponent>;
+describe('ScheduleLegendComponent', () => {
+  let component: ScheduleLegendComponent;
+  let fixture: ComponentFixture<ScheduleLegendComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MaxShiftLengthsComponent]
+      imports: [ScheduleLegendComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(MaxShiftLengthsComponent);
+    fixture = TestBed.createComponent(ScheduleLegendComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

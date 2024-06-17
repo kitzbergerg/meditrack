@@ -15,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,10 +31,25 @@ import java.util.UUID;
 @Entity(name = "role")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class Role {
+
+    public Role(UUID id, String name, String color, String abbreviation, List<User> users, Team team,
+                 List<ShiftType> shiftTypes) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.abbreviation = abbreviation;
+        this.users = users;
+        this.team = team;
+        this.shiftTypes = shiftTypes;
+
+        this.allowedFlextimeTotal = 1;
+        this.allowedFlextimePerMonth = 1;
+        this.daytimeRequiredPeople = 1;
+        this.nighttimeRequiredPeople = 1;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -47,6 +61,14 @@ public class Role {
     private String color;
 
     private String abbreviation;
+
+    private Integer allowedFlextimeTotal;
+
+    private Integer allowedFlextimePerMonth;
+
+    private Integer daytimeRequiredPeople;
+
+    private Integer nighttimeRequiredPeople;
 
     @OneToMany(mappedBy = "role")
     private List<User> users;

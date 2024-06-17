@@ -2,8 +2,11 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
+import ase.meditrack.model.entity.MonthlyWorkDetails;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -35,13 +40,16 @@ public class UserService {
     private final UserRepository repository;
     private final UserValidator userValidator;
     private final ShiftTypeRepository shiftTypeRepository;
+    private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
 
     public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
-                       ShiftTypeRepository shiftTypeRepository) {
+                       ShiftTypeRepository shiftTypeRepository,
+                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
         this.shiftTypeRepository = shiftTypeRepository;
+        this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
     }
 
     private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
@@ -110,6 +118,13 @@ public class UserService {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user.setCurrentOverTime(0);
+        if (user.getPreferences() == null) {
+            user.setPreferences(new Preferences(
+                    null,
+                    List.of(),
+                    user
+            ));
+        }
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
@@ -131,7 +146,7 @@ public class UserService {
     /**
      * Updates a user in the database and in keycloak.
      *
-     * @param user the user to update
+     * @param user      the user to update
      * @param principal the current user's id
      * @return the updated user
      */
@@ -160,7 +175,7 @@ public class UserService {
     /**
      * Deletes a user from the database and from keycloak.
      *
-     * @param id the id of the user to delete
+     * @param id        the id of the user to delete
      * @param principal the current user's id
      */
     public void delete(UUID id, Principal principal) {
@@ -251,5 +266,19 @@ public class UserService {
             throw new NotFoundException("User has no team");
         }
         return dm.get();
+    }
+
+    /**
+     * Fetches work details from the principal, given a month and year.
+     *
+     * @param userId of user
+     * @param month  of the work details
+     * @param year   of the work details
+     * @return monthly work details for the user, given the month and year
+     */
+    public MonthlyWorkDetails findWorkDetailsByIdAndMonthAndYear(UUID userId, Month month, Year year) {
+        MonthlyWorkDetails details = monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
+                userId, month.getValue(), year.getValue());
+        return details;
     }
 }

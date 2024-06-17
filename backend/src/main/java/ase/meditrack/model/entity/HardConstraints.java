@@ -1,28 +1,21 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapKeyEnumerated;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.proxy.HibernateProxy;
-import java.util.Map;
+
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity(name = "hard_constraints")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class HardConstraints {
@@ -30,29 +23,15 @@ public class HardConstraints {
     @Id
     private UUID id;
 
-    @ElementCollection
-    @CollectionTable(name = "shift_off_shift", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    private Map<ShiftOffShiftIdList, UUID> shiftOffShift;
+    private Integer workingHours;
 
-    @ElementCollection
-    @CollectionTable(name = "daytime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Role, Integer> daytimeRequiredRoles;
+    private Integer maxWeeklyHours;
 
-    @ElementCollection
-    @CollectionTable(name = "nighttime_required_roles", joinColumns = @JoinColumn(name = "hard_constraints_id"))
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Role, Integer> nighttimeRequiredRoles;
+    private Integer maxConsecutiveShifts;
 
-    private Integer allowedFlextimeTotal;
+    private Integer daytimeRequiredPeople;
 
-    private Integer allowedFlextimePerMonth;
-
-    private Integer mandatoryOffDays;
-
-    private Integer minRestPeriod;
-
-    private Integer maximumShiftLengths;
+    private Integer nighttimeRequiredPeople;
 
     @OneToOne
     @MapsId
