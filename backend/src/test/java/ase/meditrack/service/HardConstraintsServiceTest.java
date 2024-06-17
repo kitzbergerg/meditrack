@@ -7,10 +7,8 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.ShiftOffShiftIdList;
-import ase.meditrack.repository.HardConstraintsRepository;
-import ase.meditrack.repository.RoleRepository;
-import ase.meditrack.repository.ShiftOffShiftIdListRepository;
-import ase.meditrack.repository.UserRepository;
+import ase.meditrack.repository.*;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -34,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -57,6 +56,7 @@ public class HardConstraintsServiceTest {
     @Autowired
     private TeamService teamService;
     private Team team;
+    private Team otherTeam;
 
     @BeforeEach
     void setup() {
@@ -76,50 +76,15 @@ public class HardConstraintsServiceTest {
                 null,
                 null,
                 null,
+                null,
                 null
         ));
         team = teamService.create(
                 new Team(null, "test team", 40, null, null, null, null, null),
                 () -> USER_ID
         );
-    }
 
-    @Test
-    void findAllReturnsAllHardConstraints() {
-        List<HardConstraints> resultList = service.findAll();
-
-        assertAll(
-                () -> assertNotNull(resultList),
-                () -> assertEquals(1, resultList.size()) // team is saved
-        );
-    }
-
-    @Test
-    void findByIdReturnsHardConstraints() {
-        HardConstraints hardConstraint = new HardConstraints();
-        hardConstraint.setId(team.getId());
-        hardConstraint.setMandatoryOffDays(2);
-        repository.save(hardConstraint);
-        HardConstraints savedHardConstraints = repository.findById(hardConstraint.getId()).get();
-
-        HardConstraints result = service.findById(savedHardConstraints.getId());
-
-        assertAll(
-                () -> assertNotNull(result),
-                () -> assertEquals(hardConstraint.getId(), result.getId()),
-                () -> assertEquals(hardConstraint.getMandatoryOffDays(), result.getMandatoryOffDays()),
-                () -> assertEquals(hardConstraint, result)
-        );
-    }
-
-    @Test
-    void findByTeamReturnsHardConstraints() {
-        HardConstraints hardConstraint = new HardConstraints();
-        hardConstraint.setId(team.getId());
-        hardConstraint.setMandatoryOffDays(2);
-        repository.save(hardConstraint);
-
-        // other team creation
+        // for other team
         String otherUserId = "11111111-1111-1111-1111-111111111111";
         userRepository.save(new User(
                 UUID.fromString(otherUserId),
@@ -135,17 +100,56 @@ public class HardConstraintsServiceTest {
                 null,
                 null,
                 null,
+                null,
                 null
         ));
 
-        Team otherTeam = teamService.create(
+        otherTeam = teamService.create(
                 new Team(null, "other test team", 40, null, null, null, null, null),
                 () -> otherUserId
         );
+    }
+
+    @Test
+    void findAllReturnsAllHardConstraints() {
+        List<HardConstraints> resultList = service.findAll();
+
+        assertAll(
+                () -> assertNotNull(resultList),
+                () -> assertEquals(2, resultList.size()) // team and otherteam are saved
+        );
+    }
+
+    @Test
+    void findByIdReturnsHardConstraints() {
+        HardConstraints hardConstraint = new HardConstraints();
+        hardConstraint.setId(team.getId());
+        hardConstraint.setWorkingHours(10);
+        repository.save(hardConstraint);
+        HardConstraints savedHardConstraints = repository.findById(hardConstraint.getId()).get();
+
+        HardConstraints result = service.findById(savedHardConstraints.getId());
+
+        assertAll(
+                () -> assertNotNull(result),
+                () -> assertEquals(hardConstraint.getId(), result.getId()),
+                () -> assertEquals(hardConstraint.getWorkingHours(), result.getWorkingHours()),
+                () -> assertEquals(hardConstraint, result)
+        );
+    }
+
+    @Test
+    void findByTeamReturnsHardConstraints() {
+        HardConstraints hardConstraint = new HardConstraints();
+        hardConstraint.setId(team.getId());
+        hardConstraint.setDaytimeRequiredPeople(2);
+        hardConstraint.setTeam(team);
+        repository.save(hardConstraint);
 
         HardConstraints hardConstraintOtherTeam = new HardConstraints();
         hardConstraintOtherTeam.setId(otherTeam.getId());
-        hardConstraintOtherTeam.setMandatoryOffDays(2);
+        hardConstraintOtherTeam.setDaytimeRequiredPeople(2);
+        hardConstraintOtherTeam.setTeam(otherTeam);
         repository.save(hardConstraintOtherTeam);
 
         Principal principal = new Principal() {
@@ -163,7 +167,7 @@ public class HardConstraintsServiceTest {
                 () -> assertEquals(resultTeam.getTeam(), team),
                 () -> assertEquals(resultAll.size(), 2),
                 () -> assertEquals(hardConstraint.getId(), resultTeam.getId()),
-                () -> assertEquals(hardConstraint.getMandatoryOffDays(), resultTeam.getMandatoryOffDays()),
+                () -> assertEquals(hardConstraint.getDaytimeRequiredPeople(), resultTeam.getDaytimeRequiredPeople()),
                 () -> assertEquals(hardConstraint, resultTeam)
         );
     }
@@ -206,14 +210,14 @@ public class HardConstraintsServiceTest {
 
         HardConstraints hardConstraint = new HardConstraints();
         hardConstraint.setId(team.getId());
-        hardConstraint.setDaytimeRequiredRoles(daytime);
-        hardConstraint.setNighttimeRequiredRoles(nighttime);
-        HardConstraints savedHardConstraints = service.create(hardConstraint, principal);
+        hardConstraint.setDaytimeRequiredPeople(3);
+        hardConstraint.setNighttimeRequiredPeople(4);
+        HardConstraints savedHardConstraints = service.update(hardConstraint, principal);
 
         assertAll(
                 () -> assertNotNull(savedHardConstraints),
                 () -> assertEquals(hardConstraint.getId(), savedHardConstraints.getId()),
-                () -> assertEquals(hardConstraint.getMandatoryOffDays(), savedHardConstraints.getMandatoryOffDays())
+                () -> assertEquals(hardConstraint.getDaytimeRequiredPeople(), savedHardConstraints.getDaytimeRequiredPeople())
         );
     }
 
@@ -231,47 +235,31 @@ public class HardConstraintsServiceTest {
         ShiftOffShiftIdList shiftOffShiftIdList = new ShiftOffShiftIdList();
         shiftOffShiftIdList.setShiftOffShiftIdList(list);
 
-        Map<ShiftOffShiftIdList, UUID> shiftOffShift = new HashMap<>();
-        shiftOffShift.put(shiftOffShiftIdList, UUID.randomUUID());
-        shiftOffShiftIdListRepository.save(shiftOffShiftIdList);
-        updatedList.setShiftOffShift(shiftOffShift);
-
-        Map<Role, Integer> daytimeRequiredRoles = new HashMap<>();
-        Role role1 = new Role();
-        role1.setName("Doctor");
-        role1.setColor("FF0000");
-        role1.setAbbreviation("D");
-        role1.setUsers(null);
-        role1.setTeam(team);
-        Role role2 = new Role();
-        role2.setName("Nurse");
-        role2.setColor("FF0200");
-        role2.setAbbreviation("N");
-        role2.setUsers(null);
-        role2.setTeam(team);
-        daytimeRequiredRoles.put(role1, 2);
-        daytimeRequiredRoles.put(role2, 3);
-        roleRepository.save(role1);
-        roleRepository.save(role2);
-        updatedList.setDaytimeRequiredRoles(daytimeRequiredRoles);
-
-        Map<Role, Integer> nighttimeRequiredRoles = new HashMap<>();
-        nighttimeRequiredRoles.put(role1, 1);
-        updatedList.setNighttimeRequiredRoles(nighttimeRequiredRoles);
-
-        updatedList.setAllowedFlextimeTotal(40);
-        updatedList.setAllowedFlextimePerMonth(10);
-        updatedList.setMandatoryOffDays(5);
-        updatedList.setMinRestPeriod(8);
-        updatedList.setMaximumShiftLengths(12);
         updatedList.setTeam(team);
+        updatedList.setNighttimeRequiredPeople(10);
+        updatedList.setDaytimeRequiredPeople(16);
+        updatedList.setWorkingHours(10);
+        updatedList.setMaxWeeklyHours(40);
+        updatedList.setMaxConsecutiveShifts(5);
 
-        HardConstraints result = service.update(updatedList);
+        Principal principal = new Principal() {
+            @Override
+            public String getName() {
+                return USER_ID;
+            }
+        };
+
+        HardConstraints result = service.update(updatedList, principal);
 
         assertAll(
                 () -> assertNotNull(result),
                 () -> assertEquals(updatedList.getId(), result.getId()),
-                () -> assertEquals(updatedList.getMandatoryOffDays(), result.getMandatoryOffDays())
+                () -> assertEquals(updatedList.getDaytimeRequiredPeople(), result.getDaytimeRequiredPeople()),
+                () -> assertEquals(updatedList.getNighttimeRequiredPeople(), result.getNighttimeRequiredPeople()),
+                () -> assertEquals(updatedList.getTeam(), result.getTeam()),
+                () -> assertEquals(updatedList.getWorkingHours(), result.getWorkingHours()),
+                () -> assertEquals(updatedList.getMaxConsecutiveShifts(), result.getMaxConsecutiveShifts()),
+                () -> assertEquals(updatedList.getMaxWeeklyHours(), result.getMaxWeeklyHours())
         );
     }
 
@@ -282,13 +270,13 @@ public class HardConstraintsServiceTest {
         repository.save(hardConstraint);
 
         List<HardConstraints> resultList = service.findAll();
-        assertEquals(1, resultList.size());
+        assertEquals(2, resultList.size());
 
         service.delete(hardConstraint.getId());
-        userRepository.deleteAll();
+        userRepository.deleteById(UUID.fromString(USER_ID));
         teamService.delete(team.getId());
 
         resultList = service.findAll();
-        assertEquals(0, resultList.size());
+        assertEquals(1, resultList.size());
     }
 }

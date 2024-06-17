@@ -1,10 +1,7 @@
 package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
-import ase.meditrack.model.dto.MonthlyPlanDto;
-import ase.meditrack.model.dto.ShiftScheduleDto;
-import ase.meditrack.model.dto.SimpleRoleDto;
-import ase.meditrack.model.dto.UserScheduleDto;
+import ase.meditrack.model.dto.*;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.Team;
@@ -18,6 +15,7 @@ import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -45,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -98,6 +97,7 @@ class MonthlyPlanControllerIT {
                 () -> USER_ID
         );
     }
+
     //TODO : fix keycloak user representation, then add test back
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createMonthlyPlan_succeeds() throws Exception {
@@ -151,6 +151,7 @@ class MonthlyPlanControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_getMonthlyPlanByTeamMonthYear_succeeds() throws Exception {
+        userRepository.flush();
         MonthlyPlan monthlyPlan = new MonthlyPlan();
         monthlyPlan.setTeam(team);
         monthlyPlan.setYear(2024);
@@ -239,6 +240,8 @@ class MonthlyPlanControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin")
     void test_updateMonthlyPlan_succeeds() throws Exception {
+        userRepository.flush();
+
         MonthlyPlan monthlyPlan = new MonthlyPlan();
         monthlyPlan.setTeam(team);
         monthlyPlan.setYear(2024);
@@ -254,10 +257,10 @@ class MonthlyPlanControllerIT {
                 "Doe",
                 2F,
                 simpleRoleDto);
-        List<UserScheduleDto> users = new ArrayList<>();
-        users.add(userScheduleDto);
-        ShiftScheduleDto shiftDto = new ShiftScheduleDto(null, null, null, users);
-        List<ShiftScheduleDto> shifts = new ArrayList<>();
+        List<UUID> users = new ArrayList<>();
+        users.add(userScheduleDto.id());
+        ShiftDto shiftDto = new ShiftDto(null, null, null, null, users, null, null);
+        List<ShiftDto> shifts = new ArrayList<>();
         shifts.add(shiftDto);
         MonthlyPlanDto updatedMonthlyPlanDto = new MonthlyPlanDto(
                 savedMonthlyPlan.getId(),
@@ -265,7 +268,8 @@ class MonthlyPlanControllerIT {
                 Year.of(2024),
                 true,
                 team.getId(),
-                shifts
+                shifts,
+                null
         );
 
         String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/monthly-plan")

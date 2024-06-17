@@ -5,21 +5,13 @@ import ase.meditrack.model.dto.ShiftSwapDto;
 import ase.meditrack.model.dto.SimpleShiftDto;
 import ase.meditrack.model.dto.SimpleShiftSwapDto;
 import ase.meditrack.model.dto.SimpleShiftTypeDto;
-import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.ShiftType;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
-import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.*;
 import ase.meditrack.model.mapper.ShiftMapper;
-import ase.meditrack.repository.ShiftSwapRepository;
-import ase.meditrack.repository.ShiftRepository;
-import ase.meditrack.repository.UserRepository;
-import ase.meditrack.repository.MonthlyPlanRepository;
-import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.repository.*;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -76,6 +69,8 @@ class ShiftSwapControllerIT {
     private Team team;
     @Autowired
     private MonthlyPlanRepository monthlyPlanRepository;
+    @Autowired
+    private TeamRepository teamRepository;
 
     @BeforeEach
     void setup() {
@@ -84,6 +79,7 @@ class ShiftSwapControllerIT {
                 null,
                 1f,
                 0,
+                null,
                 null,
                 null,
                 null,
@@ -120,8 +116,9 @@ class ShiftSwapControllerIT {
     @Test
     @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_employee"}, username = USER_ID)
     void test_findShiftSwapsByUserAndCurrentMonth_succeeds() throws Exception {
+        userRepository.flush();
         Shift shiftBefore = new Shift();
-        shiftBefore.setDate(LocalDate.now().minusDays(4));
+        shiftBefore.setDate(LocalDate.now().minusDays(40));
         List<User> usersBefore = new ArrayList<>();
         usersBefore.add(user);
         shiftBefore.setUsers(usersBefore);
@@ -144,7 +141,7 @@ class ShiftSwapControllerIT {
         shiftSwap.setRequestedShift(shiftComing);
         shiftSwapRepository.save(shiftSwap);
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-swap/month"))
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-swap/own-offers"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         List<ShiftSwapDto> shiftSwaps = objectMapper.readValue(response, new TypeReference<>() {
@@ -194,6 +191,8 @@ class ShiftSwapControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftSwap_succeeds() throws Exception {
+        userRepository.flush();
+        teamRepository.flush();
         ShiftType shiftType = new ShiftType();
         shiftType.setName("ShiftType");
         shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
@@ -215,12 +214,12 @@ class ShiftSwapControllerIT {
                 null,
                 null,
                 null
-                );
+        );
 
         String response = mockMvc.perform(
-                    MockMvcRequestBuilders.post("/api/shift-swap")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(shiftSwapDto))
+                        MockMvcRequestBuilders.post("/api/shift-swap")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftSwapDto))
                 )
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
@@ -239,6 +238,7 @@ class ShiftSwapControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_updateShiftSwap_succeeds() throws Exception {
+        userRepository.flush();
         ShiftSwap shiftSwap = new ShiftSwap();
         shiftSwap.setSwapRequestingUser(user);
         shiftSwap.setRequestedShift(shift);
@@ -263,7 +263,7 @@ class ShiftSwapControllerIT {
                 "#FF0000",
                 "SD",
                 team.getId()
-                );
+        );
         Shift newRequest = shiftRepository.save(new Shift());
         SimpleShiftDto newRequestDto = new SimpleShiftDto(newRequest.getId(),
                 newRequest.getDate(),

@@ -3,14 +3,12 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftDto;
 import ase.meditrack.model.dto.SimpleShiftDto;
-import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
-import ase.meditrack.repository.ShiftRepository;
-import ase.meditrack.repository.UserRepository;
+import ase.meditrack.model.entity.*;
+import ase.meditrack.repository.*;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -25,9 +23,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalTime;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -57,6 +55,12 @@ class ShiftControllerIT {
     @Autowired
     private TeamService teamService;
     private Team team;
+    @Autowired
+    private ShiftTypeRepository shiftTypeRepository;
+    @Autowired
+    private MonthlyPlanRepository monthlyPlanRepository;
+    @Autowired
+    private MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
 
     @BeforeEach
     void setup() {
@@ -65,6 +69,7 @@ class ShiftControllerIT {
                 null,
                 1f,
                 0,
+                null,
                 null,
                 null,
                 null,
@@ -101,7 +106,45 @@ class ShiftControllerIT {
     @WithMockUser(authorities = "SCOPE_admin")
     void test_deleteShift_succeeds() throws Exception {
         Shift shift = new Shift();
-        shift.setDate(LocalDate.now().plusDays(70));
+        shift.setDate(LocalDate.now());
+
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        shift.setUsers(users);
+
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("Test ShiftType");
+        shiftType.setColor("#FF0000");
+        shiftType.setAbbreviation("TS");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeRepository.save(shiftType);
+        shift.setShiftType(shiftType);
+
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        MonthlyWorkDetails monthlyWorkDetails = new MonthlyWorkDetails();
+        monthlyWorkDetails.setHoursActuallyWorked(3);
+        monthlyWorkDetails.setMonthlyPlan(monthlyPlan);
+        monthlyWorkDetails.setUser(user);
+        monthlyWorkDetails.setOvertime(3);
+        monthlyWorkDetails.setHoursShouldWork(120);
+        monthlyWorkDetails.setYear(2024);
+        monthlyWorkDetails.setMonth(6);
+        monthlyWorkDetailsRepository.save(monthlyWorkDetails);
+        List<MonthlyWorkDetails> monthlyWorkDetailsList = new ArrayList<>();
+        monthlyWorkDetailsList.add(monthlyWorkDetails);
+        monthlyPlan.setMonthlyWorkDetails(monthlyWorkDetailsList);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        shift.setMonthlyPlan(monthlyPlan);
         shiftRepository.save(shift);
 
         Shift savedShift = shiftRepository.findById(shift.getId()).get();
@@ -149,8 +192,48 @@ class ShiftControllerIT {
     @WithMockUser(authorities = "SCOPE_admin")
     void test_findShiftById_succeeds() throws Exception {
         Shift shift = new Shift();
-        shift.setDate(LocalDate.now().plusDays(70));
+        shift.setDate(LocalDate.now());
+        shift.setRequestedShiftSwap(new ArrayList<>());
+        shift.setSuggestedShiftSwap(new ArrayList<>());
+
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        shift.setUsers(users);
+
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("Test ShiftType");
+        shiftType.setColor("#FF0000");
+        shiftType.setAbbreviation("TS");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeRepository.save(shiftType);
+        shift.setShiftType(shiftType);
+
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        MonthlyWorkDetails monthlyWorkDetails = new MonthlyWorkDetails();
+        monthlyWorkDetails.setHoursActuallyWorked(3);
+        monthlyWorkDetails.setMonthlyPlan(monthlyPlan);
+        monthlyWorkDetails.setUser(user);
+        monthlyWorkDetails.setOvertime(3);
+        monthlyWorkDetails.setHoursShouldWork(120);
+        monthlyWorkDetails.setYear(2024);
+        monthlyWorkDetails.setMonth(6);
+        monthlyWorkDetailsRepository.save(monthlyWorkDetails);
+        List<MonthlyWorkDetails> monthlyWorkDetailsList = new ArrayList<>();
+        monthlyPlan.setMonthlyWorkDetails(monthlyWorkDetailsList);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        shift.setMonthlyPlan(monthlyPlan);
         shiftRepository.save(shift);
+
         Shift savedShift = shiftRepository.findById(shift.getId()).get();
 
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift/" + savedShift.getId()))
@@ -170,7 +253,7 @@ class ShiftControllerIT {
     void test_createShift_succeeds() throws Exception {
         ShiftDto shiftDto = new ShiftDto(
                 null,
-                LocalDate.now().plusDays(70),
+                LocalDate.now(),
                 null,
                 null,
                 null,
@@ -199,16 +282,55 @@ class ShiftControllerIT {
     @WithMockUser(authorities = "SCOPE_admin")
     void test_updateShift_succeeds() throws Exception {
         Shift shift = new Shift();
-        shift.setDate(LocalDate.now().plusDays(70));
+        shift.setDate(LocalDate.now());
+        shift.setRequestedShiftSwap(new ArrayList<>());
+        shift.setSuggestedShiftSwap(new ArrayList<>());
+
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        shift.setUsers(users);
+
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("Test ShiftType");
+        shiftType.setColor("#FF0000");
+        shiftType.setAbbreviation("TS");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeRepository.save(shiftType);
+        shift.setShiftType(shiftType);
+
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        MonthlyWorkDetails monthlyWorkDetails = new MonthlyWorkDetails();
+        monthlyWorkDetails.setHoursActuallyWorked(3);
+        monthlyWorkDetails.setMonthlyPlan(monthlyPlan);
+        monthlyWorkDetails.setUser(user);
+        monthlyWorkDetails.setOvertime(3);
+        monthlyWorkDetails.setHoursShouldWork(120);
+        monthlyWorkDetails.setYear(2024);
+        monthlyWorkDetails.setMonth(6);
+        monthlyWorkDetailsRepository.save(monthlyWorkDetails);
+        List<MonthlyWorkDetails> monthlyWorkDetailsList = new ArrayList<>();
+        monthlyPlan.setMonthlyWorkDetails(monthlyWorkDetailsList);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        shift.setMonthlyPlan(monthlyPlan);
         shiftRepository.save(shift);
         Shift savedShift = shiftRepository.findById(shift.getId()).get();
 
         ShiftDto updatedShiftDto = new ShiftDto(
                 savedShift.getId(),
                 LocalDate.now().plusDays(80),
-                null,
-                null,
-                null,
+                savedShift.getMonthlyPlan().getId(),
+                savedShift.getShiftType().getId(),
+                Collections.singletonList(user.getId()),
                 null,
                 null);
 

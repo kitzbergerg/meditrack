@@ -11,6 +11,7 @@ import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.HardConstraintsRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -67,6 +69,7 @@ class TeamServiceTest {
                 null,
                 1f,
                 0,
+                null,
                 null,
                 null,
                 null,

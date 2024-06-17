@@ -1,5 +1,6 @@
 package ase.meditrack.algorithm;
 
+import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
@@ -7,7 +8,7 @@ import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
+
 import ase.meditrack.service.algorithm.AlgorithmInput;
 import ase.meditrack.service.algorithm.AlgorithmMapper;
 import ase.meditrack.service.algorithm.AlgorithmOutput;

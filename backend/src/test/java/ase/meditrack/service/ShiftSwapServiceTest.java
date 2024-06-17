@@ -8,6 +8,7 @@ import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -69,6 +71,7 @@ public class ShiftSwapServiceTest {
                 null,
                 null,
                 null,
+                null,
                 null
         ));
         team = teamService.create(
@@ -89,6 +92,8 @@ public class ShiftSwapServiceTest {
 
     @Test
     void findAllByCurrentMonthReturnsCorrectShiftSwaps() {
+        userRepository.flush();
+
         // current month
         Shift shift = new Shift();
         shift.setDate(LocalDate.now().plusDays(2));

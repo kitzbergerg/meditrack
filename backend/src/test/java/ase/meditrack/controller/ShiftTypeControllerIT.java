@@ -12,6 +12,7 @@ import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -39,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -70,6 +72,7 @@ class ShiftTypeControllerIT {
                 null,
                 1f,
                 0,
+                null,
                 null,
                 null,
                 null,
@@ -123,6 +126,7 @@ class ShiftTypeControllerIT {
                 null,
                 1f,
                 0,
+                null,
                 null,
                 null,
                 null,
@@ -240,7 +244,7 @@ class ShiftTypeControllerIT {
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findShiftTypeByNonExistingId_returns404() throws Exception {
         MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get(
-                "/api/shift-type/" + "11111111-1111-1111-1111-111111111111"))
+                        "/api/shift-type/" + "11111111-1111-1111-1111-111111111111"))
                 .andReturn().getResponse();
 
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
@@ -266,9 +270,9 @@ class ShiftTypeControllerIT {
                 null);
 
         String response = mockMvc.perform(
-                    MockMvcRequestBuilders.post("/api/shift-type")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(shiftTypeDto))
+                        MockMvcRequestBuilders.post("/api/shift-type")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftTypeDto))
                 )
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
@@ -352,12 +356,12 @@ class ShiftTypeControllerIT {
                 null);
 
         String responseEnd = mockMvc.perform(
-                            MockMvcRequestBuilders.post("/api/shift-type")
-                                    .contentType("application/json")
-                                    .content(objectMapper.writeValueAsString(shiftTypeDtoEnd))
-                    )
-                    .andExpect(status().isUnprocessableEntity())
-                    .andReturn().getResponse().getContentAsString();
+                        MockMvcRequestBuilders.post("/api/shift-type")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftTypeDtoEnd))
+                )
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn().getResponse().getContentAsString();
 
         assertTrue(responseEnd.equals("Break Ending Time has to be within the working hours"));
 

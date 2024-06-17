@@ -6,9 +6,11 @@ import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.HardConstraintsRepository;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -23,6 +25,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -68,6 +73,7 @@ public class HardConstraintsControllerIT {
                 null,
                 null,
                 null,
+                null,
                 null
         ));
         team = teamService.create(
@@ -81,7 +87,8 @@ public class HardConstraintsControllerIT {
     void findByTeamReturnsHardConstraints() throws Exception {
         HardConstraints hardConstraint = new HardConstraints();
         hardConstraint.setId(team.getId());
-        hardConstraint.setMandatoryOffDays(2);
+        hardConstraint.setDaytimeRequiredPeople(2);
+        hardConstraint.setTeam(team);
         repository.save(hardConstraint);
 
         String responseOnlyTeam = mockMvc.perform(MockMvcRequestBuilders.get("/api/rules"))
@@ -91,7 +98,7 @@ public class HardConstraintsControllerIT {
 
         assertAll(
                 () -> assertNotNull(ruleInTeam),
-                () -> assertEquals(hardConstraint.getMandatoryOffDays(), ruleInTeam.mandatoryOffDays())
+                () -> assertEquals(hardConstraint.getDaytimeRequiredPeople(), ruleInTeam.daytimeRequiredPeople())
         );
     }
 
@@ -99,14 +106,10 @@ public class HardConstraintsControllerIT {
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void createHardConstraints() throws Exception {
         HardConstraintsDto dto = new HardConstraintsDto(
-                team.getId(),
                 null,
                 null,
                 null,
-                null,
-                null,
-                null,
-                null,
+                3,
                 null
         );
 
@@ -121,8 +124,7 @@ public class HardConstraintsControllerIT {
 
         assertAll(
                 () -> assertNotNull(created),
-                () -> assertNotNull(created.id()),
-                () -> assertEquals(dto.id(), created.id()),
+                () -> assertEquals(dto.daytimeRequiredPeople(), created.daytimeRequiredPeople()),
                 () -> assertEquals(1, repository.count())
         );
     }
