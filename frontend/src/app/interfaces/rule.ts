@@ -2,6 +2,7 @@
 export interface Rule {
   name: string;
   label: string;
+  description: string;
   value: number | null;
 }
 

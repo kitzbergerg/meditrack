@@ -52,16 +52,19 @@ li {
 .input-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px; /* Adjust as needed for spacing between label and input */
   width: 100%;
 }
 
 .input-container label {
   flex: 1;
-  text-align: right;
+  padding-right: 10px; /* Optional: Add some space between the label and the input */
 }
 
 .input-container input {
-  flex: 2;
+  flex: 1;
+}
+
+.font-selected {
+  font-weight: bold;
+  color: green;
 }

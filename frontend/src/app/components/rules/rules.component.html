@@ -8,12 +8,15 @@
             <h3 style="text-align: center;">Team Constraints</h3>
             <ul class="list-none p-0 m-0">
               <li *ngFor="let rule of teamConstraints"
+                  [ngClass]="{'font-medium': rule !== selectedRule, 'font-selected': rule === selectedRule}"
                   (keydown)="handleKeydown($event, rule, 'team')"
                   (click)="selectRule(rule)"
                   class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
                   tabindex="0"
               >
-                <span class="text-xl font-medium mr-2 md:mb-0">{{ rule.name }}</span>
+                <span class="text-xl mr-2 md:mb-0"
+                      [ngClass]="{'font-medium': rule.name !== selectedRule?.name, 'font-selected': rule.name === selectedRule?.name}"
+                >{{ rule.label }}</span>
               </li>
             </ul>
           </div>
@@ -26,7 +29,10 @@
                   class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
                   tabindex="0"
               >
-                <span class="text-xl font-medium mr-2 md:mb-0">{{ getNameOfRole(role) }}</span>
+                <span class="text-xl mr-2 md:mb-0"
+                      [ngClass]="{'font-medium': role.roleId !== selectedRoleRules?.roleId,
+                       'font-selected': role.roleId === selectedRoleRules?.roleId && !showRulesEditCard}">
+                  {{ getNameOfRole(role) }}</span>
               </li>
             </ul>
           </div>
@@ -35,56 +41,56 @@
       <div class="col-12 md:col-6 equal-width edit-card" *ngIf="selectedRule || selectedRoleRules">
         <div class="card p-fluid">
           <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
-          <div class="field input-container" *ngIf="selectedRule && showRulesEditCard">
-            <label htmlFor="ruleValue" class="col-12 mb-2 md:col-2 md:mb-0">{{selectedRule.label}}</label>
-            <div class="col-12 md:col-10" style="padding-left: 20px;">
+          <div class="field grid input-container" *ngIf="selectedRule && showRulesEditCard">
+            <label htmlFor="ruleValue" >{{selectedRule.description}}</label>
+            <span>
               <input pInputText="" id="ruleValue" type="number" class="p-inputtext p-component p-element"
                      [(ngModel)]="selectedRule!.value"
                      [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRule.value === null}"
                      [disabled]="formMode === 'details'">
-              <small *ngIf="submitted && selectedRule.value === null">Value is required.</small>
-            </div>
+              <small *ngIf="submitted && selectedRule.value === null">Value must be a number.</small>
+            </span>
           </div>
           <div *ngIf="selectedRoleRules && !showRulesEditCard">
             <div class="field grid input-container">
-              <label htmlFor="daytimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0">Daytime Required People</label>
-              <span class="col-12 md:col-10" style="padding-left: 20px;">
+              <label htmlFor="daytimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0">Number of required people for this role during the day</label>
+              <span>
                 <input pInputText="" id="daytimeRequiredPeople" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.daytimeRequiredPeople"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.daytimeRequiredPeople === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.daytimeRequiredPeople === null">Value is required.</small>
+                <small *ngIf="submitted && selectedRoleRules.daytimeRequiredPeople === null">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="nighttimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0">Nighttime Required People</label>
-              <div class="col-12 md:col-10" style="padding-left: 20px;">
+              <label htmlFor="nighttimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0">Number of required people for this role during the night</label>
+              <span>
                 <input pInputText="" id="nighttimeRequiredPeople" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.nighttimeRequiredPeople"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.nighttimeRequiredPeople === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.nighttimeRequiredPeople === null">Value is required.</small>
-              </div>
+                <small *ngIf="submitted && selectedRoleRules.nighttimeRequiredPeople === null">Value must be a number.</small>
+              </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="allowedFlexitimeTotal" class="col-12 mb-2 md:col-2 md:mb-0">Allowed Flexitime Total</label>
-              <div class="col-12 md:col-10" style="padding-left: 20px;">
+              <label htmlFor="allowedFlexitimeTotal" class="col-12 mb-2 md:col-2 md:mb-0">Allowed flextime total for this role</label>
+              <span>
                 <input pInputText="" id="allowedFlexitimeTotal" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.allowedFlextimeTotal"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimeTotal === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.allowedFlextimeTotal === null">Value is required.</small>
-              </div>
+                <small *ngIf="submitted && selectedRoleRules.allowedFlextimeTotal === null">Value must be a number.</small>
+              </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="allowedFlexitimeMonthly" class="col-12 mb-2 md:col-2 md:mb-0">Allowed Flexitime Monthly</label>
-              <div class="col-12 md:col-10" style="padding-left: 20px;">
+              <label htmlFor="allowedFlexitimeMonthly" class="col-12 mb-2 md:col-2 md:mb-0">Allowed flextime monthly for this role</label>
+              <span>
                 <input pInputText="" id="allowedFlexitimeMonthly" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.allowedFlextimePerMonth"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimePerMonth === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.allowedFlextimePerMonth === null">Value is required.</small>
-              </div>
+                <small *ngIf="submitted && selectedRoleRules.allowedFlextimePerMonth === null">Value must be a number.</small>
+              </span>
             </div>
           </div>
           <p-toast></p-toast>

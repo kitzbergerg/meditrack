@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {RulesService} from '../../services/rules.service';
-import {RolesService} from '../../services/roles.service';
-import {RoleRules, Rule} from '../../interfaces/rule';
-import {Role} from '../../interfaces/role';
-import {MessageService} from 'primeng/api';
+import { Component, OnInit } from '@angular/core';
+import { RulesService } from '../../services/rules.service';
+import { RolesService } from '../../services/roles.service';
+import { RoleRules, Rule } from '../../interfaces/rule';
+import { Role } from '../../interfaces/role';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-rules',
@@ -13,17 +13,24 @@ import {MessageService} from 'primeng/api';
 export class RulesComponent implements OnInit {
   loading = true;
   teamConstraints: Rule[] = [
-    {name: 'workingHours', label: $localize`working hours`, value: null},
-    {name: 'maxWeeklyHours', label: $localize`maximum weekly hours`, value: null},
-    {name: 'maxConsecutiveShifts', label: $localize`maximum consecutive shifts`, value: null},
-    {name: 'daytimeRequiredPeople', label: $localize`daytime required people`, value: null},
-    {name: 'nighttimeRequiredPeople', label: $localize`nighttime required people`, value: null}
+    { name: 'workingHours', label: $localize`working hours`,
+      description: $localize`regular amount of working hours employees should do every month`, value: null },
+    { name: 'maxWeeklyHours', label: $localize`maximum weekly hours`,
+      description: $localize`maximum amount of weekly hours for employees`, value: null },
+    { name: 'maxConsecutiveShifts', label: $localize`maximum consecutive shifts`,
+      description: $localize`maximum amount of consecutive shifts an employee should be able to work`, value: null },
+    { name: 'daytimeRequiredPeople', label: $localize`daytime required people`,
+      description: $localize`number of required employees during the day`, value: null },
+    { name: 'nighttimeRequiredPeople', label: $localize`nighttime required people`,
+      description: $localize`number of required employees during the night`, value: null }
   ];
   showRulesEditCard = true;
   roles: Role[] = [];
   roleRules: RoleRules[] = [];
   selectedRoleRules?: RoleRules;
   selectedRule?: Rule;
+  selectedRuleBackup?: Rule;
+  selectedRoleRulesBackup?: RoleRules;
   formMode: 'create' | 'edit' | 'details' = 'details';
   formTitle = '';
   formAction = '';
@@ -33,8 +40,7 @@ export class RulesComponent implements OnInit {
     private rulesService: RulesService,
     private rolesService: RolesService,
     private messageService: MessageService
-  ) {
-  }
+  ) { }
 
   ngOnInit(): void {
     this.loadRules();
@@ -54,38 +60,29 @@ export class RulesComponent implements OnInit {
   loadRoleRules(): void {
     this.rolesService.getAllRolesFromTeam().subscribe((fetchedRoles) => {
       this.roles = fetchedRoles;
+
+      this.rulesService.getAllRoleRulesFromTeam().subscribe((fetchedRoleRules) => {
+        this.roleRules = fetchedRoleRules.sort((a, b) => {
+          const roleA = this.getNameOfRole(a) || '';
+          const roleB = this.getNameOfRole(b) || '';
+          return roleA.localeCompare(roleB);
+        });
+      });
     });
-
-    this.rulesService.getAllRoleRulesFromTeam().subscribe((fetchedRoleRules) => {
-      this.roleRules = fetchedRoleRules;
-    })
-    /*
-
-        this.rolesService.getAllRolesFromTeam().subscribe((fetchedRoles) => {
-          this.roles = fetchedRoles;
-          this.loading = false;
-
-          for (const role of this.roles) {
-            this.roleRules.push({role: role,
-              daytimeRequiredPeople: 0, nighttimeRequiredPeople: 0,
-              allowedFlexitimeMonthly: 0, allowedFlexitimeTotal: 0})
-          }
-        });*/
   }
 
   selectRoleRule(role: RoleRules) {
-    /*    this.rulesService.getRulesFromRole(role.id!).subscribe((fetchedRules) => {
-          this.selectedRoleRules = fetchedRules;
-        })*/
     this.showRulesEditCard = false;
-    this.selectedRoleRules = role
+    this.selectedRoleRules = { ...role }; // Shallow copy for editing
+    this.selectedRoleRulesBackup = { ...role }; // Backup original values
     this.formMode = 'details';
-    this.selectedRule = {name: '', label: '', value: 0,}; // Initialize selectedRule to avoid errors
+    this.selectedRule = { name: '', label: '', description: '', value: 0 }; // Initialize selectedRule to avoid errors
   }
 
   selectRule(rule: Rule) {
     this.showRulesEditCard = true;
-    this.selectedRule = rule;
+    this.selectedRule = { ...rule }; // Shallow copy for editing
+    this.selectedRuleBackup = { ...rule }; // Backup original values
     this.formMode = 'details';
   }
 
@@ -94,10 +91,6 @@ export class RulesComponent implements OnInit {
   }
 
   getFormTitle(): string {
-    /*   if (this.formMode === 'create') {
-         this.formTitle = 'Create Rule';
-         this.formAction = 'Create';
-       } else */
     if (this.formMode === 'edit') {
       if (this.showRulesEditCard) {
         this.formTitle = 'Edit Rule';
@@ -107,10 +100,9 @@ export class RulesComponent implements OnInit {
       this.formAction = 'Save';
     } else {
       if (this.showRulesEditCard) {
-        //this.formTitle = 'Edit Rule';
         this.formTitle = 'Rule Details';
       } else {
-        this.formTitle = 'Role Rules Details';
+        this.formTitle = 'Rule Details For Role ' + this.roles.find(x => x.id == this.selectedRoleRules?.roleId)?.name;
       }
       this.formAction = 'Edit';
     }
@@ -122,30 +114,56 @@ export class RulesComponent implements OnInit {
     if (this.selectedRule && this.selectedRule.value !== null) {
       this.updateRule();
     } else {
-      this.messageService.add({severity: 'warn', summary: 'Validation Failed', detail: 'Please read the warnings.'});
+      this.messageService.add({ severity: 'warn', summary: 'Validation Failed', detail: 'Please read the warnings.' });
     }
   }
 
   updateRule() {
     if (this.showRulesEditCard) {
-      this.teamConstraints.find(x => x.name == this.selectedRule!.name)!.value = this.selectedRule!.value;
-      this.rulesService.saveRules(this.teamConstraints).subscribe();
-    } else {
-      this.rulesService.updateRoleRule(this.selectedRoleRules!).subscribe({
+      this.teamConstraints.find(x => x.name === this.selectedRule!.name)!.value = this.selectedRule!.value;
+      this.rulesService.saveRules(this.teamConstraints).subscribe({
         next: () => {
-          this.messageService.add({severity: 'success', summary: 'Successfully Updated Rules for Role'});
+          this.messageService.add({ severity: 'success', summary: 'Successfully Updated Rule' });
+          this.formMode = 'details'; // Revert to non-edit mode
+          this.selectedRuleBackup = { ...this.selectedRule! };
         },
         error: (error) => {
           console.error('Error updating rule:', error);
-          this.messageService.add({severity: 'error', summary: 'Updating Rule Failed', detail: error.error});
-        },
-      })
+          this.messageService.add({ severity: 'error', summary: 'Updating Rule Failed', detail: error.error });
+        }
+      });
+    } else {
+      if (this.selectedRoleRules &&
+        this.selectedRoleRules.daytimeRequiredPeople !== null && !isNaN(this.selectedRoleRules.daytimeRequiredPeople) &&
+        this.selectedRoleRules.nighttimeRequiredPeople !== null && !isNaN(this.selectedRoleRules.nighttimeRequiredPeople) &&
+        this.selectedRoleRules.allowedFlextimeTotal !== null && !isNaN(this.selectedRoleRules.allowedFlextimeTotal) &&
+        this.selectedRoleRules.allowedFlextimePerMonth !== null && !isNaN(this.selectedRoleRules.allowedFlextimePerMonth)) {
+        this.rulesService.updateRoleRule(this.selectedRoleRules!).subscribe({
+          next: () => {
+            this.messageService.add({severity: 'success', summary: 'Successfully Updated Rules for Role'});
+            this.formMode = 'details'; // Revert to non-edit mode
+            // Update backup values after successful save
+            this.selectedRoleRulesBackup = { ...this.selectedRoleRules! };
+          },
+          error: (error) => {
+            console.error('Error updating rule:', error);
+            this.messageService.add({severity: 'error', summary: 'Updating Rule Failed', detail: error.error});
+          }
+        });
+      } else {
+        this.messageService.add({severity: 'warn', summary: 'Validation Failed', detail: 'Please enter valid numbers in all fields.'});
+      }
     }
   }
 
   cancelEditing() {
-    this.resetForm();
+    if (this.showRulesEditCard && this.selectedRuleBackup) {
+      this.selectedRule = { ...this.selectedRuleBackup };
+    } else if (!this.showRulesEditCard && this.selectedRoleRulesBackup) {
+      this.selectedRoleRules = { ...this.selectedRoleRulesBackup };
+    }
     this.formMode = 'details';
+    this.submitted = false;
   }
 
   resetForm() {
@@ -164,8 +182,6 @@ export class RulesComponent implements OnInit {
   }
 
   getNameOfRole(role: RoleRules) {
-    return this.roles.find(x => {
-      return x.id == role.roleId
-    })?.name;
+    return this.roles.find(x => x.id === role.roleId)?.name;
   }
 }
