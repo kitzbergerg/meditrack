@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -81,14 +80,11 @@ public class TeamService {
         if (team.getHardConstraints() == null) {
             team.setHardConstraints(new HardConstraints(
                     null,
-                    Map.of(),
-                    Map.of(),
-                    Map.of(),
                     40,
+                    80,
+                    3,
                     20,
-                    2,
-                    120,
-                    480,
+                    20,
                     team
             ));
         }

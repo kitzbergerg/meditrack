@@ -7,10 +7,10 @@ import {RolesComponent} from "../components/roles/roles.component";
 import {DashboardComponent} from "../components/dashboard/dashboard.component";
 import {employeeGuard} from "../guard/employee.guard";
 import {dmGuard} from "../guard/dm.guard";
-import {RulesComponent} from "../components/rules/rules.component";
 import {ShiftTypesComponent} from "../components/shift-types/shift-types.component";
 import {ScheduleComponent} from "../components/schedule/schedule.component";
 import {ShiftSwapComponent} from "../components/shift-swap/shift-swap.component";
+import {RulesComponent} from "../components/rules/rules.component";
 
 const routes: Routes = [
   {
