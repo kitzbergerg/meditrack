@@ -21,7 +21,10 @@ public class ShiftTypeService {
     private final UserService userService;
     private final TeamService teamService;
 
-    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator, UserService userService, TeamService teamService) {
+    public ShiftTypeService(ShiftTypeRepository repository,
+                            ShiftTypeValidator validator,
+                            UserService userService,
+                            TeamService teamService) {
         this.repository = repository;
         this.validator = validator;
         this.userService = userService;
@@ -121,7 +124,7 @@ public class ShiftTypeService {
      * @param shiftType to check
      * @return true if shift type belongs to the team, false otherwise
      */
-    public boolean isShiftTypeInTeam(UUID user,UUID shiftType) {
+    public boolean isShiftTypeInTeam(UUID user, UUID shiftType) {
         ShiftType foundShiftType = findById(shiftType);
         return this.teamService.isInTeam(user, foundShiftType.getTeam().getId());
     }

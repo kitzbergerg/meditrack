@@ -2,7 +2,6 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.Holiday;
-import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.HolidayRepository;
 import lombok.extern.slf4j.Slf4j;
