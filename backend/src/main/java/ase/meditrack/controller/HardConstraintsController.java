@@ -41,10 +41,8 @@ public class HardConstraintsController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public HardConstraintsDto create(
-            @Validated(CreateValidator.class)
-            @RequestBody HardConstraintsDto dto,
-            Principal principal) {
+    public HardConstraintsDto create(@Validated(CreateValidator.class) @RequestBody HardConstraintsDto dto,
+                                     Principal principal) {
         log.info("Creating hardConstraints");
         return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }

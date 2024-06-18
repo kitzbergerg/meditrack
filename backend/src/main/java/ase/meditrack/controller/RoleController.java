@@ -53,7 +53,7 @@ public class RoleController {
 
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
-            + "(hasAnyAuthority('SCOPE_dm') && @roleService.isRoleFromTeam(#principal, #id))")
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @roleService.isRoleFromTeam(#principal, #id))")
     public RoleDto findById(@PathVariable UUID id) {
         log.info("Fetching role {}", id);
         return mapper.toDto(service.findById(id));

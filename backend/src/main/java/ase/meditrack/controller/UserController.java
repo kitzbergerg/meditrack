@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee')")
     public List<UserDto> findByTeam(Principal principal) {
         log.info("Fetching users from dm team");
         try {
@@ -75,7 +75,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (hasAnyAuthority('SCOPE_dm') && "
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm') && "
             + "@userService.isCorrectUserSystemRole(#dto.roles(), #principal))")
     public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Creating user {}", dto.username());
@@ -83,10 +83,9 @@ public class UserController {
     }
 
     @PutMapping
-    @PreAuthorize(
-            "hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') "
-                    + "|| (authentication.name == #dto.id().toString() && #dto.roles() == null)"
-    )
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') "
+            + "|| (authentication.name == #dto.id().toString() && #dto.roles() == null) "
+            + "|| (hasAnyAuthority('SCOPE_dm') && @userService.isSameTeam(#principal, #dto.id()))")
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Updating user {}", dto.username());
         return mapper.toDto(service.update(mapper.fromDto(dto), principal));
@@ -94,14 +93,15 @@ public class UserController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')"
+            + "|| (hasAnyAuthority('SCOPE_dm') && @userService.isSameTeam(#principal, #id))")
     public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting user with id {}", id);
         service.delete(id, principal);
     }
 
     @GetMapping("/monthly-details")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_user') && "
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && "
             + "@userService.isSameTeam(#principal, #userId))")
     public MonthlyWorkDetailsDto getMonthlyWorkDetails(@RequestParam Year year,
                                                        @RequestParam Month month, @RequestParam UUID userId,

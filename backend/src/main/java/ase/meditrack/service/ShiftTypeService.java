@@ -19,11 +19,13 @@ public class ShiftTypeService {
     private final ShiftTypeRepository repository;
     private final ShiftTypeValidator validator;
     private final UserService userService;
+    private final TeamService teamService;
 
-    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator, UserService userService) {
+    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator, UserService userService, TeamService teamService) {
         this.repository = repository;
         this.validator = validator;
         this.userService = userService;
+        this.teamService = teamService;
     }
 
     /**
@@ -110,5 +112,17 @@ public class ShiftTypeService {
      */
     public void delete(UUID id) {
         repository.deleteById(id);
+    }
+
+    /**
+     * Checks if the shift type belongs to the team of the current user.
+     *
+     * @param user is current user
+     * @param shiftType to check
+     * @return true if shift type belongs to the team, false otherwise
+     */
+    public boolean isShiftTypeInTeam(UUID user,UUID shiftType) {
+        ShiftType foundShiftType = findById(shiftType);
+        return this.teamService.isInTeam(user, foundShiftType.getTeam().getId());
     }
 }

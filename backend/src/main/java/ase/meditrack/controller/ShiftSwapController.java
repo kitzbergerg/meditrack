@@ -73,7 +73,7 @@ public class ShiftSwapController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') || "
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm') || "
             + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
     public ShiftSwapDto findById(@PathVariable UUID id, Principal principal) {
         log.info("Fetching shift-swap with id: {}", id);

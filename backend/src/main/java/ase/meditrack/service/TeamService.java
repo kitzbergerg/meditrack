@@ -28,13 +28,13 @@ public class TeamService {
     }
 
     /**
-     * Checks if a user is the leader of a team.
+     * Checks if a user is in the team.
      *
      * @param userId the user to check for
      * @param teamId the team to check
-     * @return true if the user is the team leader
+     * @return true if the user is in the team, false otherwise
      */
-    public boolean isTeamLeader(UUID userId, UUID teamId) {
+    public boolean isInTeam(UUID userId, UUID teamId) {
         List<User> users = repository.findById(teamId).get().getUsers();
         User user = userRepository.findById(userId).get();
         return users.contains(user);
