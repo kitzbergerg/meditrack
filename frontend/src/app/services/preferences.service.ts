@@ -23,8 +23,4 @@ export class PreferencesService {
   updatePreferences(preference: Preferences): Observable<Preferences> {
     return this.http.put<Preferences>(`${this.apiUrl}`, preference);
   }
-
-  deletePreferences(id: string) {
-    return this.http.delete(this.apiUrl+`/${id}`);
-  }
 }

@@ -12,7 +12,6 @@
                 {{ offDay | date:'dd.MM.YYYY' }}
               </div>
               <div style="display: flex; align-items: center; gap: 10px">
-                <p-button (click)="editPreferences(offDay)" icon="pi pi-pencil" [outlined]="true" severity="info"></p-button>
                 <p-button (click)="confirmDeleteOffDay($event, offDay)" icon="pi pi-trash" [outlined]="true" severity="danger"></p-button>
               </div>
             </div>
@@ -70,24 +69,24 @@
               </ng-template>
               <ng-template pTemplate="date" let-date>
                 <div [ngStyle]="{
-            backgroundColor: 'inherit',
-            border: (isOffDay(date)) ? '5px solid #ACBABF' : '1px solid transparent',
-            width: '30px',
-            height: '30px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxSizing: 'border-box',
-            opacity: (isOffDay(date)) ? '0.5' : '1',
-            pointerEvents: (isOffDay(date)) ? 'none' : 'auto'
-          }">
+                      backgroundColor: 'inherit',
+                      border: '1px solid transparent',
+                      width: '30px',
+                      height: '30px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxSizing: 'border-box',
+                      opacity: '1',
+                      pointerEvents: 'auto'
+                    }">
                   {{ date.day }}
                 </div>
               </ng-template>
             </p-calendar>
-
           </div>
         </div>
+        <h6 style="text-align: center; margin-top: 10px; margin-bottom: -20px">You can choose three off days of your preference.</h6>
       </ul>
     </div>
   </div>

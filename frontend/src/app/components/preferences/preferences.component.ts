@@ -117,6 +117,7 @@ export class PreferencesComponent {
   savePreferences() {
     if (this.preference !== undefined && this.preference.offDays.length !== 3) {
       if (this.selectedDate != undefined) {
+        this.selectedDate.setHours(this.selectedDate.getHours() + 2);
         this.preference.offDays.push(this.selectedDate);
         this.preferencesService.createPreferences(this.preference).subscribe(
           {
@@ -146,49 +147,29 @@ export class PreferencesComponent {
     }
   }
 
-  editPreferences(dayToChange: Date) {
-    // TODO: change this to select it from calendar picker
-    this.selectedDate = new Date();
-
-    if (this.selectedDate != undefined && this.preference != undefined) {
-      this.preference.offDays.filter(offDay => offDay !== dayToChange);
-      this.preference.offDays.push(this.selectedDate);
-      this.updatePreferences(this.preference);
-    }
-  }
-
   removePreferences(day: Date) {
-    // remove this date from the array
-    // if array empty then delete preference of user
-    // if not update preference
-
     // TODO: when do we delete the whole preferences entity from the db?
     if (this.preference != undefined) {
-      // filter out the chosen off day
       this.preference.offDays = this.preference.offDays.filter(offDay => offDay !== day);
 
-      this.updatePreferences(this.preference);
+      this.preferencesService.updatePreferences(this.preference).subscribe(
+        {
+          next: response => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successfully Removed Off Day'
+            });
+            this.reset();
+          }, error: error => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Removing Off Day Failed',
+              detail: error.error
+            });
+            this.reset();
+          }
+        });
     }
-  }
-
-  updatePreferences(preference: Preferences) {
-    this.preferencesService.updatePreferences(preference).subscribe(
-      {
-        next: response => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Successfully Updated Preference'
-          });
-          this.reset();
-        }, error: error => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Updating Preference Failed',
-            detail: error.error
-          });
-          this.reset();
-        }
-      });
   }
 
   generateOffDay() {
@@ -205,25 +186,11 @@ export class PreferencesComponent {
     this.valid = true;
   }
 
+  // if this check is done -> calendar is not shown correctly
   isOffDay(date: any): boolean {
-    if (date == undefined) return false;
-    return this.findOffDay(date) != undefined;
-  }
-
-  findOffDay(date: any): Date | undefined {
-    let currentDate = new Date();
-
-    if (date instanceof Date) {
-      currentDate = date;
-    } else {
-      currentDate = new Date(date.year, date.month, date.day);
-    }
-
-    currentDate.setHours(currentDate.getHours() + 2);
-
-    return this.preference?.offDays.find(day => {
-      return day.getTime() === currentDate.getTime();
-    });
+    return this.offDays.find(day => {
+      return day.getDay() === date.getDay();
+    }) !== undefined;
   }
 
   confirmDeleteOffDay(event: Event, offDay: Date) {
