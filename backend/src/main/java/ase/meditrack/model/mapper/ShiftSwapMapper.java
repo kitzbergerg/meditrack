@@ -1,7 +1,6 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.ShiftSwapDto;
-import ase.meditrack.model.dto.SimpleShiftSwapDto;
 import ase.meditrack.model.entity.ShiftSwap;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.IterableMapping;

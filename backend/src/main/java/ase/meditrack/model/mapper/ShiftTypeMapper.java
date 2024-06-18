@@ -1,12 +1,9 @@
 package ase.meditrack.model.mapper;
 
 import ase.meditrack.model.dto.ShiftTypeDto;
-import ase.meditrack.model.dto.ShiftTypeScheduleDto;
-import ase.meditrack.model.dto.SimpleShiftTypeDto;
 import ase.meditrack.model.entity.ShiftType;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
@@ -31,13 +28,8 @@ public interface ShiftTypeMapper {
     @Mapping(target = "abbreviation", source = "shiftType.abbreviation")
     ShiftTypeScheduleDto toScheduleDto(ShiftType shiftType);
 
-     */
-
     @Named("toSimpleDto")
     SimpleShiftTypeDto toSimpleDto(ShiftType canWorkShiftType);
-
-    /*
-        TODO: not used
 
     @IterableMapping(qualifiedByName = "toSimpleDto")
     List<SimpleShiftTypeDto> toSimpleDtoList(List<ShiftType> canWorkShiftTypes);
