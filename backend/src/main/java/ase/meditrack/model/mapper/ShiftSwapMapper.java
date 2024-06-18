@@ -18,15 +18,6 @@ public interface ShiftSwapMapper {
 
     ShiftSwap fromDto(ShiftSwapDto shiftSwapDto);
 
-    /*
-        TODO: not used
-
-    SimpleShiftSwapDto toSimpleShiftSwapDto(ShiftSwap shiftSwap);
-
-    ShiftSwap fromSimpleShiftSwapDto(SimpleShiftSwapDto simpleShiftSwapDto);
-
-     */
-
     @IterableMapping(qualifiedByName = "toDto")
     List<ShiftSwapDto> toDtoList(List<ShiftSwap> shiftSwaps);
 }

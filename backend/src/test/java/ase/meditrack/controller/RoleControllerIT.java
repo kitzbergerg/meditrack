@@ -291,49 +291,4 @@ class RoleControllerIT {
                 () -> assertEquals(1, roleRepository.count())
         );
     }
-/*
-TODO: I think the validator is not used anymore
-
-    @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
-    void test_createRoleWithExistingColor_returns422() throws Exception {
-        RoleDto firstDto = new RoleDto(
-                null,
-                "testRole",
-                "#FF0000",
-                "TR",
-                null,
-                team.getId(),
-                null
-        );
-
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/role")
-                                .content(objectMapper.writeValueAsString(firstDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        RoleDto secondDto = new RoleDto(
-                null,
-                "Role Two",
-                "#FF0000",
-                "RT",
-                null,
-                team.getId(),
-                null
-        );
-
-        MockHttpServletResponse secondResponse = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/role")
-                                .content(objectMapper.writeValueAsString(secondDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andReturn().getResponse();
-
-        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY.value(), secondResponse.getStatus());
-    }
-
- */
 }

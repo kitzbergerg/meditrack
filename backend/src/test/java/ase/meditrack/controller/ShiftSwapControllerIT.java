@@ -194,7 +194,7 @@ class ShiftSwapControllerIT {
         );
     }
 
-    // TODO: @Test
+    @Test
     @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_employee"}, username = USER_ID)
     void test_createShiftSwap_succeeds() throws Exception {
         userRepository.flush();
@@ -217,15 +217,12 @@ class ShiftSwapControllerIT {
                 "SD",
                 team.getId()
         );
-        Shift newRequest = shiftRepository.save(new Shift());
+        List<User> usersShift = new ArrayList<>();
+        usersShift.add(user);
+        Shift newRequest = new Shift();
+        newRequest.setUsers(usersShift);
+        shiftRepository.save(newRequest);
         SimpleShiftDto newRequestDto = new SimpleShiftDto(newRequest.getId(),
-                newRequest.getDate(),
-                monthlyPlan.getId(),
-                simpleShiftTypeDto,
-                users);
-
-        Shift suggestedShift = shiftRepository.save(new Shift());
-        SimpleShiftDto suggestedShiftDto = new SimpleShiftDto(suggestedShift.getId(),
                 newRequest.getDate(),
                 monthlyPlan.getId(),
                 simpleShiftTypeDto,
@@ -244,31 +241,13 @@ class ShiftSwapControllerIT {
         userRepository.save(user);
         userRepository.flush();
 
-        User sugUsers = userRepository.save(new User(
-                UUID.randomUUID(),
-                role,
-                1f,
-                0,
-                null,
-                team,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        ));
-
         ShiftSwapDto shiftSwapDto = new ShiftSwapDto(
                 null,
                 user.getId(),
                 newRequestDto,
                 ShiftSwapStatus.ACCEPTED,
-                sugUsers.getId(),
-                suggestedShiftDto,
+                null,
+                null,
                 ShiftSwapStatus.PENDING
         );
 

@@ -192,10 +192,9 @@ class UserControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findUserById_succeeds() throws Exception {
         User user = new User(
-                null,
+                UUID.fromString(USER_ID),
                 null,
                 1f,
                 0,
@@ -214,9 +213,7 @@ class UserControllerIT {
         userRepository.save(user);
         userRepository.flush();
 
-        User savedUser = userRepository.findById(user.getId()).get();
-
-        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/{id}" + savedUser.getId())
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/{id}" + user.getId())
                         .header(HttpHeaders.AUTHORIZATION,
                                 "Bearer " + AuthHelper.getAccessToken("admin", "admin")))
                 .andExpect(status().isOk())
@@ -224,13 +221,14 @@ class UserControllerIT {
 
         UserDto foundUser = objectMapper.readValue(response, UserDto.class);
 
-        assertEquals(savedUser.getId(), foundUser.id());
+        assertEquals(user.getId(), foundUser.id());
     }
 
     @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_updateUser_succeeds() throws Exception {
         User user = new User(
-                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                UUID.fromString(USER_ID),
                 null,
                 1f,
                 0,
@@ -249,10 +247,8 @@ class UserControllerIT {
         userRepository.save(user);
         userRepository.flush();
 
-        User savedUser = userRepository.findById(user.getId()).get();
-
         UserDto updateUserDto = new UserDto(
-                savedUser.getId(),
+                user.getId(),
                 null,
                 "testpassword",
                 "test@test.test",
@@ -294,7 +290,7 @@ class UserControllerIT {
     @Test
     void test_deleteUser_succeeds() throws Exception {
         User user = new User(
-                UUID.fromString("00000000-0000-0000-0000-000000000000"),
+                UUID.fromString(USER_ID),
                 null,
                 1f,
                 0,
@@ -313,15 +309,13 @@ class UserControllerIT {
         userRepository.save(user);
         userRepository.flush();
 
-        User savedUser = userRepository.findById(user.getId()).get();
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/{id}" + savedUser.getId())
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/{id}" + user.getId())
                         .header(HttpHeaders.AUTHORIZATION,
                                 "Bearer " + AuthHelper.getAccessToken("admin", "admin")))
                 .andExpect(status().isNoContent());
 
         assertAll(
-                () -> assertFalse(userRepository.existsById(savedUser.getId())),
+                () -> assertFalse(userRepository.existsById(user.getId())),
                 () -> assertEquals(1, userRepository.count()) // admin user still in repository
         );
     }

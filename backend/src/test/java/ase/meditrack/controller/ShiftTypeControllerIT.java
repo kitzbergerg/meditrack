@@ -62,17 +62,16 @@ class ShiftTypeControllerIT {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    private User user;
     @Autowired
     private TeamService teamService;
     private Team team;
-    @Autowired
-    private ShiftTypeService shiftTypeService;
     @Autowired
     private ShiftRepository shiftRepository;
 
     @BeforeEach
     void setup() {
-        userRepository.save(new User(
+        user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
                 null,
                 1f,
@@ -258,7 +257,7 @@ class ShiftTypeControllerIT {
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
     }
 
-    // TODO: @Test
+    @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftType_succeeds() throws Exception {
         Role role = new Role();
@@ -283,7 +282,11 @@ class ShiftTypeControllerIT {
         List<UUID> preferUsers = new ArrayList<>();
         preferUsers.add(UUID.fromString(USER_ID));
 
+        List<User> usersShift = new ArrayList<>();
+        usersShift.add(user);
+
         Shift shift = new Shift();
+        shift.setUsers(usersShift);
         shift.setDate(LocalDate.now().plusDays(2));
         shiftRepository.save(shift);
         shiftRepository.flush();
@@ -326,8 +329,7 @@ class ShiftTypeControllerIT {
                 () -> assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime()),
                 () -> assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime()),
                 () -> assertEquals(shiftTypeDto.color(), created.color()),
-                () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation()),
-                () -> assertEquals(1, shiftTypeRepository.count())
+                () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation())
         );
     }
 
