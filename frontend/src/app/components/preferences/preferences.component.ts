@@ -51,11 +51,15 @@ export class PreferencesComponent {
   offDays: Date[] = [];
 
   selectedDate: Date | undefined;
-  newPreference: Preferences | undefined;
   offDayDialog = false;
   valid = true;
 
   currentDate: Date = new Date();
+  firstDayOfMonth: Date = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+  lastDayOfMonth: Date = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 2, 0);
+
+  minDate: Date = this.firstDayOfMonth;
+  maxDate: Date = this.lastDayOfMonth;
 
   constructor(private messageService: MessageService,
               private userService: UserService,
@@ -69,7 +73,6 @@ export class PreferencesComponent {
     this.userId = this.authorizationService.parsedToken().sub;
     this.getUser();
     this.getPreferences();
-    this.offDays.push(new Date())
   }
 
   getAllUsersFromTeam() {
@@ -112,57 +115,45 @@ export class PreferencesComponent {
   }
 
   savePreferences() {
-    if (this.selectedDate != undefined) {
-      this.offDays.push(this.selectedDate);
-      this.newPreference = {
-        id: this.userId,
-        offDays: this.offDays
-      };
-      this.preferencesService.createPreferences(this.newPreference).subscribe(
-        {
-          next: response => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Successfully Saved Off Day'
-            });
-            this.reset();
-          }, error: error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Saving Off Day Failed',
-              detail: error.error
-            });
-          }
+    if (this.preference !== undefined && this.preference.offDays.length !== 3) {
+      if (this.selectedDate != undefined) {
+        this.preference.offDays.push(this.selectedDate);
+        this.preferencesService.createPreferences(this.preference).subscribe(
+          {
+            next: response => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Successfully Saved Off Day'
+              });
+              this.reset();
+            }, error: error => {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Saving Off Day Failed',
+                detail: error.error
+              });
+              this.reset();
+            }
+          });
+      }
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Saving Off Day Failed',
+          detail: 'Maximum of three off days allowed'
         });
+        return;
     }
   }
 
-  updatePreferences(dayToChange: Date) {
-    // new date is in selectedDate after choosing from calendar
+  editPreferences(dayToChange: Date) {
+    // TODO: change this to select it from calendar picker
+    this.selectedDate = new Date();
 
-    if (this.newPreference != undefined && this.selectedDate != undefined && this.newPreference.offDays != undefined) {
-      // filter out the old off day
-      this.newPreference.offDays = this.newPreference.offDays.filter(offDay => offDay !== dayToChange);
-
-      // add new day
-      this.newPreference.offDays.push(this.selectedDate);
-
-      this.preferencesService.updatePreferences(this.newPreference).subscribe(
-        {
-          next: response => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Successfully Updated Preferences'
-            });
-            this.reset();
-          }, error: error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Updating Preferences Failed',
-              detail: error.error
-            });
-          }
-        });
+    if (this.selectedDate != undefined && this.preference != undefined) {
+      this.preference.offDays.filter(offDay => offDay !== dayToChange);
+      this.preference.offDays.push(this.selectedDate);
+      this.updatePreferences(this.preference);
     }
   }
 
@@ -171,28 +162,33 @@ export class PreferencesComponent {
     // if array empty then delete preference of user
     // if not update preference
 
-    // when do we delete the whole preferences entity from the db?
+    // TODO: when do we delete the whole preferences entity from the db?
     if (this.preference != undefined) {
       // filter out the chosen off day
       this.preference.offDays = this.preference.offDays.filter(offDay => offDay !== day);
 
-      this.preferencesService.updatePreferences(this.preference).subscribe(
-        {
-          next: response => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Successfully Removed Off Day Preference'
-            });
-            this.reset();
-          }, error: error => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Removing Off Day Preference Failed',
-              detail: error.error
-            });
-          }
-        });
+      this.updatePreferences(this.preference);
     }
+  }
+
+  updatePreferences(preference: Preferences) {
+    this.preferencesService.updatePreferences(preference).subscribe(
+      {
+        next: response => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Successfully Updated Preference'
+          });
+          this.reset();
+        }, error: error => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Updating Preference Failed',
+            detail: error.error
+          });
+          this.reset();
+        }
+      });
   }
 
   generateOffDay() {

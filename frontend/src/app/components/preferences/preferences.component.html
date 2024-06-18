@@ -4,7 +4,7 @@
       <h2 class="pb-2" style="text-align: center;">Preferred Off Days</h2>
       <ul class="list-none p-0 m-0"
           style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-        <li *ngFor="let offDay of offDays" class="flex items-center mb-4">
+        <li *ngFor="let offDay of offDays" class="flex items-center mt-2">
           <p-card [style]="{width: '500px', maxHeight: '60px'}" styleClass="p-card-shadow">
             <div class="flex" style="display: flex; align-items: center; margin-top: -25px">
               <div class="pi pi-calendar mr-2" style="font-size: 1.8rem; width: 50px;"></div>
@@ -12,7 +12,7 @@
                 {{ offDay | date:'dd.MM.YYYY' }}
               </div>
               <div style="display: flex; align-items: center; gap: 10px">
-                <p-button (click)="updatePreferences(offDay)" icon="pi pi-pencil" [outlined]="true" severity="info"></p-button>
+                <p-button (click)="editPreferences(offDay)" icon="pi pi-pencil" [outlined]="true" severity="info"></p-button>
                 <p-button (click)="confirmDeleteOffDay($event, offDay)" icon="pi pi-trash" [outlined]="true" severity="danger"></p-button>
               </div>
             </div>
@@ -49,43 +49,43 @@
 
         </p-dialog>
 
-        <div class="flex flex-column">
+        <div class="flex flex-column" *ngIf="this.offDays.length < 3">
           <div class="flex center">
             <p-toast></p-toast>
             <p-calendar
+              [selectOtherMonths]="false"
               [iconDisplay]="'input'"
+              [showOtherMonths]="false"
+              [maxDate]="maxDate"
+              [minDate]="minDate"
               [showIcon]="true"
-              [minDate]="currentDate"
               [(ngModel)]="selectedDate"
               [dateFormat]="'dd.mm.yy'"
               [readonlyInput]="true"
               (selectionchange)="generateOffDay()"
               (onSelect)="generateOffDay()"
               placeholder="Choose Off Day">
-
               <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
-                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
-                   (click)="clickCallBack($event)"> </i>
+                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;" (click)="clickCallBack($event)"> </i>
               </ng-template>
-
               <ng-template pTemplate="date" let-date>
                 <div [ngStyle]="{
-                        backgroundColor: 'inherit',
-                        border: (isOffDay(date)) ? '5px solid #FFFFFF' : '1px solid transparent',
-                        width: '30px',
-                        height: '30px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxSizing: 'border-box',
-                        opacity: (isOffDay(date)) ? '0.5' : '1',
-                        pointerEvents: (isOffDay(date)) ? 'none' : 'auto'
-                      }">
+            backgroundColor: 'inherit',
+            border: (isOffDay(date)) ? '5px solid #ACBABF' : '1px solid transparent',
+            width: '30px',
+            height: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxSizing: 'border-box',
+            opacity: (isOffDay(date)) ? '0.5' : '1',
+            pointerEvents: (isOffDay(date)) ? 'none' : 'auto'
+          }">
                   {{ date.day }}
                 </div>
               </ng-template>
-
             </p-calendar>
+
           </div>
         </div>
       </ul>
