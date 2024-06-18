@@ -1,6 +1,7 @@
 package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
+import ase.meditrack.model.dto.MonthlyWorkDetailsDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.TeamRepository;
@@ -30,6 +31,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
 import java.util.UUID;
 
@@ -104,6 +107,30 @@ class UserControllerIT {
         );
     }
 
+    @Test
+    void test_getMonthlyDetails_succeeds() throws Exception {
+        UUID userId = UUID.randomUUID();
+        Year year = Year.of(2023);
+        Month month = Month.JUNE;
+
+        String response = mockMvc.perform(
+                        MockMvcRequestBuilders.get("/api/user/monthly-details")
+                                .param("year", String.valueOf(year.getValue()))
+                                .param("month", month.name())
+                                .param("userId", userId.toString())
+                                .header(HttpHeaders.AUTHORIZATION,
+                                        "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
+                )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        MonthlyWorkDetailsDto monthlyWorkDetails = objectMapper.readValue(response, MonthlyWorkDetailsDto.class);
+
+        assertAll(
+                () -> assertNotNull(monthlyWorkDetails),
+                () -> assertEquals(userId, monthlyWorkDetails.userId())
+        );
+    }
 
     @Test
     void test_createUser_succeeds() throws Exception {
@@ -164,7 +191,6 @@ class UserControllerIT {
         );
     }
 
-/*
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_findUserById_succeeds() throws Exception {
@@ -182,13 +208,15 @@ class UserControllerIT {
                 null,
                 null,
                 null,
+                null,
                 null
         );
         userRepository.save(user);
+        userRepository.flush();
 
         User savedUser = userRepository.findById(user.getId()).get();
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/" + savedUser.getId())
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/{id}" + savedUser.getId())
                         .header(HttpHeaders.AUTHORIZATION,
                                 "Bearer " + AuthHelper.getAccessToken("admin", "admin")))
                 .andExpect(status().isOk())
@@ -215,9 +243,11 @@ class UserControllerIT {
                 null,
                 null,
                 null,
+                null,
                 null
         );
         userRepository.save(user);
+        userRepository.flush();
 
         User savedUser = userRepository.findById(user.getId()).get();
 
@@ -277,13 +307,15 @@ class UserControllerIT {
                 null,
                 null,
                 null,
+                null,
                 null
         );
         userRepository.save(user);
+        userRepository.flush();
 
         User savedUser = userRepository.findById(user.getId()).get();
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/" + savedUser.getId())
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/{id}" + savedUser.getId())
                         .header(HttpHeaders.AUTHORIZATION,
                                 "Bearer " + AuthHelper.getAccessToken("admin", "admin")))
                 .andExpect(status().isNoContent());
@@ -293,5 +325,4 @@ class UserControllerIT {
                 () -> assertEquals(1, userRepository.count()) // admin user still in repository
         );
     }
-*/
 }

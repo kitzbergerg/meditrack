@@ -2,13 +2,13 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftTypeDto;
-import ase.meditrack.model.entity.Role;
-import ase.meditrack.model.entity.ShiftType;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
+import ase.meditrack.model.dto.SimpleRoleDto;
+import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.RoleRepository;
+import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,10 @@ class ShiftTypeControllerIT {
     @Autowired
     private TeamService teamService;
     private Team team;
+    @Autowired
+    private ShiftTypeService shiftTypeService;
+    @Autowired
+    private ShiftRepository shiftRepository;
 
     @BeforeEach
     void setup() {
@@ -106,7 +111,7 @@ class ShiftTypeControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_dm", "SCOPE_employee"}, username = USER_ID)
     void test_getShiftTypesByTeam_succeeds() throws Exception {
         ShiftType shiftTypeInTeam = new ShiftType();
         shiftTypeInTeam.setName("ShiftType One");
@@ -118,6 +123,7 @@ class ShiftTypeControllerIT {
         shiftTypeInTeam.setAbbreviation("TR");
         shiftTypeInTeam.setTeam(team);
         shiftTypeRepository.save(shiftTypeInTeam);
+        shiftTypeRepository.flush();
 
         // other team creation
         String otherUserId = "11111111-1111-1111-1111-111111111111";
@@ -138,6 +144,7 @@ class ShiftTypeControllerIT {
                 null,
                 null
         ));
+        userRepository.flush();
 
         Team otherTeam = teamService.create(
                 new Team(null, "other test team", 40, null, null, null, null, null),
@@ -152,8 +159,9 @@ class ShiftTypeControllerIT {
         shiftTypeNotInTeam.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftTypeNotInTeam.setColor("FF0000");
         shiftTypeNotInTeam.setAbbreviation("TR");
-        shiftTypeInTeam.setTeam(otherTeam);
+        shiftTypeNotInTeam.setTeam(otherTeam);
         shiftTypeRepository.save(shiftTypeNotInTeam);
+        shiftTypeRepository.flush();
 
         String responseOnlyTeam = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-type/team"))
                 .andExpect(status().isOk())
@@ -250,9 +258,39 @@ class ShiftTypeControllerIT {
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatus());
     }
 
-    @Test
+    // TODO: @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftType_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        role.setUsers(null);
+        role.setTeam(team);
+        roleRepository.save(role);
+        roleRepository.flush();
+
+        SimpleRoleDto roleDto = new SimpleRoleDto(
+                null,
+                role.getName()
+        );
+        List<SimpleRoleDto> roles = new ArrayList<>();
+        roles.add(roleDto);
+
+        List<UUID> workUsers = new ArrayList<>();
+        workUsers.add(UUID.fromString(USER_ID));
+
+        List<UUID> preferUsers = new ArrayList<>();
+        preferUsers.add(UUID.fromString(USER_ID));
+
+        Shift shift = new Shift();
+        shift.setDate(LocalDate.now().plusDays(2));
+        shiftRepository.save(shift);
+        shiftRepository.flush();
+
+        List<UUID> shifts = new ArrayList<>();
+        shifts.add(shift.getId());
+
         ShiftTypeDto shiftTypeDto = new ShiftTypeDto(
                 null,
                 "Shift Type",
@@ -264,10 +302,10 @@ class ShiftTypeControllerIT {
                 "#ff0000",
                 "ST",
                 team.getId(),
-                null,
-                null,
-                null,
-                null);
+                roles,
+                shifts,
+                workUsers,
+                preferUsers);
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/shift-type")

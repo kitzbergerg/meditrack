@@ -1,10 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.config.KeycloakConfig;
-import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.User;
-import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
@@ -96,30 +93,33 @@ public class ShiftSwapServiceTest {
 
         // current month
         Shift shift = new Shift();
-        shift.setDate(LocalDate.now().plusDays(2));
+        shift.setDate(LocalDate.of(2024, 6, 30));
         shift = shiftRepository.save(shift);
         ShiftSwap shiftSwap = new ShiftSwap();
         shiftSwap.setSwapRequestingUser(user);
         shiftSwap.setRequestedShift(shift);
+        shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
         repository.save(shiftSwap);
 
         // last month
         Shift shift2 = new Shift();
         shift2.setDate(LocalDate.now().minusDays(70));
         shift2 = shiftRepository.save(shift2);
-        ShiftSwap shiftSwap3 = new ShiftSwap();
-        shiftSwap.setSwapRequestingUser(user);
-        shiftSwap.setRequestedShift(shift2);
-        repository.save(shiftSwap3);
+        ShiftSwap shiftSwap2 = new ShiftSwap();
+        shiftSwap2.setSwapRequestingUser(user);
+        shiftSwap2.setRequestedShift(shift2);
+        shiftSwap2.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+        repository.save(shiftSwap2);
 
         // last month
         Shift shift3 = new Shift();
         shift3.setDate(LocalDate.now().minusDays(70));
         shift3 = shiftRepository.save(shift3);
-        ShiftSwap shiftSwap4 = new ShiftSwap();
-        shiftSwap.setSwapRequestingUser(user);
-        shiftSwap.setRequestedShift(shift3);
-        repository.save(shiftSwap4);
+        ShiftSwap shiftSwap3 = new ShiftSwap();
+        shiftSwap3.setSwapRequestingUser(user);
+        shiftSwap3.setRequestedShift(shift3);
+        shiftSwap3.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
+        repository.save(shiftSwap3);
 
         Principal principal = new Principal() {
             @Override

@@ -2,13 +2,16 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.HardConstraintsDto;
+import ase.meditrack.model.dto.RoleHardConstraintsDto;
 import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.HardConstraintsRepository;
-import ase.meditrack.repository.TeamRepository;
+import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.util.AuthHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -25,8 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,6 +58,8 @@ public class HardConstraintsControllerIT {
     @Autowired
     private TeamService teamService;
     private Team team;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @BeforeEach
     void setup() {
@@ -126,6 +130,40 @@ public class HardConstraintsControllerIT {
                 () -> assertNotNull(created),
                 () -> assertEquals(dto.daytimeRequiredPeople(), created.daytimeRequiredPeople()),
                 () -> assertEquals(1, repository.count())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = {"SCOPE_admin"})
+    void test_updateRoleHardConstraints_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setAbbreviation("TR");
+        role.setColor("#ff0000");
+        roleRepository.save(role);
+        RoleHardConstraintsDto roleHardConstraintsDto = new RoleHardConstraintsDto(
+                role.getId(),
+                null,
+                null,
+                null,
+                null
+        );
+
+        String requestBody = objectMapper.writeValueAsString(roleHardConstraintsDto);
+
+        String response = mockMvc.perform(
+                        MockMvcRequestBuilders.put("/api/rules/roleRules")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody)
+                )
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        RoleHardConstraintsDto responseDto = objectMapper.readValue(response, RoleHardConstraintsDto.class);
+
+        assertAll(
+                () -> assertNotNull(responseDto),
+                () -> assertEquals(roleHardConstraintsDto.roleId(), responseDto.roleId())
         );
     }
 }

@@ -70,7 +70,7 @@ public class MonthlyPlanService {
     public MonthlyPlan getMonthlyPlan(int month, int year, Principal principal) {
         User user = userService.findById(UUID.fromString(principal.getName()));
         Team team = user.getTeam();
-        //log.info("Fetching monthly plan for team {}", team.getId());
+        log.info("Fetching monthly plan for team {}", team.getId());
         MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month, year);
         if (plan == null) {
             throw new NotFoundException("Could not find monthly plan for month: " + month + "!");
