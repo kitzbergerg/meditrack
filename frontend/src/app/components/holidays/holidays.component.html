@@ -13,7 +13,14 @@
               class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
             <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
             <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.status }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0"
+                  [ngStyle]="{'color':
+                    holiday.status === 'APPROVED' ? 'green' :
+                    holiday.status === 'REJECTED' ? 'red' :
+                    holiday.status === 'CANCELLED' ? 'grey':
+                         'blue'}">
+                  {{ holiday.status?.toLowerCase() }}
+            </span>
           </li>
         </ul>
         <div class="plusButtonContainer">
@@ -59,7 +66,8 @@
         </div>
 
         <div class="buttonset" *ngIf="formMode !== 'create'">
-          <button *ngIf="formMode === 'details'" (click)="editHoliday()" pbutton="" pripple="" label="Edit" icon="pi pi-pencil"
+          <button *ngIf="formMode === 'details' && isEditable()" (click)="editHoliday()" pbutton="" pripple="" label="Edit"
+                  icon="pi pi-pencil"
                   class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px;">
             <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
             <span class="p-button-label">Edit</span>
@@ -103,11 +111,18 @@
           <li *ngFor="let holiday of teamHolidays" (click)="selectTeamHoliday(holiday)"
               class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
             <span
-              class="text-xl font-medium mr-2 md:mb-0">{{ getUsernameFromId(holiday.user != undefined ? holiday.user
+              class="text-xl font-medium mr-2 md:mb-0">{{ getUsernameFromId(holiday.user !== undefined ? holiday.user
               : '')}}</span>
             <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
             <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.status }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0"
+                  [ngStyle]="{'color':
+                    holiday.status === 'APPROVED' ? 'green' :
+                    holiday.status === 'REJECTED' ? 'red' :
+                    holiday.status === 'CANCELLED' ? 'grey':
+                         'blue'}">
+                  {{ holiday.status?.toLowerCase() }}
+            </span>
           </li>
         </ul>
       </div>

@@ -270,5 +270,9 @@ export class HolidaysComponent {
     return this.teamHoliday.status === HolidayRequestStatus.APPROVED;
   }
 
+  isEditable() {
+    return this.holiday.status === HolidayRequestStatus.REQUESTED;
+  }
+
   protected readonly HolidayRequestStatus = HolidayRequestStatus;
 }

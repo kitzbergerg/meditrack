@@ -31,13 +31,13 @@ public class HolidayValidator {
         //check if there is already a holiday defined for the same date
         List<Holiday> existingHolidays = holidayRepository.findAllByUser(user);
         for (Holiday existingHoliday : existingHolidays) {
-            if (holiday.getStartDate().isAfter(existingHoliday.getStartDate())
-                    && holiday.getStartDate().isBefore(existingHoliday.getEndDate())) {
-                throw new ValidationException("There is already a holiday defined for this date!");
+            if (!holiday.getStartDate().isBefore(existingHoliday.getStartDate())
+                    && !holiday.getStartDate().isAfter(existingHoliday.getEndDate())) {
+                throw new ValidationException("Start date is already defined for a holiday!");
             }
-            if (holiday.getEndDate().isAfter(existingHoliday.getStartDate())
-                    && holiday.getEndDate().isBefore(existingHoliday.getEndDate())) {
-                throw new ValidationException("There is already a holiday defined for this date!");
+            if (!holiday.getEndDate().isBefore(existingHoliday.getStartDate())
+                    && !holiday.getEndDate().isAfter(existingHoliday.getEndDate())) {
+                throw new ValidationException("End date is already defined for a holiday!");
             }
         }
     }
