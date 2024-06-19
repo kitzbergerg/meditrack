@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +53,6 @@ public class ShiftType {
     private LocalTime breakStartTime;
 
     private LocalTime breakEndTime;
-
-    @Pattern(regexp = "Day|Night", message = "Shift Type must be either 'Day' or 'Night'")
-    private String type;
 
     private String color;
 
