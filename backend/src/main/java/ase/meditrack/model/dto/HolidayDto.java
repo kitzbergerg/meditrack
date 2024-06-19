@@ -13,7 +13,7 @@ public record HolidayDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotNull(groups = CreateValidator.class) @FutureOrPresent(groups = CreateValidator.class) LocalDate startDate,
         @NotNull(groups = CreateValidator.class) @FutureOrPresent(groups = CreateValidator.class) LocalDate endDate,
-        @Null(groups = CreateValidator.class) String status,
+        @Null(groups = {CreateValidator.class, UpdateValidator.class}) String status,
         @Null(groups = CreateValidator.class) UUID user
 ) {
 }

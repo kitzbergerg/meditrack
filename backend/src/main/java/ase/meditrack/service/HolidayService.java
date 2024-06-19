@@ -1,11 +1,11 @@
 package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
+import ase.meditrack.model.HolidayValidator;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.enums.HolidayRequestStatus;
 import ase.meditrack.repository.HolidayRepository;
-import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,10 +21,12 @@ import java.util.UUID;
 public class HolidayService {
     private final HolidayRepository repository;
     private final UserService userService;
+    private final HolidayValidator validator;
 
-    public HolidayService(HolidayRepository repository, UserService userService) {
+    public HolidayService(HolidayRepository repository, UserService userService, HolidayValidator validator) {
         this.repository = repository;
         this.userService = userService;
+        this.validator = validator;
     }
 
     /**
@@ -36,6 +38,7 @@ public class HolidayService {
      */
     public Holiday create(Holiday holiday, String userId) {
         User user = userService.findById(UUID.fromString(userId));
+        validator.validateHoliday(holiday, user);
         holiday.setUser(user);
         holiday.setStatus(HolidayRequestStatus.REQUESTED);
         return repository.save(holiday);
@@ -112,18 +115,13 @@ public class HolidayService {
     public Holiday update(Holiday holiday, String userId) {
         Holiday dbHoliday = findById(holiday.getId());
 
-        if (!dbHoliday.getUser().getId().equals(UUID.fromString(userId))) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "You are not allowed to update this holiday! Only the owner can update it.");
-        }
+        validator.validateHolidayOnUpdate(holiday, userId, dbHoliday);
 
         if (holiday.getStartDate() != null) {
             dbHoliday.setStartDate(holiday.getStartDate());
-            dbHoliday.setStatus(HolidayRequestStatus.REQUESTED); // reset status to requested if there are changes
         }
         if (holiday.getEndDate() != null) {
             dbHoliday.setEndDate(holiday.getEndDate());
-            dbHoliday.setStatus(HolidayRequestStatus.REQUESTED); // reset status to requested if there are changes
         }
         // only allow updating the status to cancelled for the user
         if (holiday.getStatus() != null && holiday.getStatus() == HolidayRequestStatus.CANCELLED) {
@@ -157,11 +155,7 @@ public class HolidayService {
      * @param id the id of the holiday
      */
     public void delete(UUID id) {
-        Holiday holiday = findById(id);
-        if (holiday.getStatus() == HolidayRequestStatus.APPROVED
-                || holiday.getStatus() == HolidayRequestStatus.REQUESTED) {
-            throw new ValidationException("Only holidays with status 'REJECTED' or 'CANCELLED' can be deleted!");
-        }
+        validator.validateHolidayOnDelete(findById(id));
         repository.deleteById(id);
     }
 }
