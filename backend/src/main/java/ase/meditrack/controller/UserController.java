@@ -111,4 +111,10 @@ public class UserController {
                     "Error getting monthly details from user: " + e.getMessage(), e);
         }
     }
+
+    @GetMapping("/replacement/{id}")
+    public List<UserDto> getReplacementUsers(@PathVariable UUID id) {
+        log.info("Fetching replacement users for user {}", id);
+        return mapper.toDtoList(service.getSickReplacement(id));
+    }
 }
