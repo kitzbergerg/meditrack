@@ -22,6 +22,7 @@ export class HolidaysComponent {
 
   submitted = false;
   valid = false;
+  validationMessage = '';
   holiday: Holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
   teamHoliday: Holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
   teamUserName: string | undefined = '';
@@ -109,7 +110,6 @@ export class HolidaysComponent {
   updateHoliday() {
     this.submitted = true;
     if (this.valid) {
-      this.holiday.status = HolidayRequestStatus.REQUESTED;
       this.holidaysService.updateHoliday(this.holiday)
         .subscribe({
           next: (response) => {
@@ -125,8 +125,7 @@ export class HolidaysComponent {
           }
         });
     } else {
-      this.messageService.add({severity: 'warn', summary: 'Validation failed', detail: 'Validation failed! End date' +
-          ' must be after start date and dates must be in the future!'});
+      this.messageService.add({severity: 'warn', summary: 'Validation failed', detail: this.validationMessage});
     }
   }
 
@@ -172,13 +171,19 @@ export class HolidaysComponent {
   }
 
   validateHoliday() {
+    if (this.holiday.status !== HolidayRequestStatus.REQUESTED) {
+      this.validationMessage = 'Holiday status must be requested!';
+      return false;
+    }
     if (this.holiday.startDate === '' || this.holiday.endDate === '') {
+      this.validationMessage = 'Start date and end date must be set!';
       return false;
     }
     const startDate = Date.parse(this.holiday.startDate);
     const endDate = Date.parse(this.holiday.endDate);
 
     if (startDate > endDate || startDate < Date.now()) {
+      this.validationMessage = 'End date must be after start date and dates must be in the future!';
       return false;
     }
 
@@ -192,6 +197,7 @@ export class HolidaysComponent {
         if ((startDate >= holidayStartDate && startDate <= holidayEndDate) ||
             (endDate >= holidayStartDate && endDate <= holidayEndDate) ||
             (startDate <= holidayStartDate && endDate >= holidayEndDate)) {
+          this.validationMessage = 'Holiday is overlapping with another holiday!';
           return false;
         }
       }

@@ -31,6 +31,9 @@ public class HolidayValidator {
         //check if there is already a holiday defined for the same date
         List<Holiday> existingHolidays = holidayRepository.findAllByUser(user);
         for (Holiday existingHoliday : existingHolidays) {
+            if (holiday.getId() != null && holiday.getId().equals(existingHoliday.getId())) {
+                continue;
+            }
             if (!holiday.getStartDate().isBefore(existingHoliday.getStartDate())
                     && !holiday.getStartDate().isAfter(existingHoliday.getEndDate())) {
                 throw new ValidationException("Start date is in between a defined holiday!");
