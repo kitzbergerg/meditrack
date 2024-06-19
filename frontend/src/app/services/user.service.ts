@@ -44,4 +44,9 @@ export class UserService {
   getUserMonthlyDetails(userId: string, month: string, year: number): Observable<WorkDetails> {
     return this.http.get<WorkDetails>(`${this.apiUrl}/monthly-details?userId=${userId}&month=${month}&year=${year}`);
   }
+
+  getReplacementsForShift(shiftId: string): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/replacement/${shiftId}`);
+  }
+
 }

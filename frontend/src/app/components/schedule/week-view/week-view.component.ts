@@ -1,14 +1,5 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input, OnInit,
-  Output,
-} from '@angular/core';
-import {
-  Day,
-  RangeOption, ScheduleWithId, ShiftWithIds, UserWithShifts
-} from "../../../interfaces/schedule.models";
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
+import {Day, RangeOption, ScheduleWithId, ShiftWithIds, UserWithShifts} from "../../../interfaces/schedule.models";
 import {DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
 import {ButtonModule} from "primeng/button";
@@ -23,6 +14,7 @@ import {ShiftType} from "../../../interfaces/shiftType";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {format, startOfDay} from 'date-fns';
+import {SickLeaveDialogComponent} from "../sick-leave-dialog/sick-leave-dialog.component";
 
 @Component({
   selector: 'app-week-view',
@@ -43,6 +35,7 @@ import {format, startOfDay} from 'date-fns';
     ReactiveFormsModule,
     NgClass,
     ConfirmDialogModule,
+    SickLeaveDialogComponent,
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'
@@ -80,6 +73,8 @@ export class WeekViewComponent implements OnInit {
   protected readonly Object = Object;
   range = 'week'; // Default value set to week = 7 days
   todaysDate: Date | undefined;
+  sickShiftId: string | null = null;
+  displayDialog: boolean = false;
 
   rangeOptions: RangeOption[] = [
     {label: 'Week', value: 'week'},
@@ -196,6 +191,15 @@ export class WeekViewComponent implements OnInit {
         this.publishMonthSchedule();
       }
     });
+  }
+
+  sickLeave(user: UserWithShifts, i: number) {
+    this.sickShiftId = user.shifts[i]?.id || null;
+    this.displayDialog = true;
+  }
+
+  hideDialog() {
+    this.displayDialog = false;
   }
 
   protected readonly format = format;

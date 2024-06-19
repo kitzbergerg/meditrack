@@ -1,0 +1,13 @@
+<p-dialog header="Edit Profile" [modal]="true" [(visible)]="displayDialog" [style]="{ width: '25rem' }">
+  <span class="p-text-secondary block mb-5">Update your information.</span>
+  <<div *ngIf="shiftId">
+  <!-- Your content here -->
+  <p *ngIf="replacements?.length">Replacements:</p>
+  <ul>
+    <li *ngFor="let replacement of replacements">{{ replacement.username }}</li>
+  </ul>
+</div>
+  <p-footer>
+    <button type="button" pButton icon="pi pi-times" (click)="hideDialog()" label="Close"></button>
+  </p-footer>
+</p-dialog>

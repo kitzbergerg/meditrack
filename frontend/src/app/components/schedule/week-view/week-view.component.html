@@ -1,3 +1,5 @@
+<app-sick-leave-dialog [shiftId]="sickShiftId"></app-sick-leave-dialog>
+
 <div class="flex justify-content-end">
 
   <p-button
@@ -186,6 +188,14 @@
                 (click)="changeShift(employee, i, this.days[i], 'delete'); op.toggle($event)"
                 label="Delete shift"
                 severity="danger">
+              </p-button>
+              <p-button
+                class="m-2"
+                [outlined]="true"
+                type="button"
+                (click)="sickLeave(employee, i); op.toggle($event)"
+                label="Sick leave"
+                severity="warning">
               </p-button>
               <p-button
                 class="m-2"
