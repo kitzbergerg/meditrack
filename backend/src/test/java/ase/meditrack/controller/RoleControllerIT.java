@@ -3,11 +3,12 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
-import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,22 +47,25 @@ class RoleControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private TeamService teamService;
     private Team team;
 
     @BeforeEach
     void setup() {
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
         User user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -75,10 +79,6 @@ class RoleControllerIT {
         Preferences preferences = new Preferences(null, List.of(), user);
         user.setPreferences(preferences);
         userRepository.save(user);
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
-        );
     }
 
     @Test
@@ -91,7 +91,7 @@ class RoleControllerIT {
         });
 
         assertNotNull(roles);
-        assertEquals(0, roles.size());
+        assertEquals(1, roles.size());
     }
 
 
@@ -120,6 +120,6 @@ class RoleControllerIT {
         assertNotNull(created);
         assertNotNull(created.id());
         assertEquals(dto.name(), created.name());
-        assertEquals(1, roleRepository.count());
+        assertEquals(2, roleRepository.count());
     }
 }
