@@ -10,7 +10,6 @@ public record AlgorithmInput(
         List<RoleInfo> roles,
 
         Integer daytimeRequiredPeople,
-        Integer nighttimeRequiredPeople,
-        Integer maxConsecutiveShifts
+        Integer nighttimeRequiredPeople
 ) {
 }

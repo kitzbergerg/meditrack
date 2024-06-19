@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -58,7 +57,15 @@ public class AlgorithmMapper {
         for (int i = 0; i < roles.size(); i++) {
             Role role = roles.get(i);
             roleInfos.add(
-                    new RoleInfo(role.getName(), role.getDaytimeRequiredPeople(), role.getNighttimeRequiredPeople())
+                    new RoleInfo(
+                            role.getName(),
+                            role.getDaytimeRequiredPeople(),
+                            role.getNighttimeRequiredPeople(),
+                            // TODO #98: change to use roles
+                            team.getHardConstraints().getMaxWeeklyHours(),
+                            // TODO #98: change to use roles
+                            team.getHardConstraints().getMaxConsecutiveShifts()
+                    )
             );
             roleUuidToIndex.put(role.getId(), i);
         }
@@ -134,9 +141,7 @@ public class AlgorithmMapper {
                     holidayDays,
                     employee.getPreferences().getOffDays().stream().map(LocalDate::getDayOfMonth)
                             .collect(Collectors.toSet()),
-                    employee.getRole() == null || employee.getRole().getId() == null
-                            ? Optional.empty()
-                            : Optional.of(roleUuidToIndex.get(employee.getRole().getId()))
+                    roleUuidToIndex.get(employee.getRole().getId())
             ));
         }
 
@@ -146,8 +151,7 @@ public class AlgorithmMapper {
                 shiftTypeInfos,
                 roleInfos,
                 team.getHardConstraints().getDaytimeRequiredPeople(),
-                team.getHardConstraints().getNighttimeRequiredPeople(),
-                team.getHardConstraints().getMaxConsecutiveShifts()
+                team.getHardConstraints().getNighttimeRequiredPeople()
         );
     }
 

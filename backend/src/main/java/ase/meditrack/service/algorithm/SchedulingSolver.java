@@ -182,11 +182,7 @@ public final class SchedulingSolver {
             int finalR = r;
             TreeSet<Integer> employeesWithRole = IntStream.range(0, input.employees().size())
                     .boxed()
-                    .filter(employeeIndex -> {
-                        EmployeeInfo employeeInfo = input.employees().get(employeeIndex);
-                        if (employeeInfo.role().isEmpty()) return false;
-                        return employeeInfo.role().get() == finalR;
-                    })
+                    .filter(employeeIndex -> input.employees().get(employeeIndex).role() == finalR)
                     .collect(Collectors.toCollection(TreeSet::new));
 
             addRequiredPeopleConstraint(
@@ -223,8 +219,8 @@ public final class SchedulingSolver {
         }
 
         // Maximum Consecutive Shifts - Employees cannot work more than maxConsecutiveShifts in a row
-        int maxConsecutiveShifts = input.maxConsecutiveShifts();
         for (int n = 0; n < input.employees().size(); n++) {
+            int maxConsecutiveShifts = input.roles().get(input.employees().get(n).role()).maxConsecutiveShifts();
             // TODO #86: handle first day of the month
             for (int d = 0; d < input.numberOfDays() - maxConsecutiveShifts; d++) {
                 // use a sliding window to sum up all shifts in that
@@ -235,7 +231,7 @@ public final class SchedulingSolver {
                     }
                 }
                 LinearExpr numOfShiftsInWindow = LinearExpr.sum(shiftsInWindow.toArray(LinearExpr[]::new));
-                model.addLessOrEqual(numOfShiftsInWindow, input.maxConsecutiveShifts());
+                model.addLessOrEqual(numOfShiftsInWindow, maxConsecutiveShifts);
             }
         }
     }
