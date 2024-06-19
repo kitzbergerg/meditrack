@@ -73,8 +73,9 @@ export class WeekViewComponent implements OnInit {
   protected readonly Object = Object;
   range = 'week'; // Default value set to week = 7 days
   todaysDate: Date | undefined;
-  sickShiftId: string | null = null;
-  displayDialog: boolean = false;
+  sickShift: ShiftWithIds | null = null;
+  sickDay: Day | null = null;
+  displayDialog = false;
 
   rangeOptions: RangeOption[] = [
     {label: 'Week', value: 'week'},
@@ -137,6 +138,10 @@ export class WeekViewComponent implements OnInit {
     }
   }
 
+  handleUpdateShift(shiftInfo: { user: UserWithShifts, day: Day, shiftType: ShiftType, shiftId: string | null, operation: string }) {
+    this.updateShift.emit(shiftInfo);
+  }
+
   toggleEdit() {
     this.editing = !this.editing;
     this.setRange('month');
@@ -193,13 +198,10 @@ export class WeekViewComponent implements OnInit {
     });
   }
 
-  sickLeave(user: UserWithShifts, i: number) {
-    this.sickShiftId = user.shifts[i]?.id || null;
+  sickLeave(shift : ShiftWithIds, day: Day) {
+    this.sickShift = shift;
+    this.sickDay = day;
     this.displayDialog = true;
-  }
-
-  hideDialog() {
-    this.displayDialog = false;
   }
 
   protected readonly format = format;

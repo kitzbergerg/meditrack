@@ -1,13 +1,53 @@
-<p-dialog header="Edit Profile" [modal]="true" [(visible)]="displayDialog" [style]="{ width: '25rem' }">
-  <span class="p-text-secondary block mb-5">Update your information.</span>
-  <<div *ngIf="shiftId">
-  <!-- Your content here -->
-  <p *ngIf="replacements?.length">Replacements:</p>
-  <ul>
-    <li *ngFor="let replacement of replacements">{{ replacement.username }}</li>
-  </ul>
-</div>
+<p-dialog header="Replace Sick Employee" [modal]="true" [(visible)]="displayDialog" [style]="{ width: '30rem' }">
+  <span class="p-text-secondary block mb-5">Select a substitute for the sick employee.</span>
+
+  <div *ngIf="shift">
+    <div class="mb-3">
+      <div class="font-bold mb-1">Shift Type:</div>
+      <div class="flex flex-row flex-wrap border-1 border-solid border-200 my-3 surface-50 p-3 p-component">
+        <div class="flex align-items-center m-2">
+          <div class="flex justify-content-center align-items-center mr-3"
+               [ngStyle]="{
+              'background-color': shift?.shiftType?.color,
+              'border-radius': '5px',
+              'width': '40px',
+              'height': '40px',
+              'color': '#fff',
+              'font-weight': 'bold'
+            }">
+            {{ shift?.shiftType?.abbreviation }}
+          </div>
+          <div class="flex flex-column">
+            <div class="font-bold">{{ shift?.shiftType?.name }}</div>
+            <div>{{ shift?.shiftType?.startTime?.slice(0, -3) }} - {{ shift?.shiftType?.breakStartTime?.slice(0, -3) }}
+              {{ shift?.shiftType?.breakEndTime?.slice(0, -3) }} - {{ shift?.shiftType?.endTime?.slice(0, -3) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="font-bold">Date:</div>
+      <div>{{ shift.date | date:'fullDate' }}</div>
+    </div>
+    <form [formGroup]="formGroup">
+      <div *ngIf="replacements?.length" class="mb-3">
+        <div class="font-bold mb-2">Suitable Substitutes:</div>
+        <p-listbox
+          [options]="replacements"
+          formControlName="selectedReplacement"
+          [style]="{ width: '100%' }"
+          [listStyle]="{ 'max-height': '220px' }">
+          <ng-template let-replacement pTemplate="item">
+            {{ replacement.firstName }} {{ replacement.lastName.slice(0, 10)}}
+            <span *ngIf="replacement.lastName.length > 10">...</span>
+          </ng-template>
+        </p-listbox>
+      </div>
+    </form>
+  </div>
+
   <p-footer>
+    <button type="button" pButton icon="pi pi-times" (click)="sendUpdateShift()" label="Create"></button>
     <button type="button" pButton icon="pi pi-times" (click)="hideDialog()" label="Close"></button>
   </p-footer>
 </p-dialog>
