@@ -220,9 +220,6 @@ class ShiftTypeControllerIT {
         role.setUsers(null);
         role.setTeam(team);
         roleRepository.save(role);
-        List<Role> roles = new ArrayList<>();
-        roles.add(role);
-        shiftType.setRequiredRoles(roles);
         shiftTypeRepository.save(shiftType);
         ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
 
@@ -260,11 +257,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(16, 0, 0, 0),
                 LocalTime.of(12, 0, 0, 0),
                 LocalTime.of(12, 30, 0, 0),
-                "Day",
                 "#ff0000",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -303,11 +298,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(3, 0, 0, 0),
                 LocalTime.of(0, 0, 0, 0),
                 LocalTime.of(0, 30, 0, 0),
-                "Night",
                 "#ffff00",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -346,11 +339,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(16, 0, 0, 0),
                 LocalTime.of(12, 0, 0, 0),
                 LocalTime.of(17, 30, 0, 0),
-                "Day",
                 "#ff0000",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -372,11 +363,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(16, 0, 0, 0),
                 LocalTime.of(6, 0, 0, 0),
                 LocalTime.of(12, 30, 0, 0),
-                "Day",
                 "#ff0000",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -402,11 +391,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(3, 0, 0, 0),
                 LocalTime.of(0, 0, 0, 0),
                 LocalTime.of(4, 30, 0, 0),
-                "Night",
                 "#ffff00",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -428,11 +415,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(3, 0, 0, 0),
                 LocalTime.of(20, 0, 0, 0),
                 LocalTime.of(0, 30, 0, 0),
-                "Night",
                 "#ffff00",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -470,11 +455,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(17, 0, 0, 0),
                 LocalTime.of(12, 0, 0, 0),
                 LocalTime.of(13, 0, 0, 0),
-                "Day",
                 "#000000",
                 "STD",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);

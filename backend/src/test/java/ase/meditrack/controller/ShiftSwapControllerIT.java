@@ -259,7 +259,6 @@ class ShiftSwapControllerIT {
                 LocalTime.of(16, 0, 0),
                 LocalTime.of(12, 0, 0),
                 LocalTime.of(12, 30, 0),
-                "Day",
                 "#FF0000",
                 "SD",
                 team.getId()
