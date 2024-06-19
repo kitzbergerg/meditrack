@@ -175,10 +175,29 @@ export class HolidaysComponent {
     if (this.holiday.startDate === '' || this.holiday.endDate === '') {
       return false;
     }
-    let startDate = Date.parse(this.holiday.startDate);
-    let endDate = Date.parse(this.holiday.endDate);
+    const startDate = Date.parse(this.holiday.startDate);
+    const endDate = Date.parse(this.holiday.endDate);
 
-    return (startDate <= endDate && startDate > Date.now());
+    if (startDate > endDate || startDate < Date.now()) {
+      return false;
+    }
+
+    //check if the holiday is overlapping with another holiday
+    for (let i = 0; i < this.holidays.length; i++) {
+      const holiday = this.holidays[i];
+      if (holiday.id !== this.holiday.id) {
+        const holidayStartDate = Date.parse(holiday.startDate);
+        const holidayEndDate = Date.parse(holiday.endDate);
+
+        if ((startDate >= holidayStartDate && startDate <= holidayEndDate) ||
+            (endDate >= holidayStartDate && endDate <= holidayEndDate) ||
+            (startDate <= holidayStartDate && endDate >= holidayEndDate)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   resetForm() {
