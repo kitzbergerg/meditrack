@@ -95,13 +95,11 @@ public class ShiftTypeService {
         if (shiftType.getEndTime() != null) dbShiftType.setEndTime(shiftType.getEndTime());
         if (shiftType.getBreakStartTime() != null) dbShiftType.setBreakStartTime(shiftType.getBreakStartTime());
         if (shiftType.getBreakEndTime() != null) dbShiftType.setBreakEndTime(shiftType.getBreakEndTime());
-        if (shiftType.getType() != null) dbShiftType.setType(shiftType.getType());
         if (shiftType.getColor() != null) dbShiftType.setColor(shiftType.getColor());
         if (shiftType.getAbbreviation() != null) dbShiftType.setAbbreviation(shiftType.getAbbreviation());
         if (shiftType.getShifts() != null) dbShiftType.setShifts(shiftType.getShifts());
         if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
         if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
-        if (shiftType.getRequiredRoles() != null) dbShiftType.setRequiredRoles(shiftType.getRequiredRoles());
 
         validator.shiftTypeValidation(dbShiftType);
 

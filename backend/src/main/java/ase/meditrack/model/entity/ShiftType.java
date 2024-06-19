@@ -6,13 +6,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -56,19 +54,9 @@ public class ShiftType {
 
     private LocalTime breakEndTime;
 
-    @Pattern(regexp = "Day|Night", message = "Shift Type must be either 'Day' or 'Night'")
-    private String type;
-
     private String color;
 
     private String abbreviation;
-
-    @ManyToMany()
-    @JoinTable(name = "shiftTypeRoles",
-            joinColumns = @JoinColumn(name = "shiftType_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private List<Role> requiredRoles;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
