@@ -221,6 +221,23 @@ public final class SchedulingSolver {
                 }
             }
         }
+
+        // Maximum Consecutive Shifts - Employees cannot work more than maxConsecutiveShifts in a row
+        int maxConsecutiveShifts = input.maxConsecutiveShifts();
+        for (int n = 0; n < input.employees().size(); n++) {
+            // TODO #86: handle first day of the month
+            for (int d = 0; d < input.numberOfDays() - maxConsecutiveShifts; d++) {
+                // use a sliding window to sum up all shifts in that
+                List<LinearExpr> shiftsInWindow = new ArrayList<>();
+                for (int u = 0; u < maxConsecutiveShifts + 1; u++) {
+                    for (int s = 0; s < input.shiftTypes().size(); s++) {
+                        shiftsInWindow.add(LinearExpr.term(shifts[n][d + u][s], 1));
+                    }
+                }
+                LinearExpr numOfShiftsInWindow = LinearExpr.sum(shiftsInWindow.toArray(LinearExpr[]::new));
+                model.addLessOrEqual(numOfShiftsInWindow, input.maxConsecutiveShifts());
+            }
+        }
     }
 
     private static void addRequiredPeopleConstraint(

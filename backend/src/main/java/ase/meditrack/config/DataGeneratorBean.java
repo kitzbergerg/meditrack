@@ -121,7 +121,7 @@ public class DataGeneratorBean {
                     null,
                     40,
                     80,
-                    2,
+                    3,
                     2,
                     1,
                     team
