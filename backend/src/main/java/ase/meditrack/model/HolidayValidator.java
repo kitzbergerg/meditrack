@@ -23,6 +23,12 @@ public class HolidayValidator {
         this.holidayRepository = holidayRepository;
     }
 
+    /**
+     * Validates if a holiday can be saved.
+     *
+     * @param holiday the holiday to be validated
+     * @param user the user who wants to save the holiday
+     */
     public void validateHoliday(Holiday holiday, User user) {
         //check if start date is in the future and before end date
         if (holiday.getStartDate().isBefore(LocalDate.now()) || holiday.getStartDate().isAfter(holiday.getEndDate())) {
@@ -49,6 +55,13 @@ public class HolidayValidator {
         }
     }
 
+    /**
+     * Validates if a holiday can be updated.
+     *
+     * @param holidayToValidate the holiday to be updated
+     * @param userId the user who wants to update the holiday
+     * @param dbHoliday the holiday to update from the database
+     */
     public void validateHolidayOnUpdate(Holiday holidayToValidate, String userId, Holiday dbHoliday) {
         //check if the user is editing his own holiday
         if (!dbHoliday.getUser().getId().equals(UUID.fromString(userId))) {
@@ -63,6 +76,11 @@ public class HolidayValidator {
         validateHoliday(holidayToValidate, dbHoliday.getUser());
     }
 
+    /**
+     * Validates if a holiday can be deleted.
+     *
+     * @param holiday the holiday to be deleted
+     */
     public void validateHolidayOnDelete(Holiday holiday) {
         //check if the holiday status is REJECTED or CANCELLED
         if (holiday.getStatus() == HolidayRequestStatus.APPROVED
