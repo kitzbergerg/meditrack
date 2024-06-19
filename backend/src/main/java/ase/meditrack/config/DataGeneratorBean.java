@@ -7,19 +7,16 @@ import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.ShiftOffShiftIdList;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
-import ase.meditrack.repository.HardConstraintsRepository;
 import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.PreferencesRepository;
 import ase.meditrack.repository.RoleRepository;
-import ase.meditrack.repository.ShiftOffShiftIdListRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
@@ -54,18 +51,14 @@ public class DataGeneratorBean {
     private final PreferencesRepository preferencesRepository;
     private final MonthlyPlanRepository monthlyPlanRepository;
     private final HolidayRepository holidayRepository;
-    private final HardConstraintsRepository hardConstraintsRepository;
     private final ShiftTypeRepository shiftTypeRepository;
     private final UserMapper userMapper;
-    private final ShiftOffShiftIdListRepository shiftOffShiftIdListRepository;
 
     public DataGeneratorBean(UserService userService, TeamRepository teamRepository,
                              ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
                              RoleRepository roleRepository, PreferencesRepository preferencesRepository,
                              MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
-                             HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
-                             ShiftTypeRepository shiftTypeRepository,
-                             ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
+                             UserMapper userMapper, ShiftTypeRepository shiftTypeRepository) {
         this.userService = userService;
         this.teamRepository = teamRepository;
         this.shiftRepository = shiftRepository;
@@ -74,10 +67,8 @@ public class DataGeneratorBean {
         this.preferencesRepository = preferencesRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
         this.holidayRepository = holidayRepository;
-        this.hardConstraintsRepository = hardConstraintsRepository;
         this.shiftTypeRepository = shiftTypeRepository;
         this.userMapper = userMapper;
-        this.shiftOffShiftIdListRepository = shiftOffShiftIdListRepository;
     }
 
     private static final Faker FAKER = new Faker();
@@ -109,7 +100,6 @@ public class DataGeneratorBean {
                 createMonthlyPlan();
                 createShifts();
                 createShiftSwap();
-                createHardConstraints();
                 createPreferences();
                 log.info("Data generation complete!");
             } else {
@@ -132,8 +122,8 @@ public class DataGeneratorBean {
                     40,
                     80,
                     2,
-                    20,
-                    20,
+                    2,
+                    1,
                     team
             ));
             teams.add(teamRepository.save(team));
@@ -148,8 +138,8 @@ public class DataGeneratorBean {
                 Role role = new Role();
                 role.setName(roleName);
                 role.setTeam(team);
-                role.setAllowedFlextimeTotal(0); //TODO
-                role.setAllowedFlextimePerMonth(0);
+                role.setAllowedFlextimeTotal(40);
+                role.setAllowedFlextimePerMonth(20);
                 role.setDaytimeRequiredPeople(0);
                 role.setNighttimeRequiredPeople(0);
                 role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
@@ -365,28 +355,6 @@ public class DataGeneratorBean {
                     .toList());
         }
         return teamUserPerRole;
-    }
-
-    private void createHardConstraints() {
-        log.info("Generating hard constraints for every team...");
-        for (Team team : teams) {
-            HardConstraints hardConstraints = team.getHardConstraints();
-            hardConstraints.setId(team.getId());
-            hardConstraints.setWorkingHours(40);
-            hardConstraints.setMaxWeeklyHours(80);
-            hardConstraints.setMaxConsecutiveShifts(3);
-            hardConstraints.setDaytimeRequiredPeople(20);
-            hardConstraints.setNighttimeRequiredPeople(20);
-            hardConstraints.setTeam(team);
-            hardConstraintsRepository.save(hardConstraints);
-        }
-    }
-
-    private ShiftOffShiftIdList createShiftOffShiftIdList() {
-        log.info("Generating shift off shift id list...");
-        ShiftOffShiftIdList shiftOffShiftIdList = new ShiftOffShiftIdList();
-        shiftOffShiftIdList.setShiftOffShiftIdList(List.of());
-        return shiftOffShiftIdListRepository.save(shiftOffShiftIdList);
     }
 
     private void createPreferences() {

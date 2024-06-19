@@ -63,7 +63,7 @@ public class RoleService {
      * Creates a role in the database.
      *
      * @param principal the current user
-     * @param role the role to create
+     * @param role      the role to create
      * @return the created role
      */
     @Transactional
@@ -76,8 +76,8 @@ public class RoleService {
 
         role.setDaytimeRequiredPeople(0);
         role.setNighttimeRequiredPeople(0);
-        role.setAllowedFlextimeTotal(0);
-        role.setAllowedFlextimePerMonth(0);
+        role.setAllowedFlextimeTotal(40);
+        role.setAllowedFlextimePerMonth(20);
 
         roles.add(role);
         dm.getTeam().setRoles(roles);
@@ -125,7 +125,7 @@ public class RoleService {
      * @return updated role
      */
     public Role updateRoleConstraints(RoleHardConstraintsDto dto) {
-        Role  role = findById(dto.roleId());
+        Role role = findById(dto.roleId());
         role.setAllowedFlextimeTotal(dto.allowedFlextimeTotal());
         role.setAllowedFlextimePerMonth(dto.allowedFlextimePerMonth());
         role.setDaytimeRequiredPeople(dto.daytimeRequiredPeople());
