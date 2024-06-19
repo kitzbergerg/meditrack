@@ -1,202 +1,187 @@
-import {Component} from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
-import {PaginatorModule} from "primeng/paginator";
-import {Rules} from "../../interfaces/rules";
-import {RulesService} from "../../services/rules.service";
-import {ButtonModule} from "primeng/button";
-import {RippleModule} from "primeng/ripple";
-import {MandatoryOffDaysRuleComponent} from "./mandatory-offdays-rule/mandatory-off-days-rule.component";
-import {MinRestPeriodRuleComponent} from "./min-rest-period-rule/min-rest-period-rule.component";
-import {MaxShiftLengthsComponent} from "./max-shift-lengths/max-shift-lengths.component";
-import {DayTimeRequiredRolesComponent} from "./day-time-required-roles/day-time-required-roles.component";
-import {NightTimeRequiredRolesComponent} from "./night-time-required-roles/night-time-required-roles.component";
-import {AllowedFlexTimeTotalComponent} from "./allowed-flex-time-total/allowed-flex-time-total.component";
-import {AllowedFlexTimePerMonthComponent} from "./allowed-flex-time-per-month/allowed-flex-time-per-month.component";
-import {Role} from "../../interfaces/role";
-
+import { Component, OnInit } from '@angular/core';
+import { RulesService } from '../../services/rules.service';
+import { RolesService } from '../../services/roles.service';
+import { RoleRules, Rule } from '../../interfaces/rule';
+import { Role } from '../../interfaces/role';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-rules',
-  standalone: true,
-  imports: [
-    NgForOf,
-    NgIf,
-    PaginatorModule,
-    ButtonModule,
-    RippleModule,
-    MandatoryOffDaysRuleComponent,
-    MinRestPeriodRuleComponent,
-    MaxShiftLengthsComponent,
-    DayTimeRequiredRolesComponent,
-    NightTimeRequiredRolesComponent,
-    AllowedFlexTimeTotalComponent,
-    AllowedFlexTimePerMonthComponent
-  ],
   templateUrl: './rules.component.html',
-  styleUrl: './rules.component.scss'
+  styleUrls: ['./rules.component.scss'],
 })
-export class RulesComponent {
-  rules: Rules | null = null;
+export class RulesComponent implements OnInit {
+  loading = true;
+  teamConstraints: Rule[] = [
+    { name: 'workingHours', label: $localize`working hours`,
+      description: $localize`regular amount of working hours employees should do every month`, value: null },
+    { name: 'maxWeeklyHours', label: $localize`maximum weekly hours`,
+      description: $localize`maximum amount of weekly hours for employees`, value: null },
+    { name: 'maxConsecutiveShifts', label: $localize`maximum consecutive shifts`,
+      description: $localize`maximum amount of consecutive shifts an employee should be able to work`, value: null },
+    { name: 'daytimeRequiredPeople', label: $localize`daytime required people`,
+      description: $localize`number of required employees during the day`, value: null },
+    { name: 'nighttimeRequiredPeople', label: $localize`nighttime required people`,
+      description: $localize`number of required employees during the night`, value: null }
+  ];
+  showRulesEditCard = true;
+  roles: Role[] = [];
+  roleRules: RoleRules[] = [];
+  selectedRoleRules?: RoleRules;
+  selectedRule?: Rule;
+  selectedRuleBackup?: Rule;
+  selectedRoleRulesBackup?: RoleRules;
+  formMode: 'create' | 'edit' | 'details' = 'details';
+  formTitle = '';
+  formAction = '';
+  submitted = false;
 
-  showAvailableRules = false;
-  showMandatoryOffDaysRule = false;
-  showMinRestPeriod = false;
-  showMaxShiftLengths = false;
-  showDayTimeRequiredRoles = false;
-  showNightTimeRequiredRoles = false;
-  showAllowedFlexTimeTotal = false;
-  showAllowedFlexTimePerMonth = false;
+  constructor(
+    private rulesService: RulesService,
+    private rolesService: RolesService,
+    private messageService: MessageService
+  ) { }
 
-  constructor(private rulesService: RulesService) {
-    rulesService.getRules().subscribe({
-      next: (x: Rules) => {
-        if (x == null) {
-          this.rules = this.emptyRules()
-          console.log('null', this.rules);
-        } else {
-          this.rules = x
-          console.log('not null', this.rules);
-          if (this.rules.mandatoryOffDays) {
-            this.showMandatoryOffDaysRule = true
-          }
-          if (this.rules.minRestPeriod) {
-            this.showMinRestPeriod = true
-          }
-          if (this.rules.maximumShiftLengths) {
-            this.showMaxShiftLengths = true
-          }
-          if (this.rules.daytimeRequiredRoles !== null){
-            this.showDayTimeRequiredRoles = true;
-          }
-
-          if (this.rules.nighttimeRequiredRoles !== null){
-            this.showNightTimeRequiredRoles = true
-          }
-          if (this.rules.allowedFlextimeTotal) {
-            this.showAllowedFlexTimeTotal = true
-          }
-          if (this.rules.allowedFlextimePerMonth) {
-            this.showAllowedFlexTimePerMonth = true
-          }
-        }
-        console.log(this.rules);
-      },
-      error: (err) => {
-        console.log('Error getting role:', err)
-        this.rules = this.emptyRules()
-      }
-    })
+  ngOnInit(): void {
+    this.loadRules();
+    this.loadRoleRules();
   }
 
-  emptyRules() {
-    return {
-      shiftOffShift: null,
-      minRestPeriod: null,
-      maximumShiftLengths: null,
-      mandatoryOffDays: null,
-      daytimeRequiredRoles: null,
-      nighttimeRequiredRoles: null,
-      allowedFlextimeTotal: null,
-      allowedFlextimePerMonth: null
+  loadRules(): void {
+    this.rulesService.getAllRulesFromTeam().subscribe((fetchedRules) => {
+      this.teamConstraints[0].value = fetchedRules.workingHours;
+      this.teamConstraints[1].value = fetchedRules.maxWeeklyHours;
+      this.teamConstraints[2].value = fetchedRules.maxConsecutiveShifts;
+      this.teamConstraints[3].value = fetchedRules.daytimeRequiredPeople;
+      this.teamConstraints[4].value = fetchedRules.nighttimeRequiredPeople;
+    });
+  }
+
+  loadRoleRules(): void {
+    this.rolesService.getAllRolesFromTeam().subscribe((fetchedRoles) => {
+      this.roles = fetchedRoles;
+
+      this.rulesService.getAllRoleRulesFromTeam().subscribe((fetchedRoleRules) => {
+        this.roleRules = fetchedRoleRules.sort((a, b) => {
+          const roleA = this.getNameOfRole(a) || '';
+          const roleB = this.getNameOfRole(b) || '';
+          return roleA.localeCompare(roleB);
+        });
+      });
+    });
+  }
+
+  selectRoleRule(role: RoleRules) {
+    this.showRulesEditCard = false;
+    this.selectedRoleRules = { ...role }; // Shallow copy for editing
+    this.selectedRoleRulesBackup = { ...role }; // Backup original values
+    this.formMode = 'details';
+    this.selectedRule = { name: '', label: '', description: '', value: 0 }; // Initialize selectedRule to avoid errors
+  }
+
+  selectRule(rule: Rule) {
+    this.showRulesEditCard = true;
+    this.selectedRule = { ...rule }; // Shallow copy for editing
+    this.selectedRuleBackup = { ...rule }; // Backup original values
+    this.formMode = 'details';
+  }
+
+  editRule() {
+    this.formMode = 'edit';
+  }
+
+  getFormTitle(): string {
+    if (this.formMode === 'edit') {
+      if (this.showRulesEditCard) {
+        this.formTitle = 'Edit Rule';
+      } else {
+        this.formTitle = 'Edit Rules for Roles';
+      }
+      this.formAction = 'Save';
+    } else {
+      if (this.showRulesEditCard) {
+        this.formTitle = 'Rule Details';
+      } else {
+        this.formTitle = 'Rule Details For Role ' + this.roles.find(x => x.id == this.selectedRoleRules?.roleId)?.name;
+      }
+      this.formAction = 'Edit';
+    }
+    return this.formTitle;
+  }
+
+  createOrUpdateRule() {
+    this.submitted = true;
+    if (this.selectedRule && this.selectedRule.value !== null) {
+      this.updateRule();
+    } else {
+      this.messageService.add({ severity: 'warn', summary: 'Validation Failed', detail: 'Please read the warnings.' });
     }
   }
 
-  anyRulesNotSet() {
-    return !this.showAllowedFlexTimePerMonth || !this.showAllowedFlexTimeTotal || !this.showDayTimeRequiredRoles
-      || !this.showMandatoryOffDaysRule || !this.showMaxShiftLengths || !this.showMinRestPeriod  ||
-      !this.showNightTimeRequiredRoles
-  }
-
-  save() {
-    console.log("save", this.rules)
-    this.rulesService.saveRules(this.rules!).subscribe({
-        next: (response) => {
-          console.log('Rules created successfully:', response);
+  updateRule() {
+    if (this.showRulesEditCard) {
+      this.teamConstraints.find(x => x.name === this.selectedRule!.name)!.value = this.selectedRule!.value;
+      this.rulesService.saveRules(this.teamConstraints).subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Successfully Updated Rule' });
+          this.formMode = 'details'; // Revert to non-edit mode
+          this.selectedRuleBackup = { ...this.selectedRule! };
         },
         error: (error) => {
-          console.error('Error creating rule:', error);
+          console.error('Error updating rule:', error);
+          this.messageService.add({ severity: 'error', summary: 'Updating Rule Failed', detail: error.error });
         }
-      }
-    )
-  }
-
-
-  updateMandatoryOffDaysRule(mandatoryOffDays: number | null) {
-    console.log('updated', mandatoryOffDays)
-    if (mandatoryOffDays == null) {
-      this.showMandatoryOffDaysRule = false;
-    }
-    this.rules!.mandatoryOffDays = mandatoryOffDays;
-    this.save()
-  }
-
-  updateMinRestPeriodRule(minRest: number | null) {
-    if (minRest == null) {
-      this.showMinRestPeriod = false;
-    }
-    this.rules!.minRestPeriod = minRest;
-    this.save()
-  }
-
-  updateMaxShiftLengthRule(maxShift: number | null) {
-    if (maxShift == null) {
-      this.showMaxShiftLengths = false;
-    }
-    this.rules!.maximumShiftLengths = maxShift;
-    this.save()
-  }
-
-  updateDayTimeRequiredRolesRule(dayTimeRoles: [Role | null, number][] | null) {
-    if (dayTimeRoles == null) {
-      this.showDayTimeRequiredRoles = false;
-      this.rules!.daytimeRequiredRoles = new Map<number, number>();
-      this.save()
+      });
     } else {
-      const dayRoleMap: Map<number, number> = new Map<number, number>();
-      for (const dayTimeRole of dayTimeRoles) {
-        if (dayTimeRole != null && dayTimeRole[0] != null) {
-          dayRoleMap.set(dayTimeRole[0]!.id!, dayTimeRole[1])
-        }
+      if (this.selectedRoleRules &&
+        this.selectedRoleRules.daytimeRequiredPeople !== null && !isNaN(this.selectedRoleRules.daytimeRequiredPeople) &&
+        this.selectedRoleRules.nighttimeRequiredPeople !== null && !isNaN(this.selectedRoleRules.nighttimeRequiredPeople) &&
+        this.selectedRoleRules.allowedFlextimeTotal !== null && !isNaN(this.selectedRoleRules.allowedFlextimeTotal) &&
+        this.selectedRoleRules.allowedFlextimePerMonth !== null && !isNaN(this.selectedRoleRules.allowedFlextimePerMonth)) {
+        this.rulesService.updateRoleRule(this.selectedRoleRules!).subscribe({
+          next: () => {
+            this.messageService.add({severity: 'success', summary: 'Successfully Updated Rules for Role'});
+            this.formMode = 'details'; // Revert to non-edit mode
+            // Update backup values after successful save
+            this.selectedRoleRulesBackup = { ...this.selectedRoleRules! };
+          },
+          error: (error) => {
+            console.error('Error updating rule:', error);
+            this.messageService.add({severity: 'error', summary: 'Updating Rule Failed', detail: error.error});
+          }
+        });
+      } else {
+        this.messageService.add({severity: 'warn', summary: 'Validation Failed', detail: 'Please enter valid numbers in all fields.'});
       }
-      this.rules!.daytimeRequiredRoles = Object.fromEntries(dayRoleMap.entries());
-      console.log('dayRoleMap', dayRoleMap)
-      console.log('this.rules!.daytimeRequiredRoles', this.rules!.daytimeRequiredRoles)
-      this.save()
     }
   }
 
-  updateNightTimeRequiredRolesRule(nightTimeRoles: [Role | null, number][] | null) {
-    if (nightTimeRoles == null) {
-      this.showNightTimeRequiredRoles = false;
-      this.rules!.nighttimeRequiredRoles = new Map<number, number>();
-      this.save()
-    } else {
-      const nightRoleMap: Map<number, number> = new Map<number, number>();
-      for (const nightRole of nightTimeRoles) {
-        if (nightRole != null && nightRole[0] != null) {
-          nightRoleMap.set(nightRole[0]!.id!, nightRole[1])
-        }
+  cancelEditing() {
+    if (this.showRulesEditCard && this.selectedRuleBackup) {
+      this.selectedRule = { ...this.selectedRuleBackup };
+    } else if (!this.showRulesEditCard && this.selectedRoleRulesBackup) {
+      this.selectedRoleRules = { ...this.selectedRoleRulesBackup };
+    }
+    this.formMode = 'details';
+    this.submitted = false;
+  }
+
+  resetForm() {
+    this.submitted = false;
+    this.selectedRule = undefined;
+  }
+
+  handleKeydown(event: KeyboardEvent, item: Rule | RoleRules, type: string): void {
+    if (event.key === 'Enter') {
+      if (type === 'team') {
+        this.selectRule(item as Rule);
+      } else {
+        this.selectRoleRule(item as RoleRules);
       }
-      this.rules!.nighttimeRequiredRoles = Object.fromEntries(nightRoleMap.entries());
-      console.log('nightRoleMap', nightRoleMap)
-      console.log('this.rules!.nighttimeRequiredRoles', this.rules!.nighttimeRequiredRoles)
-      this.save()
     }
   }
 
-  updateAllowedFlexTimeTotalRule(flexTotal: number | null) {
-    if (flexTotal == null) {
-      this.showAllowedFlexTimeTotal = false;
-    }
-    this.rules!.allowedFlextimeTotal = flexTotal;
-    this.save()
-  }
-
-  updateAllowedFlexTimePerMonthRule(flexMonth: number | null) {
-    if (flexMonth == null) {
-      this.showAllowedFlexTimePerMonth = false;
-    }
-    this.rules!.allowedFlextimePerMonth = flexMonth;
-    this.save()
+  getNameOfRole(role: RoleRules) {
+    return this.roles.find(x => x.id === role.roleId)?.name;
   }
 }

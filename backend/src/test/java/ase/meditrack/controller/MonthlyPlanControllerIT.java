@@ -90,7 +90,7 @@ class MonthlyPlanControllerIT {
         Team team = new Team(null, "test team", 40, null, null, null, null, null);
         team = teamService.create(team, () -> USER_ID);
 
-        Role role = new Role(null, "test role", null, null, null, team, null);
+        Role role = new Role(null, "test role", null, null, 40, 20, 0, 0, null, team, null);
         role = roleService.create(role, () -> USER_ID);
 
         ShiftType shiftType = new ShiftType(null,

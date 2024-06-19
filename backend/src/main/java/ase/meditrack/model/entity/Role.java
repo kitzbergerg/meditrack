@@ -46,6 +46,18 @@ public class Role {
 
     private String abbreviation;
 
+    @Column(nullable = false)
+    private Integer allowedFlextimeTotal;
+
+    @Column(nullable = false)
+    private Integer allowedFlextimePerMonth;
+
+    @Column(nullable = false)
+    private Integer daytimeRequiredPeople;
+
+    @Column(nullable = false)
+    private Integer nighttimeRequiredPeople;
+
     @OneToMany(mappedBy = "role")
     private List<User> users;
 
