@@ -15,11 +15,5 @@ public interface HardConstraintsMapper {
     HardConstraints fromDto(HardConstraintsDto dto);
 
     @Mapping(source = "id", target = "roleId")
-    @Mapping(source = "allowedFlextimeTotal", target = "allowedFlextimeTotal")
-    @Mapping(source = "allowedFlextimePerMonth", target = "allowedFlextimePerMonth")
-    @Mapping(source = "daytimeRequiredPeople", target = "daytimeRequiredPeople")
-    @Mapping(source = "nighttimeRequiredPeople", target = "nighttimeRequiredPeople")
     RoleHardConstraintsDto toRoleHardconstraintsDto(Role x);
-
-    //Role fromDto(RoleHardConstraintsDto roleHardConstraintsDto);
 }

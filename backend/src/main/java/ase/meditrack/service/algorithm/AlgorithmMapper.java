@@ -128,6 +128,8 @@ public class AlgorithmMapper {
 
             employeeInfos.add(new EmployeeInfo(
                     worksShiftTypes,
+                    employee.getPreferredShiftTypes().stream().map(type -> shiftTypeUuidToIndex.get(type.getId()))
+                            .toList(),
                     averageWorkingHoursPerMonth - maxAllowedChangeMinus,
                     averageWorkingHoursPerMonth + maxAllowedChangePlus,
                     averageWorkingHoursPerMonth - employee.getCurrentOverTime() / 2,
