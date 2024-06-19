@@ -92,7 +92,8 @@ public class ShiftSwapController {
 
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
-            + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #dto.id()))")
+            + "(hasAnyAuthority('SCOPE_employee') && "
+            + "@shiftSwapService.isShiftSwapFromSuggestedUser(#principal, #dto))")
     @ResponseStatus(HttpStatus.OK)
     public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
         log.info("Updating shift-swap {}", dto.id());
