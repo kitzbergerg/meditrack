@@ -8,9 +8,7 @@ export interface ShiftType {
   endTime: string;
   breakStartTime: string;
   breakEndTime: string;
-  type: string;
   color: string;
   abbreviation: string;
   team?: Team;
-  requiredRoles: Role[];
 }
