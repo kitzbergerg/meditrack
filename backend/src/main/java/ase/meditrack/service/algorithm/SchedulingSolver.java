@@ -373,6 +373,23 @@ public final class SchedulingSolver {
             objective.addSum(workingOnOffDays.toArray(LinearExpr[]::new));
         }
 
+        // Preferred shifts - Employees should work their preferred shifts
+        for (int n = 0; n < input.employees().size(); n++) {
+            List<Integer> nonPreferredShifts =
+                    IntStream.range(0, input.shiftTypes().size()).boxed().collect(Collectors.toList());
+            nonPreferredShifts.removeAll(input.employees().get(n).preferredShiftTypes());
+
+            // Sum up all non-preferred shifts the employee works
+            List<LinearExpr> worksNonPreferred = new ArrayList<>();
+            for (int s : nonPreferredShifts) {
+                for (int d = 0; d < input.numberOfDays(); d++) {
+                    worksNonPreferred.add(LinearExpr.term(shifts[n][d][s], 5));
+                }
+            }
+            // minimize non-preferred shifts
+            objective.addSum(worksNonPreferred.toArray(LinearExpr[]::new));
+        }
+
         model.minimize(objective);
     }
 }
