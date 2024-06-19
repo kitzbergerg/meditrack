@@ -4,9 +4,11 @@ import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
+import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -24,12 +26,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
@@ -42,14 +47,17 @@ public class UserService {
     private final ShiftTypeRepository shiftTypeRepository;
     private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
 
+    private final ShiftRepository shiftRepository;
+
     public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
                        ShiftTypeRepository shiftTypeRepository,
-                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository) {
+                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, ShiftRepository shiftRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
         this.shiftTypeRepository = shiftTypeRepository;
         this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
+        this.shiftRepository = shiftRepository;
     }
 
     private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
@@ -280,5 +288,73 @@ public class UserService {
         MonthlyWorkDetails details = monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
                 userId, month.getValue(), year.getValue());
         return details;
+    }
+
+    public List<User> getSickReplacement(UUID shiftId) {
+        Optional<Shift> shift = shiftRepository.findById(shiftId);
+        if (shift.isEmpty()) {
+            throw new NotFoundException("Shift not found");
+        }
+        User sickUser = shift.get().getUsers().get(0);
+        List<User> usersSameRole = repository.findAllByRole(shift.get().getUsers().get(0).getRole()).stream()
+                .peek(u -> {
+                    u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
+                }).collect(Collectors.toList());
+        usersSameRole.remove(sickUser);
+        log.info("Users with same role and can work shift types: {}", usersSameRole);
+        // remove users that have worked too many days in a row in the past or present
+        LocalDate shiftDate = shift.get().getDate();
+        LocalDate startDate = shiftDate.minusDays(3);
+        LocalDate endDate = shiftDate.plusDays(3);
+
+        usersSameRole.removeIf(user -> {
+            List<Shift> userShifts = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(
+                    List.of(user.getId()), startDate, endDate);
+
+            // Remove users that have a shift on the same day
+            boolean hasShiftOnSameDay = userShifts.stream().anyMatch(s -> s.getDate().equals(shiftDate));
+            if (hasShiftOnSameDay) {
+                return true;
+            }
+
+            // Check for day shift following night shift
+            boolean hasDayShiftFollowingNightShift = userShifts.stream().anyMatch(s -> {
+                boolean isNightShiftCurrent = Objects.equals(shift.get().getShiftType().getType(), "Night");
+                boolean isDayShiftNext = Objects.equals(s.getShiftType().getType(), "Day");
+                return isNightShiftCurrent && isDayShiftNext && s.getDate().equals(shiftDate.plusDays(1));
+            });
+            if (hasDayShiftFollowingNightShift) {
+                return true;
+            }
+
+            // Check for night shift preceding day shift
+            boolean hasNightShiftBeforeDayShift = userShifts.stream().anyMatch(s -> {
+                boolean isNightShiftBefore = Objects.equals(s.getShiftType().getType(), "Night");
+                boolean isDayShiftCurrent = Objects.equals(shift.get().getShiftType().getType(), "Day");
+                return isNightShiftBefore && isDayShiftCurrent && s.getDate().equals(shiftDate.minusDays(1));
+            });
+            if (hasNightShiftBeforeDayShift) {
+                return true;
+            }
+
+            // Check if the shift is during a holiday
+            boolean isDuringHoliday = user.getHolidays().stream().anyMatch(holiday ->
+                    !shiftDate.isBefore(holiday.getStartDate()) && !shiftDate.isAfter(holiday.getEndDate())
+            );
+            if (isDuringHoliday) {
+                return true;
+            }
+
+            // Check if there is at least one day off in the specified period
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                LocalDate finalDate = date;
+                boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(finalDate));
+                if (!hasShift) {
+                    return false; // User has at least one day off
+                }
+            }
+            return true; // User does not have any day off in the period
+        });
+        return usersSameRole;
     }
 }

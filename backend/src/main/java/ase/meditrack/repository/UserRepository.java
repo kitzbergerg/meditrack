@@ -1,5 +1,7 @@
 package ase.meditrack.repository;
 
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,5 +20,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * @return A list of users associated with the specified team.
      */
     List<User> findAllByTeam(Team team);
+
+    List<User> findAllByRole(Role role);
 
 }
