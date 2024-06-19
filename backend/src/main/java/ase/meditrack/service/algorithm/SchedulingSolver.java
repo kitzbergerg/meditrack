@@ -152,6 +152,25 @@ public final class SchedulingSolver {
             model.addGreaterOrEqual(totalMonthlyHours, input.employees().get(n).minWorkingHoursPerMonth());
         }
 
+        // Maximum Hours per Week - Employees cannot work more than maxHoursPerWeek per week
+        for (int n = 0; n < input.employees().size(); n++) {
+            // TODO #86: handle first day of the month
+            Integer maxHoursPerWeek = input.roles().get(input.employees().get(n).role()).maxHoursPerWeek();
+            for (int d = 0; d < input.numberOfDays(); d += 7) {
+                List<LinearExpr> weeklyHours = new ArrayList<>();
+                // a week is defined as 7 consecutive days, weekdays do not matter
+                for (int weekDay = 0; weekDay < 7 && d + weekDay < input.numberOfDays(); weekDay++) {
+                    for (int s = 0; s < input.shiftTypes().size(); s++) {
+                        LinearExpr shiftHours =
+                                LinearExpr.term(shifts[n][d + weekDay][s], input.shiftTypes().get(s).duration());
+                        weeklyHours.add(shiftHours);
+                    }
+                }
+                LinearExpr totalWeeklyHours = LinearExpr.sum(weeklyHours.toArray(new LinearExpr[0]));
+                model.addLessOrEqual(totalWeeklyHours, maxHoursPerWeek);
+            }
+        }
+
         // Holidays - Employees do not work on holidays
         for (int n = 0; n < input.employees().size(); n++) {
             Set<Integer> holidays = input.employees().get(n).holidays();
