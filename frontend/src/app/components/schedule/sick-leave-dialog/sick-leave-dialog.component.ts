@@ -39,6 +39,7 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
     day: Day,
     shiftType: ShiftType,
     shiftId: string | null,
+    isSick: boolean,
     operation: string
   }>();
   replacements: User[] = [];
@@ -92,8 +93,10 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
       day: this.day,
       shiftType: this.shift?.shiftType,
       shiftId: null,
+      isSick: false,
       operation: 'create'
     };
+
     this.updateShift.emit(event);
     this.formGroup.reset();
     this.shift = null;

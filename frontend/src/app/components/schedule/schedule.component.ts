@@ -286,6 +286,7 @@ export class ScheduleComponent implements OnInit {
           employee.shifts[index] = {
             id: shift.id,
             date: shift.date,
+            isSick: shift.isSick,
             shiftType: shiftType,
           };
         }
@@ -392,6 +393,7 @@ export class ScheduleComponent implements OnInit {
     day: Day,
     shiftType: ShiftType,
     shiftId: string | null,
+    isSick: boolean,
     operation: string
   }): void {
     const shiftDate = parseISO(format(shiftInfo.day.date, 'yyyy-MM-dd'));
@@ -409,6 +411,7 @@ export class ScheduleComponent implements OnInit {
       date: shiftDateString,
       monthlyPlan: scheduleId,
       shiftType: shiftInfo.shiftType.id.toString(),
+      isSick: shiftInfo.isSick,
       users: [
         shiftInfo.user.id
       ],

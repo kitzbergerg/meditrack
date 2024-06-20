@@ -56,6 +56,7 @@ export class WeekViewComponent implements OnInit {
     day: Day,
     shiftType: ShiftType,
     shiftId: string | null,
+    isSick: boolean,
     operation: string
   }>();
   @Output() publishSchedule = new EventEmitter<string>();
@@ -130,15 +131,15 @@ export class WeekViewComponent implements OnInit {
     this.currentShiftType = type;
   }
 
-  changeShift(user: UserWithShifts, i: number, day: Day, operation: string): void {
+  changeShift(user: UserWithShifts, i: number, day: Day, isSick: boolean, operation: string): void {
     const shiftType = this.currentShiftType;
     if (shiftType) {
       const shiftId = user.shifts[i]?.id || null;
-      this.updateShift.emit({user, day, shiftType, shiftId, operation});
+      this.updateShift.emit({user, day, shiftType, shiftId, isSick, operation});
     }
   }
 
-  handleUpdateShift(shiftInfo: { user: UserWithShifts, day: Day, shiftType: ShiftType, shiftId: string | null, operation: string }) {
+  handleUpdateShift(shiftInfo: { user: UserWithShifts, day: Day, shiftType: ShiftType, shiftId: string | null, isSick:boolean, operation: string }) {
     this.updateShift.emit(shiftInfo);
   }
 

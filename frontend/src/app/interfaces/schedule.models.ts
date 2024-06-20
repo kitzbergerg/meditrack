@@ -17,6 +17,7 @@ export interface Shift {
   date: string;
   type: ShiftType;
   users: User[];
+  isSick: boolean;
 }
 
 export interface Schedule {
@@ -46,6 +47,7 @@ export interface SimpleShift {
   date: string | null;
   monthlyPlan: string;
   shiftType: string;
+  isSick: boolean;
   users: string[];
 }
 
@@ -53,6 +55,7 @@ export interface ShiftWithIds {
   id: string | null;
   shiftType: ShiftType;
   date: string | null;
+  isSick: boolean;
 }
 
 export interface EmployeeWithShifts {
