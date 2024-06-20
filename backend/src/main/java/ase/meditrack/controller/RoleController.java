@@ -54,7 +54,7 @@ public class RoleController {
     @GetMapping("{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
             + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @roleService.isRoleFromTeam(#principal, #id))")
-    public RoleDto findById(@PathVariable UUID id) {
+    public RoleDto findById(@PathVariable UUID id, Principal principal) {
         log.info("Fetching role {}", id);
         return mapper.toDto(service.findById(id));
     }
@@ -71,7 +71,7 @@ public class RoleController {
     @PutMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
             + "(hasAnyAuthority('SCOPE_dm') && @roleService.isRoleFromTeam(#principal, #dto.id()))")
-    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) {
+    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Updating role {}", dto.name());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
@@ -80,7 +80,7 @@ public class RoleController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
             + "(hasAnyAuthority('SCOPE_dm') && @roleService.isRoleFromTeam(#principal, #id))")
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting role with id {}", id);
         service.delete(id);
     }

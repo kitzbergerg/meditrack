@@ -66,7 +66,8 @@ public class PreferencesController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
             + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @userService.isSameTeam(#principal, #dto.id()))")
     @ResponseStatus(HttpStatus.OK)
-    public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto) {
+    public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto,
+                                 Principal principal) {
         log.info("Updating preferences {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
@@ -75,7 +76,7 @@ public class PreferencesController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
             + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee')&& @userService.isSameTeam(#principal, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting preferences with id {}", id);
         service.delete(id);
     }
