@@ -6,7 +6,6 @@ import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.mapper.ShiftTypeMapper;
 import ase.meditrack.service.ShiftTypeService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.security.Principal;
 import java.util.List;
@@ -52,31 +50,34 @@ public class ShiftTypeController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @shiftTypeService.isShiftTypeInTeam(authentication.name, #id))")
     public ShiftTypeDto findById(@PathVariable UUID id) { // Principal principal
         log.info("Fetching shift type {}", id);
         return mapper.toDto(service.findById(id));
     }
 
+
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #dto.team()))")
     public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto, Principal principal) {
         log.info("Creating shift type {}", dto.name());
         return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) { // Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #dto.team()))")
+    public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) {
         log.info("Updating shift type {}", dto.name());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public void delete(@PathVariable UUID id) { // Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @shiftTypeService.isShiftTypeInTeam(authentication.name, #id))")
+    public void delete(@PathVariable UUID id) {
         log.info("Deleting shift type with id {}", id);
         service.delete(id);
     }

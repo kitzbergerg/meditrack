@@ -1,7 +1,6 @@
 package ase.meditrack.service.algorithm;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -24,6 +23,6 @@ public record EmployeeInfo(
         int optimalWorkingHoursPerMonth,
         Set<Integer> holidays,
         Set<Integer> offDays,
-        Optional<Integer> role
+        Integer role
 ) {
 }

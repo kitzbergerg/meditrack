@@ -1,12 +1,13 @@
 package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
+import ase.meditrack.model.dto.SimpleRoleDto;
 import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.User;
-import ase.meditrack.repository.TeamRepository;
-import ase.meditrack.repository.UserRepository;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
+import ase.meditrack.util.DefaultTestCreator;
 import ase.meditrack.util.KeycloakContainer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -31,11 +31,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,7 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisabledIfSystemProperty(named = "spring.profiles.active", matches = "excludeTestcontainers")
 class UserControllerIT {
-    private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:16-alpine");
@@ -58,13 +54,11 @@ class UserControllerIT {
     @Autowired
     private RealmResource meditrackRealm;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private UserService userService;
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private KeycloakConfig.KeycloakPostConstruct keycloakConfigKeycloakPostConstruct;
-    @Autowired
-    private TeamRepository teamRepository;
 
     @DynamicPropertySource
     private static void startContainers(DynamicPropertyRegistry registry) {
@@ -97,16 +91,15 @@ class UserControllerIT {
         List<UserDto> users = objectMapper.readValue(response, new TypeReference<>() {
         });
 
-        assertAll(
-                () -> assertNotNull(users),
-                () -> assertEquals(1, users.size()),
-                () -> assertEquals("admin", users.get(0).username())
-        );
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("admin", users.get(0).username());
     }
-
 
     @Test
     void test_createUser_succeeds() throws Exception {
+        Team team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
         UserDto dto = new UserDto(
                 null,
                 "test",
@@ -115,11 +108,11 @@ class UserControllerIT {
                 "test",
                 "test",
                 List.of("employee"),
-                null,
+                new SimpleRoleDto(role.getId(), role.getName()),
                 1f,
                 null,
                 null,
-                null,
+                team.getId(),
                 null,
                 null,
                 null,
@@ -140,12 +133,11 @@ class UserControllerIT {
                 .andReturn().getResponse().getContentAsString();
         UserDto created = objectMapper.readValue(response, UserDto.class);
 
-        assertAll(
-                () -> assertNotNull(created),
-                () -> assertNotNull(created.id()),
-                () -> assertEquals(dto.username(), created.username()),
-                () -> assertEquals(2, userService.findAll().size())
-        );
+        assertNotNull(created);
+        assertNotNull(created.id());
+        assertEquals(dto.username(), created.username());
+        assertEquals(2, userService.findAll().size());
+
 
         // execute request as user test
         String responseGetTestUser = mockMvc.perform(
@@ -157,141 +149,8 @@ class UserControllerIT {
                 .andReturn().getResponse().getContentAsString();
         UserDto testUser = objectMapper.readValue(responseGetTestUser, UserDto.class);
 
-        assertAll(
-                () -> assertNotNull(testUser),
-                () -> assertEquals(created.id(), testUser.id()),
-                () -> assertEquals(created.username(), testUser.username())
-        );
+        assertNotNull(testUser);
+        assertEquals(created.id(), testUser.id());
+        assertEquals(created.username(), testUser.username());
     }
-
-/*
-    @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
-    void test_findUserById_succeeds() throws Exception {
-        User user = new User(
-                null,
-                null,
-                1f,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        userRepository.save(user);
-
-        User savedUser = userRepository.findById(user.getId()).get();
-
-        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/" + savedUser.getId())
-                        .header(HttpHeaders.AUTHORIZATION,
-                                "Bearer " + AuthHelper.getAccessToken("admin", "admin")))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        UserDto foundUser = objectMapper.readValue(response, UserDto.class);
-
-        assertEquals(savedUser.getId(), foundUser.id());
-    }
-
-    @Test
-    void test_updateUser_succeeds() throws Exception {
-        User user = new User(
-                UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                null,
-                1f,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        userRepository.save(user);
-
-        User savedUser = userRepository.findById(user.getId()).get();
-
-        UserDto updateUserDto = new UserDto(
-                savedUser.getId(),
-                null,
-                "testpassword",
-                "test@test.test",
-                "test",
-                "testLast",
-                List.of("employee"),
-                null,
-                1f,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-
-        String response = mockMvc.perform(
-                        MockMvcRequestBuilders.put("/api/user")
-                                .header(HttpHeaders.AUTHORIZATION,
-                                        "Bearer " + AuthHelper.getAccessToken("admin", "admin"))
-                                .content(objectMapper.writeValueAsString(updateUserDto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        UserDto updated = objectMapper.readValue(response, UserDto.class);
-
-        assertAll(
-                () -> assertNotNull(updated),
-                () -> assertEquals(updated.id(), updateUserDto.id()),
-                () -> assertEquals(updated.username(), updateUserDto.username())
-        );
-    }
-
-    @Test
-    void test_deleteUser_succeeds() throws Exception {
-        User user = new User(
-                UUID.fromString("00000000-0000-0000-0000-000000000000"),
-                null,
-                1f,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        userRepository.save(user);
-
-        User savedUser = userRepository.findById(user.getId()).get();
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/" + savedUser.getId())
-                        .header(HttpHeaders.AUTHORIZATION,
-                                "Bearer " + AuthHelper.getAccessToken("admin", "admin")))
-                .andExpect(status().isNoContent());
-
-        assertAll(
-                () -> assertFalse(userRepository.existsById(savedUser.getId())),
-                () -> assertEquals(1, userRepository.count()) // admin user still in repository
-        );
-    }
-*/
 }
