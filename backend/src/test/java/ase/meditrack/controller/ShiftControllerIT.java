@@ -254,6 +254,7 @@ class ShiftControllerIT {
         ShiftDto shiftDto = new ShiftDto(
                 null,
                 LocalDate.now(),
+                false,
                 null,
                 null,
                 null,
@@ -328,6 +329,7 @@ class ShiftControllerIT {
         ShiftDto updatedShiftDto = new ShiftDto(
                 savedShift.getId(),
                 LocalDate.now().plusDays(80),
+                false,
                 savedShift.getMonthlyPlan().getId(),
                 savedShift.getShiftType().getId(),
                 Collections.singletonList(user.getId()),

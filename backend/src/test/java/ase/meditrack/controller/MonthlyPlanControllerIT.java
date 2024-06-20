@@ -257,7 +257,7 @@ class MonthlyPlanControllerIT {
                 simpleRoleDto);
         List<UUID> users = new ArrayList<>();
         users.add(userScheduleDto.id());
-        ShiftDto shiftDto = new ShiftDto(null, null, null, null, users, null, null);
+        ShiftDto shiftDto = new ShiftDto(null, null, false, null, null, users, null, null);
         List<ShiftDto> shifts = new ArrayList<>();
         shifts.add(shiftDto);
         MonthlyPlanDto updatedMonthlyPlanDto = new MonthlyPlanDto(
