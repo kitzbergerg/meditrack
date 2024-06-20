@@ -1,4 +1,10 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output,} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import {Day, RangeOption, ScheduleWithId, ShiftWithIds, UserWithShifts} from "../../../interfaces/schedule.models";
 import {DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {Table, TableModule} from "primeng/table";
@@ -11,7 +17,7 @@ import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ShiftType} from "../../../interfaces/shiftType";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {format, startOfDay} from 'date-fns';
 import {SickLeaveDialogComponent} from "../sick-leave-dialog/sick-leave-dialog.component";
@@ -77,7 +83,7 @@ export class WeekViewComponent implements OnInit {
   sickShift: ShiftWithIds | null = null;
   sickDay: Day | null = null;
   displayDialog = false;
-
+  fileredDay: Day | null = null;
   rangeOptions: RangeOption[] = [
     {label: 'Week', value: 'week'},
     {label: '2 Weeks', value: '2weeks'},
@@ -85,12 +91,41 @@ export class WeekViewComponent implements OnInit {
   ];
 
 
-  constructor(private messageService: MessageService, private confirmationService: ConfirmationService, private cdr: ChangeDetectorRef) {
+  constructor(private confirmationService: ConfirmationService) {
   }
 
 
   ngOnInit(): void {
     this.todaysDate = startOfDay(new Date());
+  }
+
+  toggleTodaysShifts(day: Day): void {
+    if (this.fileredDay !== day) {
+      this.fileredDay = day;
+      this.employees.sort((a, b) => {
+        const hasShiftA = a.shifts.some(shift => shift && shift.date === format(day.date, 'yyyy-MM-dd'));
+        const hasShiftB = b.shifts.some(shift => shift && shift.date === format(day.date, 'yyyy-MM-dd'));
+
+        if (hasShiftA && !hasShiftB) {
+          return -1;
+        }
+        if (!hasShiftA && hasShiftB) {
+          return 1;
+        }
+        return 0;
+      });
+    } else {
+      this.employees = this.employees.sort((a, b) => {
+        if (a.id === this.currentUser?.id) {
+          return -1;
+        }
+        if (b.id === this.currentUser?.id) {
+          return 1;
+        }
+        return a.lastName.localeCompare(b.lastName);
+      });
+      this.fileredDay = null;
+    }
   }
 
   trackByDay(index: number, day: Day): string {
@@ -139,7 +174,14 @@ export class WeekViewComponent implements OnInit {
     }
   }
 
-  handleUpdateShift(shiftInfo: { user: UserWithShifts, day: Day, shiftType: ShiftType, shiftId: string | null, isSick:boolean, operation: string }) {
+  handleUpdateShift(shiftInfo: {
+    user: UserWithShifts,
+    day: Day,
+    shiftType: ShiftType,
+    shiftId: string | null,
+    isSick: boolean,
+    operation: string
+  }) {
     this.updateShift.emit(shiftInfo);
   }
 
@@ -199,7 +241,8 @@ export class WeekViewComponent implements OnInit {
     });
   }
 
-  sickLeave(shift : ShiftWithIds, day: Day) {
+
+  sickLeave(shift: ShiftWithIds, day: Day) {
     this.sickShift = shift;
     this.sickDay = day;
     this.displayDialog = true;

@@ -8,19 +8,19 @@
         <div class="flex align-items-center m-2">
           <div class="flex justify-content-center align-items-center mr-3"
                [ngStyle]="{
-              'background-color': shift?.shiftType?.color,
+              'background-color': shift.shiftType.color,
               'border-radius': '5px',
               'width': '40px',
               'height': '40px',
               'color': '#fff',
               'font-weight': 'bold'
             }">
-            {{ shift?.shiftType?.abbreviation }}
+            {{ shift.shiftType.abbreviation }}
           </div>
           <div class="flex flex-column">
-            <div class="font-bold">{{ shift?.shiftType?.name }}</div>
-            <div>{{ shift?.shiftType?.startTime?.slice(0, -3) }} - {{ shift?.shiftType?.breakStartTime?.slice(0, -3) }}
-              {{ shift?.shiftType?.breakEndTime?.slice(0, -3) }} - {{ shift?.shiftType?.endTime?.slice(0, -3) }}
+            <div class="font-bold">{{ shift.shiftType.name }}</div>
+            <div>{{ shift.shiftType.startTime.slice(0, -3) }} - {{ shift.shiftType.breakStartTime.slice(0, -3) }}
+              {{ shift.shiftType.breakEndTime.slice(0, -3) }} - {{ shift.shiftType.endTime.slice(0, -3) }}
             </div>
           </div>
         </div>

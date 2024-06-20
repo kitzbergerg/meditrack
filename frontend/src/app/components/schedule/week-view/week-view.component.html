@@ -59,7 +59,7 @@
          [style]="editing ? {'border': '1px solid  var(--primary-color)'} : {}"
          [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading">
   <ng-template pTemplate="caption">
-    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center select-none">
       <h5 *ngIf="range==='week'" class="m-0">Calendar Week {{ weekNumber }}</h5>
       <h5 *ngIf="weekNumber && range==='2weeks'" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
       <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthString }}
@@ -112,21 +112,22 @@
     </div>
   </ng-template>
   <ng-template pTemplate="header">
-    <tr class="font-semibold">
+    <tr class="font-semibold select-none">
       <th pFrozenColumn class="w-5rem">Employees</th>
       <th *ngIf="range==='month'">Details</th>
       <!-- TODO: Weekend check should be language independent -->
-      <th [ngStyle]="{
-      'background-color': (day.dayName.includes('S') || day.dayName.includes('S')) && !loading ? 'lightgray' : '#fff',
-       'color': ( todaysDate && day.date &&(format(todaysDate, 'yyyy-MM-dd') === (format(day.date, 'yyyy-MM-dd'))))
-       ? 'var(--primary-color)' : 'black'}"
-          *ngFor="let day of days; trackBy: trackByDay">{{ day.dayName }}
+      <th (click)="toggleTodaysShifts(day)" class="cursor-pointer hover:bg-gray-100" [ngStyle]="{
+      'background-color': (fileredDay && fileredDay.date === day.date)  ? 'var(--highlight-bg)' : (day.dayName.includes('S') && !loading) ? 'lightgray'  : '#fff',
+       'color': (fileredDay && fileredDay.date === day.date) ? 'var(--primary-color)' : ( todaysDate && day.date && (format(todaysDate, 'yyyy-MM-dd') === (format(day.date, 'yyyy-MM-dd'))))
+       ? 'var(--purple-500)' : 'black'}"
+          *ngFor="let day of days; trackBy: trackByDay">
+        {{ day.dayName }}
       </th>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-employee>
-    <tr>
+    <tr class="select-none">
       <td pFrozenColumn>
         <div class="flex flex-row">
           <div class="flex align-items-center mr-3">
@@ -157,7 +158,7 @@
       </td>
       <td *ngFor="let employeeShift of employee.shifts; index as i; trackBy: trackByShift"
           [ngStyle]="{
-  'background-color': employeeShift?.shiftType?.color || ( days[i] && (days[i].dayName.includes('S') || days[i].dayName.includes('S')) && !loading ? 'lightgray' : '#fff'),
+  'background-color': employeeShift?.shiftType?.color || ( days[i] && days[i].dayName.includes('S') && !loading ? 'lightgray' : '#fff'),
   'color': 'white',
   'opacity': employeeShift?.isSick ? '0.8' : '1',
 }"
