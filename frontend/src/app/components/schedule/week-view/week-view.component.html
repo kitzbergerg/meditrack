@@ -138,6 +138,9 @@
           </div>
           <div>
             <div pSortableColumn="username">{{ employee.firstName }} {{ employee.lastName }}</div>
+            <div>{{ employee.firstName }}</div>
+            <div>{{ employee.lastName.slice(0, 10) }}<span
+              *ngIf="employee.lastName.length > 10">...</span></div>
             <div class="text-sm flex align-items-center justify-content-start"><span
               class="pi pi-clock mr-1"></span>{{ employee.workingHoursPercentage }}%
             </div>
