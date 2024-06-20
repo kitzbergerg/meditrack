@@ -154,8 +154,8 @@ public class DataGeneratorBean {
         users = new ArrayList<>();
 
         for (Team team : teams) {
-            String firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");;
-            String lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");;
+            String firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");
+            String lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");
             String username = (firstName.charAt(0) + lastName).toLowerCase();
             String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                     + FAKER.internet().domainName();
@@ -189,9 +189,9 @@ public class DataGeneratorBean {
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
                     for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                        firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");;
+                        firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");
                         // use UUID to avoid duplicates
-                        lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");;
+                        lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");
                         username = (firstName.charAt(0) + lastName).toLowerCase();
                         email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                                 + FAKER.internet().domainName();
