@@ -27,19 +27,6 @@ public class TeamService {
     }
 
     /**
-     * Checks if a user is in the team.
-     *
-     * @param userId the user to check for
-     * @param teamId the team to check
-     * @return true if the user is in the team, false otherwise
-     */
-    public boolean isInTeam(UUID userId, UUID teamId) {
-        List<User> users = repository.findById(teamId).get().getUsers();
-        User user = userRepository.findById(userId).get();
-        return users.contains(user);
-    }
-
-    /**
      * Fetches all teams from the database.
      *
      * @return List of all teams
@@ -130,5 +117,18 @@ public class TeamService {
      */
     public void delete(UUID id) {
         repository.deleteById(id);
+    }
+
+    /**
+     * Checks if a user is in the team.
+     *
+     * @param userId the user to check for
+     * @param teamId the team to check
+     * @return true if the user is in the team, false otherwise
+     */
+    public boolean isInTeam(UUID userId, UUID teamId) {
+        List<User> users = repository.findById(teamId).get().getUsers();
+        User user = userRepository.findById(userId).get();
+        return users.contains(user);
     }
 }

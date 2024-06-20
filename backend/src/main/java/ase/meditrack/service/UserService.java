@@ -2,7 +2,9 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
+import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
@@ -117,6 +119,13 @@ public class UserService {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user.setCurrentOverTime(0);
+        if (user.getPreferences() == null) {
+            user.setPreferences(new Preferences(
+                    null,
+                    List.of(),
+                    user
+            ));
+        }
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
@@ -250,7 +259,7 @@ public class UserService {
      */
     public User getPrincipalWithTeam(Principal principal) {
         UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = repository.findById(dmId);
+        Optional<User> dm = Optional.ofNullable(findById(dmId));
         if (dm.isEmpty()) {
             throw new NotFoundException("User doesnt exist");
         }
@@ -264,31 +273,50 @@ public class UserService {
      * Fetches work details from the principal, given a month and year.
      *
      * @param userId of user
-     * @param month of the work details
-     * @param year of the work details
+     * @param month  of the work details
+     * @param year   of the work details
      * @return monthly work details for the user, given the month and year
      */
     public MonthlyWorkDetails findWorkDetailsByIdAndMonthAndYear(UUID userId, Month month, Year year) {
-        return monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
+        MonthlyWorkDetails details = monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
                 userId, month.getValue(), year.getValue());
+        return details;
     }
 
     /**
      * Checks if the principal has the authority to create a user with a specific role.
      *
-     * @param roles string array of system roles
+     * @param roles     string array of system roles
      * @param principal the current user
      * @return ture if the principal has the right authority for creating user with its role, false otherwise
      */
     public boolean isCorrectUserSystemRole(List<String> roles, Principal principal) {
         User dm = getPrincipalWithTeam(principal);
 
-        if (dm.getUserRepresentation().getRealmRoles().contains("admin")) {
+        UserResource user = meditrackRealm.users().get(String.valueOf(dm.getId()));
+
+        if (user.roles().realmLevel().listAll().stream().anyMatch(roleRepresentation
+                -> roleRepresentation.getName().equals("admin"))) {
             return true;
         }
 
         return roles.stream().noneMatch(role
                 -> role.equals("admin") || role.equals("dm"));
+    }
+
+    /**
+     * Checks if the user is in the same team as the principal.
+     *
+     * @param principal the current user
+     * @param userDto    of the user to check
+     * @return true if the user and the current user are from the same team, false otherwise
+     */
+    public boolean isSameTeam(Principal principal, UserDto userDto) {
+        User dm = getPrincipalWithTeam(principal);
+        if (userDto == null) {
+            return false;
+        }
+        return dm.getTeam().getId().equals(userDto.team());
     }
 
     /**

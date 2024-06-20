@@ -16,10 +16,12 @@ import java.util.UUID;
 public class HolidayService {
     private final HolidayRepository repository;
     private final UserService userService;
+    private final TeamService teamService;
 
-    public HolidayService(HolidayRepository repository, UserService userService) {
+    public HolidayService(HolidayRepository repository, UserService userService, TeamService teamService) {
         this.repository = repository;
         this.userService = userService;
+        this.teamService = teamService;
     }
 
     /**
@@ -95,7 +97,7 @@ public class HolidayService {
      */
     public boolean isHolidayFromTeam(Principal principal, UUID holidayId) {
         Holiday holiday = findById(holidayId);
-        return userService.isSameTeam(principal, holiday.getUser().getTeam().getId());
+        return teamService.isInTeam(UUID.fromString(principal.getName()), holiday.getUser().getTeam().getId());
     }
 
     /**

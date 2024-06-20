@@ -62,7 +62,8 @@ public class HardConstraintsController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public List<RoleHardConstraintsDto> findRoleHardConstraintsByTeam(Principal principal) {
         log.info("Fetching role hardConstraints");
-        return roleService.findAll().stream().map(mapper::toRoleHardconstraintsDto).collect(Collectors.toList());
+        return roleService.findAllByTeam(principal)
+                .stream().map(mapper::toRoleHardconstraintsDto).collect(Collectors.toList());
     }
 
     @PutMapping("/roleRules")
