@@ -3,9 +3,13 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.HolidayDto;
 import ase.meditrack.model.entity.Holiday;
+import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,17 +54,23 @@ class HolidayControllerIT {
     private HolidayRepository holidayRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
     private User user;
+    private Team team;
 
     @BeforeEach
     void setup() {
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -70,7 +80,11 @@ class HolidayControllerIT {
                 null,
                 null,
                 null
-        ));
+        );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
     }
 
     @Test

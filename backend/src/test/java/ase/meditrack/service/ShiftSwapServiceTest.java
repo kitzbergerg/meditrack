@@ -1,6 +1,8 @@
 package ase.meditrack.service;
 
 import ase.meditrack.config.KeycloakConfig;
+import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.User;
@@ -8,6 +10,7 @@ import ase.meditrack.model.entity.Team;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
+import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,8 @@ public class ShiftSwapServiceTest {
     @Autowired
     private ShiftSwapService service;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private ShiftRepository shiftRepository;
     @Autowired
     private UserRepository userRepository;
@@ -57,13 +62,16 @@ public class ShiftSwapServiceTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
 
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -73,11 +81,11 @@ public class ShiftSwapServiceTest {
                 null,
                 null,
                 null
-        ));
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
         );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
     }
 
     @Test

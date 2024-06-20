@@ -9,6 +9,7 @@ import ase.meditrack.model.entity.*;
 import ase.meditrack.model.mapper.ShiftMapper;
 import ase.meditrack.repository.*;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -61,6 +62,8 @@ class ShiftSwapControllerIT {
     @Autowired
     private ShiftTypeRepository shiftTypeRepository;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private ShiftMapper shiftMapper;
     private User user;
     private Shift shift;
@@ -74,13 +77,16 @@ class ShiftSwapControllerIT {
 
     @BeforeEach
     void setup() {
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -90,12 +96,13 @@ class ShiftSwapControllerIT {
                 null,
                 null,
                 null
-        ));
-        shift = shiftRepository.save(new Shift());
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
         );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
+        shift = shiftRepository.save(new Shift());
+
     }
 
     @Test
@@ -168,7 +175,7 @@ class ShiftSwapControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    @WithMockUser(authorities = "SCOPE_dm", username = USER_ID)
     void test_findShiftSwapById_succeeds() throws Exception {
         ShiftSwap shiftSwap = new ShiftSwap();
         shiftSwap.setSwapRequestingUser(user);
@@ -236,7 +243,7 @@ class ShiftSwapControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    @WithMockUser(authorities = "SCOPE_employee", username = USER_ID)
     void test_updateShiftSwap_succeeds() throws Exception {
         userRepository.flush();
         ShiftSwap shiftSwap = new ShiftSwap();

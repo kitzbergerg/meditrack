@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.*;
 import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.ShiftType;
@@ -13,6 +14,7 @@ import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.RoleService;
 import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -63,6 +65,8 @@ class MonthlyPlanControllerIT {
     private User user;
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
     private Team team;
     @Autowired
     private RoleService roleService;
@@ -75,13 +79,16 @@ class MonthlyPlanControllerIT {
 
     @BeforeEach
     void setup() {
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -91,11 +98,11 @@ class MonthlyPlanControllerIT {
                 null,
                 null,
                 null
-        ));
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
         );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
     }
 
     //TODO : fix keycloak user representation, then add test back
