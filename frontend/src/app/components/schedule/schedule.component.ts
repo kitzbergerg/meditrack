@@ -378,6 +378,16 @@ export class ScheduleComponent implements OnInit {
     this.userService.getAllUserFromTeam().subscribe({
       next: data => {
         this.users = data;
+        // sort users so current user is always first
+        this.users.sort((a, b) => {
+          if (a.id == this.currentUser?.id) {
+            return -1;
+          }
+          if (b.id == this.currentUser?.id) {
+            return 1;
+          }
+          return 0;
+        });
         this.usersWithShifts = this.mapUsers(data);
       }
     });
