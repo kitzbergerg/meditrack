@@ -20,7 +20,8 @@
           <div class="flex flex-column">
             <div class="font-bold">{{ shift?.shiftType?.name }}</div>
             <div>{{ shift?.shiftType?.startTime?.slice(0, -3) }} - {{ shift?.shiftType?.breakStartTime?.slice(0, -3) }}
-              {{ shift?.shiftType?.breakEndTime?.slice(0, -3) }} - {{ shift?.shiftType?.endTime?.slice(0, -3) }}</div>
+              {{ shift?.shiftType?.breakEndTime?.slice(0, -3) }} - {{ shift?.shiftType?.endTime?.slice(0, -3) }}
+            </div>
           </div>
         </div>
       </div>
@@ -38,8 +39,16 @@
           [style]="{ width: '100%' }"
           [listStyle]="{ 'max-height': '220px' }">
           <ng-template let-replacement pTemplate="item">
-            {{ replacement.firstName }} {{ replacement.lastName.slice(0, 10)}}
-            <span *ngIf="replacement.lastName.length > 10">...</span>
+            <div class="flex flex-row justify-content-between w-full">
+              <div style="width: 80px;">
+                <span>{{ replacement.firstName }} {{ replacement.lastName.slice(0, 10) }}</span>
+                <span *ngIf="replacement.lastName.length > 10">...</span>
+              </div>
+              <div class="flex items-center ml-auto" style="width: 80px;">
+                <span>OT:</span>
+                <span class="ml-1">{{ getWorkingDetails(replacement)?.overtime }}</span>
+              </div>
+            </div>
           </ng-template>
         </p-listbox>
       </div>
@@ -48,6 +57,6 @@
 
   <p-footer>
     <button type="button" pButton icon="pi pi-times" (click)="sendUpdateShift()" label="Create"></button>
-    <button type="button" pButton icon="pi pi-times" (click)="hideDialog()" label="Close"></button>
+    <button type="button" pButton icon="pi pi-times" (click)="hide()" label="Close"></button>
   </p-footer>
 </p-dialog>

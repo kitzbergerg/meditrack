@@ -204,5 +204,11 @@ export class WeekViewComponent implements OnInit {
     this.displayDialog = true;
   }
 
+  hideDialog(): void {
+    this.sickShift = null;
+    this.sickDay = null;
+    this.displayDialog = false;
+  }
+
   protected readonly format = format;
 }

@@ -1,4 +1,6 @@
-<app-sick-leave-dialog (updateShift)="handleUpdateShift($event)" [shift]="sickShift" [day]="sickDay"></app-sick-leave-dialog>
+<app-sick-leave-dialog (hideDialog)="hideDialog()" [displayDialog]="displayDialog"
+                       (updateShift)="handleUpdateShift($event)" [employees]="employees" [shift]="sickShift"
+                       [day]="sickDay"></app-sick-leave-dialog>
 
 <div class="flex justify-content-end">
 

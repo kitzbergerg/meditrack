@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {UserService} from "../../../services/user.service";
 import {DialogModule} from "primeng/dialog";
 import {ButtonModule} from "primeng/button";
@@ -7,7 +7,7 @@ import {InputTextModule} from "primeng/inputtext";
 import {DatePipe, NgForOf, NgIf, NgStyle} from "@angular/common";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {ListboxModule} from "primeng/listbox";
-import {Day, ShiftWithIds, UserWithShifts} from "../../../interfaces/schedule.models";
+import {Day, ShiftWithIds, UserWithShifts, WorkDetails} from "../../../interfaces/schedule.models";
 import {ShiftType} from "../../../interfaces/shiftType";
 
 @Component({
@@ -31,6 +31,9 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
 
   @Input({required: true}) shift!: ShiftWithIds | null;
   @Input({required: true}) day!: Day | null;
+  @Input({required: true}) employees!: UserWithShifts[] | null;
+  @Input({required: true}) displayDialog = false;
+  @Output() hideDialog = new EventEmitter<void>();
   @Output() updateShift = new EventEmitter<{
     user: UserWithShifts,
     day: Day,
@@ -41,8 +44,6 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
   replacements: User[] = [];
   formGroup!: FormGroup;
 
-  displayDialog = false;
-
   constructor(private userService: UserService) {
   }
 
@@ -52,7 +53,8 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
     });
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes:SimpleChanges): void {
+    console.log(changes)
     if (this.shift) {
       this.displayDialog = true;
       this.getReplacementForShift(this.shift);
@@ -66,14 +68,23 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
     }
     this.userService.getReplacementsForShift(shiftId).subscribe({
       next: (response) => {
-        console.log(response);
-        this.replacements = response;
+        this.replacements = response.sort((a, b) => {
+          const workDetailsA = this.getWorkingDetails(a);
+          const workDetailsB = this.getWorkingDetails(b);
+          const overtimeA = workDetailsA ? workDetailsA.overtime : 0;
+          const overtimeB = workDetailsB ? workDetailsB.overtime : 0;
+          return overtimeA - overtimeB;
+        });
       }
     });
   }
 
+  getWorkingDetails(user: User): WorkDetails | null {
+      return this.employees?.find((employee) => employee.id === user.id)?.workDetails || null;
+  }
+
   sendUpdateShift() {
-    if (!this.shift?.shiftType || !this.formGroup.get('selectedReplacement')?.value || !this.day) {
+    if (!this.shift?.shiftType || !this.formGroup.get('selectedReplacement')?.value || !this.day || !this.hideDialog) {
       return;
     }
     const event = {
@@ -87,11 +98,12 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
     this.formGroup.reset();
     this.shift = null;
     this.replacements = [];
-    this.hideDialog();
+    this.hideDialog.emit();
   }
 
-  hideDialog(): void {
-    this.displayDialog = false;
+  hide() {
+    if (this.hideDialog) {
+      this.hideDialog.emit();
+    }
   }
-
 }
