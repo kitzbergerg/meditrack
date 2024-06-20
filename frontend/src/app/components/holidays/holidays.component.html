@@ -11,8 +11,8 @@
           </li>
           <li *ngFor="let holiday of holidays" (click)="selectHoliday(holiday)"
               class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.startDate) }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.endDate) }}</span>
             <span class="text-xl font-medium mr-2 md:mb-0"
                   [ngStyle]="{'color':
                     holiday.status === 'APPROVED' ? 'green' :
@@ -37,20 +37,90 @@
         <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
         <div class="field grid">
           <label htmlfor="startDate" class="col-12 mb-2 md:col-2 md:mb-0">Start date</label>
-          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
-            <input pInputText id="startDate" type="date" class="p-inputtext p-component p-element"
-                   [(ngModel)]="holiday.startDate"
-                   [ngClass]="{'ng-invalid ng-dirty': submitted && holiday.startDate === ''}">
-            <small *ngIf="submitted && holiday.startDate === ''">Start date is required.</small>
+          <div class="flex center">
+            <p-toast></p-toast>
+            <p-calendar
+              [selectOtherMonths]="true"
+              [iconDisplay]="'input'"
+              [showOtherMonths]="true"
+              [minDate]="currentDate"
+              [maxDate]="maxDate"
+              [showIcon]="true"
+              [(ngModel)]="selectedStartDate"
+              [dateFormat]="'dd.mm.yy'"
+              [readonlyInput]="true"
+              placeholder="Select start date"
+              (selectionchange)="setStartDate()"
+              (onSelect)="setStartDate()">
+
+              <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
+                   (click)="clickCallBack($event)"> </i>
+              </ng-template>
+
+              <ng-template pTemplate="date" let-date>
+                <div [ngStyle]="{
+                       backgroundColor: 'inherit',
+                       border: '5px solid 1px solid transparent',
+                       width: '30px',
+                       height: '30px',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       boxSizing: 'border-box'
+                     }">
+                  {{ date.day }}
+                </div>
+              </ng-template>
+
+            </p-calendar>
+          </div>
+          <div class="flex center">
+            <small *ngIf="submitted && this.selectedStartDate === undefined">Start date is required!</small>
           </div>
         </div>
         <div class="field grid">
           <label htmlfor="endDate" class="col-12 mb-2 md:col-2 md:mb-0">End date</label>
-          <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
-            <input pInputText id="endDate" type="date" class="p-inputtext p-component p-element"
-                   [(ngModel)]="holiday.endDate"
-                   [ngClass]="{'ng-invalid ng-dirty': submitted && holiday.endDate === ''}">
-            <small *ngIf="submitted && holiday.endDate === ''">End date is required.</small>
+          <div class="flex center">
+            <p-toast></p-toast>
+            <p-calendar
+              [selectOtherMonths]="true"
+              [iconDisplay]="'input'"
+              [showOtherMonths]="true"
+              [minDate]="currentDate"
+              [maxDate]="maxDate"
+              [showIcon]="true"
+              [(ngModel)]="selectedEndDate"
+              [dateFormat]="'dd.mm.yy'"
+              [readonlyInput]="true"
+              placeholder="Select end date"
+              (selectionchange)="setEndDate()"
+              (onSelect)="setEndDate()">
+
+              <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
+                   (click)="clickCallBack($event)"> </i>
+              </ng-template>
+
+              <ng-template pTemplate="date" let-date>
+                <div [ngStyle]="{
+                       backgroundColor: 'inherit',
+                       border: '5px solid 1px solid transparent',
+                       width: '30px',
+                       height: '30px',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       boxSizing: 'border-box'
+                     }">
+                  {{ date.day }}
+                </div>
+              </ng-template>
+
+            </p-calendar>
+          </div>
+          <div class="flex center">
+            <small *ngIf="submitted && this.selectedEndDate === undefined">End date is required!</small>
           </div>
         </div>
 
@@ -113,8 +183,8 @@
             <span
               class="text-xl font-medium mr-2 md:mb-0">{{ getUsernameFromId(holiday.user !== undefined ? holiday.user
               : '')}}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.startDate }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ holiday.endDate }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.startDate) }}</span>
+            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.endDate) }}</span>
             <span class="text-xl font-medium mr-2 md:mb-0"
                   [ngStyle]="{'color':
                     holiday.status === 'APPROVED' ? 'green' :

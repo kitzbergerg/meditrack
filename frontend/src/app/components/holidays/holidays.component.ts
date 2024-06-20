@@ -29,6 +29,11 @@ export class HolidaysComponent {
 
   initialLoad = false;
 
+  currentDate: Date = new Date();
+  maxDate: Date = new Date(this.currentDate.getFullYear() + 1, 11, 31);
+  selectedStartDate: Date | undefined;
+  selectedEndDate: Date | undefined;
+
   formTitle= '';
   formAction= '';
   formMode: 'create' | 'edit' | 'details' = 'details';
@@ -102,8 +107,8 @@ export class HolidaysComponent {
           }
         });
     } else {
-      this.messageService.add({severity: 'warn', summary: 'Validation failed', detail: 'Validation failed! End date' +
-          ' must be after start date and dates must be in the future!'});
+      this.messageService.add({severity: 'warn', summary: 'Validation failed',
+        detail: 'Validation failed! ' + this.validationMessage});
     }
   }
 
@@ -132,11 +137,17 @@ export class HolidaysComponent {
   showCreateForm() {
     this.resetForm();
     this.formMode = 'create';
+    this.selectedStartDate = undefined;
+    this.selectedEndDate = undefined;
   }
 
   selectHoliday(holiday: Holiday){
     if (holiday.id != undefined) {
       this.getHolidayById(holiday.id);
+      this.selectedStartDate = new Date(holiday.startDate);
+      this.selectedStartDate.setHours(this.currentDate.getHours() + 2);
+      this.selectedEndDate = new Date(holiday.endDate);
+      this.selectedEndDate.setHours(this.currentDate.getHours() + 2)
       this.formMode = 'details';
     }
   }
@@ -171,7 +182,7 @@ export class HolidaysComponent {
   }
 
   validateHoliday() {
-    if (this.holiday.status !== HolidayRequestStatus.REQUESTED) {
+    if (this.formMode != 'create' && this.holiday.status !== HolidayRequestStatus.REQUESTED) {
       this.validationMessage = 'Holiday status must be requested!';
       return false;
     }
@@ -181,8 +192,9 @@ export class HolidaysComponent {
     }
     const startDate = Date.parse(this.holiday.startDate);
     const endDate = Date.parse(this.holiday.endDate);
+    const today = new Date().setHours(0, 0, 0, 0);
 
-    if (startDate > endDate || startDate < Date.now()) {
+    if (startDate > endDate || startDate < today) {
       this.validationMessage = 'End date must be after start date and dates must be in the future!';
       return false;
     }
@@ -209,6 +221,7 @@ export class HolidaysComponent {
   resetForm() {
     this.submitted = false;
     this.holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
+    this.formMode = 'details';
   }
 
   cancelEditing() {
@@ -297,6 +310,27 @@ export class HolidaysComponent {
 
   isEditable() {
     return this.holiday.status === HolidayRequestStatus.REQUESTED;
+  }
+
+  setStartDate() {
+    if (this.selectedStartDate != undefined) {
+      this.selectedStartDate.setHours(this.currentDate.getHours() + 2);
+      this.holiday.startDate = this.selectedStartDate.toISOString().split('T')[0];
+    }
+  }
+
+  setEndDate() {
+    if (this.selectedEndDate != undefined) {
+      this.selectedEndDate.setHours(this.currentDate.getHours() + 2);
+      this.holiday.endDate = this.selectedEndDate.toISOString().split('T')[0];
+    }
+  }
+
+  getFormattedDateFromString(date: string) {
+    const d = new Date(date);
+    d.setHours(this.currentDate.getHours() + 2);
+
+    return d.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
   protected readonly HolidayRequestStatus = HolidayRequestStatus;
