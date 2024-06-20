@@ -1,9 +1,13 @@
 package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
+import ase.meditrack.model.dto.SimpleRoleDto;
 import ase.meditrack.model.dto.UserDto;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
+import ase.meditrack.util.DefaultTestCreator;
 import ase.meditrack.util.KeycloakContainer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,6 +54,8 @@ class UserControllerIT {
     @Autowired
     private RealmResource meditrackRealm;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private UserService userService;
     @Autowired
     private KeycloakConfig.KeycloakPostConstruct keycloakConfigKeycloakPostConstruct;
@@ -92,6 +98,8 @@ class UserControllerIT {
 
     @Test
     void test_createUser_succeeds() throws Exception {
+        Team team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
         UserDto dto = new UserDto(
                 null,
                 "test",
@@ -100,11 +108,11 @@ class UserControllerIT {
                 "test",
                 "test",
                 List.of("employee"),
-                null,
+                new SimpleRoleDto(role.getId(), role.getName()),
                 1f,
                 null,
                 null,
-                null,
+                team.getId(),
                 null,
                 null,
                 null,
