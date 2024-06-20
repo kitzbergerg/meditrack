@@ -15,9 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -130,48 +127,7 @@ public class ShiftSwapService {
         validator.shiftSwapCreateValidation(shiftSwap);
 
         ShiftSwap created = repository.save(shiftSwap);
-        Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
-        if (shift.isEmpty()) {
-            throw new NotFoundException("Could not find shift with id: " + shiftSwap.getRequestedShift().getId());
-        }
-        List<ShiftSwap> shiftSwaps = new ArrayList<>();
-        if (shift.get().getRequestedShiftSwap() != null && !shift.get().getRequestedShiftSwap().isEmpty()) {
-            shiftSwaps = shift.get().getRequestedShiftSwap();
-        }
-        shiftSwaps.add(shiftSwap);
-        shift.get().setRequestedShiftSwap(shiftSwaps);
-        if (shiftSwap.getSwapSuggestingUser() != null) {
 
-            LocalDate today = LocalDate.now();
-            LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
-            List<Shift> userShifts
-                    = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(
-                    shiftSwap.getSwapRequestingUser().getId()), today, nextMonth);
-
-            List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
-
-            boolean overlapFound = false;
-
-            for (Shift userShift : userShifts) {
-                if (shiftSwap.getRequestedShift().getDate().isEqual(userShift.getDate())) {
-                    LocalTime offerStart = shiftSwap.getRequestedShift().getShiftType().getStartTime();
-                    LocalTime offerEnd = shiftSwap.getRequestedShift().getShiftType().getEndTime();
-                    LocalTime userShiftStart = userShift.getShiftType().getStartTime();
-                    LocalTime userShiftEnd = userShift.getShiftType().getEndTime();
-
-                    if (!(offerEnd.isBefore(userShiftStart) || offerStart.isAfter(userShiftEnd))) {
-                        overlapFound = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!overlapFound) {
-                filteredShiftSwaps.add(shiftSwap);
-            }
-
-            created.setSwapSuggestingUser(shiftSwap.getSwapSuggestingUser());
-        }
         return findById(created.getId());
     }
 
