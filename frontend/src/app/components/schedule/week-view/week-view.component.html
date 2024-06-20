@@ -65,7 +65,7 @@
       <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthString }}
         <i *ngIf="currentSchedule?.published && !loading" class="pi pi-check"
            style="color: green; font-size: 1.2rem"></i>
-        <i *ngIf="!currentSchedule?.published && !loading" class="pi pi-file-o"
+        <i *ngIf="!currentSchedule?.published && !loading" class="pi pi-user-edit"
            style="color: gray; font-size: 1.2rem"></i>
       </h5>
       <div class="flex align-items-center justify-content-start">
@@ -113,7 +113,7 @@
   </ng-template>
   <ng-template pTemplate="header">
     <tr class="font-semibold">
-      <th pFrozenColumn>Employees</th>
+      <th pFrozenColumn class="w-5rem">Employees</th>
       <th *ngIf="range==='month'">Details</th>
       <!-- TODO: Weekend check should be language independent -->
       <th [ngStyle]="{
@@ -137,7 +137,6 @@
             </div>
           </div>
           <div>
-            <div pSortableColumn="username">{{ employee.firstName }} {{ employee.lastName }}</div>
             <div>{{ employee.firstName }}</div>
             <div>{{ employee.lastName.slice(0, 10) }}<span
               *ngIf="employee.lastName.length > 10">...</span></div>
@@ -179,14 +178,14 @@
           </div>
         </ng-container>
         <p-overlayPanel #op>
-            <p-dropdown *ngIf="editing"
-                        [(ngModel)]="this.currentShiftType"
-                        [options]="Object.values(shiftTypes)"
-                        optionLabel="name"
-                        [showClear]="true"
-                        placeholder="Select a Shift Type"
-            >
-            </p-dropdown>
+          <p-dropdown *ngIf="editing"
+                      [(ngModel)]="this.currentShiftType"
+                      [options]="Object.values(shiftTypes)"
+                      optionLabel="name"
+                      [showClear]="true"
+                      placeholder="Select a Shift Type"
+          >
+          </p-dropdown>
           <div class="grid justify-content-end mt-3">
             <div class="flex justify-content-end flex-wrap" *ngIf="editing">
               <div *ngIf="employeeShift?.shiftType; else newShift">
