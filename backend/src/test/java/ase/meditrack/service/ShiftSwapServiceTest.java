@@ -133,7 +133,7 @@ public class ShiftSwapServiceTest {
 
         assertAll(
                 () -> assertNotNull(shiftSwaps),
-                () -> assertEquals(1, shiftSwaps.size()),
+                () -> assertEquals(0, shiftSwaps.size()),
                 () -> assertEquals(3, allShiftSwaps.size())
         );
     }

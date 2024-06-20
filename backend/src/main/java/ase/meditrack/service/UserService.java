@@ -32,7 +32,6 @@ import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -291,6 +290,13 @@ public class UserService {
         return details;
     }
 
+    /**
+     * Fetches all users from the database and matches additional attributes from keycloak.
+     *
+     * @param shiftId the id of the shift
+     *
+     * @return List of all users
+     */
     public List<User> getSickReplacement(UUID shiftId) {
         Optional<Shift> shift = shiftRepository.findById(shiftId);
         if (shift.isEmpty()) {
@@ -350,15 +356,16 @@ public class UserService {
     }
 
     private boolean hasDayShiftFollowingNightShift(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
-        LocalTime DAY_START = LocalTime.of(8, 0);
-        LocalTime NIGHT_START = LocalTime.of(20, 0);
+        LocalTime dayStart = LocalTime.of(8, 0);
+        LocalTime nightStart = LocalTime.of(20, 0);
         LocalTime shiftStartTime = shift.getShiftType().getStartTime();
-        boolean isDayShift = !shiftStartTime.isBefore(DAY_START) && shiftStartTime.isBefore(NIGHT_START);
+        boolean isDayShift = !shiftStartTime.isBefore(dayStart) && shiftStartTime.isBefore(nightStart);
 
         if (isDayShift) {
             return userShifts.stream().anyMatch(s -> {
                 LocalTime previousShiftStartTime = s.getShiftType().getStartTime();
-                boolean isNightShift = previousShiftStartTime.isBefore(DAY_START) || !previousShiftStartTime.isBefore(NIGHT_START);
+                boolean isNightShift = previousShiftStartTime.isBefore(dayStart)
+                        || !previousShiftStartTime.isBefore(nightStart);
                 return isNightShift && s.getDate().equals(shiftDate.minusDays(1));
             });
         }
@@ -366,15 +373,16 @@ public class UserService {
     }
 
     private boolean hasNightShiftBeforeDayShift(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
-        LocalTime DAY_START = LocalTime.of(8, 0);
-        LocalTime NIGHT_START = LocalTime.of(20, 0);
+        LocalTime dayStart = LocalTime.of(8, 0);
+        LocalTime nightStart = LocalTime.of(20, 0);
         LocalTime shiftStartTime = shift.getShiftType().getStartTime();
-        boolean isNightShift = shiftStartTime.isBefore(DAY_START) || !shiftStartTime.isBefore(NIGHT_START);
+        boolean isNightShift = shiftStartTime.isBefore(dayStart) || !shiftStartTime.isBefore(nightStart);
 
         if (isNightShift) {
             return userShifts.stream().anyMatch(s -> {
                 LocalTime nextShiftStartTime = s.getShiftType().getStartTime();
-                boolean isDayShift = !nextShiftStartTime.isBefore(DAY_START) && nextShiftStartTime.isBefore(NIGHT_START);
+                boolean isDayShift = !nextShiftStartTime.isBefore(dayStart)
+                        && nextShiftStartTime.isBefore(nightStart);
                 return isDayShift && s.getDate().equals(shiftDate.plusDays(1));
             });
         }

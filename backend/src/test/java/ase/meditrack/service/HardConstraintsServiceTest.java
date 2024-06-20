@@ -192,6 +192,10 @@ public class HardConstraintsServiceTest {
         roleDay.setName("Role Day");
         roleDay.setColor("FF0000");
         roleDay.setAbbreviation("RD");
+        roleDay.setAllowedFlextimePerMonth(0);
+        roleDay.setAllowedFlextimeTotal(0);
+        roleDay.setDaytimeRequiredPeople(3);
+        roleDay.setNighttimeRequiredPeople(4);
         roleDay.setUsers(null);
         roleDay.setTeam(team);
         roleRepository.save(roleDay);
@@ -202,6 +206,10 @@ public class HardConstraintsServiceTest {
         roleNight.setName("Role Night");
         roleNight.setColor("FF0001");
         roleNight.setAbbreviation("RN");
+        roleNight.setAllowedFlextimePerMonth(0);
+        roleNight.setAllowedFlextimeTotal(0);
+        roleNight.setDaytimeRequiredPeople(3);
+        roleNight.setNighttimeRequiredPeople(4);
         roleNight.setUsers(null);
         roleNight.setTeam(team);
         roleRepository.save(roleNight);
