@@ -117,7 +117,7 @@ export class ScheduleComponent implements OnInit {
         this.updateData();
       },
       error => {
-        this.messageService.add({severity: 'error', summary: 'Error creating schedule'});
+        this.messageService.add({severity: 'error', summary: 'Error creating schedule' + error.error});
         this.loading = false;
 
       });
@@ -203,7 +203,7 @@ export class ScheduleComponent implements OnInit {
 
   deleteMonthlyPlanFromMap(monthlyPlan: string): void {
     // Iterate through each employee's shift map
-    this.employeeShiftMap.forEach((shiftMap, employeeId) => {
+    this.employeeShiftMap.forEach((shiftMap) => {
       // Create a list to store keys (shift IDs) to be deleted
       const keysToDelete: string[] = [];
 

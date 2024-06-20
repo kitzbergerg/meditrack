@@ -67,17 +67,14 @@ export class WeekViewComponent implements OnInit {
   }>();
   @Output() publishSchedule = new EventEmitter<string>();
   @Input() displayCreateScheduleButton = false;
-  @Input() users: User[] = [];
   @Input() shiftTypes: { [id: string]: ShiftType } = {};
   @Input() missingMonth = "";
   @Input() currentUser: User | undefined;
-  @Input() planId: string | null = null;
   @Input() currentSchedule: ScheduleWithId | undefined;
   @Input() weekNumber: number | undefined;
   @Input() monthString: string | undefined;
   currentShiftType: ShiftType | null = null
   editing = false;
-  protected readonly Object = Object;
   range = 'week'; // Default value set to week = 7 days
   todaysDate: Date | undefined;
   sickShift: ShiftWithIds | null = null;
@@ -255,4 +252,5 @@ export class WeekViewComponent implements OnInit {
   }
 
   protected readonly format = format;
+  protected readonly Object = Object;
 }
