@@ -200,7 +200,8 @@ export class ShiftTypesComponent {
           second: '2-digit'
         }) : '',
         color: this.shiftType.color,
-        abbreviation: this.shiftType.abbreviation
+        abbreviation: this.shiftType.abbreviation,
+        team: this.shiftType.team
       };
 
       this.shiftService.createShiftType(newShiftType)
@@ -262,7 +263,8 @@ export class ShiftTypesComponent {
           second: '2-digit'
         }) : this.shiftType.breakEndTime,
         color: this.shiftType.color,
-        abbreviation: this.shiftType.abbreviation
+        abbreviation: this.shiftType.abbreviation,
+        team: this.shiftType.team
       };
 
       console.log(shiftTypeToUpdate)

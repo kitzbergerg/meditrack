@@ -47,36 +47,40 @@ public class RoleController {
     @GetMapping("/team")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
     public List<RoleDto> findAllByTeam(Principal principal) {
-        log.info("Fetching roles");
+        log.info("Fetching roles for team");
         return mapper.toDtoList(service.findAllByTeam(principal));
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public RoleDto findById(@PathVariable UUID id) { //Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @roleService.isRoleFromTeam(#principal, #id))")
+    public RoleDto findById(@PathVariable UUID id, Principal principal) {
         log.info("Fetching role {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @roleService.isUserTeamSameAsRoleTeam(#principal, #dto.team()))")
     public RoleDto create(@Validated(CreateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Creating role {}", dto.name());
         return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto) { //Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @roleService.isRoleFromTeam(#principal, #dto.id()))")
+    public RoleDto update(@Validated(UpdateValidator.class) @RequestBody RoleDto dto, Principal principal) {
         log.info("Updating role {}", dto.name());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public void delete(@PathVariable UUID id) { //Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
+            + "(hasAnyAuthority('SCOPE_dm') && @roleService.isRoleFromTeam(#principal, #id))")
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting role with id {}", id);
         service.delete(id);
     }

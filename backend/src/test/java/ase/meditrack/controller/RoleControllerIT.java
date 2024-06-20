@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.admin.client.resource.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +33,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -38,7 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
-@MockBean(RealmResource.class)
 class RoleControllerIT {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
@@ -52,6 +56,11 @@ class RoleControllerIT {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @MockBean
+    private RealmResource realmResource;
+    @MockBean
+    private UsersResource usersResource;
+
     private Team team;
 
     @BeforeEach
@@ -79,6 +88,17 @@ class RoleControllerIT {
         Preferences preferences = new Preferences(null, List.of(), user);
         user.setPreferences(preferences);
         userRepository.save(user);
+
+        // Mock the realmResource and usersResource behavior
+        when(realmResource.users()).thenReturn(usersResource);
+
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setId(USER_ID);
+        userRepresentation.setUsername("testUser");
+
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_ID)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
     }
 
     @Test

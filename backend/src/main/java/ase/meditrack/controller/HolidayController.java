@@ -44,14 +44,18 @@ public class HolidayController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && holidayService.isHolidayFromUser(authentication.name, #id)) ||"
+            + "((hasAnyAuthority('SCOPE_employee') && @holidayService.isHolidayFromUser(authentication.name, #id)))")
     public HolidayDto findById(@PathVariable UUID id) {
         log.info("Fetching holiday with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm') && holidayService.isHolidayFromUser(authentication.name, #dto.id()) ||"
+            + "((hasAnyAuthority('SCOPE_employee') "
+            + "&& @holidayService.isHolidayFromUser(authentication.name, #dto.id())))")
     @ResponseStatus(HttpStatus.CREATED)
     public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto) {
         log.info("Creating holiday {}", dto.id());
@@ -59,7 +63,9 @@ public class HolidayController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm') && holidayService.isHolidayFromUser(authentication.name, #dto.id()) ||"
+            + "((hasAnyAuthority('SCOPE_employee') "
+            + "&& @holidayService.isHolidayFromUser(authentication.name, #dto.id())))")
     @ResponseStatus(HttpStatus.OK)
     public HolidayDto update(@Validated(UpdateValidator.class) @RequestBody HolidayDto dto) {
         log.info("Updating holiday {}", dto.id());
@@ -68,7 +74,9 @@ public class HolidayController {
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && holidayService.isHolidayFromUser(authentication.name, #id)) ||"
+            + "((hasAnyAuthority('SCOPE_employee') && @holidayService.isHolidayFromUser(authentication.name, #id)))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         log.info("Deleting holiday with id {}", id);
