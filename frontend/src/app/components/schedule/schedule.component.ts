@@ -102,19 +102,25 @@ export class ScheduleComponent implements OnInit {
     this.loading = true;
     const year = this.startDate.getFullYear();
     this.scheduleService.createSchedule(this.createScheduleMonth, year).subscribe((data) => {
-      const month = new Date(`${this.createScheduleMonth} 1, ${year}`).getMonth() + 1;
-      this.startDate = new Date(this.startDate.getFullYear(), month, 0);
-      const cacheKey = this.generateCacheKey(this.startDate);
-      if (!this.cachedSchedules[cacheKey] && data.id != null) {
-        this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
-      }
-      this.parseScheduleToMap(data);
-      this.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
-      this.changeRange("month");
-      this.displayCreateScheduleButton = false;
-      this.setCurrentSchedule();
-      this.updateData();
-    });
+        this.messageService.add({severity: 'success', summary: 'Schedule created successfully!'});
+        const month = new Date(`${this.createScheduleMonth} 1, ${year}`).getMonth() + 1;
+        this.startDate = new Date(this.startDate.getFullYear(), month, 0);
+        const cacheKey = this.generateCacheKey(this.startDate);
+        if (!this.cachedSchedules[cacheKey] && data.id != null) {
+          this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
+        }
+        this.parseScheduleToMap(data);
+        this.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
+        this.changeRange("month");
+        this.displayCreateScheduleButton = false;
+        this.setCurrentSchedule();
+        this.updateData();
+      },
+      error => {
+        this.messageService.add({severity: 'error', summary: 'Error creating schedule'});
+        this.loading = false;
+
+      });
   }
 
   async fetchMonthSchedule(date: Date): Promise<void> {
@@ -140,7 +146,7 @@ export class ScheduleComponent implements OnInit {
           resolve();
         },
         error: err => {
-          if (err.status === 404) {
+          if (err.status === 404 && this.currentUser?.roles.includes('dm')) {
             this.displayCreateScheduleButton = true;
             this.createScheduleMonth = month;
             this.usersWithShifts.forEach(user => {
@@ -148,14 +154,17 @@ export class ScheduleComponent implements OnInit {
             });
             this.loading = false;
             resolve();
-          }
-          if (err.status === 403) {
+          } else if (err.status === 403 || err.status === 404) {
             this.displayCreateScheduleButton = false;
             if (this.range > 14) {
               this.messageService.add({severity: 'info', summary: 'Schedule not published yet!'});
             }
             this.loading = false;
             resolve();
+          } else {
+            this.messageService.add({severity: 'error', summary: 'Error fetching schedule'});
+            this.loading = false;
+            reject(err);
           }
           reject(err);
         }
@@ -430,7 +439,14 @@ export class ScheduleComponent implements OnInit {
               this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             }
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + error.error});
+            console.log(JSON.stringify(error));
+            let message = 'Creating shift failed:';
+            if (error.error.date) {
+              message += ` ${error.error.date}`;
+            } else {
+              message += ` ${error.error}`;
+            }
+            this.messageService.add({severity: 'error', summary: message});
           }
         });
         break;
@@ -488,6 +504,7 @@ export class ScheduleComponent implements OnInit {
       return;
     }
     this.scheduleService.deleteSchedule(scheduleId).subscribe(() => {
+      this.messageService.add({severity: 'success', summary: 'Schedule deleted successfully!'});
       delete this.cachedSchedules[cacheKey];
       this.deleteMonthlyPlanFromMap(scheduleId);
       this.updateData();
