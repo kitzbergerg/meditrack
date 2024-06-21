@@ -2,6 +2,7 @@ package ase.meditrack.service;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.ShiftSwapValidator;
 import ase.meditrack.model.dto.ShiftSwapDto;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
@@ -11,6 +12,7 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.ShiftSwapMapper;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
@@ -84,19 +86,25 @@ public class ShiftSwapServiceTest {
     @Autowired
     private TeamService teamService;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private ShiftSwapService shiftSwapService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+
         user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -110,11 +118,11 @@ public class ShiftSwapServiceTest {
 
         userSuggesting = userRepository.save(new User(
                 UUID.fromString(USER_ID_2),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -126,23 +134,14 @@ public class ShiftSwapServiceTest {
                 null
         ));
 
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
-        );
-        Role tmpRole = new Role();
-        tmpRole.setName("test role");
-        tmpRole.setAllowedFlextimePerMonth(2);
-        tmpRole.setAllowedFlextimeTotal(5);
-        tmpRole.setDaytimeRequiredPeople(2);
-        tmpRole.setNighttimeRequiredPeople(2);
-        tmpRole.setTeam(team);
-        role = roleRepository.save(tmpRole);
+        team.setUsers(List.of(user, userSuggesting));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
 
-        user.setTeam(team);
-        user.setRole(role);
-        userSuggesting.setTeam(team);
-        userSuggesting.setRole(role);
+        Preferences preferences2 = new Preferences(null, List.of(), userSuggesting);
+        userSuggesting.setPreferences(preferences2);
+        userSuggesting = userRepository.save(userSuggesting);
 
     }
 
