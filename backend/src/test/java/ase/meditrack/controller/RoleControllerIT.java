@@ -3,16 +3,20 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.RoleDto;
 import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.UserRepository;
-import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.admin.client.resource.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +33,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -37,7 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
-@MockBean(RealmResource.class)
 class RoleControllerIT {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
@@ -46,22 +51,30 @@ class RoleControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private TeamService teamService;
+    @MockBean
+    private RealmResource realmResource;
+    @MockBean
+    private UsersResource usersResource;
+
     private Team team;
 
     @BeforeEach
     void setup() {
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
         User user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -75,10 +88,17 @@ class RoleControllerIT {
         Preferences preferences = new Preferences(null, List.of(), user);
         user.setPreferences(preferences);
         userRepository.save(user);
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
-        );
+
+        // Mock the realmResource and usersResource behavior
+        when(realmResource.users()).thenReturn(usersResource);
+
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setId(USER_ID);
+        userRepresentation.setUsername("testUser");
+
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_ID)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
     }
 
     @Test
@@ -91,7 +111,7 @@ class RoleControllerIT {
         });
 
         assertNotNull(roles);
-        assertEquals(0, roles.size());
+        assertEquals(1, roles.size());
     }
 
 
@@ -120,6 +140,6 @@ class RoleControllerIT {
         assertNotNull(created);
         assertNotNull(created.id());
         assertEquals(dto.name(), created.name());
-        assertEquals(1, roleRepository.count());
+        assertEquals(2, roleRepository.count());
     }
 }

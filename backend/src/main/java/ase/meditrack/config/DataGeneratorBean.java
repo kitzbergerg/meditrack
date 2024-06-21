@@ -76,7 +76,7 @@ public class DataGeneratorBean {
 
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 8;
+    private static final Integer NUM_USERS_WITH_ROLES = 9;
     private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
@@ -122,7 +122,7 @@ public class DataGeneratorBean {
                     null,
                     40,
                     80,
-                    2,
+                    3,
                     2,
                     1,
                     team
@@ -155,8 +155,8 @@ public class DataGeneratorBean {
         users = new ArrayList<>();
 
         for (Team team : teams) {
-            String firstName = FAKER.name().firstName();
-            String lastName = FAKER.name().lastName();
+            String firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");
+            String lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");
             String username = (firstName.charAt(0) + lastName).toLowerCase();
             String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                     + FAKER.internet().domainName();
@@ -190,9 +190,9 @@ public class DataGeneratorBean {
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
                     for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                        firstName = FAKER.name().firstName();
+                        firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");
                         // use UUID to avoid duplicates
-                        lastName = FAKER.name().lastName() + "_" + UUID.randomUUID();
+                        lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");
                         username = (firstName.charAt(0) + lastName).toLowerCase();
                         email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                                 + FAKER.internet().domainName();
@@ -264,7 +264,6 @@ public class DataGeneratorBean {
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
-            nightShift.setType("Night");
             nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
@@ -275,7 +274,6 @@ public class DataGeneratorBean {
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
-            morningShift.setType("Day");
             morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
@@ -286,7 +284,6 @@ public class DataGeneratorBean {
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");
-            eveningShift.setType("Day");
             eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));

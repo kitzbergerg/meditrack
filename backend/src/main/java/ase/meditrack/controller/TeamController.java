@@ -45,10 +45,8 @@ public class TeamController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize(
-            "(hasAnyAuthority('SCOPE_dm') && @teamService.isTeamLeader(authentication.name, #id)) "
-                    + "|| hasAnyAuthority('SCOPE_admin')"
-    )
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @teamService.isInTeam(authentication.name, #id))")
     public TeamDto findById(@PathVariable UUID id) {
         log.info("Fetching team {}", id);
         return mapper.toDto(service.findById(id));
@@ -63,17 +61,19 @@ public class TeamController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #dto.id()))")
     @ResponseStatus(HttpStatus.OK)
-    public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) { // Principal principal
+    public TeamDto update(@Validated(UpdateValidator.class) @RequestBody TeamDto dto) {
         log.info("Updating team {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) { // Principal principal
+    public void delete(@PathVariable UUID id) {
         log.info("Deleting team with id {}", id);
         service.delete(id);
     }

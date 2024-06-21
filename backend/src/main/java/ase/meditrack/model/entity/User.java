@@ -37,7 +37,7 @@ public class User {
     @Id
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "role_id")
     private Role role;
 
