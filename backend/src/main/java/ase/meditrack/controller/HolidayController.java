@@ -75,9 +75,7 @@ public class HolidayController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_dm') && holidayService.isHolidayFromUser(authentication.name, #dto.id()) ||"
-            + "((hasAnyAuthority('SCOPE_employee') "
-            + "&& @holidayService.isHolidayFromUser(authentication.name, #dto.id())))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_employee')")
     @ResponseStatus(HttpStatus.OK)
     public HolidayDto update(@Validated(UpdateValidator.class) @RequestBody HolidayDto dto, Principal principal) {
         log.info("Updating holiday {}", dto.id());
