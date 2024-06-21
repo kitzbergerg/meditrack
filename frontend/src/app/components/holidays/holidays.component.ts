@@ -30,6 +30,7 @@ export class HolidaysComponent {
   initialLoad = false;
 
   currentDate: Date = new Date();
+  minDate: Date = new Date();
   maxDate: Date = new Date(this.currentDate.getFullYear() + 1, 11, 31);
   selectedStartDate: Date | undefined;
   selectedEndDate: Date | undefined;
@@ -52,6 +53,8 @@ export class HolidaysComponent {
       this.getAllHolidaysFromTeam();
       this.userIdNameMap = this.getTeamUsersToMap();
     }
+    this.currentDate.setHours(this.currentDate.getHours() + 2)
+    this.minDate.setHours(0, 0, 0, 0)
   }
 
   getAllHolidaysFromUser() {
@@ -115,6 +118,7 @@ export class HolidaysComponent {
   updateHoliday() {
     this.submitted = true;
     if (this.valid) {
+      this.holiday.status = undefined;
       this.holidaysService.updateHoliday(this.holiday)
         .subscribe({
           next: (response) => {
@@ -145,9 +149,9 @@ export class HolidaysComponent {
     if (holiday.id != undefined) {
       this.getHolidayById(holiday.id);
       this.selectedStartDate = new Date(holiday.startDate);
-      this.selectedStartDate.setHours(this.currentDate.getHours() + 2);
+      this.selectedStartDate.setHours(this.currentDate.getHours());
       this.selectedEndDate = new Date(holiday.endDate);
-      this.selectedEndDate.setHours(this.currentDate.getHours() + 2)
+      this.selectedEndDate.setHours(this.currentDate.getHours())
       this.formMode = 'details';
     }
   }
@@ -209,8 +213,10 @@ export class HolidaysComponent {
         if ((startDate >= holidayStartDate && startDate <= holidayEndDate) ||
             (endDate >= holidayStartDate && endDate <= holidayEndDate) ||
             (startDate <= holidayStartDate && endDate >= holidayEndDate)) {
-          this.validationMessage = 'Holiday is overlapping with another holiday!';
-          return false;
+          if (holiday.status === HolidayRequestStatus.APPROVED || holiday.status === HolidayRequestStatus.REQUESTED) {
+            this.validationMessage = 'Holiday is overlapping with another holiday!';
+            return false;
+          }
         }
       }
     }
@@ -314,23 +320,20 @@ export class HolidaysComponent {
 
   setStartDate() {
     if (this.selectedStartDate != undefined) {
-      this.selectedStartDate.setHours(this.currentDate.getHours() + 2);
+      this.selectedStartDate.setHours(this.currentDate.getHours());
       this.holiday.startDate = this.selectedStartDate.toISOString().split('T')[0];
     }
   }
 
   setEndDate() {
     if (this.selectedEndDate != undefined) {
-      this.selectedEndDate.setHours(this.currentDate.getHours() + 2);
+      this.selectedEndDate.setHours(this.currentDate.getHours());
       this.holiday.endDate = this.selectedEndDate.toISOString().split('T')[0];
     }
   }
 
   getFormattedDateFromString(date: string) {
-    const d = new Date(date);
-    d.setHours(this.currentDate.getHours() + 2);
-
-    return d.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    return new Date(date).toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
   protected readonly HolidayRequestStatus = HolidayRequestStatus;
