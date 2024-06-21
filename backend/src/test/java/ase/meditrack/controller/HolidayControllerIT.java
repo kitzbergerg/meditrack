@@ -8,7 +8,10 @@ import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.enums.HolidayRequestStatus;
 import ase.meditrack.repository.HolidayRepository;
+import ase.meditrack.repository.RoleRepository;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.service.RoleService;
 import ase.meditrack.service.TeamService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,20 +62,45 @@ class HolidayControllerIT {
     private UserRepository userRepository;
 
     @Autowired
-    private TeamService teamService;
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
 
     private User user;
     private Team team;
+    private Role role;
 
     @BeforeEach
     void setup() {
+        team = teamRepository.save(new Team(
+                null,
+                "test team",
+                40,
+                null,
+                null,
+                null,
+                null,
+                null));
+        role = roleRepository.save(new Role(
+                null,
+                "employeeRole",
+                null,
+                null,
+                0,
+                0,
+                0,
+                0,
+                null,
+                team,
+                null));
         user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
-                 null,
+                 role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -83,10 +111,6 @@ class HolidayControllerIT {
                 null,
                 null
         ));
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
-        );
     }
 
     @Test
