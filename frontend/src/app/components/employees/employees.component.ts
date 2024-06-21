@@ -196,7 +196,7 @@ export class EmployeesComponent {
   loadUsersFromTeam(): void {
     this.userService.getAllUserFromTeam()
       .subscribe(users => {
-        this.usersFromTeam = users.filter(user => user.id !== this.currentUser.id)
+        this.usersFromTeam = users;
         this.loading = false;
       });
   }
@@ -260,7 +260,10 @@ export class EmployeesComponent {
         this.userService.updateUser(this.newUser).subscribe({
           next: (user) => {
             if (user.id) {
-              this.usersFromTeam[this.findIndexById(user.id)] = user;
+              //this.usersFromTeam[this.findIndexById(user.id)] = user;
+              this.usersFromTeam = this.usersFromTeam.filter(u => u.id != user.id)
+              this.usersFromTeam.push(user);
+              console.log(user)
             }
             this.messageService.add({severity: 'success', summary: 'Successfully Updated User ' + user.firstName});
             this.userDialog = false;

@@ -50,29 +50,34 @@ public class ShiftTypeController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @shiftTypeService.isShiftTypeInTeam(authentication.name, #id))")
     public ShiftTypeDto findById(@PathVariable UUID id) { // Principal principal
         log.info("Fetching shift type {}", id);
         return mapper.toDto(service.findById(id));
     }
 
+
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #dto.team()))")
     public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto, Principal principal) {
         log.info("Creating shift type {}", dto.name());
         return mapper.toDto(service.create(mapper.fromDto(dto), principal));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) { // Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #dto.team()))")
+    public ShiftTypeDto update(@Validated(UpdateValidator.class) @RequestBody ShiftTypeDto dto) {
         log.info("Updating shift type {}", dto.name());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public void delete(@PathVariable UUID id) { // Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm') && @shiftTypeService.isShiftTypeInTeam(authentication.name, #id))")
+    public void delete(@PathVariable UUID id) {
         log.info("Deleting shift type with id {}", id);
         service.delete(id);
     }
