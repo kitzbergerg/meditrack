@@ -422,9 +422,11 @@ export class ShiftSwapComponent {
               severity: 'success',
               summary: 'Successfully Swapped Shifts'
             });
+            this.ownShiftSwapsOffers = this.ownShiftSwapsOffers.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
+            this.requestedShiftSwaps = this.requestedShiftSwaps.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
+            this.shiftSwapOffers = this.shiftSwapOffers.filter(s => s.requestedShift.id != shiftSwap.requestedShift.id);
+            this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.suggestedShift?.id != shiftSwap.suggestedShift?.id);
           }
-          this.ownShiftSwapsOffers = this.ownShiftSwapsOffers.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
-          this.requestedShiftSwaps = this.requestedShiftSwaps.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
           this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.id != shiftSwap.id);
         }, error: error => {
           this.messageService.add({
