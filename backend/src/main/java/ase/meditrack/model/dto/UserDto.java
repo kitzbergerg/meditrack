@@ -34,6 +34,6 @@ public record UserDto(
         List<UUID> suggestedShiftSwaps,
         List<UUID> shifts,
         List<SimpleShiftTypeDto> canWorkShiftTypes,
-        List<UUID> preferredShiftTypes
+        List<SimpleShiftTypeDto> preferredShiftTypes
 ) {
 }
