@@ -1,264 +1,287 @@
 <div class="grid">
-    <div class="col-12">
-        <div class="card px-6 py-6">
-            <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team !== undefined">
-                <p-table #dt [value]="usersFromTeam" [columns]="cols" responsiveLayout="scroll" [rows]="7"
-                         [globalFilterFields]="['username', 'firstName', 'lastName', 'email']" [paginator]="true"
-                         [rowsPerPageOptions]="[7,20,30]"
-                         [showCurrentPageReport]="true"
-                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                         [(selection)]="selectedUsers" selectionMode="multiple" [loading]="loading" [rowHover]="true"
-                         dataKey="id">
-                    <ng-template pTemplate="caption">
-                        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                            <!-- Team Name Section -->
-                            <div>
-                                <h2>{{ team.name }}</h2>
-                            </div>
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <div *ngIf="currentUser.team !== null && currentUser.team !== '' && currentUser.team !== undefined">
+        <p-table #dt [value]="usersFromTeam" [columns]="cols" responsiveLayout="scroll" [rows]="7"
+                 [globalFilterFields]="['username', 'firstName', 'lastName', 'email']" [paginator]="true"
+                 [rowsPerPageOptions]="[7,20,30]"
+                 [showCurrentPageReport]="true"
+                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                 [(selection)]="selectedUsers" selectionMode="multiple" [loading]="loading" [rowHover]="true"
+                 dataKey="id">
+          <ng-template pTemplate="caption">
+            <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+              <!-- Team Name Section -->
+              <div>
+                <h2>{{ team.name }}</h2>
+              </div>
 
-                            <!-- Role Filter Section -->
-                            <div class="flex justify-content-center align-items-center mt-2 md:mt-0">
-                                <p-columnFilter field="role.name" matchMode="equals" [showMenu]="false">
-                                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                        <p-dropdown [ngModel]="value" [options]="roles"
-                                                    (onChange)="filter($event.value)"
-                                                    optionValue="name" placeholder="Role" [showClear]="true"
-                                                    optionLabel="name">
-                                            <ng-template let-option pTemplate="item">
-                                                <span>{{ option.name }}</span>
-                                            </ng-template>
-                                        </p-dropdown>
-                                    </ng-template>
-                                </p-columnFilter>
-                            </div>
+              <!-- Role Filter Section -->
+              <div class="flex justify-content-center align-items-center mt-2 md:mt-0">
+                <p-columnFilter field="role.name" matchMode="equals" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown [ngModel]="value" [options]="roles"
+                                (onChange)="filter($event.value)"
+                                optionValue="name" placeholder="Role" [showClear]="true"
+                                optionLabel="name">
+                      <ng-template let-option pTemplate="item">
+                        <span>{{ option.name }}</span>
+                      </ng-template>
+                    </p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </div>
 
-                            <!-- Shift Type Filter Section -->
-                            <div class="flex justify-content-center align-items-center mt-2 md:mt-0">
-                                <p-columnFilter field="canWorkShiftTypes" matchMode="customFilter" [showMenu]="false">
-                                    <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                        <p-dropdown [ngModel]="value" [options]="shiftTypes"
-                                                    (onChange)="filter($event.value)"
-                                                    optionValue="abbreviation" placeholder="Shift Type"
-                                                    [showClear]="true" optionLabel="abbreviation">
-                                            <ng-template let-option pTemplate="item">
-                                                <span>{{ option.abbreviation }}</span>
-                                            </ng-template>
-                                        </p-dropdown>
-                                    </ng-template>
-                                </p-columnFilter>
-                            </div>
+              <!-- Shift Type Filter Section -->
+              <div class="flex justify-content-center align-items-center mt-2 md:mt-0">
+                <p-columnFilter field="canWorkShiftTypes" matchMode="customFilter" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown [ngModel]="value" [options]="shiftTypes"
+                                (onChange)="filter($event.value)"
+                                optionValue="abbreviation" placeholder="Shift Type"
+                                [showClear]="true" optionLabel="abbreviation">
+                      <ng-template let-option pTemplate="item">
+                        <span>{{ option.abbreviation }}</span>
+                      </ng-template>
+                    </p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </div>
 
-                            <!-- Search Section -->
-                            <div class="mt-2 mr-5 md:mt-0 p-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)"
-                                       placeholder="Search..."
-                                       class="w-full sm:w-full"/>
-                            </div>
+              <!-- Search Section -->
+              <div class="mt-2 mr-5 md:mt-0 p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)"
+                       placeholder="Search..."
+                       class="w-full sm:w-full"/>
+              </div>
 
-                            <!-- New Button Section -->
-                            <div class="my-2 md:my-5">
-                                <p-toast></p-toast>
-                                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
-                                        (click)="openNew()"></button>
-                            </div>
-                        </div>
-                    </ng-template>
+              <!-- New Button Section -->
+              <div class="my-2 md:my-5">
+                <p-toast></p-toast>
+                <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2"
+                        (click)="openNew()"> </button>
+              </div>
+            </div>
+          </ng-template>
 
-                    <ng-template pTemplate="header">
-                        <tr>
-                            <th pSortableColumn="username">Name
-                                <p-sortIcon field="username"></p-sortIcon>
-                            </th>
-                            <th pSortableColumn="firstName">FirstName
-                                <p-sortIcon field="firstName"></p-sortIcon>
-                            </th>
-                            <th pSortableColumn="lastName">Last Name
-                                <p-sortIcon field="lastName"></p-sortIcon>
-                            </th>
-                            <th pSortableColumn="email">Email
-                                <p-sortIcon field="email"></p-sortIcon>
-                            </th>
-                            <th pSortableColumn="role.name">Role
-                                <p-sortIcon field="role"></p-sortIcon>
-                            </th>
-                            <th pSortableColumn="workingHoursPercentage">Work %
-                                <p-sortIcon field="workingHoursPercentage"></p-sortIcon>
-                            </th>
-                            <th pSortableColumn="canWorkShiftTypes">Can Work Shift
-                                <p-sortIcon field="canWorkShiftTypes"></p-sortIcon>
-                            </th>
-                            <th></th>
-                        </tr>
-                    </ng-template>
-                    <ng-template pTemplate="body" let-user>
-                        <tr>
-                            <td style="width:14%; min-width:10rem;">
-                                <span class="p-column-title">Name</span>
-                                {{ user.username }}
-                            </td>
-                            <td style="width:14%; min-width:8rem;">
-                                <span class="p-column-title">First Name</span>
-                                {{ user.firstName }}
-                            </td>
-                            <td style="width:14%; min-width:10rem;">
-                                <span class="p-column-title">Last Name</span>
-                                {{ user.lastName }}
-                            </td>
-                            <td style="width:14%; min-width: 10rem;">
-                                <span class="p-column-title">Email</span>
-                                {{ user.email }}
-                            </td>
-                            <td style="width:14%; min-width: 10rem;">
-                                <span class="p-column-title">Role</span>
-                                {{ user.role.name }}
-                            </td>
-                            <td style="width:14%; min-width: 10rem;">
-                                <span class="p-column-title">Work %</span>
-                                {{ user.workingHoursPercentage }} %
-                            </td>
-                            <td style="width:14%; min-width: 10rem;">
-                                <span class="p-column-title">Can Work Shift</span>
-                                <ng-container *ngFor="let shiftType of user.canWorkShiftTypes; let isLast = last">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="username">Name
+                <p-sortIcon field="username"></p-sortIcon>
+              </th>
+              <th pSortableColumn="firstName">FirstName
+                <p-sortIcon field="firstName"></p-sortIcon>
+              </th>
+              <th pSortableColumn="lastName">Last Name
+                <p-sortIcon field="lastName"></p-sortIcon>
+              </th>
+              <th pSortableColumn="email">Email
+                <p-sortIcon field="email"></p-sortIcon>
+              </th>
+              <th pSortableColumn="role.name">Role
+                <p-sortIcon field="role"></p-sortIcon>
+              </th>
+              <th pSortableColumn="workingHoursPercentage">Work %
+                <p-sortIcon field="workingHoursPercentage"></p-sortIcon>
+              </th>
+              <th pSortableColumn="canWorkShiftTypes">Can Work Shift
+                <p-sortIcon field="canWorkShiftTypes"></p-sortIcon>
+              </th>
+              <th pSortableColumn="preferredShiftTypes">Preferred Shift
+                <p-sortIcon field="preferredShiftTypes"></p-sortIcon>
+              </th>
+              <th></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-user>
+            <tr>
+              <td style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Name</span>
+                {{ user.username }}
+              </td>
+              <td style="width:14%; min-width:8rem;">
+                <span class="p-column-title">First Name</span>
+                {{ user.firstName }}
+              </td>
+              <td style="width:14%; min-width:10rem;">
+                <span class="p-column-title">Last Name</span>
+                {{ user.lastName }}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Email</span>
+                {{ user.email }}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Role</span>
+                {{ user.role.name }}
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Work %</span>
+                {{ user.workingHoursPercentage }} %
+              </td>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Can Work Shift</span>
+                <ng-container *ngFor="let shiftType of user.canWorkShiftTypes; let isLast = last">
                   <span *ngIf="user.canWorkShiftTypes !== null">
                     {{ shiftType.abbreviation }}<span *ngIf="!isLast">, </span>
                   </span>
-                                </ng-container>
-                            </td>
-                            <td>
-                                <div class="flex">
-                                    <button pButton pRipple icon="pi pi-pencil"
-                                            class="p-button-rounded p-button-success mr-2"
-                                            (click)="editUser(user)"></button>
-                                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
-                                            (click)="deleteUser(user)"></button>
-                                </div>
-                            </td>
-                        </tr>
-                    </ng-template>
+                </ng-container>
+              </td>
 
-                </p-table>
+              <td style="width:14%; min-width: 10rem;">
+                <span class="p-column-title">Can Work Shift</span>
+                <ng-container *ngFor="let shiftType of user.preferredShiftTypes; let isLast = last">
+                  <span *ngIf="user.preferredShiftTypes !== null">
+                    {{ shiftType.abbreviation }}<span *ngIf="!isLast">, </span>
+                  </span>
+                </ng-container>
+              </td>
+              <td>
+                <div class="flex">
+                  <button pButton pRipple icon="pi pi-pencil"
+                          class="p-button-rounded p-button-success mr-2"
+                          (click)="editUser(user)"> </button>
+                  <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                          (click)="deleteUser(user)"> </button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
 
-                <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true"
-                          class="p-fluid">
-                    <ng-template pTemplate="content">
-                        <form [formGroup]="newUserForm" novalidate (ngSubmit)="createUser()">
-                            <div *ngIf="userHeader==='Create User'" class="field">
-                                <label for="username">Username</label>
-                                <input pInputText id="username" type="text" formControlName="username"
-                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['username']}"/>
-                                <small *ngIf="submitted && newUserForm.controls['username'].errors?.['required']">Username
-                                    is
-                                    required.</small>
-                            </div>
+        </p-table>
 
-                            <div class="field">
-                                <label for="email">Email:</label>
-                                <input pInputText id="email" type="email" formControlName="email"
-                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['email']}"/>
-                                <small *ngIf="submitted && newUserForm.controls['email'].errors?.['required']">Email is
-                                    required.</small>
-                                <small *ngIf="submitted && newUserForm.controls['email'].errors?.['email']">Invalid
-                                    email
-                                    format.</small>
-                            </div>
+        <p-dialog [(visible)]="userDialog" [style]="{width: '450px'}" header="{{userHeader}}" [modal]="true"
+                  class="p-fluid">
+          <ng-template pTemplate="content">
+            <form [formGroup]="newUserForm" novalidate (ngSubmit)="createUser()">
+              <div *ngIf="userHeader==='Create User'" class="field">
+                <label for="username">Username</label>
+                <input pInputText id="username" type="text" formControlName="username"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['username']}"/>
+                <small *ngIf="submitted && newUserForm.controls['username'].errors?.['required']">Username
+                  is
+                  required.</small>
+              </div>
 
-                            <div class="field">
-                                <label for="firstName">First Name:</label>
-                                <input pInputText id="firstName" type="text" formControlName="firstName"
-                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['firstName']}"/>
-                                <small *ngIf="submitted && newUserForm.controls['firstName'].errors?.['required']">First
-                                    name is
-                                    required.</small>
-                            </div>
+              <div class="field">
+                <label for="email">Email:</label>
+                <input pInputText id="email" type="email" formControlName="email"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['email']}"/>
+                <small *ngIf="submitted && newUserForm.controls['email'].errors?.['required']">Email is
+                  required.</small>
+                <small *ngIf="submitted && newUserForm.controls['email'].errors?.['email']">Invalid
+                  email
+                  format.</small>
+              </div>
 
-                            <div class="field">
-                                <label for="lastName">Last Name:</label>
-                                <input pInputText id="lastName" type="text" formControlName="lastName"
-                                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['lastName']}"/>
-                                <small *ngIf="submitted && newUserForm.controls['lastName'].errors?.['required']">Last
-                                    name is
-                                    required.</small>
-                            </div>
+              <div class="field">
+                <label for="firstName">First Name:</label>
+                <input pInputText id="firstName" type="text" formControlName="firstName"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['firstName']}"/>
+                <small *ngIf="submitted && newUserForm.controls['firstName'].errors?.['required']">First
+                  name is
+                  required.</small>
+              </div>
 
-                            <div *ngIf="shiftTypes" class="field">
-                                <label for="canWorkShiftTypes">Can Work</label>
-                                <p-multiSelect
-                                        formControlName="canWorkShiftTypes"
-                                        id="canWorkShiftTypes"
-                                        [options]="shiftTypes"
-                                        [filter]="false"
-                                        optionLabel="abbreviation"
-                                        placeholder="Select Shift Types"/>
-                            </div>
+              <div class="field">
+                <label for="lastName">Last Name:</label>
+                <input pInputText id="lastName" type="text" formControlName="lastName"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['lastName']}"/>
+                <small *ngIf="submitted && newUserForm.controls['lastName'].errors?.['required']">Last
+                  name is
+                  required.</small>
+              </div>
 
-                            <div class="field">
-                                <label for="role">Role:</label>
-                                <p-dropdown
-                                        formControlName="role"
-                                        id="role"
-                                        [options]="roles"
-                                        optionLabel="name"
-                                        [showClear]="true"
-                                        [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['role']}"
-                                        placeholder="Select a Role"
-                                />
-                                <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is
-                                    required.</small>
-                            </div>
+              <div *ngIf="shiftTypes" class="field">
+                <label for="canWorkShiftTypes">Can Work</label>
+                <p-multiSelect
+                  formControlName="canWorkShiftTypes"
+                  id="canWorkShiftTypes"
+                  [options]="shiftTypes"
+                  [filter]="false"
+                  optionLabel="abbreviation"
+                  placeholder="Select Shift Types"/>
+              </div>
 
-                            <div class="field">
-                                <label for="workingHoursPercentage">Working Percentage:</label>
-                                <p-inputNumber id="workingHoursPercentage" type="number"
-                                               formControlName="workingHoursPercentage"
-                                               [showButtons]="true"
-                                               [min]="1" [max]="100" [step]="1"
-                                               suffix="%"
-                                               incrementButtonClass="p-button-outlined"
-                                               decrementButtonClass="p-button-outlined"
-                                               [ngClass]="{'ng-invalid ng-dirty': submitted && (!newUserForm.value['workingHoursPercentage']
+              <div *ngIf="shiftTypes" class="field">
+                <label for="preferredShiftTypes">Preferred Work</label>
+                <p-multiSelect
+                  formControlName="preferredShiftTypes"
+                  id="preferredShiftTypes"
+                  [options]="shiftTypes"
+                  [filter]="false"
+                  optionLabel="abbreviation"
+                  placeholder="Select Shift Types"/>
+              </div>
+
+              <div class="field">
+                <label for="role">Role:</label>
+                <p-dropdown
+                  formControlName="role"
+                  id="role"
+                  [options]="roles"
+                  optionLabel="name"
+                  [showClear]="true"
+                  [ngClass]="{'ng-invalid ng-dirty': submitted && !newUserForm.value['role']}"
+                  placeholder="Select a Role"
+                />
+                <small *ngIf="submitted && newUserForm.controls['role'].errors?.['required']">Role is
+                  required.</small>
+              </div>
+
+              <div class="field">
+                <label for="workingHoursPercentage">Working Percentage:</label>
+                <p-inputNumber id="workingHoursPercentage" type="number"
+                               formControlName="workingHoursPercentage"
+                               [showButtons]="true"
+                               [min]="1" [max]="100" [step]="1"
+                               suffix="%"
+                               incrementButtonClass="p-button-outlined"
+                               decrementButtonClass="p-button-outlined"
+                               [ngClass]="{'ng-invalid ng-dirty': submitted && (!newUserForm.value['workingHoursPercentage']
                                || (newUserForm.controls['workingHoursPercentage'].errors?.['min']
                                || newUserForm.controls['workingHoursPercentage'].errors?.['max']))}"/>
-                                <small *ngIf="submitted && (newUserForm.controls['workingHoursPercentage'].errors?.['required'])">
-                                    Working hours percentage is required.
-                                </small>
-                                <small *ngIf="submitted && (newUserForm.controls['workingHoursPercentage'].errors?.['min']
+                <small *ngIf="submitted && (newUserForm.controls['workingHoursPercentage'].errors?.['required'])">
+                  Working hours percentage is required.
+                </small>
+                <small *ngIf="submitted && (newUserForm.controls['workingHoursPercentage'].errors?.['min']
                         || newUserForm.controls['workingHoursPercentage'].errors?.['max'])">
-                                    Working hours must be in range of 0.1 to 1.0.
-                                </small>
-                            </div>
+                  Working hours must be in range of 0.1 to 1.0.
+                </small>
+              </div>
 
-                        </form>
+            </form>
 
-                        <div class="flex flex-row justify-content-end mt-3">
-                            <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
-                                    (click)="hideDialog()"></p-button>
-                            <p-button label="Save" icon="pi pi-check" [text]="true" severity="success"
-                                    (click)="createUser()"></p-button>
-                        </div>
-                    </ng-template>
-                  
-                </p-dialog>
-
-                <p-dialog [(visible)]="deleteUserDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
-                    <div class="flex align-items-center justify-content-center">
-                        <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                        <span *ngIf="newUser">Are you sure you want to delete <b>{{ newUser.username }}</b>?</span>
-                    </div>
-                    <ng-template pTemplate="footer">
-                        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
-                                (click)="deleteUserDialog = false"></button>
-                        <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
-                                (click)="confirmDelete()"></button>
-                    </ng-template>
-                </p-dialog>
-
+            <div class="flex flex-row justify-content-end mt-3">
+              <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
+                        (click)="hideDialog()"></p-button>
+              <p-button label="Save" icon="pi pi-check" [text]="true" severity="success"
+                        (click)="createUser()"></p-button>
             </div>
+          </ng-template>
 
-            <div *ngIf="currentUser.team === null || currentUser.team === undefined">
-                <app-team [teamComponentHeader]="teamComponentHeader" (teamEmitter)="receiveTeam($event)"></app-team>
-            </div>
-        </div>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteUserDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+          <div class="flex align-items-center justify-content-center">
+            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+            <span *ngIf="newUser">Are you sure you want to delete <b>{{ newUser.username }}</b>?</span>
+          </div>
+          <ng-template pTemplate="footer">
+            <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteUserDialog = false"> </button>
+            <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDelete()"> </button>
+          </ng-template>
+        </p-dialog>
+
+      </div>
+
+      <div *ngIf="currentUser.team === null || currentUser.team === undefined">
+        <app-team [teamComponentHeader]="teamComponentHeader" (teamEmitter)="receiveTeam($event)"></app-team>
+      </div>
     </div>
+  </div>
 </div>
 
