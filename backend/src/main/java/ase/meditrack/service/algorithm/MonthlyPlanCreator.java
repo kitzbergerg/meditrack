@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +74,19 @@ public class MonthlyPlanCreator {
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();
 
+        YearMonth yearMonth = YearMonth.of(year, month);
+        YearMonth yearMonthBefore = yearMonth.minusMonths(1);
+        // TODO #98: change to use roles; use
+        //  team.getRoles().stream().mapToInt(Role::getMaxConsecutiveShifts).max()
+        //  to find role with largest consec shifts
+        int maxConsecShifts = team.getHardConstraints().getMaxConsecutiveShifts();
+        int daysToDivisibleBy7 = yearMonth.atEndOfMonth().getDayOfMonth() % 7;
+        LocalDate startDate = yearMonthBefore.atEndOfMonth().minusDays(Math.max(maxConsecShifts, daysToDivisibleBy7));
+        List<Shift> prevMonthShifts = shiftRepository.findAllByTeamAndDateAfterAndDateBefore(
+                team.getId(),
+                startDate,
+                yearMonthBefore.atEndOfMonth()
+        );
         AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(
                 month,
                 year,
@@ -80,7 +94,8 @@ public class MonthlyPlanCreator {
                 holidaysPerUser,
                 shiftTypes,
                 team.getRoles(),
-                team
+                team,
+                prevMonthShifts
         );
 
         AlgorithmOutput output = SchedulingSolver.solve(input)
