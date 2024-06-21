@@ -40,17 +40,20 @@ public class HolidayValidator {
             if (holiday.getId() != null && holiday.getId().equals(existingHoliday.getId())) {
                 continue;
             }
-            if (!holiday.getStartDate().isBefore(existingHoliday.getStartDate())
-                    && !holiday.getStartDate().isAfter(existingHoliday.getEndDate())) {
-                throw new ValidationException("Start date is in between a defined holiday!");
-            }
-            if (!holiday.getEndDate().isBefore(existingHoliday.getStartDate())
-                    && !holiday.getEndDate().isAfter(existingHoliday.getEndDate())) {
-                throw new ValidationException("End date is in between a defined holiday!");
-            }
-            if (existingHoliday.getStartDate().isAfter(holiday.getStartDate())
-                    && existingHoliday.getEndDate().isBefore(holiday.getEndDate())) {
-                throw new ValidationException("A defined holiday is in between the start and end date!");
+            if (existingHoliday.getStatus() != HolidayRequestStatus.CANCELLED
+                    && existingHoliday.getStatus() != HolidayRequestStatus.REJECTED) {
+                if (!holiday.getStartDate().isBefore(existingHoliday.getStartDate())
+                        && !holiday.getStartDate().isAfter(existingHoliday.getEndDate())) {
+                    throw new ValidationException("Start date is in between a defined holiday!");
+                }
+                if (!holiday.getEndDate().isBefore(existingHoliday.getStartDate())
+                        && !holiday.getEndDate().isAfter(existingHoliday.getEndDate())) {
+                    throw new ValidationException("End date is in between a defined holiday!");
+                }
+                if (existingHoliday.getStartDate().isAfter(holiday.getStartDate())
+                        && existingHoliday.getEndDate().isBefore(holiday.getEndDate())) {
+                    throw new ValidationException("A defined holiday is in between the start and end date!");
+                }
             }
         }
     }
