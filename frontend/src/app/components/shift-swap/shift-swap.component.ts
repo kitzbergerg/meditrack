@@ -3,7 +3,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {User} from "../../interfaces/user";
-import {ShiftSwap, ShiftSwapShift, ShiftSwapStatus, SimpleShiftSwap} from "../../interfaces/shiftSwap";
+import {ShiftSwap, ShiftSwapShift, ShiftSwapStatus} from "../../interfaces/shiftSwap";
 import {ShiftSwapService} from "../../services/shift-swap.service";
 import {Calendar} from "primeng/calendar";
 
@@ -388,4 +388,55 @@ export class ShiftSwapComponent {
     });
   }
 
+  confirmSuggestionAction(event: Event, shiftSwap: ShiftSwap, action: string) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Do you want to ${action} this suggestion?`,
+      header: `${action.charAt(0).toUpperCase() + action.slice(1)} Confirmation`,
+      icon: 'pi pi-info-circle',
+      acceptButtonStyleClass: "p-button-success p-button-text",
+      rejectButtonStyleClass: "p-button-text p-button-text",
+      acceptIcon: "pi pi-check mr-2",
+      rejectIcon: "none",
+
+      accept: () => {
+        this.updateShiftSwap(shiftSwap, action);
+      }
+    });
+  }
+
+  updateShiftSwap(shiftSwap: ShiftSwap, action: string) {
+    if (action == "accept") {
+      shiftSwap.suggestedShiftSwapStatus = ShiftSwapStatus.ACCEPTED;
+    } else if (action == "reject") {
+      shiftSwap.suggestedShiftSwapStatus = ShiftSwapStatus.REJECTED;
+    } else {
+      this.messageService.add({
+        severity: 'error', summary: 'Shift swap action is not valid',});
+    }
+    this.shiftSwapService.updateShiftSwap(shiftSwap).subscribe(
+      {
+        next: response => {
+          if (response == null) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Successfully Swapped Shifts'
+            });
+            this.ownShiftSwapsOffers = this.ownShiftSwapsOffers.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
+            this.requestedShiftSwaps = this.requestedShiftSwaps.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
+            this.shiftSwapOffers = this.shiftSwapOffers.filter(s => s.requestedShift.id != shiftSwap.requestedShift.id);
+            this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.suggestedShift?.id != shiftSwap.suggestedShift?.id);
+          }
+          this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.id != shiftSwap.id);
+        }, error: error => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Swapping Shifts Failed',
+            detail: error.error
+          });
+        }
+      });
+  }
+
+  protected readonly ShiftSwapStatus = ShiftSwapStatus;
 }
