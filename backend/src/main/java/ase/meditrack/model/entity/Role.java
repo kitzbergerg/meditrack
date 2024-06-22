@@ -58,6 +58,15 @@ public class Role {
     @Column(nullable = false)
     private Integer nighttimeRequiredPeople;
 
+    @Column(nullable = false)
+    private Integer workingHours;
+
+    @Column(nullable = false)
+    private Integer maxWeeklyHours;
+
+    @Column(nullable = false)
+    private Integer maxConsecutiveShifts;
+
     @OneToMany(mappedBy = "role")
     private List<User> users;
 
