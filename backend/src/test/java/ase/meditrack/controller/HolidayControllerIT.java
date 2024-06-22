@@ -13,12 +13,14 @@ import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.RoleService;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.service.UserService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,20 +31,25 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@MockBean(UserService.class)
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
@@ -68,12 +75,13 @@ class HolidayControllerIT {
     private TeamRepository teamRepository;
 
     private User user;
-    private Team team;
-    private Role role;
+
+    @Autowired
+    private UserService userService;
 
     @BeforeEach
     void setup() {
-        team = teamRepository.save(new Team(
+        Team team = teamRepository.save(new Team(
                 null,
                 "test team",
                 40,
@@ -82,7 +90,7 @@ class HolidayControllerIT {
                 null,
                 null,
                 null));
-        role = roleRepository.save(new Role(
+        Role role = roleRepository.save(new Role(
                 null,
                 "employeeRole",
                 null,
@@ -96,7 +104,7 @@ class HolidayControllerIT {
                 null));
         user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
-                 role,
+                role,
                 1f,
                 0,
                 null,
@@ -114,7 +122,7 @@ class HolidayControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_employee")
+    @WithMockUser(authorities = "SCOPE_employee", username = USER_ID)
     void test_getFindAllHolidaysByUser_succeeds() throws Exception {
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/holiday"))
                 .andExpect(status().isOk())
@@ -134,7 +142,7 @@ class HolidayControllerIT {
         Holiday holiday = new Holiday();
         holiday.setStartDate(LocalDate.now().plusDays(5));
         holiday.setEndDate(LocalDate.now().plusDays(10));
-        holiday.setStatus(HolidayRequestStatus.REQUESTED);
+        holiday.setStatus(HolidayRequestStatus.REJECTED);
         holiday.setUser(user);
         Holiday savedHoliday = holidayRepository.save(holiday);
 
@@ -148,7 +156,7 @@ class HolidayControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_employee")
+    @WithMockUser(authorities = "SCOPE_employee", username = USER_ID)
     void test_findHolidayByUserAndId_succeeds() throws Exception {
         Holiday holiday = new Holiday();
         holiday.setStartDate(LocalDate.now().plusDays(5));
@@ -156,6 +164,8 @@ class HolidayControllerIT {
         holiday.setStatus(HolidayRequestStatus.REQUESTED);
         holiday.setUser(user);
         Holiday savedHoliday = holidayRepository.save(holiday);
+
+        when(userService.findById(UUID.fromString(USER_ID))).thenReturn(user);
 
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/holiday/" + savedHoliday.getId()))
                 .andExpect(status().isOk())
@@ -165,15 +175,14 @@ class HolidayControllerIT {
 
         assertAll(
                 () -> assertEquals(savedHoliday.getId(), foundHoliday.id()),
-                () -> assertEquals(holiday.getStartDate(), foundHoliday.startDate()),
-                () -> assertEquals(holiday.getEndDate(), foundHoliday.endDate()),
-                () -> assertEquals(holiday.getStatus().name(), foundHoliday.status()),
-                () -> assertEquals(holiday.getUser().getId(), foundHoliday.user())
+                () -> assertEquals(savedHoliday.getStartDate(), foundHoliday.startDate()),
+                () -> assertEquals(savedHoliday.getEndDate(), foundHoliday.endDate()),
+                () -> assertEquals(savedHoliday.getStatus().name(), foundHoliday.status())
         );
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_employee")
+    @WithMockUser(authorities = "SCOPE_employee", username = USER_ID)
     void test_updateHoliday_succeeds() throws Exception {
         Holiday holiday = new Holiday();
         holiday.setStartDate(LocalDate.now().plusDays(5));
@@ -202,8 +211,36 @@ class HolidayControllerIT {
                 () -> assertEquals(savedHoliday.getId(), responseHoliday.id()),
                 () -> assertEquals(updatedHolidayDto.startDate(), responseHoliday.startDate()),
                 () -> assertEquals(updatedHolidayDto.endDate(), responseHoliday.endDate()),
-                () -> assertEquals(updatedHolidayDto.status(), responseHoliday.status()),
+                () -> assertEquals(HolidayRequestStatus.REQUESTED.name(), responseHoliday.status()),
                 () -> assertEquals(updatedHolidayDto.user(), responseHoliday.user()),
+                () -> assertEquals(1, holidayRepository.count())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_dm", username = USER_ID)
+    void test_updateHolidayStatus_succeeds() throws Exception {
+        Holiday holiday = new Holiday();
+        holiday.setStartDate(LocalDate.now().plusDays(5));
+        holiday.setEndDate(LocalDate.now().plusDays(10));
+        holiday.setStatus(HolidayRequestStatus.REQUESTED);
+        holiday.setUser(user);
+        Holiday savedHoliday = holidayRepository.save(holiday);
+
+        when(userService.findByTeam(any(Principal.class))).thenReturn(List.of(user));
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/holiday/" + savedHoliday.getId() + "/APPROVED"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        HolidayDto responseHoliday = objectMapper.readValue(response, HolidayDto.class);
+
+        assertAll(
+                () -> assertEquals(savedHoliday.getId(), responseHoliday.id()),
+                () -> assertEquals(savedHoliday.getStartDate(), responseHoliday.startDate()),
+                () -> assertEquals(savedHoliday.getEndDate(), responseHoliday.endDate()),
+                () -> assertEquals(HolidayRequestStatus.APPROVED.name(), responseHoliday.status()),
+                () -> assertEquals(savedHoliday.getUser().getId(), responseHoliday.user()),
                 () -> assertEquals(1, holidayRepository.count())
         );
     }
@@ -216,8 +253,10 @@ class HolidayControllerIT {
                 LocalDate.now().plusDays(5),
                 LocalDate.now().plusDays(10),
                 null,
-                user.getId()
+                null
         );
+
+        when(userService.findById(UUID.fromString(USER_ID))).thenReturn(user);
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/holiday")
@@ -234,7 +273,7 @@ class HolidayControllerIT {
                 () -> assertEquals(dto.startDate(), created.startDate()),
                 () -> assertEquals(dto.endDate(), created.endDate()),
                 () -> assertEquals(HolidayRequestStatus.REQUESTED.name(), created.status()),
-                () -> assertEquals(dto.user(), created.user()),
+                () -> assertEquals(UUID.fromString(USER_ID), created.user()),
                 () -> assertEquals(1, holidayRepository.count())
         );
     }
