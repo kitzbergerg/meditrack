@@ -73,8 +73,9 @@ public class ShiftSwapController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_dm') || "
-            + "(hasAnyAuthority('SCOPE_employee') && @shiftSwapService.isShiftSwapFromUser(#principal, #id))")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee', 'SCOPE_dm') && "
+            + "@shiftSwapService.isShiftSwapFromUser(#principal, #id))")
     public ShiftSwapDto findById(@PathVariable UUID id, Principal principal) {
         log.info("Fetching shift-swap with id: {}", id);
         return mapper.toDto(service.findById(id));
@@ -90,8 +91,9 @@ public class ShiftSwapController {
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && "
-            + "@shiftSwapService.isShiftSwapFromUser(#principal, #dto.id())")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_employee') && "
+            + "@shiftSwapService.isShiftSwapFromSuggestedUser(#principal, #dto))")
     @ResponseStatus(HttpStatus.OK)
     public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
         log.info("Updating shift-swap {}", dto.id());

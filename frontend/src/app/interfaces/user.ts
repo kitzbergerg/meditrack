@@ -21,6 +21,6 @@ export interface User {
   suggestedShiftSwaps: string[]; // List of UUIDs
   shifts: string[]; // List of UUIDs
   canWorkShiftTypes: ShiftType[]; // List of ShiftTypes
-  preferredShiftTypes: string[]; // List of UUIDs
+  preferredShiftTypes: ShiftType[]; // List of ShiftTypes
 }
 

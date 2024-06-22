@@ -32,6 +32,7 @@ export class EmployeesComponent {
   newUser: User = {
     username: "",
     canWorkShiftTypes: [],
+    preferredShiftTypes: [],
     currentOverTime: undefined,
     email: "",
     firstName: "",
@@ -40,7 +41,6 @@ export class EmployeesComponent {
     lastName: "",
     password: "",
     preferences: "",
-    preferredShiftTypes: [],
     requestedShiftSwaps: [],
     role: {name: "", color: "", abbreviation: ""},
     roles: [],
@@ -103,7 +103,8 @@ export class EmployeesComponent {
       lastName: ['', Validators.required],
       workingHoursPercentage: [100, [Validators.required, Validators.min(1), Validators.max(100)]],
       role: [null, Validators.required],
-      canWorkShiftTypes: [[]]
+      canWorkShiftTypes: [[]],
+      preferredShiftTypes: [[]]
     });
 
     this.filterService.register('customFilter', (value: any[], filter: string): boolean => {
@@ -126,6 +127,7 @@ export class EmployeesComponent {
       {field: 'role', header: 'Role'},
       {field: 'workingHoursPercentage', header: 'WorkingHoursPercentage'},
       {field: 'canWorkShiftTypes', header: 'CanWorkShiftTypes'},
+      {field: 'preferredShiftTypes', header: 'PreferredShiftTypes'},
     ];
   }
 
@@ -211,7 +213,9 @@ export class EmployeesComponent {
   editUser(user: User) {
     const selectedRole = this.roles.find(role => role.id === user.role.id);
     const userShiftTypeIds = user.canWorkShiftTypes.map(shiftType => shiftType.id);
+    const userSelectedShiftTypesIds = user.preferredShiftTypes.map(shiftType => shiftType.id);
     const selectedShiftTypes = this.shiftTypes.filter(shiftType => userShiftTypeIds.includes(shiftType.id));
+    const preferredSelectedShiftTypes = this.shiftTypes.filter(shiftType => userSelectedShiftTypesIds.includes(shiftType.id));
 
     this.newUserForm.patchValue({
       username: null,
@@ -221,6 +225,7 @@ export class EmployeesComponent {
       workingHoursPercentage: user.workingHoursPercentage,
       role: selectedRole,
       canWorkShiftTypes: selectedShiftTypes,
+      preferredShiftTypes: preferredSelectedShiftTypes,
     });
     this.newUser = {...user};
     this.userHeader = "Edit User";
@@ -314,6 +319,7 @@ export class EmployeesComponent {
   resetUser() {
     this.newUser = {
       canWorkShiftTypes: [],
+      preferredShiftTypes: [],
       currentOverTime: undefined,
       email: "",
       firstName: "",
@@ -322,7 +328,6 @@ export class EmployeesComponent {
       lastName: "",
       password: "",
       preferences: "",
-      preferredShiftTypes: [],
       requestedShiftSwaps: [],
       role: {name: "", color: "", abbreviation: ""},
       roles: [],
