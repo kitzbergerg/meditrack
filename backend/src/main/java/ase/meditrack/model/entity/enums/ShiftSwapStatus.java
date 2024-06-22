@@ -1,7 +1,7 @@
-package ase.meditrack.model.entity;
+package ase.meditrack.model.entity.enums;
 
 public enum ShiftSwapStatus {
     ACCEPTED,
     PENDING,
-    REJECTED;
+    REJECTED
 }

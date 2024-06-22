@@ -2,9 +2,11 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.ShiftSwapValidator;
+import ase.meditrack.model.dto.ShiftSwapDto;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
 import jakarta.transaction.Transactional;
@@ -13,9 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -128,108 +127,51 @@ public class ShiftSwapService {
         validator.shiftSwapCreateValidation(shiftSwap);
 
         ShiftSwap created = repository.save(shiftSwap);
-        Optional<Shift> shift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
-        if (shift.isEmpty()) {
-            throw new NotFoundException("Could not find shift with id: " + shiftSwap.getRequestedShift().getId());
-        }
-        List<ShiftSwap> shiftSwaps = new ArrayList<>();
-        if (shift.get().getRequestedShiftSwap() != null && !shift.get().getRequestedShiftSwap().isEmpty()) {
-            shiftSwaps = shift.get().getRequestedShiftSwap();
-        }
-        shiftSwaps.add(shiftSwap);
-        shift.get().setRequestedShiftSwap(shiftSwaps);
-        if (shiftSwap.getSwapSuggestingUser() != null) {
 
-            LocalDate today = LocalDate.now();
-            LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
-            List<Shift> userShifts
-                    = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(
-                    shiftSwap.getSwapRequestingUser().getId()), today, nextMonth);
-
-            List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
-
-            boolean overlapFound = false;
-
-            for (Shift userShift : userShifts) {
-                if (shiftSwap.getRequestedShift().getDate().isEqual(userShift.getDate())) {
-                    LocalTime offerStart = shiftSwap.getRequestedShift().getShiftType().getStartTime();
-                    LocalTime offerEnd = shiftSwap.getRequestedShift().getShiftType().getEndTime();
-                    LocalTime userShiftStart = userShift.getShiftType().getStartTime();
-                    LocalTime userShiftEnd = userShift.getShiftType().getEndTime();
-
-                    if (!(offerEnd.isBefore(userShiftStart) || offerStart.isAfter(userShiftEnd))) {
-                        overlapFound = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!overlapFound) {
-                filteredShiftSwaps.add(shiftSwap);
-            }
-
-            created.setSwapSuggestingUser(shiftSwap.getSwapSuggestingUser());
-        }
         return findById(created.getId());
     }
 
     /**
-     * Updates a shift swap in the database.
+     * Updates a shift swap in the database. Only the status of a shift swap can be updated, which may lead to changing
+     * shifts from users.
      *
      * @param shiftSwap the shift swap to update
      * @return the updated shift swap
      */
+    @Transactional
     public ShiftSwap update(ShiftSwap shiftSwap) {
         ShiftSwap dbShiftSwap = findById(shiftSwap.getId());
 
+        // check if shift swap is the same as the one from the database except the status of the user
+        validator.shiftSwapUpdateValidation(shiftSwap, dbShiftSwap);
 
-        if (shiftSwap.getSwapRequestingUser() != null) {
-            dbShiftSwap.setSwapRequestingUser(shiftSwap.getSwapRequestingUser());
+        if (shiftSwap.getSuggestedShiftSwapStatus().equals(ShiftSwapStatus.ACCEPTED)) {
+
+            Shift requestedShift = dbShiftSwap.getRequestedShift();
+            Shift suggestedShift = dbShiftSwap.getSuggestedShift();
+
+            // delete all shift swaps corresponding to the shift, since the user gets swapped
+            repository.deleteAllByRequestedShiftId(requestedShift.getId());
+            repository.deleteAllByRequestedShiftId(suggestedShift.getId());
+
+            List<User> requestedUsers = requestedShift.getUsers();
+            List<User> suggestedUsers = suggestedShift.getUsers();
+
+            // swap only the user(s) in the shift (there is only one user in the list)
+            requestedShift.setUsers(suggestedUsers);
+            suggestedShift.setUsers(requestedUsers);
+
+            return null;
+            // email notification
+        } else {
+            // decline
+            // email notification
+            return repository.save(shiftSwap);
         }
-        if (shiftSwap.getSwapSuggestingUser() != null) {
-
-            LocalDate today = LocalDate.now();
-            LocalDate nextMonth = today.plusMonths(1).withDayOfMonth(1);
-            List<Shift> userShifts
-                    = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(Collections.singletonList(
-                    shiftSwap.getSwapRequestingUser().getId()), today, nextMonth);
-
-            List<ShiftSwap> filteredShiftSwaps = new ArrayList<>();
-
-                boolean overlapFound = false;
-
-                for (Shift userShift : userShifts) {
-                    if (shiftSwap.getRequestedShift().getDate().isEqual(userShift.getDate())) {
-                        LocalTime offerStart = shiftSwap.getRequestedShift().getShiftType().getStartTime();
-                        LocalTime offerEnd = shiftSwap.getRequestedShift().getShiftType().getEndTime();
-                        LocalTime userShiftStart = userShift.getShiftType().getStartTime();
-                        LocalTime userShiftEnd = userShift.getShiftType().getEndTime();
-
-                        if (!(offerEnd.isBefore(userShiftStart) || offerStart.isAfter(userShiftEnd))) {
-                            overlapFound = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!overlapFound) {
-                    filteredShiftSwaps.add(shiftSwap);
-                }
-
-            dbShiftSwap.setSwapSuggestingUser(shiftSwap.getSwapSuggestingUser());
-        }
-        if (shiftSwap.getRequestedShift() != null) {
-            dbShiftSwap.setRequestedShift(shiftSwap.getRequestedShift());
-        }
-        if (shiftSwap.getSuggestedShift() != null) {
-            dbShiftSwap.setSuggestedShift(shiftSwap.getSuggestedShift());
-        }
-
-        return repository.save(shiftSwap);
     }
 
     /**
-     *  Deletes the shift swap request without deleting the actual shift swap offer.
+     * Deletes the shift swap request without deleting the actual shift swap offer.
      *
      * @param id to be deleted
      */
@@ -263,6 +205,22 @@ public class ShiftSwapService {
         }
         ShiftSwap shiftSwap = findById(shiftSwapId);
         return isShiftFromUser(principal, shiftSwap);
+    }
+
+    /**
+     * Checks if the shift swap belongs to the suggested User.
+     *
+     * @param principal current user
+     * @param shiftSwapDto from the shift swap
+     * @return true, if the shift swap belongs to the suggested user, false otherwise
+     */
+    public boolean isShiftSwapFromSuggestedUser(Principal principal, ShiftSwapDto shiftSwapDto) {
+        User user = userService.getPrincipalWithTeam(principal);
+        if (shiftSwapDto == null) {
+            return false;
+        }
+
+        return shiftSwapDto.swapSuggestingUser().equals(user.getId());
     }
 
     /**

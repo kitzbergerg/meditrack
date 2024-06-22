@@ -91,15 +91,7 @@ public class UserService {
      * @return List of all users from the team of the dm
      */
     public List<User> findByTeam(Principal principal) throws NoSuchElementException {
-        UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = repository.findById(dmId);
-        if (dm.isEmpty()) {
-            throw new NotFoundException("User doesnt exist");
-        }
-        if (dm.get().getTeam() == null) {
-            throw new NotFoundException("User has no team");
-        }
-        return repository.findAllByTeam(dm.get().getTeam()).stream()
+        return repository.findAllByTeam(getPrincipalWithTeam(principal).getTeam()).stream()
                 .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
                 .toList();
     }
