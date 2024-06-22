@@ -13,12 +13,6 @@ import { MessageService } from 'primeng/api';
 export class RulesComponent implements OnInit {
   loading = true;
   teamConstraints: Rule[] = [
-    { name: 'workingHours', label: $localize`working hours`,
-      description: $localize`regular amount of working hours employees should do every month`, value: null },
-    { name: 'maxWeeklyHours', label: $localize`maximum weekly hours`,
-      description: $localize`maximum amount of weekly hours for employees`, value: null },
-    { name: 'maxConsecutiveShifts', label: $localize`maximum consecutive shifts`,
-      description: $localize`maximum amount of consecutive shifts an employee should be able to work`, value: null },
     { name: 'daytimeRequiredPeople', label: $localize`daytime required people`,
       description: $localize`number of required employees during the day`, value: null },
     { name: 'nighttimeRequiredPeople', label: $localize`nighttime required people`,
@@ -49,11 +43,8 @@ export class RulesComponent implements OnInit {
 
   loadRules(): void {
     this.rulesService.getAllRulesFromTeam().subscribe((fetchedRules) => {
-      this.teamConstraints[0].value = fetchedRules.workingHours;
-      this.teamConstraints[1].value = fetchedRules.maxWeeklyHours;
-      this.teamConstraints[2].value = fetchedRules.maxConsecutiveShifts;
-      this.teamConstraints[3].value = fetchedRules.daytimeRequiredPeople;
-      this.teamConstraints[4].value = fetchedRules.nighttimeRequiredPeople;
+      this.teamConstraints[0].value = fetchedRules.daytimeRequiredPeople;
+      this.teamConstraints[1].value = fetchedRules.nighttimeRequiredPeople;
     });
   }
 

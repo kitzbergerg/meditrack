@@ -63,7 +63,10 @@
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="nighttimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0">Number of required people for this role during the night</label>
+              <label htmlFor="nighttimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@nighttimeRequiredPeopleOnRoleLabel">
+                Number of required people for this role during the night
+              </label>
               <span>
                 <input pInputText="" id="nighttimeRequiredPeople" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.nighttimeRequiredPeople"
@@ -83,15 +86,45 @@
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="allowedFlexitimeMonthly" class="col-12 mb-2 md:col-2 md:mb-0">Allowed flextime monthly for this role</label>
+              <label htmlFor="allowedFlexitimePerMonth" class="col-12 mb-2 md:col-2 md:mb-0">Allowed flextime monthly for this role</label>
               <span>
-                <input pInputText="" id="allowedFlexitimeMonthly" type="number" class="p-inputtext p-component p-element"
+                <input pInputText="" id="allowedFlexitimePerMonth" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.allowedFlextimePerMonth"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimePerMonth === null}"
                        [disabled]="formMode === 'details'">
                 <small *ngIf="submitted && selectedRoleRules.allowedFlextimePerMonth === null">Value must be a number.</small>
               </span>
             </div>
+            <div class="field grid input-container">
+              <label htmlFor="workingHours" class="col-12 mb-2 md:col-2 md:mb-0">Weekly working hours for this role</label>
+              <span>
+                <input pInputText="" id="workingHours" type="number" class="p-inputtext p-component p-element"
+                       [(ngModel)]="selectedRoleRules.workingHours"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.workingHours === null}"
+                       [disabled]="formMode === 'details'">
+                <small *ngIf="submitted && selectedRoleRules.workingHours === null">Value must be a number.</small>
+              </span>
+            </div>
+            <div class="field grid input-container">
+              <label htmlFor="maxWeeklyHours" class="col-12 mb-2 md:col-2 md:mb-0">Maximum weekly hours for this role</label>
+              <span>
+                <input pInputText="" id="maxWeeklyHours" type="number" class="p-inputtext p-component p-element"
+                       [(ngModel)]="selectedRoleRules.maxWeeklyHours"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.maxWeeklyHours === null}"
+                       [disabled]="formMode === 'details'">
+                <small *ngIf="submitted && selectedRoleRules.maxWeeklyHours === null">Value must be a number.</small>
+              </span>
+            </div>
+            <div class="field grid input-container">
+              <label htmlFor="maxConsecutiveShifts" class="col-12 mb-2 md:col-2 md:mb-0">Maximum consecutive number of shifts for this role can take</label>
+              <span>
+                <input pInputText="" id="maxConsecutiveShifts" type="number" class="p-inputtext p-component p-element"
+                       [(ngModel)]="selectedRoleRules.maxConsecutiveShifts"
+                       [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.maxConsecutiveShifts === null}"
+                       [disabled]="formMode === 'details'">
+                <small *ngIf="submitted && selectedRoleRules.maxConsecutiveShifts === null">Value must be a number.</small>
+              </span>
+          </div>
           </div>
           <p-toast></p-toast>
           <div class="button-container" *ngIf="formMode === 'create'">
