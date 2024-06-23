@@ -75,7 +75,7 @@ class AlgorithmMapperTest {
         shiftTypes.add(shiftType);
 
         algorithmMapper.mapToAlgorithmInput(month, year, employees, Map.of(user.getId(), List.of()), shiftTypes, roles,
-                team);
+                team, List.of());
 
         // Use reflection to access private fields
         Field indexToShiftTypeUuidField = AlgorithmMapper.class.getDeclaredField("indexToShiftTypeUuid");
@@ -160,7 +160,8 @@ class AlgorithmMapperTest {
                 Map.of(user.getId(), List.of(), user2.getId(), List.of()),
                 shiftTypes,
                 roles,
-                team
+                team,
+                List.of()
         );
 
 

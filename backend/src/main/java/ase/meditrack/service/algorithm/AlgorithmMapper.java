@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ public class AlgorithmMapper {
 
     private final Map<UUID, Integer> shiftTypeUuidToIndex = new HashMap<>();
     private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
+    private final Map<UUID, Integer> employeeUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToShiftTypeUuid = new HashMap<>();
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
 
@@ -36,6 +38,7 @@ public class AlgorithmMapper {
      * @param shiftTypes
      * @param roles
      * @param team
+     * @param prevMonthShifts
      * @return input for the algorithm
      */
     public AlgorithmInput mapToAlgorithmInput(
@@ -45,7 +48,8 @@ public class AlgorithmMapper {
             Map<UUID, List<Holiday>> holidaysPerUser,
             List<ShiftType> shiftTypes,
             List<Role> roles,
-            Team team
+            Team team,
+            List<Shift> prevMonthShifts
     ) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate date = yearMonth.atDay(1);
@@ -97,6 +101,7 @@ public class AlgorithmMapper {
         for (int i = 0; i < employees.size(); i++) {
             User employee = employees.get(i);
             UUID id = employee.getId();
+            employeeUuidToIndex.put(id, i);
             indexToEmployeeUuid.put(i, id);
 
             List<Integer> worksShiftTypes = new ArrayList<>();
@@ -144,13 +149,30 @@ public class AlgorithmMapper {
             ));
         }
 
+        TreeMap<Integer, TreeMap<Integer, Integer>> dayToEmployeeToShiftTypeMapping = new TreeMap<>();
+        for (Shift shift : prevMonthShifts) {
+            Integer day = shift.getDate().getDayOfMonth();
+            Integer shiftType = shiftTypeUuidToIndex.get(shift.getShiftType().getId());
+            if (shiftType == null) continue;
+            for (User user : shift.getUsers()) {
+                Integer employee = employeeUuidToIndex.get(user.getId());
+                if (employee == null) continue;
+                dayToEmployeeToShiftTypeMapping.compute(day, (key, value) -> {
+                    if (value == null) value = new TreeMap<>();
+                    value.put(employee, shiftType);
+                    return value;
+                });
+            }
+        }
+
         return new AlgorithmInput(
                 numberOfDays,
                 employeeInfos,
                 shiftTypeInfos,
                 roleInfos,
                 team.getDaytimeRequiredPeople(),
-                team.getNighttimeRequiredPeople()
+                team.getNighttimeRequiredPeople(),
+                dayToEmployeeToShiftTypeMapping
         );
     }
 
