@@ -86,8 +86,8 @@ class HolidayControllerIT {
                 "test team",
                 null,
                 null,
-                null,
-                null,
+                0,
+                0,
                 null,
                 null));
         Role role = roleRepository.save(new Role(
