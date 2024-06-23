@@ -7,10 +7,11 @@ import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
@@ -75,7 +76,7 @@ public class DataGeneratorBean {
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
     private static final Integer NUM_USERS_WITH_ROLES = 9;
-    private static final Integer NUM_HOLIDAYS = 0;
+    private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
@@ -228,7 +229,7 @@ public class DataGeneratorBean {
                 Holiday holiday = new Holiday();
                 holiday.setStartDate(generateValidRandomFutureDate());
                 holiday.setEndDate(holiday.getStartDate().plusDays(1));
-                holiday.setIsApproved(false);
+                holiday.setStatus(HolidayRequestStatus.REQUESTED);
                 holiday.setUser(user);
                 holidayRepository.save(holiday);
             }

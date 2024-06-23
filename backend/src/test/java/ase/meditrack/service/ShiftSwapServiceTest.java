@@ -1,29 +1,26 @@
 package ase.meditrack.service;
+
 import ase.meditrack.config.KeycloakConfig;
-import ase.meditrack.model.ShiftSwapValidator;
 import ase.meditrack.model.dto.ShiftSwapDto;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.model.mapper.ShiftSwapMapper;
 import ase.meditrack.repository.RoleRepository;
+import ase.meditrack.repository.ShiftRepository;
+import ase.meditrack.repository.ShiftSwapRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
-import ase.meditrack.repository.ShiftRepository;
-import ase.meditrack.repository.ShiftSwapRepository;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -35,22 +32,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.security.Principal;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 
