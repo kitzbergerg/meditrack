@@ -86,7 +86,8 @@ export class RulesComponent implements OnInit {
       if (this.showRulesEditCard) {
         this.formTitle = $localize`@@rules.component.edit-rule:Edit Rule`;
       } else {
-        this.formTitle = $localize`@@rules.component.edit-rules-for-roles:Edit Rules for Roles`;
+        this.formTitle = $localize`@@rules.component.edit-rules-for-roles:Edit Rules for Role` + ' ' +
+          this.roles.find(x => x.id == this.selectedRoleRules?.roleId)?.name;
       }
       this.formAction = $localize`@@rules.component.save:Save`;
     } else {
