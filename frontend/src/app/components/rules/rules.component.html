@@ -1,11 +1,11 @@
-<div  class="grid">
+<div class="grid">
   <div class="col-12">
     <div class="grid">
       <div class="col-12 md:col-6 equal-width constraints-card">
         <div class="card px-6 py-6">
-          <h2 style="text-align: center;">Constraints</h2>
+          <h2 style="text-align: center;" i18n="@@rules.component.title">Constraints</h2>
           <div class="subsection">
-            <h3 style="text-align: center;">Team Constraints</h3>
+            <h3 style="text-align: center;" i18n="@@rules.component.teamConstraints">Team Constraints</h3>
             <ul class="list-none p-0 m-0">
               <li *ngFor="let rule of teamConstraints"
                   [ngClass]="{'font-medium': rule !== selectedRule, 'font-selected': rule === selectedRule}"
@@ -21,7 +21,7 @@
             </ul>
           </div>
           <div class="subsection">
-            <h3 style="text-align: center;">Roles</h3>
+            <h3 style="text-align: center;" i18n="@@rules.component.roles">Roles</h3>
             <ul class="list-none p-0 m-0">
               <li *ngFor="let role of roleRules"
                   (keydown)="handleKeydown($event, role, 'role')"
@@ -31,8 +31,8 @@
               >
                 <span class="text-xl mr-2 md:mb-0"
                       [ngClass]="{'font-medium': role.roleId !== selectedRoleRules?.roleId,
-                       'font-selected': role.roleId === selectedRoleRules?.roleId && !showRulesEditCard}">
-                  {{ getNameOfRole(role) }}</span>
+                       'font-selected': role.roleId === selectedRoleRules?.roleId && !showRulesEditCard}"
+                >{{ getNameOfRole(role) }}</span>
               </li>
             </ul>
           </div>
@@ -40,31 +40,34 @@
       </div>
       <div class="col-12 md:col-6 equal-width edit-card" *ngIf="selectedRule || selectedRoleRules">
         <div class="card p-fluid">
-          <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
+          <h2 style="text-align: center;" i18n="@@rules.component.formTitle">{{ getFormTitle() }}</h2>
           <div class="field grid input-container" *ngIf="selectedRule && showRulesEditCard">
-            <label htmlFor="ruleValue" >{{selectedRule.description}}</label>
+            <label htmlFor="ruleValue" i18n="@@rules.component.ruleDescription">{{selectedRule.description}}</label>
             <span>
               <input pInputText="" id="ruleValue" type="number" class="p-inputtext p-component p-element"
                      [(ngModel)]="selectedRule!.value"
                      [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRule.value === null}"
                      [disabled]="formMode === 'details'">
-              <small *ngIf="submitted && selectedRule.value === null">Value must be a number.</small>
+              <small *ngIf="submitted && selectedRule.value === null"
+                     i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
             </span>
           </div>
           <div *ngIf="selectedRoleRules && !showRulesEditCard">
             <div class="field grid input-container">
-              <label htmlFor="daytimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0">Number of required people for this role during the day</label>
+              <label htmlFor="daytimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.daytimeRequiredPeopleLabel">Number of required people for this role during the day</label>
               <span>
                 <input pInputText="" id="daytimeRequiredPeople" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.daytimeRequiredPeople"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.daytimeRequiredPeople === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.daytimeRequiredPeople === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.daytimeRequiredPeople === null"
+                       i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
               <label htmlFor="nighttimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0"
-                     i18n="@@nighttimeRequiredPeopleOnRoleLabel">
+                     i18n="@@rules.component.nighttimeRequiredPeopleLabel">
                 Number of required people for this role during the night
               </label>
               <span>
@@ -72,59 +75,68 @@
                        [(ngModel)]="selectedRoleRules.nighttimeRequiredPeople"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.nighttimeRequiredPeople === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.nighttimeRequiredPeople === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.nighttimeRequiredPeople === null"
+                       i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="allowedFlexitimeTotal" class="col-12 mb-2 md:col-2 md:mb-0">Allowed flextime total for this role</label>
+              <label htmlFor="allowedFlexitimeTotal" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.allowedFlexitimeTotalLabel">Allowed flextime total for this role</label>
               <span>
                 <input pInputText="" id="allowedFlexitimeTotal" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.allowedFlextimeTotal"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimeTotal === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.allowedFlextimeTotal === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.allowedFlextimeTotal === null"
+                       i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="allowedFlexitimePerMonth" class="col-12 mb-2 md:col-2 md:mb-0">Allowed flextime monthly for this role</label>
+              <label htmlFor="allowedFlexitimePerMonth" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.allowedFlexitimePerMonthLabel">Allowed flextime monthly for this role</label>
               <span>
                 <input pInputText="" id="allowedFlexitimePerMonth" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.allowedFlextimePerMonth"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimePerMonth === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.allowedFlextimePerMonth === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.allowedFlextimePerMonth === null"
+                       i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="workingHours" class="col-12 mb-2 md:col-2 md:mb-0">Weekly working hours for this role</label>
+              <label htmlFor="workingHours" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.workingHoursLabel">Weekly working hours for this role</label>
               <span>
                 <input pInputText="" id="workingHours" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.workingHours"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.workingHours === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.workingHours === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.workingHours === null" i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="maxWeeklyHours" class="col-12 mb-2 md:col-2 md:mb-0">Maximum weekly hours for this role</label>
+              <label htmlFor="maxWeeklyHours" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.maxWeeklyHoursLabel">Maximum weekly hours for this role</label>
               <span>
                 <input pInputText="" id="maxWeeklyHours" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.maxWeeklyHours"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.maxWeeklyHours === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.maxWeeklyHours === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.maxWeeklyHours === null" i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
             </div>
             <div class="field grid input-container">
-              <label htmlFor="maxConsecutiveShifts" class="col-12 mb-2 md:col-2 md:mb-0">Maximum consecutive number of shifts for this role can take</label>
+              <label htmlFor="maxConsecutiveShifts" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.maxConsecutiveShiftsLabel">Maximum consecutive number of shifts for this role can take</label>
               <span>
                 <input pInputText="" id="maxConsecutiveShifts" type="number" class="p-inputtext p-component p-element"
                        [(ngModel)]="selectedRoleRules.maxConsecutiveShifts"
                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.maxConsecutiveShifts === null}"
                        [disabled]="formMode === 'details'">
-                <small *ngIf="submitted && selectedRoleRules.maxConsecutiveShifts === null">Value must be a number.</small>
+                <small *ngIf="submitted && selectedRoleRules.maxConsecutiveShifts === null"
+                       i18n="@@rules.component.valueMustBeANumber">Value must be a number.</small>
               </span>
-          </div>
+            </div>
           </div>
           <p-toast></p-toast>
           <div class="button-container" *ngIf="formMode === 'create'">
@@ -149,11 +161,11 @@
               pRipple=""
               label="Edit"
               icon="pi pi-pencil"
-              class="p-element p-ripple p-button-raised p-button-info p-button p-component"
+              class="p-element p-ripple p-button-raised p-button-info p-button p-component width-auto"
               style="height: 35px;"
             >
               <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
-              <span class="p-button-label">Edit</span>
+              <span class="p-button-label" i18n="@@rules.component.editButton">Edit</span>
               <span class="p-ink" aria-hidden="true" role="presentation"></span>
             </button>
             <p-toast></p-toast>
@@ -166,10 +178,10 @@
                 pRipple=""
                 type="button"
                 label="Success"
-                class="p-element p-ripple p-button-success p-button p-component"
+                class="p-element p-ripple p-button-success p-button p-component width-auto"
               >
                 <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
-                <span class="p-button-label ">{{ formAction }}</span>
+                <span class="p-button-label">{{ formAction }}</span>
                 <span class="p-ink" aria-hidden="true" role="presentation"></span>
               </button>
               <button
@@ -179,11 +191,13 @@
                 pRipple=""
                 label="Cancel"
                 icon="pi pi-times"
-                class="p-element p-ripple p-button-raised p-button-secondary p-button p-component"
+                class="p-element p-ripple p-button-raised p-button-secondary p-button p-component width-auto"
                 style="height: 35px;"
               >
                 <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true"></span>
-                <span class="p-button-label">Cancel</span>
+                <span class="p-button-label" i18n="@@rules.component.cancelButton">
+                  Cancel
+                </span>
                 <span class="p-ink" aria-hidden="true" role="presentation"></span>
               </button>
             </div>
