@@ -87,10 +87,10 @@ class MonthlyPlanControllerIT {
     //TODO: fix keycloak user representation, then add test back
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createRole_succeeds() throws Exception {
-        Team team = new Team(null, "test team", 40, null, null, null, null, null);
+        Team team = new Team(null, "test team", null, null, 40, 0, null, null);
         team = teamService.create(team, () -> USER_ID);
 
-        Role role = new Role(null, "test role", null, null, 40, 20, 0, 0, null, team, null);
+        Role role = new Role(null, "test role", null, null, 40, 20, 0, 0, 0, 0,0, null, team, null);
         role = roleService.create(role, () -> USER_ID);
 
         ShiftType shiftType = new ShiftType(null,

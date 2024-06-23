@@ -78,6 +78,9 @@ public class RoleService {
         role.setNighttimeRequiredPeople(0);
         role.setAllowedFlextimeTotal(40);
         role.setAllowedFlextimePerMonth(20);
+        role.setWorkingHours(20);
+        role.setMaxWeeklyHours(80);
+        role.setMaxConsecutiveShifts(2);
 
         roles.add(role);
         dm.getTeam().setRoles(roles);
@@ -154,6 +157,9 @@ public class RoleService {
         role.setAllowedFlextimePerMonth(dto.allowedFlextimePerMonth());
         role.setDaytimeRequiredPeople(dto.daytimeRequiredPeople());
         role.setNighttimeRequiredPeople(dto.nighttimeRequiredPeople());
+        role.setWorkingHours(dto.workingHours());
+        role.setMaxWeeklyHours(dto.maxWeeklyHours());
+        role.setMaxConsecutiveShifts(dto.maxConsecutiveShifts());
         repository.save(role);
         return role;
     }

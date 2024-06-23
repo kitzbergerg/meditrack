@@ -61,10 +61,8 @@ public class AlgorithmMapper {
                             role.getName(),
                             role.getDaytimeRequiredPeople(),
                             role.getNighttimeRequiredPeople(),
-                            // TODO #98: change to use roles
-                            team.getHardConstraints().getMaxWeeklyHours(),
-                            // TODO #98: change to use roles
-                            team.getHardConstraints().getMaxConsecutiveShifts()
+                            role.getMaxWeeklyHours(),
+                            role.getMaxConsecutiveShifts()
                     )
             );
             roleUuidToIndex.put(role.getId(), i);
@@ -122,7 +120,8 @@ public class AlgorithmMapper {
 
             // we do not consider public holidays or weekends
             // this is close enough for the algorithm to get good results
-            float averageWorkingHoursPerDay = employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours() / 7;
+            float averageWorkingHoursPerDay = employee.getWorkingHoursPercentage() / 100
+                    * employee.getRole().getWorkingHours() / 7;
             int numberOfWorkingDays = numberOfDays - holidayDays.size();
             int averageWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
 
@@ -150,8 +149,8 @@ public class AlgorithmMapper {
                 employeeInfos,
                 shiftTypeInfos,
                 roleInfos,
-                team.getHardConstraints().getDaytimeRequiredPeople(),
-                team.getHardConstraints().getNighttimeRequiredPeople()
+                team.getDaytimeRequiredPeople(),
+                team.getNighttimeRequiredPeople()
         );
     }
 
