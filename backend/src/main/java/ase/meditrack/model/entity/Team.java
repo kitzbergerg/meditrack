@@ -1,14 +1,11 @@
 package ase.meditrack.model.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -33,18 +30,17 @@ public class Team {
     @Column(unique = true)
     private String name;
 
-    @Column(nullable = false)
-    private Integer workingHours;
-
     @OneToMany(mappedBy = "team")
     private List<Role> roles;
 
     @OneToMany(mappedBy = "team")
     private List<User> users;
 
-    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, optional = false)
-    @PrimaryKeyJoinColumn
-    private HardConstraints hardConstraints;
+    @Column(nullable = false)
+    private Integer daytimeRequiredPeople;
+
+    @Column(nullable = false)
+    private Integer nighttimeRequiredPeople;
 
     @OneToMany(mappedBy = "team")
     private List<MonthlyPlan> monthlyPlans;

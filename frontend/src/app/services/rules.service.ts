@@ -20,9 +20,6 @@ export class RulesService {
 
   saveRules(rules: Rule[]): Observable<HardConstraintsDto> {
     const dto: HardConstraintsDto = {
-      workingHours: null,
-      maxWeeklyHours: null,
-      maxConsecutiveShifts: null,
       daytimeRequiredPeople: null,
       nighttimeRequiredPeople: null,
     };

@@ -1,11 +1,11 @@
 import {APP_INITIALIZER, NgModule} from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { RouterModule } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { HttpClientModule } from '@angular/common/http';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
+import {RouterModule} from '@angular/router';
+import {LoginComponent} from './components/login/login.component';
+import {HttpClientModule} from '@angular/common/http';
 import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
 import { ButtonModule } from 'primeng/button';
 import {StyleClassModule} from "primeng/styleclass";
@@ -22,8 +22,8 @@ import {DropdownModule} from "primeng/dropdown";
 import {InputTextModule} from "primeng/inputtext";
 import {ImageModule} from "primeng/image";
 import {ShiftTypesComponent} from "./components/shift-types/shift-types.component";
-import { ColorPickerModule } from 'primeng/colorpicker';
-import { CalendarModule } from "primeng/calendar";
+import {ColorPickerModule} from 'primeng/colorpicker';
+import {CalendarModule} from "primeng/calendar";
 import {MultiSelectModule} from "primeng/multiselect";
 import {ToastModule} from "primeng/toast";
 import {ConfirmationService, MessageService} from 'primeng/api';
@@ -34,6 +34,7 @@ import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
 import {RulesComponent} from "./components/rules/rules.component";
 import {CardModule} from "primeng/card";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {HolidaysComponent} from "./components/holidays/holidays.component";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -68,7 +69,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
     DashboardComponent,
     ShiftTypesComponent,
     TeamComponent,
-    ShiftSwapComponent
+    ShiftSwapComponent,
+    HolidaysComponent
   ],
   imports: [
     BrowserModule,

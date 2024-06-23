@@ -1,6 +1,5 @@
 package ase.meditrack.algorithm;
 
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
@@ -62,6 +61,10 @@ class AlgorithmMapperTest {
         when(user.getRole().getId()).thenReturn(null);
         when(user.getRole().getAllowedFlextimeTotal()).thenReturn(10);
         when(user.getRole().getAllowedFlextimePerMonth()).thenReturn(10);
+        when(user.getRole().getWorkingHours()).thenReturn(40);
+        when(user.getRole().getMaxWeeklyHours()).thenReturn(80);
+        when(user.getRole().getMaxConsecutiveShifts()).thenReturn(3);
+        when(user.getRole().getWorkingHours()).thenReturn(40);
         employees.add(user);
 
         ShiftType shiftType = mock(ShiftType.class);
@@ -70,15 +73,6 @@ class AlgorithmMapperTest {
         when(shiftType.getStartTime()).thenReturn(LocalTime.of(9, 0));
         when(shiftType.getEndTime()).thenReturn(LocalTime.of(17, 0));
         shiftTypes.add(shiftType);
-
-        HardConstraints hardConstraints = new HardConstraints();
-
-        hardConstraints.setWorkingHours(40);
-        hardConstraints.setMaxWeeklyHours(80);
-        hardConstraints.setMaxConsecutiveShifts(3);
-        hardConstraints.setDaytimeRequiredPeople(20);
-        hardConstraints.setNighttimeRequiredPeople(20);
-        when(team.getHardConstraints()).thenReturn(hardConstraints);
 
         algorithmMapper.mapToAlgorithmInput(month, year, employees, Map.of(user.getId(), List.of()), shiftTypes, roles,
                 team, List.of());
@@ -109,7 +103,6 @@ class AlgorithmMapperTest {
         List<ShiftType> shiftTypes2 = new ArrayList<>();
         List<Role> roles = new ArrayList<>();
         Team team = mock(Team.class);
-        HardConstraints constraints = mock(HardConstraints.class);
 
         // Create mock data
         Preferences preferences = new Preferences();
@@ -158,17 +151,6 @@ class AlgorithmMapperTest {
         when(role2.getId()).thenReturn(UUID.randomUUID());
         when(role2.getName()).thenReturn("Nurse");
         roles.add(role2);
-
-        HardConstraints hardConstraints = new HardConstraints();
-
-        when(team.getWorkingHours()).thenReturn(160);
-        when(team.getHardConstraints()).thenReturn(hardConstraints);
-
-        when(constraints.getWorkingHours()).thenReturn(40);
-        when(constraints.getMaxWeeklyHours()).thenReturn(80);
-        when(constraints.getMaxConsecutiveShifts()).thenReturn(3);
-        when(constraints.getDaytimeRequiredPeople()).thenReturn(20);
-        when(constraints.getNighttimeRequiredPeople()).thenReturn(20);
 
 
         AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(

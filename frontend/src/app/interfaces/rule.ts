@@ -12,12 +12,12 @@ export interface RoleRules {
   nighttimeRequiredPeople: number | null
   allowedFlextimeTotal: number | null,
   allowedFlextimePerMonth: number | null,
-}
-
-export interface HardConstraintsDto {
   workingHours: number | null,
   maxWeeklyHours: number | null,
   maxConsecutiveShifts: number | null,
+}
+
+export interface HardConstraintsDto {
   daytimeRequiredPeople: number | null,
   nighttimeRequiredPeople: number | null,
 }

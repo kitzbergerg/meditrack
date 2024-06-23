@@ -1,17 +1,17 @@
 package ase.meditrack.config;
 
 import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
@@ -76,7 +76,7 @@ public class DataGeneratorBean {
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
     private static final Integer NUM_USERS_WITH_ROLES = 9;
-    private static final Integer NUM_HOLIDAYS = 0;
+    private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
@@ -116,16 +116,8 @@ public class DataGeneratorBean {
         for (int i = 0; i < NUM_TEAMS; i++) {
             Team team = new Team();
             team.setName(FAKER.team().name());
-            team.setWorkingHours(FAKER.number().numberBetween(20, 40));
-            team.setHardConstraints(new HardConstraints(
-                    null,
-                    40,
-                    80,
-                    3,
-                    2,
-                    1,
-                    team
-            ));
+            team.setNighttimeRequiredPeople(0);
+            team.setDaytimeRequiredPeople(0);
             teams.add(teamRepository.save(team));
         }
     }
@@ -142,6 +134,9 @@ public class DataGeneratorBean {
                 role.setAllowedFlextimePerMonth(20);
                 role.setDaytimeRequiredPeople(0);
                 role.setNighttimeRequiredPeople(0);
+                role.setWorkingHours(40);
+                role.setMaxWeeklyHours(80);
+                role.setMaxConsecutiveShifts(7);
                 role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
                 role.setColor(FAKER.color().hex());
                 roles.add(roleRepository.save(role));
@@ -234,7 +229,7 @@ public class DataGeneratorBean {
                 Holiday holiday = new Holiday();
                 holiday.setStartDate(generateValidRandomFutureDate());
                 holiday.setEndDate(holiday.getStartDate().plusDays(1));
-                holiday.setIsApproved(false);
+                holiday.setStatus(HolidayRequestStatus.REQUESTED);
                 holiday.setUser(user);
                 holidayRepository.save(holiday);
             }

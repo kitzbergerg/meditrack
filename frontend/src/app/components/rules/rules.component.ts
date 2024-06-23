@@ -13,12 +13,6 @@ import { MessageService } from 'primeng/api';
 export class RulesComponent implements OnInit {
   loading = true;
   teamConstraints: Rule[] = [
-    { name: 'workingHours', label: $localize`working hours`,
-      description: $localize`regular amount of working hours employees should do every month`, value: null },
-    { name: 'maxWeeklyHours', label: $localize`maximum weekly hours`,
-      description: $localize`maximum amount of weekly hours for employees`, value: null },
-    { name: 'maxConsecutiveShifts', label: $localize`maximum consecutive shifts`,
-      description: $localize`maximum amount of consecutive shifts an employee should be able to work`, value: null },
     { name: 'daytimeRequiredPeople', label: $localize`daytime required people`,
       description: $localize`number of required employees during the day`, value: null },
     { name: 'nighttimeRequiredPeople', label: $localize`nighttime required people`,
@@ -49,11 +43,8 @@ export class RulesComponent implements OnInit {
 
   loadRules(): void {
     this.rulesService.getAllRulesFromTeam().subscribe((fetchedRules) => {
-      this.teamConstraints[0].value = fetchedRules.workingHours;
-      this.teamConstraints[1].value = fetchedRules.maxWeeklyHours;
-      this.teamConstraints[2].value = fetchedRules.maxConsecutiveShifts;
-      this.teamConstraints[3].value = fetchedRules.daytimeRequiredPeople;
-      this.teamConstraints[4].value = fetchedRules.nighttimeRequiredPeople;
+      this.teamConstraints[0].value = fetchedRules.daytimeRequiredPeople;
+      this.teamConstraints[1].value = fetchedRules.nighttimeRequiredPeople;
     });
   }
 
@@ -93,18 +84,20 @@ export class RulesComponent implements OnInit {
   getFormTitle(): string {
     if (this.formMode === 'edit') {
       if (this.showRulesEditCard) {
-        this.formTitle = 'Edit Rule';
+        this.formTitle = $localize`@@rules.component.edit-rule:Edit Rule`;
       } else {
-        this.formTitle = 'Edit Rules for Roles';
+        this.formTitle = $localize`@@rules.component.edit-rules-for-roles:Edit Rules for Role` + ' ' +
+          this.roles.find(x => x.id == this.selectedRoleRules?.roleId)?.name;
       }
-      this.formAction = 'Save';
+      this.formAction = $localize`@@rules.component.save:Save`;
     } else {
       if (this.showRulesEditCard) {
-        this.formTitle = 'Rule Details';
+        this.formTitle = $localize`@@rules.component.rule-details:Rule Details`;
       } else {
-        this.formTitle = 'Rule Details For Role ' + this.roles.find(x => x.id == this.selectedRoleRules?.roleId)?.name;
+        this.formTitle = $localize`@@rules.component.rule-details-for-role:Rule Details For Role` + ' ' +
+          this.roles.find(x => x.id == this.selectedRoleRules?.roleId)?.name;
       }
-      this.formAction = 'Edit';
+      this.formAction = $localize`@@rules.component.edit:Edit`;
     }
     return this.formTitle;
   }
@@ -114,7 +107,10 @@ export class RulesComponent implements OnInit {
     if (this.selectedRule && this.selectedRule.value !== null) {
       this.updateRule();
     } else {
-      this.messageService.add({ severity: 'warn', summary: 'Validation Failed', detail: 'Please read the warnings.' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: $localize`@@rules.component.validation-failed:Validation Failed`,
+        detail: $localize`@@rules.component.please-read-the-warnings:Please read the warnings.` });
     }
   }
 
@@ -123,13 +119,17 @@ export class RulesComponent implements OnInit {
       this.teamConstraints.find(x => x.name === this.selectedRule!.name)!.value = this.selectedRule!.value;
       this.rulesService.saveRules(this.teamConstraints).subscribe({
         next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Successfully Updated Rule' });
+          this.messageService.add({ severity: 'success',
+            summary: $localize`@@rules.component.successfully-updated-rule:Successfully Updated Rule` });
           this.formMode = 'details'; // Revert to non-edit mode
           this.selectedRuleBackup = { ...this.selectedRule! };
         },
         error: (error) => {
           console.error('Error updating rule:', error);
-          this.messageService.add({ severity: 'error', summary: 'Updating Rule Failed', detail: error.error });
+          this.messageService.add({
+            severity: 'error',
+            summary: $localize`@@rules.component.updating-rule-failed:Updating Rule Failed`,
+            detail: JSON.stringify(error.error) });
         }
       });
     } else {
@@ -140,18 +140,24 @@ export class RulesComponent implements OnInit {
         this.selectedRoleRules.allowedFlextimePerMonth !== null && !isNaN(this.selectedRoleRules.allowedFlextimePerMonth)) {
         this.rulesService.updateRoleRule(this.selectedRoleRules!).subscribe({
           next: () => {
-            this.messageService.add({severity: 'success', summary: 'Successfully Updated Rules for Role'});
+            this.messageService.add({severity: 'success',
+              summary: $localize`@@rules.component.successfully-updated-rules-for-role:Successfully Updated Rules for Role`});
             this.formMode = 'details'; // Revert to non-edit mode
             // Update backup values after successful save
             this.selectedRoleRulesBackup = { ...this.selectedRoleRules! };
           },
           error: (error) => {
             console.error('Error updating rule:', error);
-            this.messageService.add({severity: 'error', summary: 'Updating Rule Failed', detail: error.error});
+            this.messageService.add({
+              severity: 'error',
+              summary: $localize`@@rules.component.updating-rule-failed:Updating rules for role failed`,
+              detail: JSON.stringify(error.error) });
           }
         });
       } else {
-        this.messageService.add({severity: 'warn', summary: 'Validation Failed', detail: 'Please enter valid numbers in all fields.'});
+        this.messageService.add({severity: 'warn',
+          summary: $localize`@@rules.component.validation-failed:Validation Failed`,
+          detail: $localize`@@rules.component.please-read-the-warnings:Please read the warnings.` });
       }
     }
   }

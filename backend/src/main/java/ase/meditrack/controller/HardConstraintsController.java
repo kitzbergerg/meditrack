@@ -3,9 +3,11 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.dto.HardConstraintsDto;
 import ase.meditrack.model.dto.RoleHardConstraintsDto;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.HardConstraintsMapper;
-import ase.meditrack.service.HardConstraintsService;
 import ase.meditrack.service.RoleService;
+import ase.meditrack.service.TeamService;
+import ase.meditrack.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,22 +31,25 @@ import java.util.stream.Collectors;
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class HardConstraintsController {
-    private final HardConstraintsService service;
+    private final TeamService teamService;
     private final RoleService roleService;
     private final HardConstraintsMapper mapper;
+    private final UserService userService;
 
-    public HardConstraintsController(HardConstraintsService service, RoleService roleService,
-                                     HardConstraintsMapper mapper) {
-        this.service = service;
+    public HardConstraintsController(TeamService teamService, RoleService roleService,
+                                     HardConstraintsMapper mapper, UserService userService) {
+        this.teamService = teamService;
         this.roleService = roleService;
         this.mapper = mapper;
+        this.userService = userService;
     }
 
     @GetMapping("")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
     public HardConstraintsDto findByTeam(Principal principal) {
         log.info("Fetching hardConstraint");
-        return mapper.toDto(service.findByTeam(principal));
+        User dm = userService.getPrincipalWithTeam(principal);
+        return mapper.toDto(teamService.findById(dm.getTeam().getId()));
     }
 
     @PostMapping
@@ -55,7 +60,8 @@ public class HardConstraintsController {
             @RequestBody HardConstraintsDto dto,
             Principal principal) {
         log.info("Updating hardConstraints");
-        return mapper.toDto(service.update(mapper.fromDto(dto), principal));
+        User dm = userService.getPrincipalWithTeam(principal);
+        return mapper.toDto(teamService.updateTeamConstraints(dm, dto));
     }
 
     @GetMapping("/roleRules")
