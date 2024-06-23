@@ -79,8 +79,7 @@ public class MonthlyPlanCreator {
         YearMonth yearMonthBefore = yearMonth.minusMonths(1);
         int maxConsecShifts = team.getRoles().stream().mapToInt(Role::getMaxConsecutiveShifts).max()
                 .orElseThrow(() -> new RuntimeException("no roles for team"));
-        int daysToDivisibleBy7 = yearMonth.atEndOfMonth().getDayOfMonth() % 7;
-        LocalDate startDate = yearMonthBefore.atEndOfMonth().minusDays(Math.max(maxConsecShifts, daysToDivisibleBy7));
+        LocalDate startDate = yearMonthBefore.atEndOfMonth().minusDays(Math.max(maxConsecShifts, 1));
         List<Shift> prevMonthShifts = shiftRepository.findAllByTeamAndDateAfterAndDateBefore(
                 team.getId(),
                 startDate,

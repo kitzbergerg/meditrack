@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -148,14 +149,21 @@ public class AlgorithmMapper {
             ));
         }
 
-        // TODO: use this
-        List<ShiftInfo> shiftInfos = prevMonthShifts.stream().flatMap(shift -> {
+        TreeMap<Integer, TreeMap<Integer, Integer>> dayToEmployeeToShiftTypeMapping = new TreeMap<>();
+        for (Shift shift : prevMonthShifts) {
             Integer day = shift.getDate().getDayOfMonth();
             Integer shiftType = shiftTypeUuidToIndex.get(shift.getShiftType().getId());
-            return shift.getUsers()
-                    .stream()
-                    .map(user -> new ShiftInfo(employeeUuidToIndex.get(user.getId()), day, shiftType));
-        }).toList();
+            if (shiftType == null) continue;
+            for (User user : shift.getUsers()) {
+                Integer employee = employeeUuidToIndex.get(user.getId());
+                if (employee == null) continue;
+                dayToEmployeeToShiftTypeMapping.compute(day, (key, value) -> {
+                    if (value == null) value = new TreeMap<>();
+                    value.put(employee, shiftType);
+                    return value;
+                });
+            }
+        }
 
         return new AlgorithmInput(
                 numberOfDays,
@@ -163,7 +171,8 @@ public class AlgorithmMapper {
                 shiftTypeInfos,
                 roleInfos,
                 team.getDaytimeRequiredPeople(),
-                team.getNighttimeRequiredPeople()
+                team.getNighttimeRequiredPeople(),
+                dayToEmployeeToShiftTypeMapping
         );
     }
 
