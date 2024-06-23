@@ -3,6 +3,7 @@ package ase.meditrack.service.algorithm;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
@@ -76,10 +77,8 @@ public class MonthlyPlanCreator {
 
         YearMonth yearMonth = YearMonth.of(year, month);
         YearMonth yearMonthBefore = yearMonth.minusMonths(1);
-        // TODO #98: change to use roles; use
-        //  team.getRoles().stream().mapToInt(Role::getMaxConsecutiveShifts).max()
-        //  to find role with largest consec shifts
-        int maxConsecShifts = team.getHardConstraints().getMaxConsecutiveShifts();
+        int maxConsecShifts = team.getRoles().stream().mapToInt(Role::getMaxConsecutiveShifts).max()
+                .orElseThrow(() -> new RuntimeException("no roles for team"));
         int daysToDivisibleBy7 = yearMonth.atEndOfMonth().getDayOfMonth() % 7;
         LocalDate startDate = yearMonthBefore.atEndOfMonth().minusDays(Math.max(maxConsecShifts, daysToDivisibleBy7));
         List<Shift> prevMonthShifts = shiftRepository.findAllByTeamAndDateAfterAndDateBefore(
