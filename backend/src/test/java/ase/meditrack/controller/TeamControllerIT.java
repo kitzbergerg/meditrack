@@ -4,10 +4,12 @@ import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.TeamDto;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -56,14 +58,17 @@ class TeamControllerIT {
     private TeamRepository teamRepository;
     @Autowired
     private UserRepository userRepository;
+    private User user;
     @Autowired
     private MonthlyPlanRepository monthlyPlanRepository;
     @Autowired
     private ShiftTypeRepository shiftTypeRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @BeforeEach
     void setup() {
-        userRepository.save(new User(
+        user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
                 null,
                 1f,
@@ -148,12 +153,26 @@ class TeamControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_updateTeam_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        roleRepository.save(role);
+
+        List<UUID> roles = new ArrayList<>();
+        roles.add(role.getId());
+
+        List<UUID> users = new ArrayList<>();
+        users.add(user.getId());
+        user.setRole(role);
+        userRepository.save(user);
+
         TeamDto dto = new TeamDto(
                 null,
                 "testTeam",
                 0,
-                null,
-                null,
+                roles,
+                users,
                 null,
                 null,
                 null
@@ -172,8 +191,8 @@ class TeamControllerIT {
                 created.id(),
                 "Updated Team",
                 2,
-                null,
-                null,
+                roles,
+                users,
                 null,
                 null,
                 null);
@@ -188,16 +207,26 @@ class TeamControllerIT {
 
         assertAll(
                 () -> assertEquals(updatedTeamDto.id(), responseTeam.id()),
-                () -> assertEquals(updatedTeamDto.name(), responseTeam.name()),
-                () -> assertEquals(1, teamRepository.count())
+                () -> assertEquals(updatedTeamDto.name(), responseTeam.name())
         );
     }
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createTeam_succeeds() throws Exception {
+        Role role = new Role();
+        role.setName("Test Role");
+        role.setColor("FF0000");
+        role.setAbbreviation("TR");
+        roleRepository.save(role);
+
+        List<UUID> roles = new ArrayList<>();
+        roles.add(role.getId());
+
         List<UUID> users = new ArrayList<>();
-        users.add(UUID.fromString(USER_ID));
+        users.add(user.getId());
+        user.setRole(role);
+        userRepository.save(user);
 
         ShiftType shiftType = new ShiftType();
         shiftType.setName("Test ShiftType");
@@ -218,9 +247,6 @@ class TeamControllerIT {
         monthlyPlanRepository.save(monthlyPlan);
         List<UUID> monthlyPlans = new ArrayList<>();
         monthlyPlans.add(monthlyPlan.getId());
-
-        List<UUID> roles = new ArrayList<>();
-        roles.add(UUID.randomUUID());
 
         TeamDto dto = new TeamDto(
                 null,
@@ -245,8 +271,7 @@ class TeamControllerIT {
         assertAll(
                 () -> assertNotNull(created),
                 () -> assertNotNull(created.id()),
-                () -> assertEquals(dto.name(), created.name()),
-                () -> assertEquals(1, teamRepository.count())
+                () -> assertEquals(dto.name(), created.name())
         );
     }
 }

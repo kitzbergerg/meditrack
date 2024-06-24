@@ -6,6 +6,7 @@ import ase.meditrack.model.dto.ShiftTypeDto;
 import ase.meditrack.model.mapper.ShiftTypeMapper;
 import ase.meditrack.service.ShiftTypeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.security.Principal;
 import java.util.List;
@@ -59,6 +61,7 @@ public class ShiftTypeController {
 
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
             + "(hasAnyAuthority('SCOPE_dm') && @teamService.isInTeam(authentication.name, #dto.team()))")
     public ShiftTypeDto create(@Validated(CreateValidator.class) @RequestBody ShiftTypeDto dto, Principal principal) {
@@ -75,6 +78,7 @@ public class ShiftTypeController {
     }
 
     @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
             + "(hasAnyAuthority('SCOPE_dm') && @shiftTypeService.isShiftTypeInTeam(authentication.name, #id))")
     public void delete(@PathVariable UUID id) {
