@@ -167,8 +167,8 @@ class MonthlyPlanControllerIT {
         MonthlyPlan savedMonthlyPlan = repository.findById(monthlyPlan.getId()).get();
 
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/monthly-plan/team")
-                    .param("year", Year.of(2024).toString())
-                    .param("month", Month.JUNE.toString()))
+                        .param("year", Year.of(2024).toString())
+                        .param("month", Month.JUNE.toString()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 

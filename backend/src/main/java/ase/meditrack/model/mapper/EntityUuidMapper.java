@@ -1,6 +1,5 @@
 package ase.meditrack.model.mapper;
 
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
@@ -102,19 +101,6 @@ public interface EntityUuidMapper {
     default Team idToTeam(UUID id) {
         if (id == null) return null;
         Team entity = new Team();
-        entity.setId(id);
-        return entity;
-    }
-
-
-    default UUID hardConstraintsToId(HardConstraints entity) {
-        if (entity == null) return null;
-        return entity.getId();
-    }
-
-    default HardConstraints idToHardConstraints(UUID id) {
-        if (id == null) return null;
-        HardConstraints entity = new HardConstraints();
         entity.setId(id);
         return entity;
     }

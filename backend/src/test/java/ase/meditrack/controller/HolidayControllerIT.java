@@ -84,10 +84,10 @@ class HolidayControllerIT {
         Team team = teamRepository.save(new Team(
                 null,
                 "test team",
-                40,
                 null,
                 null,
-                null,
+                0,
+                0,
                 null,
                 null));
         Role role = roleRepository.save(new Role(
@@ -95,6 +95,9 @@ class HolidayControllerIT {
                 "employeeRole",
                 null,
                 null,
+                0,
+                0,
+                0,
                 0,
                 0,
                 0,

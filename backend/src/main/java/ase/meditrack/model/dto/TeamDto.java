@@ -5,7 +5,6 @@ import ase.meditrack.model.UpdateValidator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +12,6 @@ import java.util.UUID;
 public record TeamDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @NotBlank(groups = CreateValidator.class) String name,
-        @PositiveOrZero Integer workingHours,
         List<UUID> roles,
         List<UUID> users,
         UUID hardConstraints,

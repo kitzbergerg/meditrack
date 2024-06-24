@@ -1,6 +1,6 @@
 package ase.meditrack.service;
 
-import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.dto.HardConstraintsDto;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.TeamRepository;
@@ -62,19 +62,8 @@ public class TeamService {
         users.add(creator);
         team.setUsers(users);
         creator.setTeam(team);
-
-        if (team.getWorkingHours() == null) team.setWorkingHours(40);
-        if (team.getHardConstraints() == null) {
-            team.setHardConstraints(new HardConstraints(
-                    null,
-                    40,
-                    80,
-                    3,
-                    2,
-                    1,
-                    team
-            ));
-        }
+        team.setDaytimeRequiredPeople(0);
+        team.setNighttimeRequiredPeople(0);
 
         return repository.save(team);
     }
@@ -87,24 +76,23 @@ public class TeamService {
      */
     public Team update(Team team) {
         Team dbTeam = findById(team.getId());
-
         if (team.getName() != null) {
             dbTeam.setName(team.getName());
         }
-        if (team.getWorkingHours() != null) {
-            dbTeam.setWorkingHours(team.getWorkingHours());
-        }
         if (team.getUsers() != null) {
             dbTeam.setUsers(team.getUsers());
-        }
-        if (team.getHardConstraints() != null) {
-            dbTeam.setHardConstraints(team.getHardConstraints());
         }
         if (team.getMonthlyPlans() != null) {
             dbTeam.setMonthlyPlans(team.getMonthlyPlans());
         }
         if (team.getShiftTypes() != null) {
             dbTeam.setShiftTypes(team.getShiftTypes());
+        }
+        if (team.getDaytimeRequiredPeople() != null) {
+            dbTeam.setDaytimeRequiredPeople(team.getDaytimeRequiredPeople());
+        }
+        if (team.getNighttimeRequiredPeople() != null) {
+            dbTeam.setNighttimeRequiredPeople(team.getNighttimeRequiredPeople());
         }
 
         return repository.save(dbTeam);
@@ -130,5 +118,18 @@ public class TeamService {
         List<User> users = repository.findById(teamId).get().getUsers();
         User user = userRepository.findById(userId).get();
         return users.contains(user);
+    }
+
+
+    /** update team constraints.
+     * @param user user.
+     * @param dto dto.
+     * @return team.
+     */
+    public Team updateTeamConstraints(User user, HardConstraintsDto dto) {
+        Team team = this.findById(user.getTeam().getId());
+        team.setDaytimeRequiredPeople(dto.daytimeRequiredPeople());
+        team.setNighttimeRequiredPeople(dto.nighttimeRequiredPeople());
+        return update(team);
     }
 }
