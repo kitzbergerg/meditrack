@@ -3,6 +3,7 @@ package ase.meditrack.service;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.*;
+import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,8 @@ public class ShiftServiceTest {
     private UserRepository userRepository;
     private User user;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private TeamService teamService;
     private Team team;
     @Autowired
@@ -60,13 +63,16 @@ public class ShiftServiceTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
 
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -76,11 +82,11 @@ public class ShiftServiceTest {
                 null,
                 null,
                 null
-        ));
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
         );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
     }
 
     @Test

@@ -47,14 +47,14 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public List<UserDto> findAll() {
         log.info("Fetching users");
         return mapper.toDtoList(service.findAll());
     }
 
     @GetMapping("/team")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee')")
     public List<UserDto> findByTeam(Principal principal) {
         log.info("Fetching users from dm team");
         try {
@@ -75,17 +75,18 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm')")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto) { // Principal principal
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm') && "
+            + "@userService.isCorrectUserSystemRole(#dto.roles(), #principal)  && "
+            + "@userService.isSameTeam(#principal, #dto))")
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize(
-            "hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') "
-                    + "|| (authentication.name == #dto.id().toString() && #dto.roles() == null)"
-    )
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') "
+            + "|| (authentication.name == #dto.id().toString() && #dto.roles() == null) "
+            + "|| (hasAnyAuthority('SCOPE_dm') && @userService.isSameTeam(#principal, #dto))")
     public UserDto update(@Validated(UpdateValidator.class) @RequestBody UserDto dto, Principal principal) {
         log.info("Updating user {}", dto.username());
         return mapper.toDto(service.update(mapper.fromDto(dto), principal));
@@ -93,15 +94,19 @@ public class UserController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || authentication.name == #id.toString()")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin')"
+            + "|| (hasAnyAuthority('SCOPE_dm') && @userService.isSameTeam(#principal, #id))")
     public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting user with id {}", id);
         service.delete(id, principal);
     }
 
     @GetMapping("/monthly-details")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && "
+            + "@userService.isSameTeam(#principal, #userId))")
     public MonthlyWorkDetailsDto getMonthlyWorkDetails(@RequestParam Year year,
-                                                       @RequestParam Month month, @RequestParam UUID userId) {
+                                                       @RequestParam Month month, @RequestParam UUID userId,
+                                                       Principal principal) {
         log.info("Fetching monthly work details from user");
         try {
             return monthlyWorkDetailsMapper.toDto(service.findWorkDetailsByIdAndMonthAndYear(userId, month, year));
@@ -110,5 +115,11 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Error getting monthly details from user: " + e.getMessage(), e);
         }
+    }
+
+    @GetMapping("/replacement/{id}")
+    public List<UserDto> getReplacementUsers(@PathVariable UUID id) {
+        log.info("Fetching replacement users for user {}", id);
+        return mapper.toDtoList(service.getSickReplacement(id));
     }
 }

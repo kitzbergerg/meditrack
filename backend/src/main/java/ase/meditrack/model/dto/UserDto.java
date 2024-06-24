@@ -23,7 +23,7 @@ public record UserDto(
         @NotBlank(groups = CreateValidator.class) @Length(max = 256) String firstName,
         @NotBlank(groups = CreateValidator.class) @Length(max = 256) String lastName,
         List<String> roles,
-        SimpleRoleDto role,
+        @NotNull(groups = CreateValidator.class) SimpleRoleDto role,
         @NotNull(groups = CreateValidator.class) @Range(min = 0, max = 100) Float workingHoursPercentage,
         @Null(groups = CreateValidator.class) Integer currentOverTime,
         List<String> specialSkills,
@@ -34,6 +34,6 @@ public record UserDto(
         List<UUID> suggestedShiftSwaps,
         List<UUID> shifts,
         List<SimpleShiftTypeDto> canWorkShiftTypes,
-        List<UUID> preferredShiftTypes
+        List<SimpleShiftTypeDto> preferredShiftTypes
 ) {
 }

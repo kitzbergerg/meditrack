@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.*;
 import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.ShiftType;
@@ -13,6 +14,7 @@ import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.RoleService;
 import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -63,6 +65,8 @@ class MonthlyPlanControllerIT {
     private User user;
     @Autowired
     private TeamService teamService;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
     private Team team;
     @Autowired
     private RoleService roleService;
@@ -75,13 +79,16 @@ class MonthlyPlanControllerIT {
 
     @BeforeEach
     void setup() {
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -91,11 +98,11 @@ class MonthlyPlanControllerIT {
                 null,
                 null,
                 null
-        ));
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
         );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
     }
 
     //TODO : fix keycloak user representation, then add test back
@@ -104,7 +111,7 @@ class MonthlyPlanControllerIT {
         Team team1 = new Team(null, "test team", 40, null, null, null, null, null);
         team1 = teamService.create(team, () -> USER_ID);
 
-        Role role = new Role(null, "test role", null, null, null, team, null);
+        Role role = new Role(null, "test role", null, null, 40, 20, 0, 0, null, team, null);
         role = roleService.create(role, () -> USER_ID);
 
         ShiftType shiftType = new ShiftType(null,
@@ -113,17 +120,15 @@ class MonthlyPlanControllerIT {
                 LocalTime.of(12, 0, 0),
                 LocalTime.of(10, 0, 0),
                 LocalTime.of(10, 30, 0),
-                "Day",
                 "#000000",
                 "t",
-                null,
                 team,
                 null,
                 null,
                 null
 
         );
-        shiftType = shiftTypeService.create(shiftType, () -> USER_ID);
+        shiftTypeService.create(shiftType, () -> USER_ID);
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/monthly-plan")
@@ -148,10 +153,11 @@ class MonthlyPlanControllerIT {
         );
     }
 
-    //TODO : fix keycloak user representation, then add test back @Test
+    //TODO : fix keycloak user representation, then add test back
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_getMonthlyPlanByTeamMonthYear_succeeds() throws Exception {
         userRepository.flush();
+        repository.flush();
         MonthlyPlan monthlyPlan = new MonthlyPlan();
         monthlyPlan.setTeam(team);
         monthlyPlan.setYear(2024);
@@ -162,8 +168,7 @@ class MonthlyPlanControllerIT {
 
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/monthly-plan/team")
                     .param("year", Year.of(2024).toString())
-                    .param("month", Month.JUNE.toString())
-                    .param("teamId", team.getId().toString()))
+                    .param("month", Month.JUNE.toString()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
@@ -259,7 +264,7 @@ class MonthlyPlanControllerIT {
                 simpleRoleDto);
         List<UUID> users = new ArrayList<>();
         users.add(userScheduleDto.id());
-        ShiftDto shiftDto = new ShiftDto(null, null, null, null, users, null, null);
+        ShiftDto shiftDto = new ShiftDto(null, null, false, null, null, users, null, null);
         List<ShiftDto> shifts = new ArrayList<>();
         shifts.add(shiftDto);
         MonthlyPlanDto updatedMonthlyPlanDto = new MonthlyPlanDto(

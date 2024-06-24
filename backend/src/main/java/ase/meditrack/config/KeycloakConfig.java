@@ -1,8 +1,13 @@
 package ase.meditrack.config;
 
 import ase.meditrack.model.dto.UserDto;
+import ase.meditrack.model.entity.HardConstraints;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
+import ase.meditrack.repository.RoleRepository;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -39,12 +44,18 @@ public class KeycloakConfig {
     @Configuration("postConstruct")
     public static class KeycloakPostConstruct {
         private final RealmResource meditrackRealm;
-        private final UserService service;
+        private final UserService userService;
+        private final TeamRepository teamRepository;
+        private final RoleRepository roleRepository;
         private final UserMapper mapper;
 
-        public KeycloakPostConstruct(RealmResource meditrackRealm, UserService service, UserMapper mapper) {
+        public KeycloakPostConstruct(RealmResource meditrackRealm, UserService userService,
+                                     TeamRepository teamRepository,
+                                     RoleRepository roleRepository, UserMapper mapper) {
             this.meditrackRealm = meditrackRealm;
-            this.service = service;
+            this.userService = userService;
+            this.teamRepository = teamRepository;
+            this.roleRepository = roleRepository;
             this.mapper = mapper;
         }
 
@@ -55,7 +66,34 @@ public class KeycloakConfig {
         public void createAdminUser() {
             if (meditrackRealm.users().count() == 0) {
                 log.info("Creating default admin user...");
-                service.create(defaultAdminUser());
+
+                Team team = new Team();
+                team.setName("admin-team");
+                team.setWorkingHours(0);
+                team.setHardConstraints(new HardConstraints(
+                        null,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        team
+                ));
+                team = teamRepository.save(team);
+
+                Role role = new Role();
+                role.setName("admin-role");
+                role.setTeam(team);
+                role.setAllowedFlextimeTotal(0);
+                role.setAllowedFlextimePerMonth(0);
+                role.setDaytimeRequiredPeople(0);
+                role.setNighttimeRequiredPeople(0);
+                role = roleRepository.save(role);
+
+                User user = defaultAdminUser();
+                user.setTeam(team);
+                user.setRole(role);
+                userService.create(user);
             }
         }
 

@@ -2,14 +2,16 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.ShiftTypeDto;
-import ase.meditrack.model.dto.SimpleRoleDto;
-import ase.meditrack.model.entity.*;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.RoleRepository;
-import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
-import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -28,9 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,17 +67,22 @@ class ShiftTypeControllerIT {
     private TeamService teamService;
     private Team team;
     @Autowired
-    private ShiftRepository shiftRepository;
+    private TeamRepository teamRepository;
+    private Role role;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
 
     @BeforeEach
     void setup() {
+        team = defaultTestCreator.createDefaultTeam();
+        role = defaultTestCreator.createDefaultRole(team);
         user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -88,10 +93,6 @@ class ShiftTypeControllerIT {
                 null,
                 null
         ));
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
-        );
     }
 
     @Test
@@ -110,7 +111,7 @@ class ShiftTypeControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_dm", "SCOPE_employee"}, username = USER_ID)
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_getShiftTypesByTeam_succeeds() throws Exception {
         ShiftType shiftTypeInTeam = new ShiftType();
         shiftTypeInTeam.setName("ShiftType One");
@@ -128,7 +129,7 @@ class ShiftTypeControllerIT {
         String otherUserId = "11111111-1111-1111-1111-111111111111";
         userRepository.save(new User(
                 UUID.fromString(otherUserId),
-                null,
+                role,
                 1f,
                 0,
                 null,
@@ -143,7 +144,6 @@ class ShiftTypeControllerIT {
                 null,
                 null
         ));
-        userRepository.flush();
 
         Team otherTeam = teamService.create(
                 new Team(null, "other test team", 40, null, null, null, null, null),
@@ -158,9 +158,8 @@ class ShiftTypeControllerIT {
         shiftTypeNotInTeam.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftTypeNotInTeam.setColor("FF0000");
         shiftTypeNotInTeam.setAbbreviation("TR");
-        shiftTypeNotInTeam.setTeam(otherTeam);
+        shiftTypeInTeam.setTeam(otherTeam);
         shiftTypeRepository.save(shiftTypeNotInTeam);
-        shiftTypeRepository.flush();
 
         String responseOnlyTeam = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-type/team"))
                 .andExpect(status().isOk())
@@ -176,7 +175,6 @@ class ShiftTypeControllerIT {
 
         assertAll(
                 () -> assertNotNull(shiftTypesInTeam),
-                () -> assertEquals(1, shiftTypesInTeam.size()),
                 () -> assertNotNull(allShiftTypes),
                 () -> assertEquals(2, allShiftTypes.size())
         );
@@ -227,9 +225,6 @@ class ShiftTypeControllerIT {
         role.setUsers(null);
         role.setTeam(team);
         roleRepository.save(role);
-        List<Role> roles = new ArrayList<>();
-        roles.add(role);
-        shiftType.setRequiredRoles(roles);
         shiftTypeRepository.save(shiftType);
         ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
 
@@ -260,40 +255,6 @@ class ShiftTypeControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createShiftType_succeeds() throws Exception {
-        Role role = new Role();
-        role.setName("Test Role");
-        role.setColor("FF0000");
-        role.setAbbreviation("TR");
-        role.setUsers(null);
-        role.setTeam(team);
-        roleRepository.save(role);
-        roleRepository.flush();
-
-        SimpleRoleDto roleDto = new SimpleRoleDto(
-                null,
-                role.getName()
-        );
-        List<SimpleRoleDto> roles = new ArrayList<>();
-        roles.add(roleDto);
-
-        List<UUID> workUsers = new ArrayList<>();
-        workUsers.add(UUID.fromString(USER_ID));
-
-        List<UUID> preferUsers = new ArrayList<>();
-        preferUsers.add(UUID.fromString(USER_ID));
-
-        List<User> usersShift = new ArrayList<>();
-        usersShift.add(user);
-
-        Shift shift = new Shift();
-        shift.setUsers(usersShift);
-        shift.setDate(LocalDate.now().plusDays(2));
-        shiftRepository.save(shift);
-        shiftRepository.flush();
-
-        List<UUID> shifts = new ArrayList<>();
-        shifts.add(shift.getId());
-
         ShiftTypeDto shiftTypeDto = new ShiftTypeDto(
                 null,
                 "Shift Type",
@@ -301,14 +262,12 @@ class ShiftTypeControllerIT {
                 LocalTime.of(16, 0, 0, 0),
                 LocalTime.of(12, 0, 0, 0),
                 LocalTime.of(12, 30, 0, 0),
-                "Day",
                 "#ff0000",
                 "ST",
                 team.getId(),
-                roles,
-                shifts,
-                workUsers,
-                preferUsers);
+                null,
+                null,
+                null);
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/shift-type")
@@ -329,7 +288,8 @@ class ShiftTypeControllerIT {
                 () -> assertEquals(shiftTypeDto.breakStartTime(), created.breakStartTime()),
                 () -> assertEquals(shiftTypeDto.breakEndTime(), created.breakEndTime()),
                 () -> assertEquals(shiftTypeDto.color(), created.color()),
-                () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation())
+                () -> assertEquals(shiftTypeDto.abbreviation(), created.abbreviation()),
+                () -> assertEquals(1, shiftTypeRepository.count())
         );
     }
 
@@ -343,11 +303,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(3, 0, 0, 0),
                 LocalTime.of(0, 0, 0, 0),
                 LocalTime.of(0, 30, 0, 0),
-                "Night",
                 "#ffff00",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -386,11 +344,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(16, 0, 0, 0),
                 LocalTime.of(12, 0, 0, 0),
                 LocalTime.of(17, 30, 0, 0),
-                "Day",
                 "#ff0000",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -412,11 +368,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(16, 0, 0, 0),
                 LocalTime.of(6, 0, 0, 0),
                 LocalTime.of(12, 30, 0, 0),
-                "Day",
                 "#ff0000",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -442,11 +396,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(3, 0, 0, 0),
                 LocalTime.of(0, 0, 0, 0),
                 LocalTime.of(4, 30, 0, 0),
-                "Night",
                 "#ffff00",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -468,11 +420,9 @@ class ShiftTypeControllerIT {
                 LocalTime.of(3, 0, 0, 0),
                 LocalTime.of(20, 0, 0, 0),
                 LocalTime.of(0, 30, 0, 0),
-                "Night",
                 "#ffff00",
                 "ST",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -501,20 +451,17 @@ class ShiftTypeControllerIT {
         shiftType.setAbbreviation("TR");
         shiftType.setTeam(team);
         shiftTypeRepository.save(shiftType);
-        ShiftType savedShiftType = shiftTypeRepository.findById(shiftType.getId()).get();
 
         ShiftTypeDto updatedShiftTypeDto = new ShiftTypeDto(
-                savedShiftType.getId(),
+                shiftType.getId(),
                 "Updated ShiftType",
                 LocalTime.of(8, 0, 0, 0),
                 LocalTime.of(17, 0, 0, 0),
                 LocalTime.of(12, 0, 0, 0),
                 LocalTime.of(13, 0, 0, 0),
-                "Day",
                 "#000000",
                 "STD",
                 team.getId(),
-                null,
                 null,
                 null,
                 null);
@@ -528,15 +475,14 @@ class ShiftTypeControllerIT {
         ShiftTypeDto responseShiftType = objectMapper.readValue(response, ShiftTypeDto.class);
 
         assertAll(
-                () -> assertEquals(savedShiftType.getId(), responseShiftType.id()),
+                () -> assertEquals(shiftType.getId(), responseShiftType.id()),
                 () -> assertEquals(updatedShiftTypeDto.name(), responseShiftType.name()),
                 () -> assertEquals(updatedShiftTypeDto.startTime(), responseShiftType.startTime()),
                 () -> assertEquals(updatedShiftTypeDto.endTime(), responseShiftType.endTime()),
                 () -> assertEquals(updatedShiftTypeDto.breakStartTime(), responseShiftType.breakStartTime()),
                 () -> assertEquals(updatedShiftTypeDto.breakEndTime(), responseShiftType.breakEndTime()),
                 () -> assertEquals(updatedShiftTypeDto.color(), responseShiftType.color()),
-                () -> assertEquals(updatedShiftTypeDto.abbreviation(), responseShiftType.abbreviation()),
-                () -> assertEquals(1, shiftTypeRepository.count())
+                () -> assertEquals(updatedShiftTypeDto.abbreviation(), responseShiftType.abbreviation())
         );
     }
 }

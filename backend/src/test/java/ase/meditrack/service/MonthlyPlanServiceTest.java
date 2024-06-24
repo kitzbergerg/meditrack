@@ -3,16 +3,21 @@ package ase.meditrack.service;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
+import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -25,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.security.Principal;
@@ -42,6 +48,7 @@ import static org.mockito.Mockito.when;
 
 @Transactional
 @SpringBootTest
+@ExtendWith(SpringExtension.class)
 @Testcontainers
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -55,6 +62,10 @@ public class MonthlyPlanServiceTest {
 
     @Autowired
     private MonthlyPlanRepository repository;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private ShiftRepository shiftRepository;
     @Autowired
@@ -77,13 +88,16 @@ public class MonthlyPlanServiceTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
 
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -93,12 +107,11 @@ public class MonthlyPlanServiceTest {
                 null,
                 null,
                 null
-        ));
-
-        team = teamService.create(
-                new Team(null, "test team", 40, null, null, null, null, null),
-                () -> USER_ID
         );
+        team.setUsers(List.of(user));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        user = userRepository.save(user);
     }
 
     @Test

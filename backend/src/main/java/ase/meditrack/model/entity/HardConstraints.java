@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.MapsId;
@@ -23,14 +24,19 @@ public class HardConstraints {
     @Id
     private UUID id;
 
+    @Column(nullable = false)
     private Integer workingHours;
 
+    @Column(nullable = false)
     private Integer maxWeeklyHours;
 
+    @Column(nullable = false)
     private Integer maxConsecutiveShifts;
 
+    @Column(nullable = false)
     private Integer daytimeRequiredPeople;
 
+    @Column(nullable = false)
     private Integer nighttimeRequiredPeople;
 
     @OneToOne

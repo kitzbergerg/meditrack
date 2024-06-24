@@ -119,6 +119,8 @@ public class ShiftService {
         Shift createdShift = repository.save(shift);
         monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(createdShift, oldShiftType.get());
 
+        dbShift.setIsSick(shift.getIsSick());
+
         if (shift.getDate() != null) {
             dbShift.setDate(shift.getDate());
         }

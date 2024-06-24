@@ -105,52 +105,6 @@
           </span>
         </div>
         <div class="field grid">
-          <label htmlfor="typeshift" class="col-12 mb-2 md:col-2 md:mb-0">Type</label>
-          <span class="p-label">
-            <p-dropdown inputid="dropdown" optionlabel="name"
-                        class="p-element p-inputwrapper ng-pristine ng-valid ng-touched"
-                        [options]="dropdownOptions"
-                        [(ngModel)]="selectedOption"
-                        [ngClass]="{'ng-invalid ng-dirty': submitted && selectedOption.name === 'Choose Type'}"
-                        [disabled]="formMode === 'details'">
-              <ng-template let-item pTemplate="selectedItem">
-                  <span>{{ selectedOption ? selectedOption.name : ' ' }}</span>
-              </ng-template>
-              <ng-template let-item pTemplate="item">
-                <span>{{ item.name }}</span>
-              </ng-template>
-              <div id="pn_id_1089" class="p-dropdown p-component p-inputwrapper">
-                <span role="combobox" pautofocus=""
-                      class="p-element p-dropdown-label p-inputtext p-dropdown-label-empty ng-star-inserted"
-                      aria-disabled="false" id="dropdown" aria-haspopup="listbox" aria-controls="pn_id_1089_list"
-                      tabindex="0" aria-expanded="false">&nbsp;
-                </span>
-                <div role="button" aria-label="dropdown trigger" aria-haspopup="listbox" class="p-dropdown-trigger"
-                     data-pc-section="trigger" aria-expanded="false">
-                  <i class="pi pi-chevron-down"></i>
-                </div>
-                <p-overlay class="p-element ng-tns-c3177733119-184 ng-star-inserted"></p-overlay>
-              </div>
-            </p-dropdown>
-            <small
-              *ngIf="submitted && selectedOption.name === 'Choose Type'">Type has to be either Day or Night.</small>
-          </span>
-        </div>
-        <div *ngIf="roles" class="field grid">
-          <label htmlfor="requiredRoles" class="col-12 mb-2 md:col-2 md:mb-0">Required Roles</label>
-          <span class="p-label">
-            <p-multiSelect
-              [(ngModel)]="requiredRoles"
-              [filter]="false"
-              [ngClass]="{'ng-invalid ng-dirty': submitted && requiredRoles.length === 0}"
-              [options]="roles"
-              [disabled]="formMode === 'details'"
-              optionLabel="name"
-              placeholder="Select Roles"/>
-            <small *ngIf="submitted && requiredRoles.length === 0">Roles are required.</small>
-          </span>
-        </div>
-        <div class="field grid">
           <label htmlfor="end2shift" class="col-12 mb-2 md:col-2 md:mb-0">Color</label>
           <span class="p-input-icon-right">
             <p-colorPicker class="p-element ng-tns-c3668516956-541 ng-untouched ng-pristine ng-valid ng-star-inserted"

@@ -24,9 +24,6 @@ public record SimpleShiftTypeDto(
         @NotNull(groups = CreateValidator.class) LocalTime breakEndTime,
         @NotBlank(groups = CreateValidator.class)
         @NotBlank(groups = UpdateValidator.class)
-        String type,
-        @NotBlank(groups = CreateValidator.class)
-        @NotBlank(groups = UpdateValidator.class)
         @Size(min = 7, max = 7)
         @Pattern(regexp = "^#([A-Fa-f0-9]{6})$")
         String color,

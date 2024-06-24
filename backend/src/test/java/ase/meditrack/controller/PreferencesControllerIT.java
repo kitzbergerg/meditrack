@@ -3,9 +3,12 @@ package ase.meditrack.controller;
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.PreferencesDto;
 import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Role;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.PreferencesRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -49,20 +52,26 @@ class PreferencesControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    @Autowired
     private PreferencesRepository preferencesRepository;
     @Autowired
     private UserRepository userRepository;
     private User user;
+    private Team team;
 
     @BeforeEach
     void setup() {
-        user = userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
+        user = new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -72,7 +81,9 @@ class PreferencesControllerIT {
                 null,
                 null,
                 null
-        ));
+        );
+        team.setUsers(List.of(user));
+        user = userRepository.save(user);
     }
 
     @Test

@@ -63,7 +63,7 @@ public class RoleService {
      * Creates a role in the database.
      *
      * @param principal the current user
-     * @param role the role to create
+     * @param role      the role to create
      * @return the created role
      */
     @Transactional
@@ -76,8 +76,8 @@ public class RoleService {
 
         role.setDaytimeRequiredPeople(0);
         role.setNighttimeRequiredPeople(0);
-        role.setAllowedFlextimeTotal(0);
-        role.setAllowedFlextimePerMonth(0);
+        role.setAllowedFlextimeTotal(40);
+        role.setAllowedFlextimePerMonth(20);
 
         roles.add(role);
         dm.getTeam().setRoles(roles);
@@ -121,11 +121,35 @@ public class RoleService {
 
 
     /**
+     * Checks if the role belongs to the team.
+     *
+     * @param principal current user
+     * @param roleId    of the role
+     * @return true, if the role belongs to the team, false otherwise
+     */
+    public boolean isRoleFromTeam(Principal principal, UUID roleId) {
+        Role role = findById(roleId);
+        return isUserTeamSameAsRoleTeam(principal, role.getTeam().getId());
+    }
+
+    /**
+     * Checks if the team of the role is the same as the user team.
+     *
+     * @param principal current user
+     * @param teamId of the role
+     * @return true, if the team of the role is the same as the one of the user, false otherwise
+     */
+    public boolean isUserTeamSameAsRoleTeam(Principal principal, UUID teamId) {
+        User user = userService.getPrincipalWithTeam(principal);
+        return user.getTeam().getId().equals(teamId);
+    }
+
+     /**
      * @param dto for which to update role hard constraints
      * @return updated role
      */
     public Role updateRoleConstraints(RoleHardConstraintsDto dto) {
-        Role  role = findById(dto.roleId());
+        Role role = findById(dto.roleId());
         role.setAllowedFlextimeTotal(dto.allowedFlextimeTotal());
         role.setAllowedFlextimePerMonth(dto.allowedFlextimePerMonth());
         role.setDaytimeRequiredPeople(dto.daytimeRequiredPeople());
