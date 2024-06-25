@@ -84,7 +84,7 @@ public class MonthlyPlanService {
                     .toList());
         }
         plan.setShifts(shifts);
-        log.info("Shifts of monthly plan: {}", shifts);
+        log.info("Shifts for monthly plan: {}", plan.getId());
         return plan;
     }
 

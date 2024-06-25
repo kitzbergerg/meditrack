@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @MockBean(KeycloakConfig.class)
+@MockBean(MailService.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
 public class MonthlyPlanServiceTest {

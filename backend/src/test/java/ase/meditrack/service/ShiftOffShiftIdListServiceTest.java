@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
+@MockBean(MailService.class)
 public class ShiftOffShiftIdListServiceTest {
 
     @Autowired

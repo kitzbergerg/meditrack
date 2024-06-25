@@ -21,6 +21,18 @@ meditrack.keycloak:
   username: "${KEYCLOAK_USER:admin}"
   password: "${KEYCLOAK_PASSWORD:admin}"
 
+spring.mail:
+  host: smtp.gmail.com
+  port: 587
+  username: meditrack.ase@gmail.com
+  password: njqi zoaz vcsr ibpp
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+
 springdoc:
   api-docs:
     path: /api-docs

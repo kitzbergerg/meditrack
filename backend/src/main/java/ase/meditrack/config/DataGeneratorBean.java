@@ -179,7 +179,7 @@ public class DataGeneratorBean {
             User dmEntity = userMapper.fromDto(userDm);
             dmEntity.setTeam(team);
             dmEntity.setRole(roles.get(0));
-            users.add(userService.create(dmEntity));
+            users.add(userService.create(dmEntity, false));
 
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
@@ -222,7 +222,7 @@ public class DataGeneratorBean {
                         userEntity.setCanWorkShiftTypes(shiftTypes);
                         userEntity.setPreferredShiftTypes(List.of(shiftTypes.get(0), shiftTypes.get(3)));
 
-                        users.add(userService.create(userEntity));
+                        users.add(userService.create(userEntity, false));
                     }
                 }
             }

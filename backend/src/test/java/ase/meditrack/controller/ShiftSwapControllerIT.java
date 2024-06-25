@@ -8,6 +8,7 @@ import ase.meditrack.model.entity.*;
 import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.model.mapper.ShiftMapper;
 import ase.meditrack.repository.*;
+import ase.meditrack.service.MailService;
 import ase.meditrack.service.TeamService;
 import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -46,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
+@MockBean(MailService.class)
 class ShiftSwapControllerIT {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 

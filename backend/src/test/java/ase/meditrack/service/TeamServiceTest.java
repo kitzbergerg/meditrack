@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
+@MockBean(MailService.class)
 class TeamServiceTest {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
@@ -109,7 +110,6 @@ class TeamServiceTest {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
-
         Principal principal = new Principal() {
             @Override
             public String getName() {
@@ -169,6 +169,7 @@ class TeamServiceTest {
         Team updatedTeam = new Team();
         updatedTeam.setId(team.getId());
         updatedTeam.setName("test team");
+
         ShiftType shiftType = new ShiftType();
         shiftType.setName("Test ShiftType");
         shiftType.setColor("#FF0000");

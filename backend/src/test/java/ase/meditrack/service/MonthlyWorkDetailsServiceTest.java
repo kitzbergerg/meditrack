@@ -57,6 +57,9 @@ class MonthlyWorkDetailsServiceTest {
         User user = new User();
         user.setRole(role);
         user.setWorkingHoursPercentage(100F);
+        Role role = new Role();
+        role.setWorkingHours(40);
+        user.setRole(role);
 
         Team team = new Team();
 
