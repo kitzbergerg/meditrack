@@ -12,7 +12,6 @@ import {ScheduleComponent} from "../components/schedule/schedule.component";
 import {ShiftSwapComponent} from "../components/shift-swap/shift-swap.component";
 import {HolidaysComponent} from "../components/holidays/holidays.component";
 import {RulesComponent} from "../components/rules/rules.component";
-import {PreferencesComponent} from "../components/preferences/preferences.component";
 
 const routes: Routes = [
   {
@@ -46,7 +45,7 @@ const routes: Routes = [
   },
   {
     path: 'holidays',
-    component: PreferencesComponent,
+    component: HolidaysComponent,
   },
   {
     path: 'rules',

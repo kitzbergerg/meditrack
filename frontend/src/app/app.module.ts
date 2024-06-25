@@ -34,6 +34,7 @@ import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
 import {RulesComponent} from "./components/rules/rules.component";
 import {CardModule} from "primeng/card";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {PreferencesComponent} from "./components/preferences/preferences.component";
 import {HolidaysComponent} from "./components/holidays/holidays.component";
 
 
@@ -98,6 +99,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     InputNumberModule,
     CardModule,
     ConfirmDialogModule,
+    PreferencesComponent,
   ],
   providers: [
     MessageService,

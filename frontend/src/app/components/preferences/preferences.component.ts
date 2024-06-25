@@ -18,7 +18,7 @@ import {Preferences} from "../../interfaces/preferences";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 
 @Component({
-  selector: 'app-holidays',
+  selector: 'app-preferences',
   templateUrl: './preferences.component.html',
   standalone: true,
   imports: [
@@ -126,6 +126,7 @@ export class PreferencesComponent {
                 severity: 'success',
                 summary: 'Successfully Saved Off Day'
               });
+              this.toggleDialog()
               this.reset();
             }, error: error => {
               this.messageService.add({
@@ -133,6 +134,7 @@ export class PreferencesComponent {
                 summary: 'Saving Off Day Failed',
                 detail: error.error
               });
+              this.toggleDialog()
               this.reset();
             }
           });
@@ -148,7 +150,6 @@ export class PreferencesComponent {
   }
 
   removePreferences(day: Date) {
-    // TODO: when do we delete the whole preferences entity from the db?
     if (this.preference != undefined) {
       this.preference.offDays = this.preference.offDays.filter(offDay => offDay !== day);
 
@@ -183,14 +184,19 @@ export class PreferencesComponent {
 
   toggleDialog() {
     this.offDayDialog = !this.offDayDialog
-    this.valid = true;
   }
 
-  // if this check is done -> calendar is not shown correctly
   isOffDay(date: any): boolean {
-    return this.offDays.find(day => {
-      return day.getDay() === date.getDay();
-    }) !== undefined;
+    for (const offDay of this.offDays) {
+      const {year, month, day} = date;
+      const formattedMonth = month < 10 ? `0${month + 1}` : `${month}`;
+      const formattedDay = day < 10 ? `0${day}` : `${day}`;
+      const formattedDate = `${year}-${formattedMonth}-${formattedDay}`;
+      if (offDay.toString() === formattedDate) {
+        return true;
+      }
+    }
+    return false;
   }
 
   confirmDeleteOffDay(event: Event, offDay: Date) {

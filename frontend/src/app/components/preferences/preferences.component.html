@@ -69,7 +69,7 @@
               </ng-template>
               <ng-template pTemplate="date" let-date>
                 <div [ngStyle]="{
-                      backgroundColor: 'inherit',
+                      backgroundColor: (isOffDay(date)) ? 'grey' : 'inherit',
                       border: '1px solid transparent',
                       width: '30px',
                       height: '30px',
@@ -88,15 +88,6 @@
         </div>
         <h6 style="text-align: center; margin-top: 10px; margin-bottom: -20px">You can choose three off days of your preference.</h6>
       </ul>
-    </div>
-  </div>
-
-  <div class="col-12 md:col-6">
-    <div class="card px-6 py-6">
-      <h2 style="text-align: center;">Holidays</h2>
-        <ul class="list-none p-0 m-0"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-        </ul>
     </div>
   </div>
 </div>
