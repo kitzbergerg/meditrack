@@ -45,7 +45,7 @@ public class HolidayController {
     public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto, Principal principal,
                              @RequestParam(required = false) Boolean shouldSendMail) {
         log.info("Creating holiday for user: {}", principal.getName());
-        return mapper.toDto(service.create(mapper.fromDto(dto), principal.getName()));
+        return mapper.toDto(service.create(mapper.fromDto(dto), principal.getName(), shouldSendMail));
     }
 
     @GetMapping

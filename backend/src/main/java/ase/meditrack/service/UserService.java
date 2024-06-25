@@ -6,9 +6,12 @@ import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
@@ -43,16 +46,21 @@ public class UserService {
     private final ShiftTypeRepository shiftTypeRepository;
     private final MailService mailService;
     private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
+    private final TeamRepository teamRepository;
+    private final UserMapper mapper;
 
     public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
                        ShiftTypeRepository shiftTypeRepository, MailService mailService,
-                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository) {
+                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, TeamRepository teamRepository,
+                       UserMapper mapper) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
         this.shiftTypeRepository = shiftTypeRepository;
         this.mailService = mailService;
         this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
+        this.teamRepository = teamRepository;
+        this.mapper = mapper;
     }
 
     private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
@@ -330,6 +338,31 @@ public class UserService {
         User dm = getPrincipalWithTeam(principal);
         User user = findById(userId);
         return dm.getTeam().getId().equals(user.getTeam().getId());
+    }
+
+    /**
+     * Fetches the team leader of a given user.
+     *
+     * @param user the user to find the team leader for
+     * @return the team leader of the user
+     */
+    public Optional<User> findTeamLeaderByMember(User user) {
+        if (user.getTeam() == null) {
+            throw new NotFoundException("User has no team.");
+        }
+        Team team = teamRepository.findById(user.getTeam().getId())
+                .orElseThrow(() -> new NotFoundException("Team not found."));
+
+        if (team.getUsers() != null && !team.getUsers().isEmpty()) {
+            for (User u : team.getUsers()) {
+                List<String> roles = mapper.mapRoles(u);
+                if (roles.contains("dm")) {
+                    u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
+                    return Optional.of(u);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private String generateWelcomeMessage(UserRepresentation userRepresentation) {
