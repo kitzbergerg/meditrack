@@ -179,7 +179,7 @@ public class DataGeneratorBean {
             User dmEntity = userMapper.fromDto(userDm);
             dmEntity.setTeam(team);
             dmEntity.setRole(roles.get(0));
-            users.add(userService.create(dmEntity));
+            users.add(userService.create(dmEntity, false));
 
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
@@ -215,7 +215,7 @@ public class DataGeneratorBean {
                         User userEntity = userMapper.fromDto(user);
                         userEntity.setTeam(team);
                         userEntity.setRole(role);
-                        users.add(userService.create(userEntity));
+                        users.add(userService.create(userEntity, false));
                     }
                 }
             }
