@@ -107,9 +107,10 @@ public class UserService {
      * Creates a user in the database and in keycloak.
      *
      * @param user the user to create
+     * @param shouldSendInviteMail if true, an invitation mail will be sent to the user
      * @return the created user
      */
-    public User create(User user) {
+    public User create(User user, Boolean shouldSendInviteMail) {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user.setCurrentOverTime(0);
@@ -124,8 +125,10 @@ public class UserService {
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
 
-        mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
-                generateWelcomeMessage(userRepresentation));
+        if (shouldSendInviteMail != null && shouldSendInviteMail) {
+            mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
+                    generateWelcomeMessage(userRepresentation));
+        }
         return user;
     }
 
