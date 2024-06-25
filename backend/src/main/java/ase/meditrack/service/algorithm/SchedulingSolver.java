@@ -189,32 +189,41 @@ public final class SchedulingSolver {
 
                 // Create a variable to represent if there is any shift on the current day
                 BoolVar anyShiftToday = model.newBoolVar("anyShiftToday_" + n + "_" + d);
-                model.addGreaterOrEqual(LinearExpr.sum(shiftsToday.toArray(new BoolVar[0])), 1).onlyEnforceIf(anyShiftToday);
-                model.addLessOrEqual(LinearExpr.sum(shiftsToday.toArray(new BoolVar[0])), 0).onlyEnforceIf(anyShiftToday.not());
+                model.addGreaterOrEqual(LinearExpr.sum(shiftsToday.toArray(new BoolVar[0])), 1)
+                        .onlyEnforceIf(anyShiftToday);
+                model.addLessOrEqual(LinearExpr.sum(shiftsToday.toArray(new BoolVar[0])), 0)
+                        .onlyEnforceIf(anyShiftToday.not());
 
                 // Create variables to represent if there is any shift on the previous and next days
-                BoolVar anyShiftPrevDay = d > 0 ? model.newBoolVar("anyShiftPrevDay_" + n + "_" + (d - 1)) : null;
-                BoolVar anyShiftNextDay = d < input.numberOfDays() - 1 ? model.newBoolVar("anyShiftNextDay_" + n + "_" + (d + 1)) : null;
+                BoolVar anyShiftPrevDay = d > 0 ? model.newBoolVar("anyShiftPrevDay_" + n + "_" + (d - 1))
+                        : null;
+                BoolVar anyShiftNextDay = d < input.numberOfDays() - 1
+                        ? model.newBoolVar("anyShiftNextDay_" + n + "_" + (d + 1)) : null;
 
                 if (anyShiftPrevDay != null) {
                     List<BoolVar> shiftsPrevDay = Arrays.asList(shifts[n][d - 1]).subList(0, input.shiftTypes().size());
-                    model.addGreaterOrEqual(LinearExpr.sum(shiftsPrevDay.toArray(new BoolVar[0])), 1).onlyEnforceIf(anyShiftPrevDay);
-                    model.addLessOrEqual(LinearExpr.sum(shiftsPrevDay.toArray(new BoolVar[0])), 0).onlyEnforceIf(anyShiftPrevDay.not());
+                    model.addGreaterOrEqual(LinearExpr.sum(shiftsPrevDay.toArray(new BoolVar[0])), 1)
+                            .onlyEnforceIf(anyShiftPrevDay);
+                    model.addLessOrEqual(LinearExpr.sum(shiftsPrevDay.toArray(new BoolVar[0])), 0)
+                            .onlyEnforceIf(anyShiftPrevDay.not());
                 }
 
                 if (anyShiftNextDay != null) {
                     List<BoolVar> shiftsNextDay = Arrays.asList(shifts[n][d + 1]).subList(0, input.shiftTypes().size());
-                    model.addGreaterOrEqual(LinearExpr.sum(shiftsNextDay.toArray(new BoolVar[0])), 1).onlyEnforceIf(anyShiftNextDay);
-                    model.addLessOrEqual(LinearExpr.sum(shiftsNextDay.toArray(new BoolVar[0])), 0).onlyEnforceIf(anyShiftNextDay.not());
+                    model.addGreaterOrEqual(LinearExpr.sum(shiftsNextDay.toArray(new BoolVar[0])), 1)
+                            .onlyEnforceIf(anyShiftNextDay);
+                    model.addLessOrEqual(LinearExpr.sum(shiftsNextDay.toArray(new BoolVar[0])), 0)
+                            .onlyEnforceIf(anyShiftNextDay.not());
                 }
 
-                // Add the constraint: if there is a shift today, there must be a shift on either the previous day or the next day
+                // Add the constraint: if there is a shift today, there must be a shift on either the previous
+                // day or the next day
                 if (anyShiftPrevDay != null && anyShiftNextDay != null) {
-                    model.addBoolOr(new Literal[] { anyShiftPrevDay, anyShiftNextDay }).onlyEnforceIf(anyShiftToday);
+                    model.addBoolOr(new Literal[] {anyShiftPrevDay, anyShiftNextDay}).onlyEnforceIf(anyShiftToday);
                 } else if (anyShiftPrevDay != null) {
-                    model.addBoolOr(new Literal[] { anyShiftPrevDay }).onlyEnforceIf(anyShiftToday);
+                    model.addBoolOr(new Literal[] {anyShiftPrevDay}).onlyEnforceIf(anyShiftToday);
                 } else if (anyShiftNextDay != null) {
-                    model.addBoolOr(new Literal[] { anyShiftNextDay }).onlyEnforceIf(anyShiftToday);
+                    model.addBoolOr(new Literal[] {anyShiftNextDay}).onlyEnforceIf(anyShiftToday);
                 }
             }
         }
@@ -259,7 +268,8 @@ public final class SchedulingSolver {
         List<Integer> nightShifts = new ArrayList<>();
         for (int s = 0; s < input.shiftTypes().size(); s++) {
             LocalTime startTime = input.shiftTypes().get(s).startTime();
-            if (!startTime.isBefore(LocalTime.of(8, 0)) && startTime.isBefore(LocalTime.of(20, 0))) {
+            if (!startTime.isBefore(LocalTime.of(8, 0))
+                    && startTime.isBefore(LocalTime.of(20, 0))) {
                 dayShifts.add(s);
             } else {
                 nightShifts.add(s);
