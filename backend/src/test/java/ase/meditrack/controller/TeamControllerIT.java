@@ -108,7 +108,6 @@ class TeamControllerIT {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
-        team.setWorkingHours(1);
         teamRepository.save(team);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/team/" + team.getId()))
@@ -121,7 +120,6 @@ class TeamControllerIT {
         TeamDto dto = new TeamDto(
                 null,
                 "testTeam",
-                0,
                 null,
                 null,
                 null,
@@ -170,7 +168,6 @@ class TeamControllerIT {
         TeamDto dto = new TeamDto(
                 null,
                 "testTeam",
-                0,
                 roles,
                 users,
                 null,
@@ -190,7 +187,6 @@ class TeamControllerIT {
         TeamDto updatedTeamDto = new TeamDto(
                 created.id(),
                 "Updated Team",
-                2,
                 roles,
                 users,
                 null,
@@ -251,7 +247,6 @@ class TeamControllerIT {
         TeamDto dto = new TeamDto(
                 null,
                 "testTeam",
-                0,
                 roles,
                 users,
                 null,

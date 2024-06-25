@@ -56,7 +56,6 @@ class MonthlyWorkDetailsServiceTest {
         user.setWorkingHoursPercentage(100F);
 
         Team team = new Team();
-        team.setWorkingHours(40);
 
         Float targetHours = monthlyWorkDetailsService.calculateTargetWorkingHours(user, team, 6, 2023);
 

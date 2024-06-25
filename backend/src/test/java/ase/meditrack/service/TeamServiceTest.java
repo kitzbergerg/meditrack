@@ -7,12 +7,10 @@ import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.User;
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
-import ase.meditrack.repository.HardConstraintsRepository;
 import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
@@ -57,8 +55,6 @@ class TeamServiceTest {
     private ShiftTypeRepository shiftTypeRepository;
     @Autowired
     private MonthlyPlanRepository monthlyPlanRepository;
-    @Autowired
-    private HardConstraintsRepository hardConstraintsRepository;
     @Autowired
     private DefaultTestCreator defaultTestCreator;
     @Autowired
@@ -113,7 +109,6 @@ class TeamServiceTest {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
-        team.setWorkingHours(1);
 
         Principal principal = new Principal() {
             @Override
@@ -139,7 +134,6 @@ class TeamServiceTest {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
-        team.setWorkingHours(1);
 
         Principal principal = new Principal() {
             @Override
@@ -163,16 +157,6 @@ class TeamServiceTest {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
-        team.setHardConstraints(new HardConstraints(
-                null,
-                0,
-                0,
-                0,
-                0,
-                0,
-                team
-        ));
-        team.setWorkingHours(1);
 
         Principal principal = new Principal() {
             @Override
@@ -185,15 +169,6 @@ class TeamServiceTest {
         Team updatedTeam = new Team();
         updatedTeam.setId(team.getId());
         updatedTeam.setName("test team");
-        updatedTeam.setHardConstraints(new HardConstraints(
-                null,
-                0,
-                2,
-                0,
-                0,
-                0,
-                team
-        ));
         ShiftType shiftType = new ShiftType();
         shiftType.setName("Test ShiftType");
         shiftType.setColor("#FF0000");
@@ -218,11 +193,6 @@ class TeamServiceTest {
         List<User> users = new ArrayList<>();
         users.add(user);
         updatedTeam.setUsers(users);
-        HardConstraints hardConstraint = new HardConstraints();
-        hardConstraint.setId(team.getId());
-        hardConstraintsRepository.save(hardConstraint);
-        updatedTeam.setHardConstraints(hardConstraint);
-        updatedTeam.setWorkingHours(3);
 
         Team responseTeam = service.update(updatedTeam);
 
@@ -239,7 +209,6 @@ class TeamServiceTest {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
-        team.setWorkingHours(1);
 
         Principal principal = new Principal() {
             @Override
