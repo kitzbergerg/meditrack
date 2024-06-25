@@ -1,35 +1,74 @@
-.plusButtonContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 10px;
-  margin-bottom: 5px;
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
 }
 
-.createRuleList {
-  padding-left: 0;
+.p-input-icon-right,
+.p-label {
+  padding-left: 20px;
+  max-width: 200px;
+}
+
+.field label {
+  width: 120px;
+}
+
+.button-set {
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin-bottom: -5px;
+}
+
+.gap {
+  gap: 20px;
+}
+
+.button-set button {
+  width: 100px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.subsection {
+  margin-bottom: 20px;
+}
+
+.equal-width {
+  display: flex;
   flex-direction: column;
 }
 
-.createRuleList > * {
-  margin-bottom: 0.5em;
+.constraints-card {
+  height: 100%;
 }
 
-.currentRulesList > li {
-  margin-bottom: 1.5em;
+.edit-card {
+  height: auto;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
   width: 100%;
 }
 
-.currentRulesList {
-  list-style-type: none;
-  padding-left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: -5px;
-  flex-direction: column;
+.input-container label {
+  flex: 1;
+  padding-right: 10px; /* Optional: Add some space between the label and the input */
+}
+
+.input-container input {
+  flex: 1;
+}
+
+.font-selected {
+  font-weight: bold;
+  color: green;
+}
+
+.width-auto {
+  width: auto!important;
 }

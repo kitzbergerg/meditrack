@@ -1,102 +1,195 @@
 <div class="grid">
-  <div class="col-12 ">
-    <div class="card px-6 py-6">
-      <h1 i18n="Rules@@rules.component.rule-title">Rules</h1>
-
-      <ul class="currentRulesList">
-        <li *ngIf="showMandatoryOffDaysRule">
-          <app-mandatory-off-days-rule
-            [mandatoryOffDays]="rules!.mandatoryOffDays"
-            (updateMandatoryOffDays)="updateMandatoryOffDaysRule($event)">
-          </app-mandatory-off-days-rule>
-        </li>
-        <li *ngIf="showMinRestPeriod">
-          <app-min-rest-period-rule
-            [minRestPeriod]="rules!.minRestPeriod"
-            (updateMinRestPeriod)="updateMinRestPeriodRule($event)">
-          </app-min-rest-period-rule>
-        </li>
-        <li *ngIf="showMaxShiftLengths">
-          <app-max-shift-lengths
-            [maxShiftLength]="rules!.maximumShiftLengths"
-            (updateMaxShiftLength)="updateMaxShiftLengthRule($event)">
-          </app-max-shift-lengths>
-        </li>
-        <li *ngIf="showDayTimeRequiredRoles">
-          <app-day-time-required-roles
-            [dayTimeRequiredRolesInput]="rules!.daytimeRequiredRoles"
-            (updateDayTimeRequiredRoles)="updateDayTimeRequiredRolesRule($event)">
-          </app-day-time-required-roles>
-        </li>
-        <li *ngIf="showNightTimeRequiredRoles">
-          <app-night-time-required-roles
-            [nightTimeRequiredRolesInput]="rules!.nighttimeRequiredRoles"
-            (updateNightTimeRequiredRoles)="updateNightTimeRequiredRolesRule($event)">
-          </app-night-time-required-roles>
-        </li>
-        <li *ngIf="showAllowedFlexTimeTotal">
-          <app-allowed-flex-time-total
-            [allowedFlexTimeTotal]="rules!.allowedFlextimeTotal"
-            (updateAllowedFlexTimeTotal)="updateAllowedFlexTimeTotalRule($event)">
-          </app-allowed-flex-time-total>
-        </li>
-        <li *ngIf="showAllowedFlexTimePerMonth">
-          <app-allowed-flex-time-per-month
-            [allowedFlexTimePerMonth]="rules!.allowedFlextimePerMonth"
-            (updateAllowedFlexTimePerMonth)="updateAllowedFlexTimePerMonthRule($event)">
-          </app-allowed-flex-time-per-month>
-        </li>
-      </ul>
-
-      <div class="plusButtonContainer">
-        <button name="createButton" pButton (click)="showAvailableRules = !showAvailableRules" *ngIf="anyRulesNotSet()">
-          {{ showAvailableRules ? '-' : '+' }}
-        </button>
+  <div class="col-12">
+    <div class="grid">
+      <div class="col-12 md:col-6 equal-width constraints-card">
+        <div class="card px-6 py-6">
+          <h2 style="text-align: center;" i18n="@@rules.component.title">Constraints</h2>
+          <div class="subsection">
+            <h3 style="text-align: center;" i18n="@@rules.component.teamConstraints">Team Constraints</h3>
+            <ul class="list-none p-0 m-0">
+              <li *ngFor="let rule of teamConstraints"
+                  [ngClass]="{'font-medium': rule !== selectedRule, 'font-selected': rule === selectedRule}"
+                  (keydown)="handleKeydown($event, rule, 'team')"
+                  (click)="selectRule(rule)"
+                  class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                  tabindex="0"
+              >
+                <span class="text-xl mr-2 md:mb-0"
+                      [ngClass]="{'font-medium': rule.name !== selectedRule?.name, 'font-selected': rule.name === selectedRule?.name}"
+                >{{ rule.label }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="subsection">
+            <h3 style="text-align: center;" i18n="@@rules.component.roles">Roles</h3>
+            <ul class="list-none p-0 m-0">
+              <li *ngFor="let role of roleRules"
+                  (keydown)="handleKeydown($event, role, 'role')"
+                  (click)="selectRoleRule(role)"
+                  class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4"
+                  tabindex="0"
+              >
+                <span class="text-xl mr-2 md:mb-0"
+                      [ngClass]="{'font-medium': role.roleId !== selectedRoleRules?.roleId,
+                       'font-selected': role.roleId === selectedRoleRules?.roleId && !showRulesEditCard}"
+                >{{ getNameOfRole(role) }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <ul class="createRuleList">
-        <button pButton
-                (click)="showMandatoryOffDaysRule = true; showAvailableRules = false"
-                *ngIf="!showMandatoryOffDaysRule && showAvailableRules"
-                i18n="mandatory off days@@rules.component.rule-add-mandatory-off-days">
-          mandatory off days
-        </button>
-        <button pButton
-                (click)="showMinRestPeriod = true; showAvailableRules = false"
-                *ngIf="!showMinRestPeriod && showAvailableRules"
-                i18n="min rest period@@rules.component.rule-add-min-rest-period">
-          min rest period
-        </button>
-        <button pButton
-                (click)="showMaxShiftLengths = true; showAvailableRules = false"
-                *ngIf="!showMaxShiftLengths && showAvailableRules "
-                i18n="maximum shift lengths@@rules.component.rule-add-maximum-shift-lengths">
-          maximum shift lengths
-        </button>
-        <button pButton
-                (click)="showDayTimeRequiredRoles = true; showAvailableRules = false"
-                *ngIf="!showDayTimeRequiredRoles && showAvailableRules "
-                i18n="day time required roles@@rules.component.rule-add-day-time-required-roles">
-          day time required roles
-        </button>
-        <button pButton
-                (click)="showNightTimeRequiredRoles = true; showAvailableRules = false"
-                *ngIf="!showNightTimeRequiredRoles && showAvailableRules "
-                i18n="night time required roles@@rules.component.rule-add-night-time-required-roles">
-          night time required roles
-        </button>
-        <button pButton
-                (click)="showAllowedFlexTimeTotal = true; showAvailableRules = false"
-                *ngIf="!showAllowedFlexTimeTotal && showAvailableRules "
-                i18n="allowed flex time total@@rules.component.rule-add-allowed-flex-time-total">
-          allowed flex time total
-        </button>
-        <button pButton
-                (click)="showAllowedFlexTimePerMonth = true; showAvailableRules = false"
-                *ngIf="!showAllowedFlexTimePerMonth && showAvailableRules "
-                i18n="allowed flex time per month@@rules.component.rule-add-allowed-flex-time-per-month">
-          allowed flex time per month
-        </button>
-      </ul>
+      <div class="col-12 md:col-6 equal-width edit-card" *ngIf="selectedRule || selectedRoleRules">
+        <div class="card p-fluid">
+          <h2 style="text-align: center;" i18n="@@rules.component.formTitle">{{ getFormTitle() }}</h2>
+          <div class="mb-3 grid input-container" *ngIf="selectedRule && showRulesEditCard">
+            <label for="ruleValue" i18n="@@rules.component.ruleDescription">{{ selectedRule.description }}</label>
+            <p-inputNumber id="ruleValue" type="number" class="p-component width-auto"
+                           [(ngModel)]="selectedRule!.value"
+                           [min]="0" [max]="1000" mode="decimal"
+                           [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRule.value === null}"
+                           [disabled]="formMode === 'details'"
+            />
+          </div>
+          <div *ngIf="selectedRoleRules && !showRulesEditCard">
+            <div class="mb-3 grid input-container">
+              <label for="daytimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.daytimeRequiredPeopleLabel">Number of required people for this role during the day</label>
+              <p-inputNumber id="daytimeRequiredPeople" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.daytimeRequiredPeople"
+                             [min]="0" [max]="1000" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.daytimeRequiredPeople === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+            <div class="mb-3 grid input-container">
+              <label for="nighttimeRequiredPeople" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.nighttimeRequiredPeopleLabel">
+                Number of required people for this role during the night
+              </label>
+              <p-inputNumber id="nighttimeRequiredPeople" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.nighttimeRequiredPeople"
+                             [min]="0" [max]="1000" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.nighttimeRequiredPeople === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+            <div class="mb-3 grid input-container">
+              <label for="allowedFlextimeTotal" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.allowedFlexitimeTotalLabel">Allowed flextime total for this role</label>
+              <p-inputNumber id="allowedFlextimeTotal" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.allowedFlextimeTotal"
+                             [min]="0" [max]="1000" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimeTotal === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+            <div class="mb-3 grid input-container">
+              <label for="allowedFlextimePerMonth" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.allowedFlexitimePerMonthLabel">Allowed flextime monthly for this role</label>
+              <p-inputNumber id="allowedFlextimePerMonth" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.allowedFlextimePerMonth"
+                             [min]="0" [max]="300" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.allowedFlextimePerMonth === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+            <div class="mb-3 grid input-container">
+              <label for="workingHours" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.workingHoursLabel">Weekly working hours for this role</label>
+              <p-inputNumber id="workingHours" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.workingHours"
+                             [min]="0" [max]="168" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.workingHours === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+            <div class="mb-3 grid input-container">
+              <label for="maxWeeklyHours" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.maxWeeklyHoursLabel">Maximum weekly hours for this role</label>
+              <p-inputNumber id="maxWeeklyHours" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.maxWeeklyHours"
+                             [min]="0" [max]="168" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.maxWeeklyHours === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+            <div class="mb-3 grid input-container">
+              <label for="maxConsecutiveShifts" class="col-12 mb-2 md:col-2 md:mb-0"
+                     i18n="@@rules.component.maxConsecutiveShiftsLabel">Maximum consecutive number of shifts for this role can take</label>
+              <p-inputNumber id="maxConsecutiveShifts" type="number" class="p-component width-auto"
+                             [(ngModel)]="selectedRoleRules.maxConsecutiveShifts"
+                             [min]="0" [max]="100" mode="decimal"
+                             [ngClass]="{'ng-invalid ng-dirty': submitted && selectedRoleRules.maxConsecutiveShifts === null}"
+                             [disabled]="formMode === 'details'"
+              />
+            </div>
+          </div>
+          <p-toast></p-toast>
+          <div class="button-container" *ngIf="formMode === 'create'">
+            <button
+              (click)="createOrUpdateRule()"
+              style="height: 35px; width: 150px;"
+              pButton=""
+              pRipple=""
+              type="button"
+              label="Success"
+              class="p-element p-ripple p-button-success p-button p-component"
+            >
+              <span class="p-button-label">{{ formAction }}</span>
+              <span class="p-ink" aria-hidden="true" role="presentation"></span>
+            </button>
+          </div>
+          <div class="button-set" *ngIf="formMode !== 'create'">
+            <button
+              *ngIf="formMode === 'details'"
+              (click)="editRule()"
+              pButton=""
+              pRipple=""
+              label="Edit"
+              icon="pi pi-pencil"
+              class="p-element p-ripple p-button-raised p-button-info p-button p-component width-auto"
+              style="height: 35px;"
+            >
+              <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
+              <span class="p-button-label" i18n="@@rules.component.editButton">Edit</span>
+              <span class="p-ink" aria-hidden="true" role="presentation"></span>
+            </button>
+            <p-toast></p-toast>
+            <div class="button-set gap" *ngIf="formMode === 'edit'">
+              <button
+                *ngIf="formMode === 'edit'"
+                (click)="createOrUpdateRule()"
+                style="height: 35px;"
+                pButton=""
+                pRipple=""
+                type="button"
+                label="Success"
+                class="p-element p-ripple p-button-success p-button p-component width-auto"
+              >
+                <span class="p-button-icon p-button-icon-left pi pi-check" aria-hidden="true"></span>
+                <span class="p-button-label">{{ formAction }}</span>
+                <span class="p-ink" aria-hidden="true" role="presentation"></span>
+              </button>
+              <button
+                *ngIf="formMode === 'edit'"
+                (click)="cancelEditing()"
+                pButton=""
+                pRipple=""
+                label="Cancel"
+                icon="pi pi-times"
+                class="p-element p-ripple p-button-raised p-button-secondary p-button p-component width-auto"
+                style="height: 35px;"
+              >
+                <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true"></span>
+                <span class="p-button-label" i18n="@@rules.component.cancelButton">
+                  Cancel
+                </span>
+                <span class="p-ink" aria-hidden="true" role="presentation"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -52,12 +52,6 @@ public class ShiftController {
         return mapper.toSimpleShiftDtoList(service.findAllByCurrentMonth(principal));
     }
 
-    @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || hasAnyAuthority('SCOPE_dm')")
-    public ShiftDto findById(@PathVariable UUID id) {
-        log.info("Fetching shift with id: {}", id);
-        return mapper.toDto(service.findById(id));
-    }
 
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"

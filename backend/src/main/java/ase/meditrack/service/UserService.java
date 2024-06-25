@@ -2,6 +2,7 @@ package ase.meditrack.service;
 
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.UserValidator;
+import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.ShiftType;
@@ -82,15 +83,7 @@ public class UserService {
      * @return List of all users from the team of the dm
      */
     public List<User> findByTeam(Principal principal) throws NoSuchElementException {
-        UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = repository.findById(dmId);
-        if (dm.isEmpty()) {
-            throw new NotFoundException("User doesnt exist");
-        }
-        if (dm.get().getTeam() == null) {
-            throw new NotFoundException("User has no team");
-        }
-        return repository.findAllByTeam(dm.get().getTeam()).stream()
+        return repository.findAllByTeam(getPrincipalWithTeam(principal).getTeam()).stream()
                 .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
                 .toList();
     }
@@ -258,7 +251,7 @@ public class UserService {
      */
     public User getPrincipalWithTeam(Principal principal) {
         UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = repository.findById(dmId);
+        Optional<User> dm = Optional.ofNullable(findById(dmId));
         if (dm.isEmpty()) {
             throw new NotFoundException("User doesnt exist");
         }
@@ -281,4 +274,55 @@ public class UserService {
                 userId, month.getValue(), year.getValue());
         return details;
     }
+
+    /**
+     * Checks if the principal has the authority to create a user with a specific role.
+     *
+     * @param roles     string array of system roles
+     * @param principal the current user
+     * @return ture if the principal has the right authority for creating user with its role, false otherwise
+     */
+    public boolean isCorrectUserSystemRole(List<String> roles, Principal principal) {
+        User dm = getPrincipalWithTeam(principal);
+
+        UserResource user = meditrackRealm.users().get(String.valueOf(dm.getId()));
+
+        if (user.roles().realmLevel().listAll().stream().anyMatch(roleRepresentation
+                -> roleRepresentation.getName().equals("admin"))) {
+            return true;
+        }
+
+        return roles.stream().noneMatch(role
+                -> role.equals("admin") || role.equals("dm"));
+    }
+
+    /**
+     * Checks if the user is in the same team as the principal.
+     *
+     * @param principal the current user
+     * @param userDto    of the user to check
+     * @return true if the user and the current user are from the same team, false otherwise
+     */
+    public boolean isSameTeam(Principal principal, UserDto userDto) {
+        User dm = getPrincipalWithTeam(principal);
+        if (userDto == null) {
+            return false;
+        }
+        return dm.getTeam().getId().equals(userDto.team());
+    }
+
+    /**
+     * Checks if the user is in the same team as the principal.
+     *
+     * @param principal the current user
+     * @param userId of the user to check
+     * @return true if the user and the current user are from the same team, false otherwise
+     */
+    public boolean isSameTeam(Principal principal, UUID userId) {
+        User dm = getPrincipalWithTeam(principal);
+        User user = findById(userId);
+        return dm.getTeam().getId().equals(user.getTeam().getId());
+    }
+
+
 }

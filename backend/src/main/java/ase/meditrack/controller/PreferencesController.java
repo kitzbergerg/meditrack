@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,32 +45,38 @@ public class PreferencesController {
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && authentication.name == #id.toString())")
     public PreferencesDto findById(@PathVariable UUID id) {
         log.info("Fetching preferences with id: {}", id);
         return mapper.toDto(service.findById(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @userService.isSameTeam(#principal, #dto.id()))")
     @ResponseStatus(HttpStatus.CREATED)
-    public PreferencesDto create(@Validated(CreateValidator.class) @RequestBody PreferencesDto dto) {
+    public PreferencesDto create(@Validated(CreateValidator.class) @RequestBody PreferencesDto dto,
+                                 Principal principal) {
         log.info("Creating preferences {}", dto.id());
         return mapper.toDto(service.create(mapper.fromDto(dto)));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && @userService.isSameTeam(#principal, #dto.id()))")
     @ResponseStatus(HttpStatus.OK)
-    public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto) {
+    public PreferencesDto update(@Validated(UpdateValidator.class) @RequestBody PreferencesDto dto,
+                                 Principal principal) {
         log.info("Updating preferences {}", dto.id());
         return mapper.toDto(service.update(mapper.fromDto(dto)));
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_employee')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_admin') || "
+            + "(hasAnyAuthority('SCOPE_dm', 'SCOPE_employee')&& @userService.isSameTeam(#principal, #id))")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id, Principal principal) {
         log.info("Deleting preferences with id {}", id);
         service.delete(id);
     }

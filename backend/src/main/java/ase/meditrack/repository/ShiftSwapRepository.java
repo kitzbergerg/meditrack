@@ -47,7 +47,8 @@ public interface ShiftSwapRepository extends JpaRepository<ShiftSwap, UUID> {
             @Param("before") LocalDate before);
 
     /**
-     * Fetches all the shift swap requests from a user from the remaining days of the month.
+     * Fetches all the shift swap requests from a user from the remaining days of the month. Declined requests are
+     * included, so the user can see them (and can delete them; needed as long as email server is not yet implemented).
      *
      * @param userId the user from the shift swap requests
      * @param after  is the current date
@@ -56,7 +57,8 @@ public interface ShiftSwapRepository extends JpaRepository<ShiftSwap, UUID> {
      */
     @Query("SELECT s From shift_swap s WHERE s.swapRequestingUser.id = :userId "
             + "AND s.requestedShift.date > :after AND s.requestedShift.date < :before "
-            + "AND s.requestedShiftSwapStatus = 'ACCEPTED' AND s.suggestedShiftSwapStatus = 'PENDING' "
+            + "AND s.requestedShiftSwapStatus = 'ACCEPTED' AND (s.suggestedShiftSwapStatus = 'PENDING' "
+            + "OR s.suggestedShiftSwapStatus = 'REJECTED')"
             + "AND s.suggestedShift IS NOT NULL AND s.swapSuggestingUser IS NOT NULL")
     List<ShiftSwap> findAllShiftSwapRequests(
             @Param("userId") UUID userId,

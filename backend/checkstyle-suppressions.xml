@@ -7,6 +7,9 @@
     <suppress files="MeditrackApplication.java" checks="HideUtilityClassConstructor"/>
     <suppress files="MeditrackApplication.java" checks="MissingJavadocMethod"/>
     <suppress files="DataGeneratorBean.java" checks="ParameterNumber"/>
+    <suppress files="AlgorithmMapper.java" checks="ParameterNumber"/>
+    <suppress files="SchedulingSolver.java" checks="ParameterNumber"/>
+    <suppress files="SchedulingSolver.java" checks="MethodLength"/>
     <suppress files="model[\\/]entity[\\/].*" checks="MissingJavadocMethod"/>
     <suppress files=".idea[\\/]" checks="[a-zA-Z0-9]*"/>
 </suppressions>

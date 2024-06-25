@@ -19,11 +19,16 @@ public class ShiftTypeService {
     private final ShiftTypeRepository repository;
     private final ShiftTypeValidator validator;
     private final UserService userService;
+    private final TeamService teamService;
 
-    public ShiftTypeService(ShiftTypeRepository repository, ShiftTypeValidator validator, UserService userService) {
+    public ShiftTypeService(ShiftTypeRepository repository,
+                            ShiftTypeValidator validator,
+                            UserService userService,
+                            TeamService teamService) {
         this.repository = repository;
         this.validator = validator;
         this.userService = userService;
+        this.teamService = teamService;
     }
 
     /**
@@ -90,13 +95,11 @@ public class ShiftTypeService {
         if (shiftType.getEndTime() != null) dbShiftType.setEndTime(shiftType.getEndTime());
         if (shiftType.getBreakStartTime() != null) dbShiftType.setBreakStartTime(shiftType.getBreakStartTime());
         if (shiftType.getBreakEndTime() != null) dbShiftType.setBreakEndTime(shiftType.getBreakEndTime());
-        if (shiftType.getType() != null) dbShiftType.setType(shiftType.getType());
         if (shiftType.getColor() != null) dbShiftType.setColor(shiftType.getColor());
         if (shiftType.getAbbreviation() != null) dbShiftType.setAbbreviation(shiftType.getAbbreviation());
         if (shiftType.getShifts() != null) dbShiftType.setShifts(shiftType.getShifts());
         if (shiftType.getWorkUsers() != null) dbShiftType.setWorkUsers(shiftType.getWorkUsers());
         if (shiftType.getPreferUsers() != null) dbShiftType.setPreferUsers(shiftType.getPreferUsers());
-        if (shiftType.getRequiredRoles() != null) dbShiftType.setRequiredRoles(shiftType.getRequiredRoles());
 
         validator.shiftTypeValidation(dbShiftType);
 
@@ -110,5 +113,17 @@ public class ShiftTypeService {
      */
     public void delete(UUID id) {
         repository.deleteById(id);
+    }
+
+    /**
+     * Checks if the shift type belongs to the team of the current user.
+     *
+     * @param user is current user
+     * @param shiftType to check
+     * @return true if shift type belongs to the team, false otherwise
+     */
+    public boolean isShiftTypeInTeam(UUID user, UUID shiftType) {
+        ShiftType foundShiftType = findById(shiftType);
+        return this.teamService.isInTeam(user, foundShiftType.getTeam().getId());
     }
 }

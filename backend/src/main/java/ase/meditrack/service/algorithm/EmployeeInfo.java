@@ -1,11 +1,11 @@
 package ase.meditrack.service.algorithm;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
  * @param worksShiftTypes             shift types the employee is allowed to work
+ * @param preferredShiftTypes         shift types the employee would like to work
  * @param minWorkingHoursPerMonth     the minimum working time an employee should work in a given month
  * @param maxWorkingHoursPerMonth     the maximum working time an employee should work in a given month
  * @param optimalWorkingHoursPerMonth the optimal working time an employee should work in a given month.
@@ -17,11 +17,12 @@ import java.util.Set;
  */
 public record EmployeeInfo(
         List<Integer> worksShiftTypes,
+        List<Integer> preferredShiftTypes,
         int minWorkingHoursPerMonth,
         int maxWorkingHoursPerMonth,
         int optimalWorkingHoursPerMonth,
         Set<Integer> holidays,
         Set<Integer> offDays,
-        Optional<Integer> role
+        Integer role
 ) {
 }

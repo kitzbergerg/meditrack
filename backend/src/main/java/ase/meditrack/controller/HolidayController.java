@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.HolidayDto;
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
 import ase.meditrack.model.mapper.HolidayMapper;
 import ase.meditrack.service.HolidayService;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,38 +38,60 @@ public class HolidayController {
         this.mapper = mapper;
     }
 
+    @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_employee')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto, Principal principal) {
+        log.info("Creating holiday for user: {}", principal.getName());
+        return mapper.toDto(service.create(mapper.fromDto(dto), principal.getName()));
+    }
+
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_employee')")
+    public List<HolidayDto> findAllByUser(Principal principal) {
+        log.info("Fetching holidays for user: {}", principal.getName());
+        return mapper.toDtoList(service.findAllByUser(principal.getName()));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_employee')")
+    public HolidayDto findByIdAndUser(@PathVariable UUID id, Principal principal) {
+        log.info("Fetching holiday with id: {}", id);
+        return mapper.toDto(service.findByIdAndUser(id, principal.getName()));
+    }
+
+    @GetMapping("/all")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     public List<HolidayDto> findAll() {
-        log.info("Fetching holidays");
+        log.info("Fetching all holidays");
         return mapper.toDtoList(service.findAll());
     }
 
-    @GetMapping("{id}")
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    public HolidayDto findById(@PathVariable UUID id) {
-        log.info("Fetching holiday with id: {}", id);
-        return mapper.toDto(service.findById(id));
-    }
-
-    @PostMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
-    @ResponseStatus(HttpStatus.CREATED)
-    public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto) {
-        log.info("Creating holiday {}", dto.id());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+    @GetMapping("/team")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm')")
+    public List<HolidayDto> findAllByTeam(Principal principal) {
+        log.info("Fetching all holidays for team");
+        return mapper.toDtoList(service.findAllByTeam(principal));
     }
 
     @PutMapping
-    @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
+    @PreAuthorize("hasAnyAuthority('SCOPE_employee')")
     @ResponseStatus(HttpStatus.OK)
-    public HolidayDto update(@Validated(UpdateValidator.class) @RequestBody HolidayDto dto) {
+    public HolidayDto update(@Validated(UpdateValidator.class) @RequestBody HolidayDto dto, Principal principal) {
         log.info("Updating holiday {}", dto.id());
-        return mapper.toDto(service.update(mapper.fromDto(dto)));
-
+        return mapper.toDto(service.update(mapper.fromDto(dto), principal.getName()));
     }
 
-    @DeleteMapping("{id}")
+    @PutMapping("/{id}/{status}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_dm')")
+    @ResponseStatus(HttpStatus.OK)
+    public HolidayDto updateStatus(@PathVariable UUID id,
+                                   @PathVariable HolidayRequestStatus status, Principal principal) {
+        log.info("Updating status of holiday with id: {} to: {}", id, status.name());
+        return mapper.toDto(service.updateStatus(id, status, principal));
+    }
+
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {

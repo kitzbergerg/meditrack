@@ -46,6 +46,27 @@ public class Role {
 
     private String abbreviation;
 
+    @Column(nullable = false)
+    private Integer allowedFlextimeTotal;
+
+    @Column(nullable = false)
+    private Integer allowedFlextimePerMonth;
+
+    @Column(nullable = false)
+    private Integer daytimeRequiredPeople;
+
+    @Column(nullable = false)
+    private Integer nighttimeRequiredPeople;
+
+    @Column(nullable = false)
+    private Integer workingHours;
+
+    @Column(nullable = false)
+    private Integer maxWeeklyHours;
+
+    @Column(nullable = false)
+    private Integer maxConsecutiveShifts;
+
     @OneToMany(mappedBy = "role")
     private List<User> users;
 
@@ -53,7 +74,7 @@ public class Role {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @ManyToMany(mappedBy = "requiredRoles")
+    @ManyToMany
     private List<ShiftType> shiftTypes;
 
     @Override

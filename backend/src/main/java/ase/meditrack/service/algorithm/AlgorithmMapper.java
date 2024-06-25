@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,6 +24,7 @@ public class AlgorithmMapper {
 
     private final Map<UUID, Integer> shiftTypeUuidToIndex = new HashMap<>();
     private final Map<UUID, Integer> roleUuidToIndex = new HashMap<>();
+    private final Map<UUID, Integer> employeeUuidToIndex = new HashMap<>();
     private final Map<Integer, UUID> indexToShiftTypeUuid = new HashMap<>();
     private final Map<Integer, UUID> indexToEmployeeUuid = new HashMap<>();
 
@@ -37,6 +38,7 @@ public class AlgorithmMapper {
      * @param shiftTypes
      * @param roles
      * @param team
+     * @param prevMonthShifts
      * @return input for the algorithm
      */
     public AlgorithmInput mapToAlgorithmInput(
@@ -46,7 +48,8 @@ public class AlgorithmMapper {
             Map<UUID, List<Holiday>> holidaysPerUser,
             List<ShiftType> shiftTypes,
             List<Role> roles,
-            Team team
+            Team team,
+            List<Shift> prevMonthShifts
     ) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate date = yearMonth.atDay(1);
@@ -56,9 +59,16 @@ public class AlgorithmMapper {
         // Map role entities to records
         List<RoleInfo> roleInfos = new ArrayList<>();
         for (int i = 0; i < roles.size(); i++) {
-            // TODO #86: add required people
             Role role = roles.get(i);
-            roleInfos.add(new RoleInfo(role.getName(), 0, 0));
+            roleInfos.add(
+                    new RoleInfo(
+                            role.getName(),
+                            role.getDaytimeRequiredPeople(),
+                            role.getNighttimeRequiredPeople(),
+                            role.getMaxWeeklyHours(),
+                            role.getMaxConsecutiveShifts()
+                    )
+            );
             roleUuidToIndex.put(role.getId(), i);
         }
 
@@ -91,6 +101,7 @@ public class AlgorithmMapper {
         for (int i = 0; i < employees.size(); i++) {
             User employee = employees.get(i);
             UUID id = employee.getId();
+            employeeUuidToIndex.put(id, i);
             indexToEmployeeUuid.put(i, id);
 
             List<Integer> worksShiftTypes = new ArrayList<>();
@@ -114,32 +125,55 @@ public class AlgorithmMapper {
 
             // we do not consider public holidays or weekends
             // this is close enough for the algorithm to get good results
-            float averageWorkingHoursPerDay = employee.getWorkingHoursPercentage() / 100 * team.getWorkingHours() / 7;
+            float averageWorkingHoursPerDay = employee.getWorkingHoursPercentage() / 100
+                    * employee.getRole().getWorkingHours() / 7;
             int numberOfWorkingDays = numberOfDays - holidayDays.size();
             int averageWorkingHoursPerMonth = (int) (averageWorkingHoursPerDay * numberOfWorkingDays);
 
-            // TODO #86: get flexitime from role instead of hard constraint
-            int maxAllowedChangePlus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
-                    team.getHardConstraints().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
-            int maxAllowedChangeMinus = Math.min(team.getHardConstraints().getAllowedFlextimePerMonth(),
-                    team.getHardConstraints().getAllowedFlextimeTotal() + employee.getCurrentOverTime());
+            int maxAllowedChangePlus = Math.min(employee.getRole().getAllowedFlextimePerMonth(),
+                    employee.getRole().getAllowedFlextimeTotal() - employee.getCurrentOverTime());
+            int maxAllowedChangeMinus = Math.min(employee.getRole().getAllowedFlextimePerMonth(),
+                    employee.getRole().getAllowedFlextimeTotal() + employee.getCurrentOverTime());
 
             employeeInfos.add(new EmployeeInfo(
                     worksShiftTypes,
+                    employee.getPreferredShiftTypes().stream().map(type -> shiftTypeUuidToIndex.get(type.getId()))
+                            .toList(),
                     averageWorkingHoursPerMonth - maxAllowedChangeMinus,
                     averageWorkingHoursPerMonth + maxAllowedChangePlus,
                     averageWorkingHoursPerMonth - employee.getCurrentOverTime() / 2,
                     holidayDays,
                     employee.getPreferences().getOffDays().stream().map(LocalDate::getDayOfMonth)
                             .collect(Collectors.toSet()),
-                    employee.getRole() == null
-                            ? Optional.empty()
-                            : Optional.of(roleUuidToIndex.get(employee.getRole().getId()))
+                    roleUuidToIndex.get(employee.getRole().getId())
             ));
         }
 
-        // TODO #86: add required people
-        return new AlgorithmInput(numberOfDays, employeeInfos, shiftTypeInfos, roleInfos, 2, 0);
+        TreeMap<Integer, TreeMap<Integer, Integer>> dayToEmployeeToShiftTypeMapping = new TreeMap<>();
+        for (Shift shift : prevMonthShifts) {
+            Integer day = shift.getDate().getDayOfMonth();
+            Integer shiftType = shiftTypeUuidToIndex.get(shift.getShiftType().getId());
+            if (shiftType == null) continue;
+            for (User user : shift.getUsers()) {
+                Integer employee = employeeUuidToIndex.get(user.getId());
+                if (employee == null) continue;
+                dayToEmployeeToShiftTypeMapping.compute(day, (key, value) -> {
+                    if (value == null) value = new TreeMap<>();
+                    value.put(employee, shiftType);
+                    return value;
+                });
+            }
+        }
+
+        return new AlgorithmInput(
+                numberOfDays,
+                employeeInfos,
+                shiftTypeInfos,
+                roleInfos,
+                team.getDaytimeRequiredPeople(),
+                team.getNighttimeRequiredPeople(),
+                dayToEmployeeToShiftTypeMapping
+        );
     }
 
     /**

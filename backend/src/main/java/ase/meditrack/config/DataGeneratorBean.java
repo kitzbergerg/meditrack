@@ -1,25 +1,22 @@
 package ase.meditrack.config;
 
 import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
-import ase.meditrack.model.entity.ShiftOffShiftIdList;
 import ase.meditrack.model.entity.ShiftSwap;
-import ase.meditrack.model.entity.ShiftSwapStatus;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.enums.HolidayRequestStatus;
+import ase.meditrack.model.entity.enums.ShiftSwapStatus;
 import ase.meditrack.model.mapper.UserMapper;
-import ase.meditrack.repository.HardConstraintsRepository;
 import ase.meditrack.repository.HolidayRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.PreferencesRepository;
 import ase.meditrack.repository.RoleRepository;
-import ase.meditrack.repository.ShiftOffShiftIdListRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftSwapRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
@@ -54,18 +51,14 @@ public class DataGeneratorBean {
     private final PreferencesRepository preferencesRepository;
     private final MonthlyPlanRepository monthlyPlanRepository;
     private final HolidayRepository holidayRepository;
-    private final HardConstraintsRepository hardConstraintsRepository;
     private final ShiftTypeRepository shiftTypeRepository;
     private final UserMapper userMapper;
-    private final ShiftOffShiftIdListRepository shiftOffShiftIdListRepository;
 
     public DataGeneratorBean(UserService userService, TeamRepository teamRepository,
                              ShiftRepository shiftRepository, ShiftSwapRepository shiftSwapRepository,
                              RoleRepository roleRepository, PreferencesRepository preferencesRepository,
                              MonthlyPlanRepository monthlyPlanRepository, HolidayRepository holidayRepository,
-                             HardConstraintsRepository hardConstraintsRepository, UserMapper userMapper,
-                             ShiftTypeRepository shiftTypeRepository,
-                             ShiftOffShiftIdListRepository shiftOffShiftIdListRepository) {
+                             UserMapper userMapper, ShiftTypeRepository shiftTypeRepository) {
         this.userService = userService;
         this.teamRepository = teamRepository;
         this.shiftRepository = shiftRepository;
@@ -74,18 +67,16 @@ public class DataGeneratorBean {
         this.preferencesRepository = preferencesRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
         this.holidayRepository = holidayRepository;
-        this.hardConstraintsRepository = hardConstraintsRepository;
         this.shiftTypeRepository = shiftTypeRepository;
         this.userMapper = userMapper;
-        this.shiftOffShiftIdListRepository = shiftOffShiftIdListRepository;
     }
 
     private static final Faker FAKER = new Faker();
 
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 8;
-    private static final Integer NUM_HOLIDAYS = 0;
+    private static final Integer NUM_USERS_WITH_ROLES = 9;
+    private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
     private List<Role> roles;
@@ -109,7 +100,6 @@ public class DataGeneratorBean {
                 createMonthlyPlan();
                 createShifts();
                 createShiftSwap();
-                createHardConstraints();
                 createPreferences();
                 log.info("Data generation complete!");
             } else {
@@ -126,19 +116,8 @@ public class DataGeneratorBean {
         for (int i = 0; i < NUM_TEAMS; i++) {
             Team team = new Team();
             team.setName(FAKER.team().name());
-            team.setWorkingHours(FAKER.number().numberBetween(20, 40));
-            team.setHardConstraints(new HardConstraints(
-                    null,
-                    Map.of(),
-                    Map.of(),
-                    Map.of(),
-                    20,
-                    20,
-                    2,
-                    120,
-                    480,
-                    team
-            ));
+            team.setNighttimeRequiredPeople(0);
+            team.setDaytimeRequiredPeople(0);
             teams.add(teamRepository.save(team));
         }
     }
@@ -151,6 +130,13 @@ public class DataGeneratorBean {
                 Role role = new Role();
                 role.setName(roleName);
                 role.setTeam(team);
+                role.setAllowedFlextimeTotal(40);
+                role.setAllowedFlextimePerMonth(20);
+                role.setDaytimeRequiredPeople(0);
+                role.setNighttimeRequiredPeople(0);
+                role.setWorkingHours(40);
+                role.setMaxWeeklyHours(80);
+                role.setMaxConsecutiveShifts(7);
                 role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
                 role.setColor(FAKER.color().hex());
                 roles.add(roleRepository.save(role));
@@ -163,8 +149,8 @@ public class DataGeneratorBean {
         users = new ArrayList<>();
 
         for (Team team : teams) {
-            String firstName = FAKER.name().firstName();
-            String lastName = FAKER.name().lastName();
+            String firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");
+            String lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");
             String username = (firstName.charAt(0) + lastName).toLowerCase();
             String email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                     + FAKER.internet().domainName();
@@ -198,9 +184,9 @@ public class DataGeneratorBean {
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
                     for (int i = 0; i < NUM_USERS_WITH_ROLES; i++) {
-                        firstName = FAKER.name().firstName();
+                        firstName = FAKER.name().firstName().replaceAll("[^A-Za-z]", "");
                         // use UUID to avoid duplicates
-                        lastName = FAKER.name().lastName() + "_" + UUID.randomUUID();
+                        lastName = FAKER.name().lastName().replaceAll("[^A-Za-z]", "");
                         username = (firstName.charAt(0) + lastName).toLowerCase();
                         email = firstName.toLowerCase() + '.' + lastName.toLowerCase() + '@'
                                 + FAKER.internet().domainName();
@@ -243,7 +229,7 @@ public class DataGeneratorBean {
                 Holiday holiday = new Holiday();
                 holiday.setStartDate(generateValidRandomFutureDate());
                 holiday.setEndDate(holiday.getStartDate().plusDays(1));
-                holiday.setIsApproved(false);
+                holiday.setStatus(HolidayRequestStatus.REQUESTED);
                 holiday.setUser(user);
                 holidayRepository.save(holiday);
             }
@@ -272,7 +258,6 @@ public class DataGeneratorBean {
             nightShift.setBreakStartTime(LocalTime.of(2, 0));
             nightShift.setBreakEndTime(LocalTime.of(2, 30));
             nightShift.setAbbreviation("N10");
-            nightShift.setType("Night");
             nightShift.setColor("#190933");
             nightShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(nightShift));
@@ -283,7 +268,6 @@ public class DataGeneratorBean {
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D6");
-            morningShift.setType("Day");
             morningShift.setColor("#ACFCD9");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
@@ -294,7 +278,6 @@ public class DataGeneratorBean {
             eveningShift.setBreakStartTime(LocalTime.of(18, 0));
             eveningShift.setBreakEndTime(LocalTime.of(18, 30));
             eveningShift.setAbbreviation("D14");
-            eveningShift.setType("Day");
             eveningShift.setColor("#B084CC");
             eveningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(eveningShift));
@@ -364,32 +347,6 @@ public class DataGeneratorBean {
                     .toList());
         }
         return teamUserPerRole;
-    }
-
-    private void createHardConstraints() {
-        log.info("Generating hard constraints for every team...");
-        for (Team team : teams) {
-            HardConstraints hardConstraints = team.getHardConstraints();
-            hardConstraints.setId(team.getId());
-            hardConstraints.setDaytimeRequiredRoles(Map.of(roles.get(0), 2, roles.get(1), 1));
-            hardConstraints.setNighttimeRequiredRoles(Map.of(roles.get(0), 1, roles.get(1), 1));
-            hardConstraints.setAllowedFlextimeTotal(10);
-            hardConstraints.setAllowedFlextimePerMonth(5);
-            hardConstraints.setMandatoryOffDays(2);
-            hardConstraints.setMinRestPeriod(120);
-            hardConstraints.setMaximumShiftLengths(8);
-            hardConstraints.setShiftOffShift(Map.of(createShiftOffShiftIdList(),
-                    shifts.get(FAKER.number().numberBetween(0, shifts.size())).getId()));
-            hardConstraints.setTeam(team);
-            hardConstraintsRepository.save(hardConstraints);
-        }
-    }
-
-    private ShiftOffShiftIdList createShiftOffShiftIdList() {
-        log.info("Generating shift off shift id list...");
-        ShiftOffShiftIdList shiftOffShiftIdList = new ShiftOffShiftIdList();
-        shiftOffShiftIdList.setShiftOffShiftIdList(List.of());
-        return shiftOffShiftIdListRepository.save(shiftOffShiftIdList);
     }
 
     private void createPreferences() {

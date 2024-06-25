@@ -11,7 +11,7 @@ describe('RulesComponent', () => {
       imports: [RulesComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(RulesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
