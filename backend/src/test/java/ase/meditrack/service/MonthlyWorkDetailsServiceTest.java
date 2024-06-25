@@ -5,14 +5,12 @@ import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -57,9 +55,9 @@ class MonthlyWorkDetailsServiceTest {
         User user = new User();
         user.setRole(role);
         user.setWorkingHoursPercentage(100F);
-        Role role = new Role();
-        role.setWorkingHours(40);
-        user.setRole(role);
+        Role role2 = new Role();
+        role2.setWorkingHours(40);
+        user.setRole(role2);
 
         Team team = new Team();
 

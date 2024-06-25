@@ -15,9 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.admin.client.resource.UserResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,8 +32,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -116,6 +118,36 @@ class RoleControllerIT {
         assertEquals(1, roles.size());
     }
 
+    @Test
+    @WithMockUser(authorities = {"SCOPE_admin", "SCOPE_employee"}, username = USER_ID)
+    void test_findRoleById_succeeds() throws Exception {
+        Role role = new Role();
+        role.setWorkingHours(10);
+        role.setAllowedFlextimePerMonth(2);
+        role.setAllowedFlextimeTotal(8);
+        role.setDaytimeRequiredPeople(3);
+        role.setNighttimeRequiredPeople(3);
+        role.setMaxConsecutiveShifts(2);
+        role.setMaxWeeklyHours(40);
+        role.setName("Test");
+        role.setColor("#000000");
+        role.setAbbreviation("TR");
+        role.setTeam(team);
+        roleRepository.save(role);
+        roleRepository.flush();
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/role/" + role.getId()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        RoleDto roleDto = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        assertAll(
+                () -> assertEquals(role.getName(), roleDto.name()),
+                () -> assertEquals(role.getColor(), roleDto.color()),
+                () -> assertEquals(role.getAbbreviation(), roleDto.abbreviation())
+        );
+    }
 
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
@@ -143,5 +175,70 @@ class RoleControllerIT {
         assertNotNull(created.id());
         assertEquals(dto.name(), created.name());
         assertEquals(2, roleRepository.count());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_updateRole_succeeds() throws Exception {
+        Role role = new Role();
+        role.setWorkingHours(10);
+        role.setAllowedFlextimePerMonth(2);
+        role.setAllowedFlextimeTotal(8);
+        role.setDaytimeRequiredPeople(3);
+        role.setNighttimeRequiredPeople(3);
+        role.setMaxConsecutiveShifts(2);
+        role.setMaxWeeklyHours(40);
+        role.setName("Test");
+        role.setColor("#000000");
+        role.setAbbreviation("TR");
+        role.setTeam(team);
+        roleRepository.save(role);
+        roleRepository.flush();
+        RoleDto dto = new RoleDto(
+                role.getId(),
+                "testRole",
+                "#000000",
+                "TR",
+                null,
+                team.getId(),
+                null
+        );
+
+        String response = mockMvc.perform(
+                        MockMvcRequestBuilders.put("/api/role")
+                                .content(objectMapper.writeValueAsString(dto))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        RoleDto updated = objectMapper.readValue(response, RoleDto.class);
+
+        assertNotNull(updated);
+        assertNotNull(updated.id());
+        assertEquals(dto.name(), updated.name());
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_deleteRole_succeeds() throws Exception {
+        Role role = new Role();
+        role.setWorkingHours(10);
+        role.setAllowedFlextimePerMonth(2);
+        role.setAllowedFlextimeTotal(8);
+        role.setDaytimeRequiredPeople(3);
+        role.setNighttimeRequiredPeople(3);
+        role.setMaxConsecutiveShifts(2);
+        role.setMaxWeeklyHours(40);
+        role.setName("Test");
+        role.setColor("#000000");
+        role.setAbbreviation("TR");
+        role.setTeam(team);
+        roleRepository.save(role);
+        roleRepository.flush();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/role/" + role.getId()))
+                .andExpect(status().isNoContent());
+
+        assertFalse(roleRepository.existsById(role.getId()));
     }
 }

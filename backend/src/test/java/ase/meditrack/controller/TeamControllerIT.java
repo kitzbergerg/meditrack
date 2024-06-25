@@ -12,12 +12,15 @@ import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.service.MailService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UsersResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,9 +49,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
-@MockBean(RealmResource.class)
+@MockBean(MailService.class)
 class TeamControllerIT {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
+    private static final String OTHER_USER_ID = "00000000-1111-0000-0000-000000000000";
 
     @Autowired
     private MockMvc mockMvc;
@@ -65,16 +69,25 @@ class TeamControllerIT {
     private ShiftTypeRepository shiftTypeRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @MockBean
+    private RealmResource realmResource;
+    @MockBean
+    private UsersResource usersResource;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
 
     @BeforeEach
     void setup() {
+        Team team = defaultTestCreator.createDefaultTeam();
+        Role role = defaultTestCreator.createDefaultRole(team);
+
         user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -98,7 +111,29 @@ class TeamControllerIT {
 
         assertAll(
                 () -> assertNotNull(teams),
-                () -> assertEquals(0, teams.size())
+                () -> assertEquals(1, teams.size())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_getTeamById_succeeds() throws Exception {
+        Team team = new Team();
+        team.setId(null);
+        team.setName("testTeam");
+        team.setDaytimeRequiredPeople(2);
+        team.setNighttimeRequiredPeople(2);
+        teamRepository.save(team);
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/team/" + team.getId()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        TeamDto teamDto = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        assertAll(
+                () -> assertNotNull(teamDto),
+                () -> assertEquals(team.getName(), teamDto.name())
         );
     }
 
@@ -108,6 +143,8 @@ class TeamControllerIT {
         Team team = new Team();
         team.setId(null);
         team.setName("testTeam");
+        team.setDaytimeRequiredPeople(2);
+        team.setNighttimeRequiredPeople(2);
         teamRepository.save(team);
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/team/" + team.getId()))
@@ -115,55 +152,75 @@ class TeamControllerIT {
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    @WithMockUser(authorities = "SCOPE_admin")
     void test_findTeamById_succeeds() throws Exception {
-        TeamDto dto = new TeamDto(
-                null,
-                "testTeam",
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        Team team = new Team();
+        team.setId(null);
+        team.setName("testTeam");
+        team.setDaytimeRequiredPeople(2);
+        team.setNighttimeRequiredPeople(2);
+        teamRepository.save(team);
 
-        String responseCreate = mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/team")
-                                .content(objectMapper.writeValueAsString(dto))
-                                .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        TeamDto created = objectMapper.readValue(responseCreate, TeamDto.class);
-
-        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/team/" + created.id()))
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/team/" + team.getId()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
         TeamDto foundTeam = objectMapper.readValue(response, TeamDto.class);
 
         assertAll(
-                () -> assertEquals(created.id(), foundTeam.id()),
-                () -> assertEquals(created.name(), foundTeam.name())
+                () -> assertEquals(team.getId(), foundTeam.id()),
+                () -> assertEquals(team.getName(), foundTeam.name())
         );
     }
 
     @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    @WithMockUser(authorities = "SCOPE_admin", username = OTHER_USER_ID)
     void test_updateTeam_succeeds() throws Exception {
+        Team team = new Team();
+        team.setId(null);
+        team.setName("testTeam");
+        team.setDaytimeRequiredPeople(2);
+        team.setNighttimeRequiredPeople(2);
+        teamRepository.save(team);
+
         Role role = new Role();
         role.setName("Test Role");
         role.setColor("FF0000");
         role.setAbbreviation("TR");
+        role.setMaxWeeklyHours(40);
+        role.setWorkingHours(8);
+        role.setAllowedFlextimeTotal(4);
+        role.setAllowedFlextimePerMonth(6);
+        role.setMaxConsecutiveShifts(4);
+        role.setNighttimeRequiredPeople(4);
+        role.setDaytimeRequiredPeople(5);
+        role.setTeam(team);
         roleRepository.save(role);
+
+        User user2 = userRepository.save(new User(
+                UUID.fromString(OTHER_USER_ID),
+                role,
+                1f,
+                0,
+                null,
+                team,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+        ));
+        userRepository.flush();
 
         List<UUID> roles = new ArrayList<>();
         roles.add(role.getId());
 
         List<UUID> users = new ArrayList<>();
-        users.add(user.getId());
-        user.setRole(role);
-        userRepository.save(user);
+        users.add(user2.getId());
 
         TeamDto dto = new TeamDto(
                 null,
@@ -210,20 +267,6 @@ class TeamControllerIT {
     @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_createTeam_succeeds() throws Exception {
-        Role role = new Role();
-        role.setName("Test Role");
-        role.setColor("FF0000");
-        role.setAbbreviation("TR");
-        roleRepository.save(role);
-
-        List<UUID> roles = new ArrayList<>();
-        roles.add(role.getId());
-
-        List<UUID> users = new ArrayList<>();
-        users.add(user.getId());
-        user.setRole(role);
-        userRepository.save(user);
-
         ShiftType shiftType = new ShiftType();
         shiftType.setName("Test ShiftType");
         shiftType.setColor("#FF0000");
@@ -247,8 +290,8 @@ class TeamControllerIT {
         TeamDto dto = new TeamDto(
                 null,
                 "testTeam",
-                roles,
-                users,
+                null,
+                null,
                 null,
                 monthlyPlans,
                 shiftTypes

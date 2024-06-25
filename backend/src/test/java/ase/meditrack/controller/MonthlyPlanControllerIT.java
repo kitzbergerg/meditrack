@@ -2,10 +2,7 @@ package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
 import ase.meditrack.model.dto.MonthlyPlanDto;
-import ase.meditrack.model.entity.Role;
-import ase.meditrack.model.entity.ShiftType;
-import ase.meditrack.model.entity.Team;
-import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.UserRepository;
@@ -13,10 +10,14 @@ import ase.meditrack.service.MailService;
 import ase.meditrack.service.RoleService;
 import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,12 +31,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -65,16 +69,29 @@ class MonthlyPlanControllerIT {
     private MonthlyPlanRepository monthlyPlanRepository;
     @Autowired
     private ShiftRepository shiftRepository;
+    @MockBean
+    private RealmResource realmResource;
+    @MockBean
+    private UsersResource usersResource;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
+
+    private Team team;
+    private Role role;
+    private User user;
 
     @BeforeEach
     void setup() {
-        userRepository.save(new User(
+        team = defaultTestCreator.createDefaultTeam();
+        role = defaultTestCreator.createDefaultRole(team);
+
+        user = userRepository.save(new User(
                 UUID.fromString(USER_ID),
-                null,
+                role,
                 1f,
                 0,
                 null,
-                null,
+                team,
                 null,
                 null,
                 null,
@@ -85,16 +102,25 @@ class MonthlyPlanControllerIT {
                 null,
                 null
         ));
+        Preferences preferences = new Preferences(null, List.of(), user);
+        user.setPreferences(preferences);
+        userRepository.save(user);
+
+        // Mock the realmResource and usersResource behavior
+        when(realmResource.users()).thenReturn(usersResource);
+
+        UserRepresentation userRepresentation = new UserRepresentation();
+        userRepresentation.setId(USER_ID);
+        userRepresentation.setUsername("testUser");
+
+        UserResource userResource = mock(UserResource.class);
+        when(usersResource.get(USER_ID)).thenReturn(userResource);
+        when(userResource.toRepresentation()).thenReturn(userRepresentation);
     }
-    //TODO: fix keycloak user representation, then add test back
+
+    //@Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
-    void test_createRole_succeeds() throws Exception {
-        Team team = new Team(null, "test team", null, null, 40, 0, null, null);
-        team = teamService.create(team, () -> USER_ID);
-
-        Role role = new Role(null, "test role", null, null, 40, 20, 0, 0, 0, 0,0, null, team, null);
-        role = roleService.create(role, () -> USER_ID);
-
+    void test_createPlan_succeeds() throws Exception {
         ShiftType shiftType = new ShiftType(null,
                 "test shift type",
                 LocalTime.of(8, 0, 0),
@@ -109,7 +135,7 @@ class MonthlyPlanControllerIT {
                 null
 
         );
-        shiftType = shiftTypeService.create(shiftType, () -> USER_ID);
+        shiftTypeService.create(shiftType, () -> USER_ID);
 
         String response = mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/monthly-plan")
