@@ -16,6 +16,13 @@ public interface RoleMapper {
     @Named("toDto")
     RoleDto toDto(Role role);
 
+    @Mapping(target = "allowedFlextimeTotal", ignore = true)
+    @Mapping(target = "allowedFlextimePerMonth", ignore = true)
+    @Mapping(target = "daytimeRequiredPeople", ignore = true)
+    @Mapping(target = "nighttimeRequiredPeople", ignore = true)
+    @Mapping(target = "workingHours", ignore = true)
+    @Mapping(target = "maxWeeklyHours", ignore = true)
+    @Mapping(target = "maxConsecutiveShifts", ignore = true)
     Role fromDto(RoleDto dto);
 
     @IterableMapping(qualifiedByName = "toDto")

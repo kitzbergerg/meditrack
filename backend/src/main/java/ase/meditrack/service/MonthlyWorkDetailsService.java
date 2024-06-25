@@ -99,7 +99,7 @@ public class MonthlyWorkDetailsService {
      */
     public Float calculateTargetWorkingHours(User user, Team team, int month, int year) {
         int workingDaysInMonth = getWorkingDaysInMonth(month, year);
-        float weeklyWorkingHours = team.getWorkingHours();
+        float weeklyWorkingHours = user.getRole().getWorkingHours();
         float dailyWorkingHours = weeklyWorkingHours / 5; // Assuming a 5-day work week
         float targetWorkingHours = dailyWorkingHours * workingDaysInMonth * user.getWorkingHoursPercentage() / 100;
         return Math.round(targetWorkingHours * 2) / 2.0f;
