@@ -3,28 +3,53 @@
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Holidays</h2>
-        <ul class="list-none p-0 m-0">
-          <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-0">
-            <span class="text-xl font-bold mr-2 md:mb-2">Begin</span>
-            <span class="text-xl font-bold mr-2 md:mb-2">End</span>
-            <span class="text-xl font-bold mr-2 md:mb-2">Status</span>
-          </li>
-          <li *ngFor="let holiday of holidays" (click)="selectHoliday(holiday)"
-              class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.startDate) }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.endDate) }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0"
-                  [ngStyle]="{'color':
-                    holiday.status === 'APPROVED' ? 'green' :
-                    holiday.status === 'REJECTED' ? 'red' :
-                    holiday.status === 'CANCELLED' ? 'grey':
-                         'blue'}">
-                  {{ holiday.status?.toLowerCase() }}
-            </span>
-          </li>
-        </ul>
-        <div class="plusButtonContainer">
-          <button (click)="showCreateForm()" pbutton="" pripple="" type="button" icon="pi pi-plus" class="p-element p-ripple p-button-rounded p-button p-button p-component p-button-icon-only">
+        <p-table
+          [loading]="!holidays"
+          [value]="holidays"
+          selectionMode="single" [scrollable]="true" scrollHeight='30vh'>
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="startDate">Begin
+                <p-sortIcon field="startDate"/>
+              </th>
+              <th pSortableColumn="endDate">End
+                <p-sortIcon field="endDate"/>
+              </th>
+              <th class="w-1">
+                <p-columnFilter field="status" matchMode="equals" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown
+                      appendTo="body"
+                      [ngModel]="value"
+                      [options]="statuses"
+                      (onChange)="filter($event.value)"
+                      placeholder="Status">
+                      <ng-template let-option pTemplate="item">
+                        <p-tag
+                          [value]="option.value"
+                          [severity]="getSeverity(option.value)"/>
+                      </ng-template>
+                    </p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-holiday>
+            <tr [pSelectableRow]="holiday" (click)="selectHoliday(holiday)">
+              <td>{{ getFormattedDateFromString(holiday.startDate) }}</td>
+              <td>{{ getFormattedDateFromString(holiday.endDate) }}</td>
+              <td>
+                <p-tag
+                  [value]="holiday.status"
+                  [severity]="getSeverity(holiday.status)"/>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+        <div class="plusButtonContainer" style="text-align: center; margin-top: 1rem;">
+          <button (click)="showCreateForm()" pButton pRipple type="button" icon="pi pi-plus"
+                  class="p-element p-ripple p-button-rounded p-button p-button-icon-only">
             <span class="p-button-icon pi pi-plus" aria-hidden="true"></span>
             <span class="p-ink" aria-hidden="true" role="presentation"></span>
           </button>
@@ -129,14 +154,16 @@
           <button *ngIf="formMode === 'create'"
                   (click)="createOrUpdateHoliday()"
                   style="height: 35px; width: 150px;"
-                  pbutton="" pripple="" type="button" label="Success" class="p-element p-ripple p-button-success p-button p-component">
+                  pbutton="" pripple="" type="button" label="Success"
+                  class="p-element p-ripple p-button-success p-button p-component">
             <span class="p-button-label">{{ formAction }}</span>
             <span class="p-ink" aria-hidden="true" role="presentation"></span>
           </button>
         </div>
 
         <div class="buttonset" *ngIf="formMode !== 'create'">
-          <button *ngIf="formMode === 'details' && isEditable()" (click)="editHoliday()" pbutton="" pripple="" label="Edit"
+          <button *ngIf="formMode === 'details' && isEditable()" (click)="editHoliday()" pbutton="" pripple=""
+                  label="Edit"
                   icon="pi pi-pencil"
                   class="p-element p-ripple p-button-raised p-button-info p-button p-component" style="height: 35px;">
             <span class="p-button-icon p-button-icon-left pi pi-pencil" aria-hidden="true"></span>
@@ -155,7 +182,8 @@
             <span class="p-ink" aria-hidden="true" role="presentation"></span>
           </button>
 
-          <button *ngIf="formMode === 'edit'" (click)="cancelEditing()" pbutton="" pripple="" label="Cancel" icon="pi pi-times" class="p-element p-ripple p-button-raised p-button-secondary p-button p-component"
+          <button *ngIf="formMode === 'edit'" (click)="cancelEditing()" pbutton="" pripple="" label="Cancel"
+                  icon="pi pi-times" class="p-element p-ripple p-button-raised p-button-secondary p-button p-component"
                   style="height: 35px;">
             <span class="p-button-icon p-button-icon-left pi pi-times" aria-hidden="true"></span>
             <span class="p-button-label">Cancel</span>
@@ -171,30 +199,66 @@
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Team Holidays</h2>
-        <ul class="list-none p-0 m-0">
-          <li class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-0">
-            <span class="text-xl font-bold mr-2 md:mb-2">Employee</span>
-            <span class="text-xl font-bold mr-2 md:mb-2">Begin</span>
-            <span class="text-xl font-bold mr-2 md:mb-2">End</span>
-            <span class="text-xl font-bold mr-2 md:mb-2">Status</span>
-          </li>
-          <li *ngFor="let holiday of teamHolidays" (click)="selectTeamHoliday(holiday)"
-              class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-            <span
-              class="text-xl font-medium mr-2 md:mb-0">{{ getUsernameFromId(holiday.user !== undefined ? holiday.user
-              : '')}}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.startDate) }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ getFormattedDateFromString(holiday.endDate) }}</span>
-            <span class="text-xl font-medium mr-2 md:mb-0"
-                  [ngStyle]="{'color':
-                    holiday.status === 'APPROVED' ? 'green' :
-                    holiday.status === 'REJECTED' ? 'red' :
-                    holiday.status === 'CANCELLED' ? 'grey':
-                         'blue'}">
-                  {{ holiday.status?.toLowerCase() }}
-            </span>
-          </li>
-        </ul>
+        <p-table
+          #dt
+          [loading] = "userIdNameMap.size === 0 || !teamHolidays"
+          [scrollable]="true" scrollHeight='30vh'
+          [globalFilterFields]="['username']"
+          [value]="teamHolidays"
+          selectionMode="single">
+          <ng-template pTemplate="caption">
+            <div class="flex justify-content-end">
+             <span class="block mt-2 md:mt-0 p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText (input)="onGlobalFilter(dt, $event)" type="text" placeholder="Search..."
+                           class="w-full sm:w-auto"/>
+                </span>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="user">Employee
+                <p-sortIcon field="user"/>
+              </th>
+              <th pSortableColumn="startDate">Begin
+                <p-sortIcon field="startDate"/>
+              </th>
+              <th pSortableColumn="endDate">End
+                <p-sortIcon field="endDate"/>
+              </th>
+              <th class="w-1">
+                <p-columnFilter field="status" matchMode="equals" [showMenu]="false">
+                  <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                    <p-dropdown
+                      appendTo="body"
+                      [options]="statuses"
+                      [ngModel]="value"
+                      (onChange)="filter($event.value)"
+                      placeholder="Status">
+                      <ng-template let-option pTemplate="item">
+                        <p-tag
+                          [value]="option.value"
+                          [severity]="getSeverity(option.value)"/>
+                      </ng-template>
+                    </p-dropdown>
+                  </ng-template>
+                </p-columnFilter>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-holiday>
+            <tr [pSelectableRow]="holiday" (click)="selectTeamHoliday(holiday)">
+              <td>{{ holiday.user !== undefined ? holiday.username : '' }}</td>
+              <td>{{ getFormattedDateFromString(holiday.startDate) }}</td>
+              <td>{{ getFormattedDateFromString(holiday.endDate) }}</td>
+              <td>
+                <p-tag
+                  [value]="holiday.status"
+                  [severity]="getSeverity(holiday.status)"/>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
     </div>
     <div class="col-12 md:col-6">
@@ -256,7 +320,5 @@
             </button>
           </div>
         </div>
-      </div>
-    </div>
   </div>
 </div>
