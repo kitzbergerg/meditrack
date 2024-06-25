@@ -333,13 +333,13 @@ public class UserService {
     }
 
     private String generateWelcomeMessage(UserRepresentation userRepresentation) {
-        return "Welcome to Meditrack, " + userRepresentation.getFirstName() + " "
+        return "Welcome to MediTrack, " + userRepresentation.getFirstName() + " "
                 + userRepresentation.getLastName() + "!\n\n"
-                + "You have been successfully registered as a user in Meditrack.\n\n"
+                + "You have been successfully registered as a user in MediTrack.\n\n"
                 + "Your username is: " + userRepresentation.getUsername() + "\n\n"
-                + "You can now log in to Meditrack and start using the application.\n\n"
+                + "You can now log in to MediTrack and start using the application.\n\n"
                 + "If you have any questions or need help, please contact your team leader.\n\n"
                 + "Best regards,\n"
-                + "Your Meditrack Team";
+                + "Your MediTrack Team";
     }
 }

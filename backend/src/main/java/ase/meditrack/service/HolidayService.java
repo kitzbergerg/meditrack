@@ -23,13 +23,15 @@ public class HolidayService {
     private final UserService userService;
     private final HolidayValidator validator;
     private final TeamService teamService;
+    private final MailService mailService;
 
     public HolidayService(HolidayRepository repository, UserService userService,
-                HolidayValidator validator, TeamService teamService) {
+                HolidayValidator validator, TeamService teamService, MailService mailService) {
         this.repository = repository;
         this.userService = userService;
         this.validator = validator;
         this.teamService = teamService;
+        this.mailService = mailService;
     }
 
     /**
@@ -139,9 +141,10 @@ public class HolidayService {
      * @param id the id of the holiday
      * @param status the new status
      * @param principal the principal
+     * @param shouldSendMail if a mail should be sent to the user about the status change
      * @return the updated holiday
      */
-    public Holiday updateStatus(UUID id, HolidayRequestStatus status, Principal principal) {
+    public Holiday updateStatus(UUID id, HolidayRequestStatus status, Principal principal, Boolean shouldSendMail) {
         Holiday holiday = findById(id);
         // check if holiday is in the list of the dm's team holidays
         if (!findAllByTeam(principal).contains(holiday)) {
@@ -149,7 +152,16 @@ public class HolidayService {
                     "You are not allowed to update the status of this holiday! Only the team lead can update it.");
         }
         holiday.setStatus(status);
-        return repository.save(holiday);
+        holiday = repository.save(holiday);
+
+        if (shouldSendMail) {
+            //get email address from user
+            User user = userService.findById(holiday.getUser().getId());
+            mailService.sendSimpleMessage(user.getUserRepresentation().getEmail(),
+                    "The status of your holiday request has been updated!",
+                    generateStatusUpdateMessageForUser(holiday));
+        }
+        return holiday;
     }
 
     /**
@@ -196,5 +208,23 @@ public class HolidayService {
     public boolean isCurrentUserSameAsUser(Principal principal, UUID userIdFromHoliday) {
         User user = userService.getPrincipalWithTeam(principal);
         return user.getId().equals(userIdFromHoliday);
+    }
+
+    private String generateHolidayRequestMessageForDm(Holiday holiday) {
+        return "New holiday request from " + holiday.getUser().getUserRepresentation().getFirstName() + " "
+                + holiday.getUser().getUserRepresentation().getLastName() + ":\n\n"
+                + "Holiday from: " + holiday.getStartDate() + "to: " + holiday.getEndDate() + "!\n\n"
+                + "To get more details and approve or reject the holiday, please log in to MediTrack.\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
+    }
+
+    private String generateStatusUpdateMessageForUser(Holiday holiday) {
+        return "The status of your holiday request from " + holiday.getStartDate() + " to " + holiday.getEndDate()
+                + " has been updated to " + holiday.getStatus() + "!\n\n"
+                + "To get more details about and edit your holiday, please log in to MediTrack.\n\n"
+                + "If you have any questions or need help, please contact your team leader.\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
     }
 }

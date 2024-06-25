@@ -26,7 +26,7 @@ public class MailService {
     public void sendSimpleMessage(String to, String subject, String text) {
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setTo(to);
-        mail.setFrom("Meditrack <meditrack.ase@gmail.com>");
+        mail.setFrom("MediTrack <meditrack.ase@gmail.com>");
         mail.setSubject(subject);
         mail.setText(text);
         log.info("Sending mail to {} with subject: {}", to, subject);

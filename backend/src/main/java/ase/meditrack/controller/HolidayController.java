@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,7 +42,8 @@ public class HolidayController {
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_employee')")
     @ResponseStatus(HttpStatus.CREATED)
-    public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto, Principal principal) {
+    public HolidayDto create(@Validated(CreateValidator.class) @RequestBody HolidayDto dto, Principal principal,
+                             @RequestParam(required = false) Boolean shouldSendMail) {
         log.info("Creating holiday for user: {}", principal.getName());
         return mapper.toDto(service.create(mapper.fromDto(dto), principal.getName()));
     }
@@ -86,9 +88,10 @@ public class HolidayController {
     @PreAuthorize("hasAnyAuthority('SCOPE_dm')")
     @ResponseStatus(HttpStatus.OK)
     public HolidayDto updateStatus(@PathVariable UUID id,
-                                   @PathVariable HolidayRequestStatus status, Principal principal) {
+                                   @PathVariable HolidayRequestStatus status, Principal principal,
+                                   @RequestParam(required = false) Boolean shouldSendMail) {
         log.info("Updating status of holiday with id: {} to: {}", id, status.name());
-        return mapper.toDto(service.updateStatus(id, status, principal));
+        return mapper.toDto(service.updateStatus(id, status, principal, shouldSendMail));
     }
 
     @DeleteMapping("/{id}")
