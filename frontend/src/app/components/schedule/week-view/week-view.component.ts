@@ -23,6 +23,7 @@ import {ShiftType} from "../../../interfaces/shiftType";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {format, startOfDay} from 'date-fns';
+import {PdfGenerationService} from "../../../services/pdf-generation.service";
 
 @Component({
   selector: 'app-week-view',
@@ -88,7 +89,10 @@ export class WeekViewComponent implements OnInit {
   ];
 
 
-  constructor(private messageService: MessageService, private confirmationService: ConfirmationService, private cdr: ChangeDetectorRef) {
+  constructor(private messageService: MessageService,
+              private confirmationService: ConfirmationService,
+              private cdr: ChangeDetectorRef,
+              private pdfGenerationService: PdfGenerationService) {
   }
 
 
@@ -199,4 +203,21 @@ export class WeekViewComponent implements OnInit {
   }
 
   protected readonly format = format;
+
+  generatePdf(day: Day) {
+
+
+    this.pdfGenerationService.downloadPdf(day.date.toLocaleString('default', { month: 'long' }), day.date.getFullYear()).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'monthly_plan.pdf';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Error downloading PDF:', error);
+    });
+  }
 }

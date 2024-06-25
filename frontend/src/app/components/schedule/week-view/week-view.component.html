@@ -100,6 +100,13 @@
         </p-dropdown>
       </div>
 
+      <div>
+        <p-button
+          (onClick)="generatePdf(days[0])">
+          Generate pdf
+        </p-button>
+      </div>
+
       <span class="block mt-2 md:mt-0 p-input-icon-left">
                     <i class="pi pi-search"></i>
                     <input pInputText (input)="onGlobalFilter(dt, $event)" type="text" placeholder="Search..."
