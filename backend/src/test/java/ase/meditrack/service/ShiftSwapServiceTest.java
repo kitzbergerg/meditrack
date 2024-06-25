@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
+@MockBean(MailService.class)
 @ExtendWith(SpringExtension.class)
 public class ShiftSwapServiceTest {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
