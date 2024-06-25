@@ -52,7 +52,10 @@ class MonthlyWorkDetailsServiceTest {
 
     @Test
     void testCalculateTargetWorkingHours() {
+        Role role = new Role();
+        role.setWorkingHours(40);
         User user = new User();
+        user.setRole(role);
         user.setWorkingHoursPercentage(100F);
 
         Team team = new Team();
