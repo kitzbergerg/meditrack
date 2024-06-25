@@ -1,9 +1,11 @@
 package ase.meditrack;
 
+import ase.meditrack.service.MailService;
 import ase.meditrack.util.KeycloakContainer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -13,6 +15,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest
 @Testcontainers
 @DisabledIfSystemProperty(named = "spring.profiles.active", matches = "excludeTestcontainers")
+@MockBean(MailService.class)
 class SmokeTestIT {
 
     @Container
