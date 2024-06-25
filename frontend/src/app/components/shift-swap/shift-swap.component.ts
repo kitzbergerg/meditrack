@@ -45,7 +45,7 @@ export class ShiftSwapComponent {
   constructor(private messageService: MessageService,
               private userService: UserService,
               private authorizationService: AuthorizationService,
-              private shiftSwapService: ShiftSwapService, 
+              private shiftSwapService: ShiftSwapService,
               private confirmationService: ConfirmationService,
   ) {
   }
