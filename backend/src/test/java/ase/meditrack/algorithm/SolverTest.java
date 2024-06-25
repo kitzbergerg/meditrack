@@ -52,7 +52,7 @@ class SolverTest {
     void testMaxWorkingHours() {
         // Employee needs to work 28 days with 12 hours each. So 28 * 12 - 1 -> no solution
         List<EmployeeInfo> employeeInfos =
-                List.of(new EmployeeInfo(List.of(0), List.of(), 28 * 6, 28 * 12 - 1, 28 * 8, Set.of(), Set.of(), 0));
+                List.of(new EmployeeInfo(List.of(0), List.of(), 28 * 6, 28 * 12 - 1, 28 * 12-1, Set.of(), Set.of(), 0));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(20, 0), 12));
         List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, Integer.MAX_VALUE, 28));
         AlgorithmInput input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 1, 0);
@@ -60,7 +60,7 @@ class SolverTest {
 
         // 28 * 12 -> solution
         employeeInfos =
-                List.of(new EmployeeInfo(List.of(0), List.of(), 28 * 6, 28 * 12, 28 * 8, Set.of(), Set.of(), 0));
+                List.of(new EmployeeInfo(List.of(0), List.of(), 28 * 6, 28 * 12, 28 * 12, Set.of(), Set.of(), 0));
         input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 1, 0);
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }
@@ -68,7 +68,7 @@ class SolverTest {
     @Test
     void testMaxWorkingHoursPerWeek() {
         List<EmployeeInfo> employeeInfos =
-                List.of(new EmployeeInfo(List.of(0), List.of(), 28 * 6, 28 * 12, 28 * 8, Set.of(), Set.of(), 0));
+                List.of(new EmployeeInfo(List.of(0), List.of(), 28 * 6, 28 * 12, 28 * 12, Set.of(), Set.of(), 0));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(20, 0), 12));
         // Employee needs to work 7 days a week with 12 hours each. So 7 * 12 - 1 -> no solution
         List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, 7 * 12 - 1, 28));
@@ -86,7 +86,7 @@ class SolverTest {
         // holiday with only 1 user and required people of 1 -> no solution
         List<EmployeeInfo> employeeInfos = new ArrayList<>();
         employeeInfos.add(
-                new EmployeeInfo(List.of(0), List.of(), 28 * 12 - 20, 28 * 12 + 20, 28 * 12, Set.of(0), Set.of(), 0));
+                new EmployeeInfo(List.of(0), List.of(), 28 * 12 - 20, 28 * 12 + 20, 27 * 12, Set.of(0), Set.of(), 0));
         List<ShiftTypeInfo> shiftTypeInfos = List.of(new ShiftTypeInfo(LocalTime.of(8, 0), LocalTime.of(20, 0), 12));
         List<RoleInfo> roles = List.of(new RoleInfo("Rolename", 0, 0, Integer.MAX_VALUE, 28));
         AlgorithmInput input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 1, 0);
@@ -94,8 +94,9 @@ class SolverTest {
 
         // holiday with 2 user -> solution
         employeeInfos.add(
-                new EmployeeInfo(List.of(0), List.of(), 28 * 12 - 20, 28 * 12 + 20, 28 * 12, Set.of(), Set.of(), 0));
+                new EmployeeInfo(List.of(0), List.of(), 28 * 12 - 20, 28 * 12 + 20, 27 * 12, Set.of(), Set.of(), 0));
         input = new AlgorithmInput(28, employeeInfos, shiftTypeInfos, roles, 1, 0);
+        System.out.println(SchedulingSolver.solve(input).get().assignmentOfEmployeesToShifts());
         assertTrue(SchedulingSolver.solve(input).isPresent());
     }
 
