@@ -87,7 +87,7 @@ public class KeycloakConfig {
                 User user = defaultAdminUser();
                 user.setTeam(team);
                 user.setRole(role);
-                userService.create(user);
+                userService.create(user, false);
             }
         }
 
