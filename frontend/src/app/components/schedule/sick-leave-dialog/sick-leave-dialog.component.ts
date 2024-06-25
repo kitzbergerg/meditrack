@@ -55,7 +55,6 @@ export class SickLeaveDialogComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes:SimpleChanges): void {
-    console.log(changes)
     if (this.shift) {
       this.displayDialog = true;
       this.getReplacementForShift(this.shift);

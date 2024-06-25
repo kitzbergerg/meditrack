@@ -284,7 +284,6 @@ export class ScheduleComponent implements OnInit {
     this.employeeShiftMap = this.scheduleMapService.getEmployeeShiftMap();
     this.loading = true;
     // Iterate over shifts and parse the data, store in the respective employee's shifts map
-    console.log(this.usersWithShifts)
     this.usersWithShifts.forEach(employee => {
       if (!employee.id) {
         return;
@@ -481,7 +480,6 @@ export class ScheduleComponent implements OnInit {
               this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             }
           }, error: (error) => {
-            console.log(JSON.stringify(error));
             let message = 'Creating shift failed:';
             if (error.error.date) {
               message += ` ${error.error.date}`;

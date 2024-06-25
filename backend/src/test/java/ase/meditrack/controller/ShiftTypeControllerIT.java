@@ -146,7 +146,7 @@ class ShiftTypeControllerIT {
         ));
 
         Team otherTeam = teamService.create(
-                new Team(null, "other test team", 40, null, null, null, null, null),
+                new Team(null, "other test team", List.of(role), null, 0, 0, null, null),
                 () -> otherUserId
         );
 
