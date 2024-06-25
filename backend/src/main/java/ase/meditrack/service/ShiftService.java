@@ -67,7 +67,6 @@ public class ShiftService {
         return repository.findAllByUsersAndDateAfterAndDateBefore(users, today, nextMonth);
     }
 
-
     /**
      * Fetches a shift by id from the database.
      *
@@ -119,6 +118,8 @@ public class ShiftService {
         shiftValidator.validateShift(shift);
         Shift createdShift = repository.save(shift);
         monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(createdShift, oldShiftType.get());
+
+        dbShift.setIsSick(shift.getIsSick());
 
         if (shift.getDate() != null) {
             dbShift.setDate(shift.getDate());
