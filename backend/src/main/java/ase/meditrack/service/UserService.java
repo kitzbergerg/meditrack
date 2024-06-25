@@ -46,17 +46,21 @@ public class UserService {
     private final UserRepository repository;
     private final UserValidator userValidator;
     private final ShiftTypeRepository shiftTypeRepository;
+    private final MailService mailService;
     private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
 
     private final ShiftRepository shiftRepository;
 
     public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
                        ShiftTypeRepository shiftTypeRepository,
-                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, ShiftRepository shiftRepository) {
+                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, ShiftRepository shiftRepository,
+                       MailService mailService) {
+
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
         this.shiftTypeRepository = shiftTypeRepository;
+        this.mailService = mailService;
         this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
         this.shiftRepository = shiftRepository;
     }
@@ -113,9 +117,10 @@ public class UserService {
      * Creates a user in the database and in keycloak.
      *
      * @param user the user to create
+     * @param shouldSendInviteMail if true, an invitation mail will be sent to the user
      * @return the created user
      */
-    public User create(User user) {
+    public User create(User user, Boolean shouldSendInviteMail) {
         UserRepresentation userRepresentation = createKeycloakUser(user.getUserRepresentation());
         user.setId(UUID.fromString(userRepresentation.getId()));
         user.setCurrentOverTime(0);
@@ -129,6 +134,11 @@ public class UserService {
         user = repository.save(user);
         //as transient ignores the userRepresentation, we need to set it again
         user.setUserRepresentation(userRepresentation);
+
+        if (shouldSendInviteMail != null && shouldSendInviteMail) {
+            mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
+                    generateWelcomeMessage(userRepresentation));
+        }
         return user;
     }
 
@@ -407,7 +417,7 @@ public class UserService {
      * Checks if the user is in the same team as the principal.
      *
      * @param principal the current user
-     * @param userDto    of the user to check
+     * @param userDto   of the user to check
      * @return true if the user and the current user are from the same team, false otherwise
      */
     public boolean isSameTeam(Principal principal, UserDto userDto) {
@@ -422,7 +432,7 @@ public class UserService {
      * Checks if the user is in the same team as the principal.
      *
      * @param principal the current user
-     * @param userId of the user to check
+     * @param userId    of the user to check
      * @return true if the user and the current user are from the same team, false otherwise
      */
     public boolean isSameTeam(Principal principal, UUID userId) {
@@ -431,5 +441,14 @@ public class UserService {
         return dm.getTeam().getId().equals(user.getTeam().getId());
     }
 
-
+    private String generateWelcomeMessage(UserRepresentation userRepresentation) {
+        return "Welcome to Meditrack, " + userRepresentation.getFirstName() + " "
+                + userRepresentation.getLastName() + "!\n\n"
+                + "You have been successfully registered as a user in Meditrack.\n\n"
+                + "Your username is: " + userRepresentation.getUsername() + "\n\n"
+                + "You can now log in to Meditrack and start using the application.\n\n"
+                + "If you have any questions or need help, please contact your team leader.\n\n"
+                + "Best regards,\n"
+                + "Your Meditrack Team";
+    }
 }

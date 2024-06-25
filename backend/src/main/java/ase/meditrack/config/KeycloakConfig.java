@@ -1,7 +1,6 @@
 package ase.meditrack.config;
 
 import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
@@ -69,16 +68,8 @@ public class KeycloakConfig {
 
                 Team team = new Team();
                 team.setName("admin-team");
-                team.setWorkingHours(0);
-                team.setHardConstraints(new HardConstraints(
-                        null,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        team
-                ));
+                team.setNighttimeRequiredPeople(0);
+                team.setDaytimeRequiredPeople(0);
                 team = teamRepository.save(team);
 
                 Role role = new Role();
@@ -88,12 +79,15 @@ public class KeycloakConfig {
                 role.setAllowedFlextimePerMonth(0);
                 role.setDaytimeRequiredPeople(0);
                 role.setNighttimeRequiredPeople(0);
+                role.setWorkingHours(40);
+                role.setMaxWeeklyHours(80);
+                role.setMaxConsecutiveShifts(0);
                 role = roleRepository.save(role);
 
                 User user = defaultAdminUser();
                 user.setTeam(team);
                 user.setRole(role);
-                userService.create(user);
+                userService.create(user, false);
             }
         }
 

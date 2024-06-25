@@ -5,6 +5,7 @@ import ase.meditrack.model.dto.SimpleRoleDto;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Team;
+import ase.meditrack.service.MailService;
 import ase.meditrack.service.UserService;
 import ase.meditrack.util.AuthHelper;
 import ase.meditrack.util.DefaultTestCreator;
@@ -19,6 +20,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
@@ -41,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisabledIfSystemProperty(named = "spring.profiles.active", matches = "excludeTestcontainers")
+@MockBean(MailService.class)
 class UserControllerIT {
 
     @Container

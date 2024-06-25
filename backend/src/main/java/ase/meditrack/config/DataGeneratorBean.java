@@ -1,7 +1,6 @@
 package ase.meditrack.config;
 
 import ase.meditrack.model.dto.UserDto;
-import ase.meditrack.model.entity.HardConstraints;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Preferences;
@@ -117,16 +116,8 @@ public class DataGeneratorBean {
         for (int i = 0; i < NUM_TEAMS; i++) {
             Team team = new Team();
             team.setName(FAKER.team().name());
-            team.setWorkingHours(40);
-            team.setHardConstraints(new HardConstraints(
-                    null,
-                    40,
-                    80,
-                    3,
-                    2,
-                    1,
-                    team
-            ));
+            team.setNighttimeRequiredPeople(0);
+            team.setDaytimeRequiredPeople(0);
             teams.add(teamRepository.save(team));
         }
     }
@@ -143,6 +134,9 @@ public class DataGeneratorBean {
                 role.setAllowedFlextimePerMonth(20);
                 role.setDaytimeRequiredPeople(0);
                 role.setNighttimeRequiredPeople(0);
+                role.setWorkingHours(40);
+                role.setMaxWeeklyHours(80);
+                role.setMaxConsecutiveShifts(7);
                 role.setAbbreviation(roleName.substring(0, 2).toUpperCase());
                 role.setColor(FAKER.color().hex());
                 roles.add(roleRepository.save(role));
@@ -185,7 +179,7 @@ public class DataGeneratorBean {
             User dmEntity = userMapper.fromDto(userDm);
             dmEntity.setTeam(team);
             dmEntity.setRole(roles.get(0));
-            users.add(userService.create(dmEntity));
+            users.add(userService.create(dmEntity, false));
 
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
@@ -228,7 +222,7 @@ public class DataGeneratorBean {
                         userEntity.setCanWorkShiftTypes(shiftTypes);
                         userEntity.setPreferredShiftTypes(List.of(shiftTypes.get(0), shiftTypes.get(3)));
 
-                        users.add(userService.create(userEntity));
+                        users.add(userService.create(userEntity, false));
                     }
                 }
             }

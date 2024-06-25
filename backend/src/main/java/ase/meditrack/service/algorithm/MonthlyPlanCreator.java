@@ -3,6 +3,7 @@ package ase.meditrack.service.algorithm;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +75,16 @@ public class MonthlyPlanCreator {
         // map to algorithm input
         AlgorithmMapper algorithmMapper = new AlgorithmMapper();
 
+        YearMonth yearMonth = YearMonth.of(year, month);
+        YearMonth yearMonthBefore = yearMonth.minusMonths(1);
+        int maxConsecShifts = team.getRoles().stream().mapToInt(Role::getMaxConsecutiveShifts).max()
+                .orElseThrow(() -> new RuntimeException("no roles for team"));
+        LocalDate startDate = yearMonthBefore.atEndOfMonth().minusDays(Math.max(maxConsecShifts, 1));
+        List<Shift> prevMonthShifts = shiftRepository.findAllByTeamAndDateAfterAndDateBefore(
+                team.getId(),
+                startDate,
+                yearMonthBefore.atEndOfMonth()
+        );
         AlgorithmInput input = algorithmMapper.mapToAlgorithmInput(
                 month,
                 year,
@@ -80,7 +92,8 @@ public class MonthlyPlanCreator {
                 holidaysPerUser,
                 shiftTypes,
                 team.getRoles(),
-                team
+                team,
+                prevMonthShifts
         );
 
         AlgorithmOutput output = SchedulingSolver.solve(input)

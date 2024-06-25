@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -154,7 +155,6 @@ public final class SchedulingSolver {
 
         // Maximum Hours per Week - Employees cannot work more than maxHoursPerWeek per week
         for (int n = 0; n < input.employees().size(); n++) {
-            // TODO #86: handle first day of the month
             Integer maxHoursPerWeek = input.roles().get(input.employees().get(n).role()).maxHoursPerWeek();
             for (int d = 0; d < input.numberOfDays(); d += 7) {
                 List<LinearExpr> weeklyHours = new ArrayList<>();
@@ -184,6 +184,7 @@ public final class SchedulingSolver {
 
         // Staffing Level Per Day/Nighttime - There have to always be at least day/nighttimeRequiredPeople present
         addRequiredPeopleConstraint(
+                input,
                 model,
                 shifts,
                 input.numberOfDays(),
@@ -205,6 +206,7 @@ public final class SchedulingSolver {
                     .collect(Collectors.toCollection(TreeSet::new));
 
             addRequiredPeopleConstraint(
+                    input,
                     model,
                     shifts,
                     input.numberOfDays(),
@@ -227,25 +229,47 @@ public final class SchedulingSolver {
                 nightShifts.add(s);
             }
         }
+
+        var lastDayOfPrevMonth = input.dayToEmployeeToShiftTypeMapping().lastEntry();
         for (int nightShift : nightShifts) {
             for (int n = 0; n < input.employees().size(); n++) {
-                for (int d = 0; d < input.numberOfDays() - 1; d++) {
-                    // TODO #86: handle first day of the month
+                // Handle carry over from last month on first day.
+                if (lastDayOfPrevMonth != null && lastDayOfPrevMonth.getValue().get(n) != null) {
+                    ShiftTypeInfo shiftTypeInfo = input.shiftTypes().get(lastDayOfPrevMonth.getValue().get(n));
+                    boolean isNightShift = timeToSlotIndex(shiftTypeInfo.startTime()) >= 24;
                     for (int dayShift : dayShifts) {
-                        model.addEquality(shifts[n][d + 1][dayShift], 0).onlyEnforceIf(shifts[n][d][nightShift]);
+                        if (isNightShift) model.addEquality(shifts[n][0][dayShift], 0);
+                    }
+                }
+
+                for (int d = 1; d < input.numberOfDays(); d++) {
+                    for (int dayShift : dayShifts) {
+                        model.addEquality(shifts[n][d][dayShift], 0).onlyEnforceIf(shifts[n][d - 1][nightShift]);
                     }
                 }
             }
         }
 
         // Maximum Consecutive Shifts - Employees cannot work more than maxConsecutiveShifts in a row
+        Integer lastDay = input.dayToEmployeeToShiftTypeMapping().isEmpty()
+                ? -1
+                : input.dayToEmployeeToShiftTypeMapping().lastKey();
         for (int n = 0; n < input.employees().size(); n++) {
             int maxConsecutiveShifts = input.roles().get(input.employees().get(n).role()).maxConsecutiveShifts();
-            // TODO #86: handle first day of the month
-            for (int d = 0; d < input.numberOfDays() - maxConsecutiveShifts; d++) {
+            for (int d = -maxConsecutiveShifts; d < input.numberOfDays() - maxConsecutiveShifts; d++) {
                 // use a sliding window to sum up all shifts in that
                 List<LinearExpr> shiftsInWindow = new ArrayList<>();
                 for (int u = 0; u < maxConsecutiveShifts + 1; u++) {
+
+                    // Handle carry over from last month.
+                    if (d + u < 0) {
+                        if (lastDay == -1) continue;
+                        if (input.workedAtDayPrevMonth(lastDay + 1 + d + u, n)) {
+                            shiftsInWindow.add(LinearExpr.constant(1));
+                        }
+                        continue;
+                    }
+
                     for (int s = 0; s < input.shiftTypes().size(); s++) {
                         shiftsInWindow.add(LinearExpr.term(shifts[n][d + u][s], 1));
                     }
@@ -334,6 +358,7 @@ public final class SchedulingSolver {
     }
 
     private static void addRequiredPeopleConstraint(
+            AlgorithmInput input,
             CpModel model,
             BoolVar[][][] shifts,
             int numberOfDays,
@@ -351,9 +376,6 @@ public final class SchedulingSolver {
             timeSlotsPerDay.add(timeSlots);
         }
         for (int d = 0; d < numberOfDays; d++) {
-            // TODO #86: handle first day of the month
-            //  Currently if we have no shiftType that starts at 8:00 there is no solution.
-            //  The solution might however still be valid due to carry over from the prev month
             LinearExpr[] timeSlots = timeSlotsPerDay.get(d);
             for (int s = 0; s < shiftTypes.size(); s++) {
                 List<LinearExpr> employeesWorkingShift = new ArrayList<>();
@@ -383,6 +405,24 @@ public final class SchedulingSolver {
                             new LinearArgument[]{timeSlotsNextDay[slotNextDay], numOfEmployeesWorkingShift}
                     );
                     break;
+                }
+            }
+
+            // Handle carry over from last month on first day.
+            if (d == 0 && !input.dayToEmployeeToShiftTypeMapping().isEmpty()) {
+                Map<Integer, Integer> employeeShifts = input.dayToEmployeeToShiftTypeMapping().lastEntry().getValue();
+                for (var entry : employeeShifts.entrySet()) {
+                    ShiftTypeInfo shiftTypeInfo = input.shiftTypes().get(entry.getValue());
+                    int startSlot = timeToSlotIndex(shiftTypeInfo.startTime());
+                    int endSlot = timeToSlotIndex(shiftTypeInfo.endTime());
+                    boolean isNightShift = startSlot >= 24;
+                    boolean hasCarryOverToDayShift = endSlot < 24;
+                    if (isNightShift && hasCarryOverToDayShift) {
+                        for (int slot = 0; slot <= endSlot; slot++) {
+                            timeSlots[slot] =
+                                    LinearExpr.sum(new LinearArgument[] {timeSlots[slot], LinearExpr.constant(1)});
+                        }
+                    }
                 }
             }
 
@@ -443,7 +483,6 @@ public final class SchedulingSolver {
 
         // Make sure employees work about the same hours every week
         for (int n = 0; n < input.employees().size(); n++) {
-            // TODO #86: handle first day of the month
             LinearExpr totalMonthlyHours = totalMonthlyHoursPerEmployee.get(n);
             for (int d = 0; d < input.numberOfDays(); d += 7) {
                 List<LinearExpr> weeklyHours = new ArrayList<>();
