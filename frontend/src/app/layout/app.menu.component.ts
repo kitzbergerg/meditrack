@@ -21,7 +21,6 @@ export class AppMenuComponent implements OnInit {
         this.model = [
             {
                 items: [
-                  { label: $localize`Dashboard`, icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'], visible: this.isEmployee || this.isDM },
                   { label: $localize`Schedule`, icon: 'pi pi-fw pi-calendar', routerLink: ['/schedule'], visible: this.isEmployee || this.isDM },
                   { label: $localize`Employees`, icon: 'pi pi-fw pi-users', routerLink: ['/employees'], visible: this.isDM},
                   { label: $localize`Shift Types`, icon: 'pi pi-fw pi-clock', routerLink: ['/shift-types'], visible: this.isDM },

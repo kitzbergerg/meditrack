@@ -4,4 +4,5 @@ export interface Role {
   users?: number[],
   color: string;
   abbreviation: string;
+  team?: string;
 }

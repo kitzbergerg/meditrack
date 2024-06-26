@@ -17,7 +17,7 @@ export class AuthorizationService {
   }
 
   login() {
-    return this.keycloakService.login({redirectUri: "http://localhost:4200/dashboard",});
+    return this.keycloakService.login({redirectUri: "http://localhost:4200/schedule",});
   }
 
   changePassword() {
