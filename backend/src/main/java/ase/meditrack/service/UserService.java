@@ -5,11 +5,13 @@ import ase.meditrack.model.UserValidator;
 import ase.meditrack.model.dto.UserDto;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Preferences;
+import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
+import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
@@ -28,12 +30,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
@@ -48,11 +53,12 @@ public class UserService {
     private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
     private final TeamRepository teamRepository;
     private final UserMapper mapper;
+    private final ShiftRepository shiftRepository;
 
     public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
                        ShiftTypeRepository shiftTypeRepository, MailService mailService,
                        MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, TeamRepository teamRepository,
-                       UserMapper mapper) {
+                       UserMapper mapper, ShiftRepository shiftRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
@@ -61,6 +67,7 @@ public class UserService {
         this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
         this.teamRepository = teamRepository;
         this.mapper = mapper;
+        this.shiftRepository = shiftRepository;
     }
 
     private static void setUserRoles(RealmResource meditrackRealm, String userId, List<String> roles) {
@@ -267,7 +274,7 @@ public class UserService {
      */
     public User getPrincipalWithTeam(Principal principal) {
         UUID dmId = UUID.fromString(principal.getName());
-        Optional<User> dm = Optional.ofNullable(findById(dmId));
+        Optional<User> dm = repository.findById(dmId);
         if (dm.isEmpty()) {
             throw new NotFoundException("User doesnt exist");
         }
@@ -289,6 +296,105 @@ public class UserService {
         MonthlyWorkDetails details = monthlyWorkDetailsRepository.findMonthlyWorkDetailsByUserIdAndMonthAndYear(
                 userId, month.getValue(), year.getValue());
         return details;
+    }
+
+    /**
+     * Fetches all users from the database and matches additional attributes from keycloak.
+     *
+     * @param shiftId the id of the shift
+     *
+     * @return List of all users
+     */
+    public List<User> getSickReplacement(UUID shiftId) {
+        Optional<Shift> shift = shiftRepository.findById(shiftId);
+        if (shift.isEmpty()) {
+            throw new NotFoundException("Shift not found");
+        }
+        User sickUser = shift.get().getUsers().get(0);
+        List<User> usersSameRole = repository.findAllByRole(shift.get().getUsers().get(0).getRole()).stream()
+                .peek(u -> {
+                    u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
+                }).collect(Collectors.toList());
+        usersSameRole.remove(sickUser);
+        log.info("Users with same role and can work shift types: {}", usersSameRole);
+        // remove users that have worked too many days in a row in the past or present
+        LocalDate shiftDate = shift.get().getDate();
+        LocalDate startDate = shiftDate.minusDays(3);
+        LocalDate endDate = shiftDate.plusDays(3);
+
+        usersSameRole.removeIf(user -> {
+            List<Shift> userShifts = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(
+                    List.of(user.getId()), startDate, endDate);
+
+            // Remove users that have a shift on the same day
+            boolean hasShiftOnSameDay = userShifts.stream().anyMatch(s -> s.getDate().equals(shiftDate));
+            if (hasShiftOnSameDay) {
+                return true;
+            }
+
+            // Check for day shift following night shift
+            if (hasDayShiftFollowingNightShift(shift.get(), userShifts, shiftDate)) {
+                return true;
+            }
+
+            // Check for night shift before day shift
+            if (hasNightShiftBeforeDayShift(shift.get(), userShifts, shiftDate)) {
+                return true;
+            }
+
+            // Check if the shift is during a holiday
+            boolean isDuringHoliday = user.getHolidays().stream().anyMatch(holiday ->
+                    !shiftDate.isBefore(holiday.getStartDate()) && !shiftDate.isAfter(holiday.getEndDate())
+            );
+            if (isDuringHoliday) {
+                return true;
+            }
+
+            // Check if there is at least one day off in the specified period
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                LocalDate finalDate = date;
+                boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(finalDate));
+                if (!hasShift) {
+                    return false; // User has at least one day off
+                }
+            }
+            return true; // User does not have any day off in the period
+        });
+        return usersSameRole;
+    }
+
+    private boolean hasDayShiftFollowingNightShift(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
+        LocalTime dayStart = LocalTime.of(8, 0);
+        LocalTime nightStart = LocalTime.of(20, 0);
+        LocalTime shiftStartTime = shift.getShiftType().getStartTime();
+        boolean isDayShift = !shiftStartTime.isBefore(dayStart) && shiftStartTime.isBefore(nightStart);
+
+        if (isDayShift) {
+            return userShifts.stream().anyMatch(s -> {
+                LocalTime previousShiftStartTime = s.getShiftType().getStartTime();
+                boolean isNightShift = previousShiftStartTime.isBefore(dayStart)
+                        || !previousShiftStartTime.isBefore(nightStart);
+                return isNightShift && s.getDate().equals(shiftDate.minusDays(1));
+            });
+        }
+        return false;
+    }
+
+    private boolean hasNightShiftBeforeDayShift(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
+        LocalTime dayStart = LocalTime.of(8, 0);
+        LocalTime nightStart = LocalTime.of(20, 0);
+        LocalTime shiftStartTime = shift.getShiftType().getStartTime();
+        boolean isNightShift = shiftStartTime.isBefore(dayStart) || !shiftStartTime.isBefore(nightStart);
+
+        if (isNightShift) {
+            return userShifts.stream().anyMatch(s -> {
+                LocalTime nextShiftStartTime = s.getShiftType().getStartTime();
+                boolean isDayShift = !nextShiftStartTime.isBefore(dayStart)
+                        && nextShiftStartTime.isBefore(nightStart);
+                return isDayShift && s.getDate().equals(shiftDate.plusDays(1));
+            });
+        }
+        return false;
     }
 
     /**
@@ -316,7 +422,7 @@ public class UserService {
      * Checks if the user is in the same team as the principal.
      *
      * @param principal the current user
-     * @param userDto    of the user to check
+     * @param userDto   of the user to check
      * @return true if the user and the current user are from the same team, false otherwise
      */
     public boolean isSameTeam(Principal principal, UserDto userDto) {
@@ -331,7 +437,7 @@ public class UserService {
      * Checks if the user is in the same team as the principal.
      *
      * @param principal the current user
-     * @param userId of the user to check
+     * @param userId    of the user to check
      * @return true if the user and the current user are from the same team, false otherwise
      */
     public boolean isSameTeam(Principal principal, UUID userId) {
