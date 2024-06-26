@@ -76,31 +76,31 @@ export class ShiftSwapComponent {
 
   getUser(): void {
     this.userService.getUserById(this.userId).subscribe({
-        next: response => {
-          this.currentUser = response;
-          this.getAllRequestedShiftSwaps();
-          this.getAllOwnShiftSwapOffers();
-          this.getShiftsFromCurrentMonth();
-          this.getAllUsersFromTeam();
-          this.getAllShiftSwapsOffers();
-          this.getAllSuggestedShiftSwaps()
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-        }
+      next: response => {
+        this.currentUser = response;
+        this.getAllRequestedShiftSwaps();
+        this.getAllOwnShiftSwapOffers();
+        this.getShiftsFromCurrentMonth();
+        this.getAllUsersFromTeam();
+        this.getAllShiftSwapsOffers();
+        this.getAllSuggestedShiftSwaps()
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
   getAllRequestedShiftSwaps() {
     this.shiftSwapService.getAllShiftSwapRequests().subscribe({
-        next: response => {
-          this.requestedShiftSwaps = response;
-          this.requestedShiftSwaps.sort((a, b) =>
-            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-        }
+      next: response => {
+        this.requestedShiftSwaps = response;
+        this.requestedShiftSwaps.sort((a, b) =>
+          new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
@@ -122,14 +122,14 @@ export class ShiftSwapComponent {
 
   getAllOwnShiftSwapOffers() {
     this.shiftSwapService.getAllOwnShiftSwapOffers().subscribe({
-        next: response => {
-          this.ownShiftSwapsOffers = response;
-          this.ownShiftSwapsOffers.sort((a, b) =>
-            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-        }
+      next: response => {
+        this.ownShiftSwapsOffers = response;
+        this.ownShiftSwapsOffers.sort((a, b) =>
+          new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
@@ -203,7 +203,6 @@ export class ShiftSwapComponent {
           swapRequestingUser: this.currentUser?.id == undefined ? "" : this.currentUser.id
         };
       } else {
-        console.log("here")
         this.newShiftSwap = undefined;
         this.selectedDate = undefined;
         this.valid = false;
@@ -246,13 +245,12 @@ export class ShiftSwapComponent {
   }
 
 
-
   createRequest() {
     if (this.ownSelectedOffer == undefined || this.otherSelectedOffer == undefined) {
       this.messageService.add({severity: 'error', summary: 'Two Shifts Offers have to be selected '});
       return;
     }
-    const newRequestSwap : ShiftSwap = {
+    const newRequestSwap: ShiftSwap = {
       id: undefined,
       requestedShift: this.ownSelectedOffer.requestedShift,
       requestedShiftSwapStatus: this.ownSelectedOffer.requestedShiftSwapStatus,
@@ -304,7 +302,7 @@ export class ShiftSwapComponent {
     }
   }
 
-  retractRequest(requestSwap : ShiftSwap) {
+  retractRequest(requestSwap: ShiftSwap) {
     if (requestSwap.id != undefined) {
       this.shiftSwapService.retractShiftSwapRequest(requestSwap.id).subscribe(
         {
@@ -384,7 +382,8 @@ export class ShiftSwapComponent {
       shiftSwap.suggestedShiftSwapStatus = ShiftSwapStatus.REJECTED;
     } else {
       this.messageService.add({
-        severity: 'error', summary: 'Shift swap action is not valid',});
+        severity: 'error', summary: 'Shift swap action is not valid',
+      });
     }
     this.shiftSwapService.updateShiftSwap(shiftSwap).subscribe(
       {
@@ -399,8 +398,12 @@ export class ShiftSwapComponent {
             this.shiftSwapOffers = this.shiftSwapOffers.filter(s => s.requestedShift.id != shiftSwap.requestedShift.id);
             this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.suggestedShift?.id != shiftSwap.suggestedShift?.id);
             this.currentShifts = this.currentShifts.filter(s => s.id != shiftSwap.suggestedShift?.id);
-            //TODO
             const newShift = shiftSwap.requestedShift;
+            const userNewShift = shiftSwap.suggestedShift?.users;
+            if (userNewShift !== undefined) {
+              newShift.users = userNewShift;
+              this.currentShifts.push(newShift);
+            }
           }
           this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.id != shiftSwap.id);
         }, error: error => {
@@ -414,10 +417,8 @@ export class ShiftSwapComponent {
   }
 
   checkCondition(): void {
-    console.log(this.ownSelectedOffer)
-    console.log(this.otherSelectedOffer)
-    if (this.otherSelectedOffer !== undefined  && this.ownSelectedOffer !== undefined &&
-      this.otherSelectedOffer !== null  && this.ownSelectedOffer !== null) {
+    if (this.otherSelectedOffer !== undefined && this.ownSelectedOffer !== undefined &&
+      this.otherSelectedOffer !== null && this.ownSelectedOffer !== null) {
       this.showDialog();
     }
   }
