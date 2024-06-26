@@ -33,7 +33,7 @@ export class ScheduleService {
   }
 
   publishSchedule(scheduleId: string): Observable<Schedule> {
-    const url = `${this.baseUrl}/${scheduleId}/publish`;
+    const url = `${this.baseUrl}/${scheduleId}/publish?shouldSendMail=true`;
     return this.http.put<Schedule>(url, "");
   }
 

@@ -87,9 +87,10 @@ public class MonthlyPlanController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') ||"
             + "(hasAnyAuthority('SCOPE_dm') && @monthlyPlanService.isUserInTeam(authentication.name, #id))")
     @ResponseStatus(HttpStatus.OK)
-    public void publish(@PathVariable UUID id, Principal principal) {
+    public void publish(@PathVariable UUID id, Principal principal,
+                        @RequestParam(required = false) Boolean shouldSendMail) {
         log.info("Publishing monthly-plan with id {}", id);
-        service.publish(id, principal);
+        service.publish(id, principal, shouldSendMail);
     }
 
     @DeleteMapping("{id}")
