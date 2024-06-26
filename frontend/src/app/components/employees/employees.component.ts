@@ -45,7 +45,6 @@ export class EmployeesComponent {
     role: {name: "", color: "", abbreviation: ""},
     roles: [],
     shifts: [],
-    specialSkills: [],
     suggestedShiftSwaps: [],
     team: "",
     workingHoursPercentage: 100
@@ -66,7 +65,6 @@ export class EmployeesComponent {
     roles: [],
     workingHoursPercentage: 0,
     currentOverTime: 0,
-    specialSkills: [],
     holidays: [],
     shifts: [],
     role: {name: "", color: "", abbreviation: ""},
@@ -332,7 +330,6 @@ export class EmployeesComponent {
       role: {name: "", color: "", abbreviation: ""},
       roles: [],
       shifts: [],
-      specialSkills: [],
       suggestedShiftSwaps: [],
       team: "",
       username: "",

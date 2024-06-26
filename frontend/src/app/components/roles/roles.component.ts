@@ -40,7 +40,6 @@ export class RolesComponent {
     roles: [],
     workingHoursPercentage: 0,
     currentOverTime: 0,
-    specialSkills: [],
     holidays: [],
     shifts: [],
     role: {name: "", color: "", abbreviation: ""},

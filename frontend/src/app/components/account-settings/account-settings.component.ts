@@ -27,7 +27,6 @@ export class AccountSettingsComponent {
     role: { name: "", color: "", abbreviation: ""},
     roles: [],
     shifts: [],
-    specialSkills: [],
     suggestedShiftSwaps: [],
     team: "",
     username: "",

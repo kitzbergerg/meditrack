@@ -47,9 +47,6 @@ public class User {
     @Column(nullable = false)
     private Integer currentOverTime;
 
-    @ElementCollection
-    @CollectionTable(name = "special_skills", joinColumns = @JoinColumn(name = "users_id"))
-    private List<String> specialSkills;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
@@ -94,12 +91,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MonthlyWorkDetails> monthlyWorkDetails;
 
-    public void addSpecialSkills(String skill) {
-        if (specialSkills == null) {
-            specialSkills = new ArrayList<>();
-        }
-        specialSkills.add(skill);
-    }
 
     public void addCanWorkShiftTypes(ShiftType shiftType) {
         if (canWorkShiftTypes == null) {

@@ -72,7 +72,6 @@ public class ShiftServiceTest {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,
