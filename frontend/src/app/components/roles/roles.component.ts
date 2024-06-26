@@ -106,8 +106,11 @@ export class RolesComponent {
           this.loadRoles();
           this.resetForm();
         }, error: (error) => {
-          console.error('Error deleting role:', error);
-          this.messageService.add({severity:'error', summary: 'Deleting Role Failed'});
+            let message = "";
+            if (error.status == 422) {
+              message = ", already assigned to users!";
+            }
+          this.messageService.add({severity:'error', summary: 'Deleting Role Failed' + message});
         }});
     }
   }
