@@ -33,8 +33,6 @@ public class PdfGenerationController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm') || (hasAnyAuthority('SCOPE_employee'))")
     public ResponseEntity<byte[]> generatePdf(@RequestParam Year year, @RequestParam Month month, Principal principal) {
         try {
-
-
             byte[] pdfBytes = pdfGenerationService.generatePdf(principal, year, month);
 
             HttpHeaders headers = new HttpHeaders();

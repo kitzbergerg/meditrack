@@ -88,9 +88,9 @@ public class PdfGenerationService {
         table.setFixedLayout();
 
         // Table Header
-        table.addHeaderCell(new Cell().add(new Paragraph("Employees").setBold().setFontSize(7)));
+        table.addHeaderCell(new Cell().add(new Paragraph("Employees").setBold().setFontSize(9f)));
         for (int day = 1; day <= daysInMonth; day++) {
-            table.addHeaderCell(getCenteredCell(String.valueOf(day)).setBold());
+            table.addHeaderCell(getCenteredCell(String.valueOf(day), 9f).setBold());
         }
 
         List<User> users = userService.findByTeam(principal);
@@ -104,7 +104,7 @@ public class PdfGenerationService {
             for (int day = 1; day <= daysInMonth; day++) {
                 String a = getShiftOfEmployeeAtDay(
                         LocalDate.of(year.getValue(), month.getValue(), day), shifts);
-                table.addCell(getCenteredCell(a).setBold());
+                table.addCell(getCenteredCell(a, 8f));
             }
         }
 
@@ -134,10 +134,11 @@ public class PdfGenerationService {
     /**
      * Creates a new table cell with centered text.
      * @param content The content to be placed in the cell.
+     * @param fontSize the size of the font for that cell.
      * @return A cell with centered text.
      */
-    private Cell getCenteredCell(String content) {
-        return new Cell().add(new Paragraph(content).setFontSize(5).setTextAlignment(TextAlignment.CENTER));
+    private Cell getCenteredCell(String content, Float fontSize) {
+        return new Cell().add(new Paragraph(content).setFontSize(fontSize).setTextAlignment(TextAlignment.CENTER));
     }
 
     /**
