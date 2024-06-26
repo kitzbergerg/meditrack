@@ -17,7 +17,7 @@ import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {ShiftType} from "../../../interfaces/shiftType";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {format, startOfDay} from 'date-fns';
 import {PdfGenerationService} from "../../../services/pdf-generation.service";
@@ -91,7 +91,6 @@ export class WeekViewComponent implements OnInit {
 
   constructor(private messageService: MessageService,
               private confirmationService: ConfirmationService,
-              private cdr: ChangeDetectorRef,
               private pdfGenerationService: PdfGenerationService) {
   }
 
