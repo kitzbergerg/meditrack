@@ -56,7 +56,25 @@
   </div>
 
   <p-footer>
-    <button type="button" pButton icon="pi pi-times" (click)="sendUpdateShift()" label="Create"></button>
-    <button type="button" pButton icon="pi pi-times" (click)="hide()" label="Close"></button>
+
+    <p-button
+      class="mb-2 ml-2"
+      [text]="true"
+      type="button"
+      (click)="hide()"
+      severity="info"
+      icon="pi pi-times"
+      label="{{'Close'}}"/>
+
+
+    <p-button
+      class="mb-2 ml-2"
+      [text]="true"
+      type="button"
+      (click)="sendUpdateShift()"
+      severity="success"
+      icon="pi pi-check-circle"
+      label="{{'Assign'}}"/>
+
   </p-footer>
 </p-dialog>
