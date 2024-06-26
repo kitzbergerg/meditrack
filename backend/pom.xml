@@ -52,7 +52,8 @@
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext7-core</artifactId>
-            <version>8.0.3</version>
+            <version>8.0.4</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

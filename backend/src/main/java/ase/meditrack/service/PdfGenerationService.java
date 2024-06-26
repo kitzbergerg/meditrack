@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 
+import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.User;
@@ -18,9 +19,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.security.Principal;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+import java.time.YearMonth;
 import java.time.format.TextStyle;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j
@@ -29,12 +35,26 @@ public class PdfGenerationService {
     private final UserService userService;
     private final MonthlyPlanService monthlyPlanService;
 
-    public PdfGenerationService(UserService userService, MonthlyPlanService monthlyPlanService, TeamService teamService) {
+    /** is the constructor of the class, as expected.
+     * @param userService service to load users
+     * @param monthlyPlanService service to load monthly plan
+     */
+    public PdfGenerationService(UserService userService, MonthlyPlanService monthlyPlanService) {
         this.userService = userService;
         this.monthlyPlanService = monthlyPlanService;
     }
 
-    public byte[] generatePdf(Principal principal, Year year, Month month) throws Exception {
+    /**
+     * Generates a PDF document for the monthly plan of the given team.
+     * This method compiles the monthly plan for a team, retrieves relevant user shifts,
+     * constructs a table for the entire month, and then outputs the data into a PDF.
+     * @param principal The principal representing the user making the request.
+     * @param year The year for which the monthly plan is generated.
+     * @param month The month for which the monthly plan is generated.
+     * @return A byte array containing the generated PDF document.
+     * @throws NotFoundException If the monthly plan for the specified month and year is not found.
+     */
+    public byte[] generatePdf(Principal principal, Year year, Month month) throws NotFoundException {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
@@ -46,17 +66,14 @@ public class PdfGenerationService {
 
         // Title
         Paragraph title =
-                new Paragraph("Monthly Plan" + " " +
-                        monthlyPlan.getTeam().getName() + " " +
-                        month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " +
-                        year.toString()) //todo dynamic locale
+                new Paragraph("Monthly Plan" + " "
+                        + monthlyPlan.getTeam().getName() + " "
+                        + month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " "
+                        + year.toString())
                 .setFontSize(14)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setBold();
         document.add(title);
-
-
-        Calendar cal = getThisMonthCalendarInstance(year, month);
 
         YearMonth yearMonthObject = YearMonth.of(year.getValue(), month.getValue());
         int daysInMonth = yearMonthObject.lengthOfMonth();
@@ -75,14 +92,6 @@ public class PdfGenerationService {
         for (int day = 1; day <= daysInMonth; day++) {
             table.addHeaderCell(getCenteredCell(String.valueOf(day)).setBold());
         }
-
-/*        for (String day : new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}) {
-
-        }*/
-
-
-
-
 
         List<User> users = userService.findByTeam(principal);
 
@@ -105,6 +114,14 @@ public class PdfGenerationService {
 
     }
 
+    /**
+     * Retrieves the shift abbreviation for a specific employee on a given day.
+     * This method iterates through the list of user shifts and returns the shift abbreviation
+     * for the specified date. If no shift is found for that date, it returns an empty string.
+     * @param time The date for which the shift is being retrieved.
+     * @param userShifts The list of shifts for the specific user.
+     * @return The abbreviation of the shift type for the specified date, or an empty string if no shift is found.
+     */
     private String getShiftOfEmployeeAtDay(LocalDate time, List<Shift> userShifts) {
         for (Shift shift : userShifts) {
             if (shift.getDate().equals(time)) {
@@ -114,26 +131,20 @@ public class PdfGenerationService {
         return "";
     }
 
-    private Calendar getThisMonthCalendarInstance(Year year, Month month) {
-        Calendar cal = Calendar.getInstance();  // or pick another time zone if necessary
-        cal.set(Calendar.MONTH, month.getValue());
-        cal.set(Calendar.DAY_OF_MONTH, 1);      // 1st day of month
-        cal.set(Calendar.YEAR, year.getValue());
-        return cal;
-    }
-
+    /**
+     * Creates a new table cell with centered text.
+     * @param content The content to be placed in the cell.
+     * @return A cell with centered text.
+     */
     private Cell getCenteredCell(String content) {
         return new Cell().add(new Paragraph(content).setFontSize(5).setTextAlignment(TextAlignment.CENTER));
     }
 
-    private static List<Map<String, Object>> getShifts() {
-        // Replace with actual data fetching logic
-        return List.of(
-                Map.of("date", "2024-06-01", "shiftType", "Type A", "users", "User 1, User 2"),
-                Map.of("date", "2024-06-02", "shiftType", "Type B", "users", "User 3, User 4")
-        );
-    }
-
+    /**
+     * gets username as text.
+     * @param user user to get name from.
+     * @return username.
+     */
     private String getUserName(User user) {
         return user.getUserRepresentation().getFirstName() + " " + user.getUserRepresentation().getLastName();
     }
