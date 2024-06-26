@@ -56,14 +56,19 @@ public class HolidayService {
                     && dm.get().getUserRepresentation().getEmail() != null
                     && dm.get().getUserRepresentation().getFirstName() != null
                     && dm.get().getUserRepresentation().getLastName() != null) {
-                mailService.sendSimpleMessage(dm.get().getUserRepresentation().getEmail(),
-                        "New holiday request from " + user.getUserRepresentation().getFirstName() + " "
-                                + user.getUserRepresentation().getLastName() + "!",
-                        generateHolidayRequestMessageForDm(holiday));
+                Holiday finalHoliday = holiday;
+                new Thread(() -> sendMailToDm(dm.get(), user, finalHoliday)).start();
             }
         }
 
         return holiday;
+    }
+
+    private void sendMailToDm(User dm, User user, Holiday holiday) {
+        mailService.sendSimpleMessage(dm.getUserRepresentation().getEmail(),
+                "New holiday request from " + user.getUserRepresentation().getFirstName() + " "
+                        + user.getUserRepresentation().getLastName() + "!",
+                generateHolidayRequestMessageForDm(holiday));
     }
 
     /**
@@ -172,15 +177,19 @@ public class HolidayService {
         holiday = repository.save(holiday);
 
         if (shouldSendMail != null && shouldSendMail) {
-            //get email address from user
-            User user = userService.findById(holiday.getUser().getId());
-            if (user.getUserRepresentation() != null && user.getUserRepresentation().getEmail() != null) {
-                mailService.sendSimpleMessage(user.getUserRepresentation().getEmail(),
-                        "The status of your holiday request has been updated!",
-                        generateStatusUpdateMessageForUser(holiday));
-            }
+            Holiday finalHoliday = holiday;
+            new Thread(() -> sendMailToUser(finalHoliday)).start();
         }
         return holiday;
+    }
+
+    private void sendMailToUser(Holiday holiday) {
+        User user = userService.findById(holiday.getUser().getId());
+        if (user.getUserRepresentation() != null && user.getUserRepresentation().getEmail() != null) {
+            mailService.sendSimpleMessage(user.getUserRepresentation().getEmail(),
+                    "The status of your holiday request has been updated!",
+                    generateStatusUpdateMessageForUser(holiday));
+        }
     }
 
     /**

@@ -141,10 +141,14 @@ public class UserService {
         user.setUserRepresentation(userRepresentation);
 
         if (shouldSendInviteMail != null && shouldSendInviteMail) {
-            mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
-                    generateWelcomeMessage(userRepresentation));
+            new Thread(() -> sendMailToUser(userRepresentation)).start();
         }
         return user;
+    }
+
+    private void sendMailToUser(UserRepresentation userRepresentation) {
+        mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
+                generateWelcomeMessage(userRepresentation));
     }
 
     private UserRepresentation createKeycloakUser(UserRepresentation userRepresentation) {

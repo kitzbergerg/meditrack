@@ -136,15 +136,20 @@ public class MonthlyPlanService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Can not publish plan of other team!"));
 
-        repository.save(plan);
+        plan = repository.save(plan);
 
         if (shouldSendMail != null && shouldSendMail) {
-            List<String> mails = userService.findByTeam(principal).stream()
-                    .map(u -> u.getUserRepresentation().getEmail())
-                    .toList();
-            new Thread(() -> mailService.sendSimpleMessages(mails, "Monthly Plan published!",
-                    generateMonthlyPlanPublishedMessage(plan))).start();
+            MonthlyPlan finalPlan = plan;
+            new Thread(() -> sendMailToUsers(principal, finalPlan)).start();
         }
+    }
+
+    private void sendMailToUsers(Principal principal, MonthlyPlan plan) {
+        List<String> mails = userService.findByTeam(principal).stream()
+                .map(u -> u.getUserRepresentation().getEmail())
+                .toList();
+        mailService.sendSimpleMessages(mails, "Monthly Plan published!",
+                generateMonthlyPlanPublishedMessage(plan));
     }
 
     /**
