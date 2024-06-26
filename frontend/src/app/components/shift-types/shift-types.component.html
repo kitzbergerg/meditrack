@@ -13,21 +13,46 @@
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Shift Types</h2>
-        <ul class="list-none p-0 m-0">
-          <li *ngFor="let shiftType of shiftTypes" (click)="selectShiftType(shiftType)" class="flex items-center mb-4">
-            <div class=" flex align-items-center justify-content-start">
-              <span [ngStyle]="{
+
+        <div class="pt-4 pb-4" *ngIf="shiftTypes && shiftTypes.length > 0">
+          <p-table
+            [value]="shiftTypes"
+            selectionMode="single"
+            [(selection)]="selectedShiftType"
+            (onRowSelect)="selectShiftType(selectedShiftType)"
+            [metaKeySelection]="false"
+            [tableStyle]="{ 'min-width': '30rem' }">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="name">Name</th>
+                <th pSortableColumn="abbreviation">Abbreviation</th>
+                <th pSortableColumn="startTime">Time</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-shiftType>
+              <tr [pSelectableRow]="shiftType">
+                <td>
+                  <div class=" flex align-items-center justify-content-start"> <span [ngStyle]="{
                 'display': 'inline-block',
                 'width': '20px',
                 'height': '20px',
                 'background-color': shiftType.color,
                 'border-radius': '50%',
-                'margin-right': '10px'}"></span>
-              <span class="text-xl m-0 font-medium">{{ shiftType.name }}</span>
-            </div>
+                'margin-right': '10px'}">
 
-          </li>
-        </ul>
+                </span>{{ shiftType.name }}
+                  </div>
+                </td>
+                <td>{{ shiftType.abbreviation}}
+                </td>
+                <td>{{ shiftType.startTime.slice(0, -3) }} - {{ shiftType.breakStartTime.slice(0, -3) }}
+                  {{ shiftType.breakEndTime.slice(0, -3) }} - {{ shiftType.endTime.slice(0, -3) }}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
         <div class="plusButtonContainer">
           <button (click)="showCreateForm()" pbutton="" pripple="" type="button" icon="pi pi-plus"
                   class="p-element p-ripple p-button-rounded p-button p-button p-component p-button-icon-only">
@@ -41,7 +66,7 @@
     <div class="col-12 md:col-6">
       <div class="card p-fluid">
         <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
-        <div class="field grid">
+        <div class="field grid pt-4 pb-4">
           <label htmlfor="nameshift" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
           <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
             <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"

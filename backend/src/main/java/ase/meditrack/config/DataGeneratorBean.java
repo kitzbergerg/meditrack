@@ -75,7 +75,7 @@ public class DataGeneratorBean {
 
     private static final Integer NUM_TEAMS = 1;
     private static final List<String> ROLES = List.of("Nurse", "QualifiedNurse", "Doctor", "Trainee");
-    private static final Integer NUM_USERS_WITH_ROLES = 9;
+    private static final Integer NUM_USERS_WITH_ROLES = 13;
     private static final Integer NUM_HOLIDAYS = 2;
     private static final Integer NUM_MONTHLY_PLANS = 1;
 
@@ -94,9 +94,9 @@ public class DataGeneratorBean {
                 log.info("Generating data...");
                 createTeams();
                 createRoles();
+                createShiftTypes();
                 createUsers();
                 createHolidays();
-                createShiftTypes();
                 createMonthlyPlan();
                 createShifts();
                 createShiftSwap();
@@ -179,7 +179,7 @@ public class DataGeneratorBean {
             User dmEntity = userMapper.fromDto(userDm);
             dmEntity.setTeam(team);
             dmEntity.setRole(roles.get(0));
-            users.add(userService.create(dmEntity));
+            users.add(userService.create(dmEntity, false));
 
             for (Role role : roles) {
                 if (role.getTeam().getId().equals(team.getId())) {
@@ -200,7 +200,7 @@ public class DataGeneratorBean {
                                 lastName,
                                 List.of("employee"),
                                 null,
-                                (float) FAKER.number().numberBetween(20, 100),
+                                (float) FAKER.number().numberBetween(70, 100),
                                 null,
                                 List.of(FAKER.educator().course(), FAKER.educator().course()),
                                 null,
@@ -215,7 +215,14 @@ public class DataGeneratorBean {
                         User userEntity = userMapper.fromDto(user);
                         userEntity.setTeam(team);
                         userEntity.setRole(role);
-                        users.add(userService.create(userEntity));
+
+                        // Random random = new Random();
+                        // int subsetSize = random.nextInt(shiftTypes.size() + 1);
+                        // Collections.shuffle(shiftTypes, random);
+                        userEntity.setCanWorkShiftTypes(shiftTypes);
+                        userEntity.setPreferredShiftTypes(List.of(shiftTypes.get(0), shiftTypes.get(3)));
+
+                        users.add(userService.create(userEntity, false));
                     }
                 }
             }
@@ -251,36 +258,60 @@ public class DataGeneratorBean {
         log.info("Generating morning, evening and night shift types for every team...");
         shiftTypes = new ArrayList<>();
         for (Team team : teams) {
-            ShiftType nightShift = new ShiftType();
-            nightShift.setName("Night Shift");
-            nightShift.setStartTime(LocalTime.of(0, 0));
-            nightShift.setEndTime(LocalTime.of(8, 0));
-            nightShift.setBreakStartTime(LocalTime.of(2, 0));
-            nightShift.setBreakEndTime(LocalTime.of(2, 30));
-            nightShift.setAbbreviation("N10");
-            nightShift.setColor("#190933");
-            nightShift.setTeam(team);
-            shiftTypes.add(shiftTypeRepository.save(nightShift));
+            ShiftType dayShift = new ShiftType();
+            dayShift.setName("Day Shift");
+            dayShift.setStartTime(LocalTime.of(8, 0));
+            dayShift.setEndTime(LocalTime.of(20, 0));
+            dayShift.setBreakStartTime(LocalTime.of(12, 0));
+            dayShift.setBreakEndTime(LocalTime.of(12, 30));
+            dayShift.setAbbreviation("D7");
+            dayShift.setColor("#FFCC00");
+            dayShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(dayShift));
+
             ShiftType morningShift = new ShiftType();
             morningShift.setName("Morning Shift");
             morningShift.setStartTime(LocalTime.of(8, 0));
             morningShift.setEndTime(LocalTime.of(16, 0));
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
-            morningShift.setAbbreviation("D6");
-            morningShift.setColor("#ACFCD9");
+            morningShift.setAbbreviation("D8");
+            morningShift.setColor("#66CCFF");
             morningShift.setTeam(team);
             shiftTypes.add(shiftTypeRepository.save(morningShift));
-            ShiftType eveningShift = new ShiftType();
-            eveningShift.setName("Evening Shift");
-            eveningShift.setStartTime(LocalTime.of(16, 0));
-            eveningShift.setEndTime(LocalTime.of(0, 0));
-            eveningShift.setBreakStartTime(LocalTime.of(18, 0));
-            eveningShift.setBreakEndTime(LocalTime.of(18, 30));
-            eveningShift.setAbbreviation("D14");
-            eveningShift.setColor("#B084CC");
-            eveningShift.setTeam(team);
-            shiftTypes.add(shiftTypeRepository.save(eveningShift));
+
+            ShiftType secondMorningShift = new ShiftType();
+            secondMorningShift.setName("Late Morning Shift");
+            secondMorningShift.setStartTime(LocalTime.of(16, 0));
+            secondMorningShift.setEndTime(LocalTime.of(0, 0));
+            secondMorningShift.setBreakStartTime(LocalTime.of(18, 0));
+            secondMorningShift.setBreakEndTime(LocalTime.of(18, 30));
+            secondMorningShift.setAbbreviation("D10");
+            secondMorningShift.setColor("#005B96");
+            secondMorningShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(secondMorningShift));
+
+            ShiftType nightShift = new ShiftType();
+            nightShift.setName("Night Shift");
+            nightShift.setStartTime(LocalTime.of(20, 0));
+            nightShift.setEndTime(LocalTime.of(8, 0));
+            nightShift.setBreakStartTime(LocalTime.of(23, 0));
+            nightShift.setBreakEndTime(LocalTime.of(23, 30));
+            nightShift.setAbbreviation("N7");
+            nightShift.setColor("#4B0082");
+            nightShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(nightShift));
+
+            ShiftType shortEveningShift = new ShiftType();
+            shortEveningShift.setName("Short Evening Shift");
+            shortEveningShift.setStartTime(LocalTime.of(0, 0));
+            shortEveningShift.setEndTime(LocalTime.of(8, 0));
+            shortEveningShift.setBreakStartTime(LocalTime.of(4, 0));
+            shortEveningShift.setBreakEndTime(LocalTime.of(4, 30));
+            shortEveningShift.setAbbreviation("N18");
+            shortEveningShift.setColor("#003366");
+            shortEveningShift.setTeam(team);
+            shiftTypes.add(shiftTypeRepository.save(shortEveningShift));
         }
     }
 

@@ -9,7 +9,7 @@ export const dmGuard: CanActivateFn = (route, state) => {
   if (authService.hasAuthority(["admin", "dm"])) {
     return true;
   } else {
-    router.navigate(["/dashboard"]).then();
+    router.navigate(["/schedule"]).then();
     return false;
   }
 };

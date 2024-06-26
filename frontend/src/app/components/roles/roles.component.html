@@ -12,11 +12,41 @@
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Roles</h2>
-        <ul class="list-none p-0 m-0">
-          <li *ngFor="let role of roles" (click)="selectRole(role)" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-            <span class="text-xl font-medium mr-2 md:mb-0">{{ role.name }}</span>
-          </li>
-        </ul>
+
+        <div class="pt-4 pb-4" *ngIf="roles && roles.length > 0">
+          <p-table
+            [value]="roles"
+            selectionMode="single"
+            [(selection)]="selectedRole"
+            (onRowSelect)="selectRole(selectedRole)"
+            [metaKeySelection]="false"
+            [tableStyle]="{ 'min-width': '30rem' }">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="name">Name</th>
+                <th pSortableColumn="abbreviation">Abbreviation</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-role>
+              <tr [pSelectableRow]="role">
+                <td>
+                  <div class=" flex align-items-center justify-content-start"> <span [ngStyle]="{
+                'display': 'inline-block',
+                'width': '20px',
+                'height': '20px',
+                'background-color': role.color,
+                'border-radius': '50%',
+                'margin-right': '10px'}">
+
+                </span>{{ role.name }}
+                  </div>
+                </td>
+                <td>{{ role.abbreviation}}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
         <div class="plusButtonContainer">
           <button (click)="showCreateForm()" pbutton="" pripple="" type="button" icon="pi pi-plus" class="p-element p-ripple p-button-rounded p-button p-button p-component p-button-icon-only">
             <span class="p-button-icon pi pi-plus" aria-hidden="true"></span>
@@ -29,7 +59,7 @@
     <div class="col-12 md:col-6">
       <div class="card p-fluid">
         <h2 style="text-align: center;">{{ getFormTitle() }}</h2>
-        <div class="field grid">
+        <div class="field grid pt-4 pb-4">
           <label htmlfor="nameshift" class="col-12 mb-2 md:col-2 md:mb-0">Name</label>
           <div class="col-12 md:col-10" style="padding-left: 20px; width: 350px;">
             <input pinputtext="" id="nameshift" type="text" class="p-inputtext p-component p-element"

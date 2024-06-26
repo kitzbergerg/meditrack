@@ -19,6 +19,7 @@ export class ShiftSwapComponent {
   userId = '';
   loading = true;
   currentUser: User | undefined;
+  display = false;
 
   teamUsers: User[] = []
   ownShiftSwapsOffers: ShiftSwap[] = [];
@@ -30,7 +31,6 @@ export class ShiftSwapComponent {
   newShiftSwap: ShiftSwap | undefined;
   shiftSwapDialog = false;
   valid = true;
-  shiftSwapOffersPresent = false;
 
   currentDate: Date = new Date();
   firstDayOfMonth: Date = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
@@ -67,37 +67,40 @@ export class ShiftSwapComponent {
     );
   }
 
-  findUser(userId: string) {
+  findUser(userId: string | undefined) {
+    if (userId === undefined) {
+      return undefined
+    }
     return this.teamUsers.find(user => user.id === userId);
   }
 
   getUser(): void {
     this.userService.getUserById(this.userId).subscribe({
-        next: response => {
-          this.currentUser = response;
-          this.getAllRequestedShiftSwaps();
-          this.getAllOwnShiftSwapOffers();
-          this.getShiftsFromCurrentMonth();
-          this.getAllUsersFromTeam();
-          this.getAllShiftSwapsOffers();
-          this.getAllSuggestedShiftSwaps()
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-        }
+      next: response => {
+        this.currentUser = response;
+        this.getAllRequestedShiftSwaps();
+        this.getAllOwnShiftSwapOffers();
+        this.getShiftsFromCurrentMonth();
+        this.getAllUsersFromTeam();
+        this.getAllShiftSwapsOffers();
+        this.getAllSuggestedShiftSwaps()
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
   getAllRequestedShiftSwaps() {
     this.shiftSwapService.getAllShiftSwapRequests().subscribe({
-        next: response => {
-          this.requestedShiftSwaps = response;
-          this.requestedShiftSwaps.sort((a, b) =>
-            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-        }
+      next: response => {
+        this.requestedShiftSwaps = response;
+        this.requestedShiftSwaps.sort((a, b) =>
+          new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
@@ -119,14 +122,14 @@ export class ShiftSwapComponent {
 
   getAllOwnShiftSwapOffers() {
     this.shiftSwapService.getAllOwnShiftSwapOffers().subscribe({
-        next: response => {
-          this.ownShiftSwapsOffers = response;
-          this.ownShiftSwapsOffers.sort((a, b) =>
-            new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-        }
+      next: response => {
+        this.ownShiftSwapsOffers = response;
+        this.ownShiftSwapsOffers.sort((a, b) =>
+          new Date(a.requestedShift.date).getTime() - new Date(b.requestedShift.date).getTime());
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+      }
     });
   }
 
@@ -200,7 +203,6 @@ export class ShiftSwapComponent {
           swapRequestingUser: this.currentUser?.id == undefined ? "" : this.currentUser.id
         };
       } else {
-        console.log("here")
         this.newShiftSwap = undefined;
         this.selectedDate = undefined;
         this.valid = false;
@@ -242,69 +244,37 @@ export class ShiftSwapComponent {
     this.shiftSwapDialog = !this.shiftSwapDialog
   }
 
-  selectOwnOffer(shiftSwap: ShiftSwap) {
-    const temp : ShiftSwap = {
-      requestedShift: shiftSwap.requestedShift,
-      requestedShiftSwapStatus: shiftSwap.requestedShiftSwapStatus,
-      swapRequestingUser: shiftSwap.swapRequestingUser};
-    if (this.ownSelectedOffer?.requestedShift == shiftSwap.requestedShift) {
-      this.ownSelectedOffer = undefined;
-    } else {
-      this.ownSelectedOffer = temp;
-    }
-  }
-
-  selectOtherOffer(shiftSwap: ShiftSwap) {
-    const temp : ShiftSwap = {
-      requestedShift: shiftSwap.requestedShift,
-      requestedShiftSwapStatus: shiftSwap.requestedShiftSwapStatus,
-      swapRequestingUser: shiftSwap.swapRequestingUser};
-    if (this.otherSelectedOffer?.requestedShift == shiftSwap.requestedShift) {
-      this.otherSelectedOffer = undefined;
-    } else {
-      this.otherSelectedOffer = temp;
-    }
-  }
 
   createRequest() {
     if (this.ownSelectedOffer == undefined || this.otherSelectedOffer == undefined) {
       this.messageService.add({severity: 'error', summary: 'Two Shifts Offers have to be selected '});
       return;
     }
-    // set id to undefined, since a shift can be included in many shift swap requests
-    this.ownSelectedOffer.id = undefined;
-    // add the shift offer from the other person to the own shift offer to create an actual shift swap request
-    this.ownSelectedOffer.swapSuggestingUser = this.otherSelectedOffer?.swapRequestingUser;
-    this.ownSelectedOffer.suggestedShift = this.otherSelectedOffer?.requestedShift;
-    this.ownSelectedOffer.suggestedShiftSwapStatus = ShiftSwapStatus.PENDING;
+    const newRequestSwap: ShiftSwap = {
+      id: undefined,
+      requestedShift: this.ownSelectedOffer.requestedShift,
+      requestedShiftSwapStatus: this.ownSelectedOffer.requestedShiftSwapStatus,
+      suggestedShift: this.otherSelectedOffer?.requestedShift,
+      suggestedShiftSwapStatus: ShiftSwapStatus.PENDING,
+      swapRequestingUser: this.ownSelectedOffer.swapRequestingUser,
+      swapSuggestingUser: this.otherSelectedOffer?.swapRequestingUser
+    }
 
-    this.shiftSwapService.createShiftSwap(this.ownSelectedOffer).subscribe({
+    this.shiftSwapService.createShiftSwap(newRequestSwap).subscribe({
       next: (response) => {
+        this.hideDialog()
         this.ownSelectedOffer = undefined;
         this.otherSelectedOffer = undefined;
         this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap'});
         this.requestedShiftSwaps.push(response);
       },
       error: (error) => {
+        this.hideDialog()
         this.ownSelectedOffer = undefined;
         this.otherSelectedOffer = undefined;
         this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap ', detail: error.error});
       },
     })
-
-    /*
-    }
-
-    this.shiftSwapService.updateShiftSwap(this.ownOffer).subscribe({
-      next: response => {
-        this.messageService.add({severity: 'success', summary: 'Successfully Created Shift Swap Request '});
-      },
-      error: (error) => {
-        this.toggleDialog()
-        this.messageService.add({severity: 'error', summary: 'Error Creating Shift Swap Request '});
-      }
-    });
-     */
   }
 
   retractOffer(id: string | undefined) {
@@ -332,7 +302,7 @@ export class ShiftSwapComponent {
     }
   }
 
-  retractRequest(requestSwap : ShiftSwap) {
+  retractRequest(requestSwap: ShiftSwap) {
     if (requestSwap.id != undefined) {
       this.shiftSwapService.retractShiftSwapRequest(requestSwap.id).subscribe(
         {
@@ -412,7 +382,8 @@ export class ShiftSwapComponent {
       shiftSwap.suggestedShiftSwapStatus = ShiftSwapStatus.REJECTED;
     } else {
       this.messageService.add({
-        severity: 'error', summary: 'Shift swap action is not valid',});
+        severity: 'error', summary: 'Shift swap action is not valid',
+      });
     }
     this.shiftSwapService.updateShiftSwap(shiftSwap).subscribe(
       {
@@ -426,6 +397,13 @@ export class ShiftSwapComponent {
             this.requestedShiftSwaps = this.requestedShiftSwaps.filter(s => s.requestedShift.id != shiftSwap.suggestedShift?.id);
             this.shiftSwapOffers = this.shiftSwapOffers.filter(s => s.requestedShift.id != shiftSwap.requestedShift.id);
             this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.suggestedShift?.id != shiftSwap.suggestedShift?.id);
+            this.currentShifts = this.currentShifts.filter(s => s.id != shiftSwap.suggestedShift?.id);
+            const newShift = shiftSwap.requestedShift;
+            const userNewShift = shiftSwap.suggestedShift?.users;
+            if (userNewShift !== undefined) {
+              newShift.users = userNewShift;
+              this.currentShifts.push(newShift);
+            }
           }
           this.suggestedShiftSwaps = this.suggestedShiftSwaps.filter(s => s.id != shiftSwap.id);
         }, error: error => {
@@ -436,6 +414,24 @@ export class ShiftSwapComponent {
           });
         }
       });
+  }
+
+  checkCondition(): void {
+    if (this.otherSelectedOffer !== undefined && this.ownSelectedOffer !== undefined &&
+      this.otherSelectedOffer !== null && this.ownSelectedOffer !== null) {
+      this.showDialog();
+    }
+  }
+
+
+  showDialog() {
+    this.display = true;
+  }
+
+  hideDialog() {
+    this.display = false;
+    this.ownSelectedOffer = undefined;
+    this.otherSelectedOffer = undefined;
   }
 
   protected readonly ShiftSwapStatus = ShiftSwapStatus;

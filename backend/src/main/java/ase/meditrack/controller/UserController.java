@@ -78,9 +78,10 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm') && "
             + "@userService.isCorrectUserSystemRole(#dto.roles(), #principal)  && "
             + "@userService.isSameTeam(#principal, #dto))")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal) {
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto,
+                          @RequestParam(required = false) Boolean shouldSendInviteMail) {
         log.info("Creating user {}", dto.username());
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+        return mapper.toDto(service.create(mapper.fromDto(dto), shouldSendInviteMail));
     }
 
     @PutMapping
@@ -115,5 +116,11 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Error getting monthly details from user: " + e.getMessage(), e);
         }
+    }
+
+    @GetMapping("/replacement/{id}")
+    public List<UserDto> getReplacementUsers(@PathVariable UUID id) {
+        log.info("Fetching replacement users for user {}", id);
+        return mapper.toDtoList(service.getSickReplacement(id));
     }
 }

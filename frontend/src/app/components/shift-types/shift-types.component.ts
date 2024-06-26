@@ -23,6 +23,7 @@ export class ShiftTypesComponent {
 
   roles: Role[] = [];
 
+  selectedShiftType: ShiftType | undefined;
   shiftType: ShiftType = {
     id: 0,
     name: '',
@@ -70,7 +71,7 @@ export class ShiftTypesComponent {
     preferredShiftTypes: []
   };
 
-  constructor(private shiftService: ShiftTypeService,
+  constructor(private shiftTypeService: ShiftTypeService,
               private cdr: ChangeDetectorRef,
               private messageService: MessageService,
               private userService: UserService,
@@ -106,7 +107,7 @@ export class ShiftTypesComponent {
   }
 
   loadShiftTypes(): void {
-    this.shiftService.getAllShiftTypesByTeam()
+    this.shiftTypeService.getAllShiftTypesByTeam()
       .subscribe(fetchedShiftTypes => {
         this.shiftTypes = fetchedShiftTypes;
         if (this.shiftTypes.length === 0) {
@@ -128,7 +129,7 @@ export class ShiftTypesComponent {
 
   deleteShiftType(): void {
     if (this.shiftType.id != undefined) {
-      this.shiftService.deleteShiftType(this.shiftType.id)
+      this.shiftTypeService.deleteShiftType(this.shiftType.id)
         .subscribe(response => {
           console.log('Shift Type deleted successfully');
           this.messageService.add({
@@ -146,7 +147,7 @@ export class ShiftTypesComponent {
 
   getShiftType(id: number) {
 
-    this.shiftService.getShiftType(id)
+    this.shiftTypeService.getShiftType(id)
       .subscribe((response: ShiftType) => {
         console.log('Shift Type retrieved successfully:', response);
         this.shiftType = response;
@@ -201,10 +202,11 @@ export class ShiftTypesComponent {
         }) : '',
         color: this.shiftType.color,
         abbreviation: this.shiftType.abbreviation,
-        team: this.shiftType.team
+        team: this.currentUser.team
       };
 
-      this.shiftService.createShiftType(newShiftType)
+      console.log(newShiftType)
+      this.shiftTypeService.createShiftType(newShiftType)
         .subscribe(response => {
           console.log('Shift Type created successfully:', response);
           this.messageService.add({
@@ -269,7 +271,7 @@ export class ShiftTypesComponent {
 
       console.log(shiftTypeToUpdate)
 
-      this.shiftService.updateShiftType(shiftTypeToUpdate)
+      this.shiftTypeService.updateShiftType(shiftTypeToUpdate)
         .subscribe(response => {
           this.messageService.add({
             severity: 'success',
@@ -299,7 +301,10 @@ export class ShiftTypesComponent {
     this.formMode = 'create';
   }
 
-  selectShiftType(shiftType: ShiftType) {
+  selectShiftType(shiftType: ShiftType | undefined) {
+    if (shiftType == undefined) {
+      return;
+    }
     if (shiftType.id != undefined) {
       this.getShiftType(shiftType.id);
       this.formMode = 'details';
@@ -350,6 +355,7 @@ export class ShiftTypesComponent {
   }
 
   resetForm() {
+    this.selectedShiftType = undefined;
     this.submitted = false;
     this.startTimeDate = this.emptyTime;
     this.endTimeDate = this.emptyTime;
