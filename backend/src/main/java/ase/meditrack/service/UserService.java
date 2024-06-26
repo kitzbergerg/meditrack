@@ -355,9 +355,9 @@ public class UserService {
 
         if (team.getUsers() != null && !team.getUsers().isEmpty()) {
             for (User u : team.getUsers()) {
+                u = findById(u.getId()); //we need to call findById to get the userRepresentation
                 List<String> roles = mapper.mapRoles(u);
                 if (roles.contains("dm")) {
-                    u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
                     return Optional.of(u);
                 }
             }
