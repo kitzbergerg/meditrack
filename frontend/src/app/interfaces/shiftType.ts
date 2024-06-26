@@ -10,5 +10,5 @@ export interface ShiftType {
   breakEndTime: string;
   color: string;
   abbreviation: string;
-  team?: Team;
+  team?: string;
 }

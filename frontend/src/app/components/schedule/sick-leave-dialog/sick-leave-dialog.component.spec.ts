@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DashboardComponent } from './dashboard.component';
+import { SickLeaveDialogComponent } from './sick-leave-dialog.component';
 
-describe('DashboardComponent', () => {
-  let component: DashboardComponent;
-  let fixture: ComponentFixture<DashboardComponent>;
+describe('SickLeaveDialogComponent', () => {
+  let component: SickLeaveDialogComponent;
+  let fixture: ComponentFixture<SickLeaveDialogComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DashboardComponent]
+      imports: [SickLeaveDialogComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(DashboardComponent);
+    fixture = TestBed.createComponent(SickLeaveDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

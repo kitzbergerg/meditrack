@@ -33,6 +33,8 @@ public class Shift {
 
     private LocalDate date;
 
+    private Boolean isSick;
+
     @ManyToOne
     @JoinColumn(name = "monthly_plan_id")
     private MonthlyPlan monthlyPlan;

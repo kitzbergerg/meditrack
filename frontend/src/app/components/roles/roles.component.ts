@@ -17,6 +17,7 @@ export class RolesComponent {
   loading = true;
   teamComponentHeader = "roles";
   roles: Role[] = [];
+  selectedRole: Role | undefined;
   role: Role = { id: 0, name: '', color: '#ff0000', abbreviation: ''};
   userId = '';
 
@@ -130,7 +131,8 @@ export class RolesComponent {
       const newRole: Role = {
         name: this.role.name,
         color: this.role.color,
-        abbreviation: this.role.abbreviation
+        abbreviation: this.role.abbreviation,
+        team: this.currentUser.team
       }
       this.rolesService.createRole(newRole)
         .subscribe({
@@ -181,7 +183,10 @@ export class RolesComponent {
     this.formMode = 'create';
   }
 
-  selectRole(role: Role) {
+  selectRole(role: Role | undefined) {
+    if (role == undefined) {
+      return;
+    }
     if (role.id != undefined) {
       this.getRole(role.id);
       this.formMode = 'details';
@@ -228,6 +233,7 @@ export class RolesComponent {
   }
 
   resetForm() {
+    this.selectedRole = undefined
     this.submitted = false;
     this.role = {id: 0, name: '', color: '#ff0000', abbreviation: '' };
   }

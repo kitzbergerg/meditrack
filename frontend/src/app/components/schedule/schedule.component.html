@@ -3,20 +3,22 @@
     <div class="card px-6 overflow-auto">
       <div class="p-d-flex p-flex-column p-h-100">
         <p-toast></p-toast>
-        <app-week-view [days]="days" [startDate]="startDate" (weekChange)="changeWeek($event)"
-                       (rangeChange)="changeRange($event)" [loading]="loading" [roles]="roles" [users]="users"
+        <app-week-view [days]="days" [startDate]="startDate"
+                       [loading]="loading" [roles]="roles"
                        [missingMonth]="createScheduleMonth"
-                       [displayCreateScheduleButton]="displayCreateScheduleButton" (createSchedule)="createSchedule()"
+                       [displayCreateScheduleButton]="displayCreateScheduleButton"
                        [shiftTypes]="shiftTypes"
-                       (updateShift)="updateShift($event)"
                        [currentUser]="currentUser"
-                       (deleteSchedule)="deleteSchedule()"
-                       (publishSchedule)="publishSchedule()"
                        [employees]="usersWithShifts"
-                       [planId]="currentPlanId"
                        [currentSchedule]="currentSchedule"
                        [weekNumber]="weekNumber"
-                       [monthString]="monthString"></app-week-view>
+                       [monthString]="monthString"
+                       (weekChange)="changeWeek($event)"
+                       (updateShift)="updateShift($event)"
+                       (rangeChange)="changeRange($event)"
+                       (deleteSchedule)="deleteSchedule()"
+                       (publishSchedule)="publishSchedule()"
+                       (createSchedule)="createSchedule()"></app-week-view>
 
         <app-schedule-legend [shiftTypes]="shiftTypes"></app-schedule-legend>
       </div>

@@ -9,6 +9,7 @@ import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.UserRepository;
+import ase.meditrack.service.MailService;
 import ase.meditrack.service.RoleService;
 import ase.meditrack.service.ShiftTypeService;
 import ase.meditrack.service.TeamService;
@@ -44,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBean(KeycloakConfig.class)
 @MockBean(KeycloakConfig.KeycloakPostConstruct.class)
 @MockBean(RealmResource.class)
+@MockBean(MailService.class)
 class MonthlyPlanControllerIT {
     private static final String USER_ID = "00000000-0000-0000-0000-000000000000";
 
