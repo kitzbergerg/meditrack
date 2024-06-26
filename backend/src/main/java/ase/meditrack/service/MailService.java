@@ -6,6 +6,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class MailService {
@@ -31,5 +33,18 @@ public class MailService {
         mail.setText(text);
         log.info("Sending mail to {} with subject: {}", to, subject);
         emailSender.send(mail);
+    }
+
+    /**
+     * Send a mail to the given addresses with the given subject and text.
+     *
+     * @param to the addresses to send the mails to
+     * @param subject the subject of the mail
+     * @param text the content of the mail
+     */
+    public void sendSimpleMessages(List<String> to, String subject, String text) {
+        for (String address : to) {
+            sendSimpleMessage(address, subject, text);
+        }
     }
 }

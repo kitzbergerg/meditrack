@@ -139,9 +139,11 @@ public class MonthlyPlanService {
         repository.save(plan);
 
         if (shouldSendMail != null && shouldSendMail) {
-            List<User> teamUsers = userService.findByTeam(principal);
-            teamUsers.forEach(u -> mailService.sendSimpleMessage(u.getUserRepresentation().getEmail(),
-                    "Monthly Plan published!", generateMonthlyPlanPublishedMessage(plan)));
+            List<String> mails = userService.findByTeam(principal).stream()
+                    .map(u -> u.getUserRepresentation().getEmail())
+                    .toList();
+            new Thread(() -> mailService.sendSimpleMessages(mails, "Monthly Plan published!",
+                    generateMonthlyPlanPublishedMessage(plan))).start();
         }
     }
 
