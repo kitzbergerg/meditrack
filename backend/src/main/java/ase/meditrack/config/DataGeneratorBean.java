@@ -243,7 +243,7 @@ public class DataGeneratorBean {
 
     private LocalDate generateValidRandomFutureDate() {
         int day;
-        int month = FAKER.number().numberBetween(LocalDate.now().getMonthValue(), 12);
+        int month = (LocalDate.now().getMonthValue() % 12) + 1;
         if (month == LocalDate.now().getMonthValue()) {
             day = FAKER.number().numberBetween(LocalDate.now().getDayOfMonth(), LocalDate.now().getMonth().minLength());
         } else {

@@ -56,9 +56,10 @@
       </div>
 
       <ul class="list-none"
-          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px;">
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px;
+          padding-left: 0px;">
 
-        <li *ngFor="let offDay of offDays" class="flex justify-content-between mt-2">
+        <li *ngFor="let offDay of offDays" class="flex justify-content-center mt-2">
           <p-card [style]="{width: '250px', maxHeight: '60px'}" styleClass="p-card-shadow">
             <div class="flex" style="display: flex; align-items: center; margin-top: -25px">
               <div class="pi pi-calendar mr-2" style="font-size: 1.8rem; width: 50px;"></div>
