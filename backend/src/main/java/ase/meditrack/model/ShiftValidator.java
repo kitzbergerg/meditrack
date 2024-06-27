@@ -4,6 +4,7 @@ import ase.meditrack.exception.ResourceConflictException;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class ShiftValidator {
     private static final int MINIMUM_REST_PERIOD = 11;
     private final ShiftRepository repository;
@@ -84,7 +86,7 @@ public class ShiftValidator {
 
         int consecutiveShifts = 0;
 
-        for (LocalDate date = startDate.plusDays(1); !date.isAfter(endDate.minusDays(1));
+        for (LocalDate date = startDate; !date.isAfter(endDate);
              date = date.plusDays(1)) {
             LocalDate finalDate = date;
             boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(finalDate));
@@ -166,8 +168,7 @@ public class ShiftValidator {
         long newShiftHours = calculateShiftDuration(shift);
 
         int maxWeeklyHours = userService.findById(shift.getUsers().get(0).getId()).getRole().getMaxWeeklyHours();
-
-        if (!(totalWorkingHours + newShiftHours <= maxWeeklyHours)) {
+        if ((totalWorkingHours + newShiftHours) > maxWeeklyHours) {
             throw new ResourceConflictException("Max working hours per week exceeded.");
         }
     }
