@@ -166,7 +166,6 @@ public class DataGeneratorBean {
                     null,
                     (float) FAKER.number().numberBetween(20, 100),
                     null,
-                    List.of(FAKER.educator().course(), FAKER.educator().course()),
                     null,
                     null,
                     null,
@@ -202,7 +201,6 @@ public class DataGeneratorBean {
                                 null,
                                 (float) FAKER.number().numberBetween(70, 100),
                                 null,
-                                List.of(FAKER.educator().course(), FAKER.educator().course()),
                                 null,
                                 null,
                                 null,
@@ -261,7 +259,7 @@ public class DataGeneratorBean {
             ShiftType dayShift = new ShiftType();
             dayShift.setName("Day Shift");
             dayShift.setStartTime(LocalTime.of(8, 0));
-            dayShift.setEndTime(LocalTime.of(20, 0));
+            dayShift.setEndTime(LocalTime.of(20, 30));
             dayShift.setBreakStartTime(LocalTime.of(12, 0));
             dayShift.setBreakEndTime(LocalTime.of(12, 30));
             dayShift.setAbbreviation("D7");
@@ -272,7 +270,7 @@ public class DataGeneratorBean {
             ShiftType morningShift = new ShiftType();
             morningShift.setName("Morning Shift");
             morningShift.setStartTime(LocalTime.of(8, 0));
-            morningShift.setEndTime(LocalTime.of(16, 0));
+            morningShift.setEndTime(LocalTime.of(16, 30));
             morningShift.setBreakStartTime(LocalTime.of(10, 0));
             morningShift.setBreakEndTime(LocalTime.of(10, 30));
             morningShift.setAbbreviation("D8");
@@ -283,7 +281,7 @@ public class DataGeneratorBean {
             ShiftType secondMorningShift = new ShiftType();
             secondMorningShift.setName("Late Morning Shift");
             secondMorningShift.setStartTime(LocalTime.of(16, 0));
-            secondMorningShift.setEndTime(LocalTime.of(0, 0));
+            secondMorningShift.setEndTime(LocalTime.of(0, 30));
             secondMorningShift.setBreakStartTime(LocalTime.of(18, 0));
             secondMorningShift.setBreakEndTime(LocalTime.of(18, 30));
             secondMorningShift.setAbbreviation("D10");
@@ -294,7 +292,7 @@ public class DataGeneratorBean {
             ShiftType nightShift = new ShiftType();
             nightShift.setName("Night Shift");
             nightShift.setStartTime(LocalTime.of(20, 0));
-            nightShift.setEndTime(LocalTime.of(8, 0));
+            nightShift.setEndTime(LocalTime.of(8, 30));
             nightShift.setBreakStartTime(LocalTime.of(23, 0));
             nightShift.setBreakEndTime(LocalTime.of(23, 30));
             nightShift.setAbbreviation("N7");
@@ -305,7 +303,7 @@ public class DataGeneratorBean {
             ShiftType shortEveningShift = new ShiftType();
             shortEveningShift.setName("Short Evening Shift");
             shortEveningShift.setStartTime(LocalTime.of(0, 0));
-            shortEveningShift.setEndTime(LocalTime.of(8, 0));
+            shortEveningShift.setEndTime(LocalTime.of(8, 30));
             shortEveningShift.setBreakStartTime(LocalTime.of(4, 0));
             shortEveningShift.setBreakEndTime(LocalTime.of(4, 30));
             shortEveningShift.setAbbreviation("N18");

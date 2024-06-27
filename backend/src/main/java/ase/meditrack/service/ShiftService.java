@@ -3,6 +3,7 @@ package ase.meditrack.service;
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftSwap;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyPlanRepository;
@@ -11,6 +12,7 @@ import ase.meditrack.repository.ShiftTypeRepository;
 import ase.meditrack.model.ShiftValidator;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -30,16 +32,18 @@ public class ShiftService {
     private final MonthlyWorkDetailsService monthlyWorkDetailsService;
     private final MonthlyPlanRepository monthlyPlanRepository;
     private final ShiftValidator shiftValidator;
+    private final ShiftSwapService shiftSwapService;
 
     public ShiftService(ShiftRepository repository, MonthlyWorkDetailsService monthlyWorkDetailsService,
                         ShiftTypeRepository shiftTypeRepository, MonthlyPlanRepository monthlyPlanRepository,
-                        UserService userService, ShiftValidator shiftValidator) {
+                        UserService userService, ShiftValidator shiftValidator, ShiftSwapService shiftSwapService) {
         this.repository = repository;
         this.monthlyWorkDetailsService = monthlyWorkDetailsService;
         this.shiftTypeRepository = shiftTypeRepository;
         this.monthlyPlanRepository = monthlyPlanRepository;
         this.userService = userService;
         this.shiftValidator = shiftValidator;
+        this.shiftSwapService = shiftSwapService;
     }
 
     /**
@@ -105,40 +109,55 @@ public class ShiftService {
      * @param shift the shift to update
      * @return the updated shift
      */
+    @Transactional
     public Shift update(Shift shift) {
-        Shift dbShift = findById(shift.getId());
+        // Fetch the shift with requestedShiftSwap using fetch join
+        Shift dbShift = repository.findByIdWithShiftSwaps(shift.getId())
+                .orElseThrow(() -> new NotFoundException("Shift not found"));
+
+        // Ensure dbShift is not null
+        if (dbShift == null) {
+            throw new NotFoundException("Shift not found");
+        }
+
         Optional<ShiftType> oldShiftType = shiftTypeRepository.findById(dbShift.getShiftType().getId());
         Optional<ShiftType> newShiftType = shiftTypeRepository.findById(shift.getShiftType().getId());
         Optional<MonthlyPlan> plan = monthlyPlanRepository.findById(shift.getMonthlyPlan().getId());
         if (newShiftType.isEmpty() || oldShiftType.isEmpty() || plan.isEmpty()) {
             throw new NotFoundException("Could not find shift type or plan of shift!");
         }
-        shift.setShiftType(newShiftType.get());
-        shift.setMonthlyPlan(plan.get());
-        shiftValidator.validateShift(shift);
-        Shift createdShift = repository.save(shift);
-        monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(createdShift, oldShiftType.get());
 
+        dbShift.setShiftType(newShiftType.get());
+        dbShift.setMonthlyPlan(plan.get());
         dbShift.setIsSick(shift.getIsSick());
+        dbShift.setDate(shift.getDate());
 
-        if (shift.getDate() != null) {
-            dbShift.setDate(shift.getDate());
-        }
-        if (shift.getMonthlyPlan() != null) {
-            dbShift.setMonthlyPlan(shift.getMonthlyPlan());
-        }
         if (shift.getUsers() != null) {
             dbShift.setUsers(shift.getUsers());
         }
-        if (shift.getSuggestedShiftSwap() != null) {
-            dbShift.setSuggestedShiftSwap(shift.getSuggestedShiftSwap());
-        }
-        if (shift.getRequestedShiftSwap() != null) {
-            dbShift.setRequestedShiftSwap(shift.getRequestedShiftSwap());
+
+        shiftValidator.validateShift(dbShift);
+
+        // Manually initialize the requestedShiftSwap list if not already done
+        Hibernate.initialize(dbShift.getRequestedShiftSwap());
+
+        // Check if requestedShiftSwap is initialized and delete shift swaps if not null
+        if (dbShift.getRequestedShiftSwap() != null && !dbShift.getRequestedShiftSwap().isEmpty()) {
+            for (ShiftSwap shiftSwap : dbShift.getRequestedShiftSwap()) {
+                shiftSwapService.delete(shiftSwap.getId());
+            }
         }
 
-        return repository.save(createdShift);
+        // Save the updated shift
+        Shift updatedShift = repository.save(dbShift);
+
+        // Update monthly work details after shift is saved
+        monthlyWorkDetailsService.updateMonthlyWorkDetailsForShift(updatedShift, oldShiftType.get());
+
+        return updatedShift;
     }
+
+
 
     /**
      * Deletes a shift from the database.

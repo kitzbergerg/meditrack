@@ -43,7 +43,7 @@ public abstract class UserMapper {
     public abstract List<UserScheduleDto> toScheduleDto(List<User> users);
 
     @Named("mapRoles")
-    protected List<String> mapRoles(User user) {
+    public List<String> mapRoles(User user) {
         // for some reason keycloak doesn't return the roles in UserRepresentation, so we need to fetch them manually
         return meditrackRealm.users()
                 .get(user.getUserRepresentation().getId())
