@@ -5,21 +5,19 @@ import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
-
-import java.util.*;
-
-import com.itextpdf.kernel.colors.DeviceCmyk;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +28,12 @@ import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,7 +87,7 @@ public class PdfGenerationService {
         int daysInMonth = yearMonthObject.lengthOfMonth();
         float[] columnWidths = new float[daysInMonth + 1];
         Arrays.fill(columnWidths, 4f);
-        columnWidths[0] = 10; //employees column bigger
+        columnWidths[0] = 10; // employees column bigger
 
         // Create table with days +1 columns (1 for employees) +1
         Table table = new Table(columnWidths);
@@ -113,48 +117,83 @@ public class PdfGenerationService {
             for (int day = 1; day <= daysInMonth; day++) {
                 String[] shiftData = getShiftOfEmployeeAtDay(
                         LocalDate.of(year.getValue(), month.getValue(), day), shifts);
-                table.addCell(getCenteredCell(shiftData[0], 8f).setBackgroundColor(new DeviceRgb(
-                        Integer.valueOf(shiftData[1].substring(1, 3), 16),
-                        Integer.valueOf(shiftData[1].substring(3, 5), 16),
-                        Integer.valueOf(shiftData[1].substring(5, 7), 16)
-                )).setFontColor(new DeviceRgb(255,255,255)));
+                table.addCell(getCenteredCell(shiftData[0], 8f)
+                        .setBackgroundColor(new DeviceRgb(
+                            Integer.valueOf(shiftData[1].substring(1, 3), 16),
+                            Integer.valueOf(shiftData[1].substring(3, 5), 16),
+                            Integer.valueOf(shiftData[1].substring(5, 7), 16)
+                        ))
+                        .setFontColor(new DeviceRgb(255, 255, 255))
+                        .setVerticalAlignment(VerticalAlignment.MIDDLE));
             }
         }
 
         document.add(table);
 
-        // Add legend for shift types
-        document.add(new Paragraph("\nShift Type Legend").setBold().setFontSize(12));
-
-        Table legendTable = new Table(new float[]{1, 2});
-        legendTable.setWidth(UnitValue.createPercentValue(30));
-
-        legendTable.addHeaderCell(new Cell().add(new Paragraph("Abbreviation").setBold().setFontSize(10)));
-        legendTable.addHeaderCell(new Cell().add(new Paragraph("Shift Type").setBold().setFontSize(10)));
-
         Set<ShiftType> shiftTypes = monthlyPlan.getShifts().stream()
                 .map(Shift::getShiftType)
                 .collect(Collectors.toSet());
-
-        for (ShiftType shiftType : shiftTypes) {
-            legendTable.addCell(new Cell().add(new Paragraph(shiftType.getAbbreviation()).setFontSize(10)));
-            legendTable.addCell(new Cell().add(new Paragraph(shiftType.getName()).setFontSize(10)));
-        }
-
-        document.add(legendTable);
+        // Add the legend
+        addLegend(document, shiftTypes);
 
         document.close();
         return baos.toByteArray();
     }
+
+    /** add legend.
+     * @param document document
+     * @param shiftTypes shiftTypes
+     */
+    private void addLegend(Document document, Set<ShiftType> shiftTypes) {
+        Paragraph legendTitle = new Paragraph("Shift Types Legend")
+                .setFontSize(12)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginTop(20);
+        document.add(legendTitle);
+
+        Table legendTable = new Table(new float[]{2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3});
+        legendTable.setWidth(UnitValue.createPercentValue(100));
+        legendTable.setFixedLayout();
+        legendTable.setMarginTop(10);
+
+        for (ShiftType shiftType : shiftTypes) {
+            Color color = new DeviceRgb(
+                    Integer.valueOf(shiftType.getColor().substring(1, 3), 16),
+                    Integer.valueOf(shiftType.getColor().substring(3, 5), 16),
+                    Integer.valueOf(shiftType.getColor().substring(5, 7), 16)
+            );
+
+            Cell colorCell = new Cell().add(new Paragraph(shiftType.getAbbreviation()).setFontSize(10).setBold()
+                    .setTextAlignment(TextAlignment.CENTER));
+            colorCell.setBackgroundColor(color);
+            colorCell.setBorder(Border.NO_BORDER);
+            colorCell.setFontColor(new DeviceRgb(255, 255, 255));
+            colorCell.setVerticalAlignment(VerticalAlignment.MIDDLE);
+            legendTable.addCell(colorCell);
+
+            Paragraph description = new Paragraph(
+                    shiftType.getName() + "\n" + shiftType.getStartTime() + " - " + shiftType.getEndTime())
+                    .setFontSize(10)
+                    .setTextAlignment(TextAlignment.LEFT);
+            legendTable.addCell(new Cell().add(description)
+                    .setBorder(Border.NO_BORDER)
+                    .setVerticalAlignment(VerticalAlignment.MIDDLE));
+        }
+
+        document.add(legendTable);
+    }
+
 
     /**
      * Retrieves the shift abbreviation and color for a specific employee on a given day.
      * This method iterates through the list of user shifts and returns an array containing
      * the shift abbreviation and color for the specified date. If no shift is found for that date,
      * it returns an array with an empty string and default color.
-     * @param time The date for which the shift is being retrieved.
+     * @param time       The date for which the shift is being retrieved.
      * @param userShifts The list of shifts for the specific user.
-     * @return An array containing the abbreviation of the shift type and its color for the specified date, or an empty string and default color if no shift is found.
+     * @return An array containing the abbreviation of the shift type and its color for the specified date,
+     * or an empty string and default color if no shift is found.
      */
     private String[] getShiftOfEmployeeAtDay(LocalDate time, List<Shift> userShifts) {
         for (Shift shift : userShifts) {
