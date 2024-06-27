@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -279,7 +280,6 @@ public final class SchedulingSolver {
             }
         }
 
-
         // 2 shifts - Employees should never work only 1 shift with the day before and after free
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.numberOfDays(); d++) {
@@ -304,6 +304,48 @@ public final class SchedulingSolver {
 
                 LinearExpr numOfShiftsInWindow = LinearExpr.sum(shiftsInWindow.toArray(LinearExpr[]::new));
                 model.addGreaterOrEqual(numOfShiftsInWindow, 2).onlyEnforceIf(worksOnDay);
+            }
+        }
+
+        // 12h between shifts - Employees should always have 12 hours of between shifts
+        Map<Integer, Set<Integer>> notOkForNextShifts = new TreeMap<>();
+        for (int s1 = 0; s1 < input.shiftTypes().size(); s1++) {
+            for (int s2 = 0; s2 < input.shiftTypes().size(); s2++) {
+                if (s1 == s2) continue;
+                ShiftTypeInfo shiftTypeInfo1 = input.shiftTypes().get(s1);
+                ShiftTypeInfo shiftTypeInfo2 = input.shiftTypes().get(s2);
+                int slot1 = timeToSlotIndex(shiftTypeInfo1.endTime());
+                int slot2 = timeToSlotIndex(shiftTypeInfo2.startTime());
+                int hoursBetween = (48 - slot1 + slot2) / 2;
+                if (hoursBetween < 12) {
+                    int finalS = s2;
+                    notOkForNextShifts.compute(s1, (key, value) -> {
+                        if (value == null) value = new TreeSet<>();
+                        value.add(finalS);
+                        return value;
+                    });
+                }
+            }
+        }
+        for (int n = 0; n < input.employees().size(); n++) {
+            // Handle carry over from last month.
+            if (!input.dayToEmployeeToShiftTypeMapping().isEmpty()
+                    && input.workedAtDayPrevMonth(input.dayToEmployeeToShiftTypeMapping().lastKey(), n)) {
+                Integer shift = input.dayToEmployeeToShiftTypeMapping().lastEntry().getValue().get(n);
+                for (Integer s1 : notOkForNextShifts.keySet()) {
+                    if (shift.intValue() != s1) continue;
+                    for (Integer s2 : notOkForNextShifts.get(s1)) {
+                        model.addEquality(shifts[n][0][s2], 0);
+                    }
+                }
+            }
+
+            for (int d = 1; d < input.numberOfDays(); d++) {
+                for (Integer s1 : notOkForNextShifts.keySet()) {
+                    for (Integer s2 : notOkForNextShifts.get(s1)) {
+                        model.addEquality(shifts[n][d][s2], 0).onlyEnforceIf(shifts[n][d - 1][s1]);
+                    }
+                }
             }
         }
     }
