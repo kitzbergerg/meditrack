@@ -4,6 +4,7 @@ import {HolidaysService} from "../../services/holidays.service";
 import {AuthorizationService} from "../../services/authorization/authorization.service";
 import {MessageService} from "primeng/api";
 import {UserService} from "../../services/user.service";
+import {Table} from "primeng/table";
 
 @Component({
   selector: 'app-holidays',
@@ -23,8 +24,8 @@ export class HolidaysComponent {
   submitted = false;
   valid = false;
   validationMessage = '';
-  holiday: Holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
-  teamHoliday: Holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
+  holiday: Holiday = {id: undefined, startDate: '', endDate: '', status: undefined, user: undefined};
+  teamHoliday: Holiday = {id: undefined, startDate: '', endDate: '', status: undefined, user: undefined};
   teamUserName: string | undefined = '';
 
   initialLoad = false;
@@ -35,15 +36,18 @@ export class HolidaysComponent {
   selectedStartDate: Date | undefined;
   selectedEndDate: Date | undefined;
 
-  formTitle= '';
-  formAction= '';
+  formTitle = '';
+  formAction = '';
   formMode: 'create' | 'edit' | 'details' = 'details';
+
+  statuses!: any[];
 
   constructor(private holidaysService: HolidaysService,
               private authorizationService: AuthorizationService,
               private messageService: MessageService,
               private userService: UserService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.userId = this.authorizationService.parsedToken().sub;
@@ -55,6 +59,17 @@ export class HolidaysComponent {
     }
     this.currentDate.setHours(this.currentDate.getHours() + 2)
     this.minDate.setHours(0, 0, 0, 0)
+
+    this.statuses = [
+      {label: 'Approved', value: 'APPROVED'},
+      {label: 'Rejected', value: 'REJECTED'},
+      {label: 'Cancelled', value: 'CANCELLED'},
+      {label: 'Requested', value: 'REQUESTED'}
+    ];
+  }
+
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
   getAllHolidaysFromUser() {
@@ -62,6 +77,7 @@ export class HolidaysComponent {
       .subscribe({
         next: (response) => {
           this.holidays = response.sort((a, b) => Date.parse(a.startDate) - Date.parse(b.startDate));
+          this.setUsernames();
           this.loading = false;
           if (this.holidays.length === 0) {
             this.formMode = 'create';
@@ -74,6 +90,31 @@ export class HolidaysComponent {
           console.error('Error fetching data:', error);
         }
       });
+  }
+
+  setUsernames() {
+    this.teamHolidays.forEach(holiday => {
+      if (holiday.user != undefined) {
+        holiday.username = this.getUsernameFromId(holiday.user);
+      }
+    });
+  }
+
+  getSeverity(status: string) {
+    switch (status) {
+      case 'APPROVED':
+        return 'success';
+
+      case 'REJECTED':
+        return 'danger';
+
+      case 'CANCELLED':
+        return 'warning';
+
+      case 'REQUESTED':
+        return 'info';
+    }
+    return 'info';
   }
 
   getHolidayById(id: string) {
@@ -109,8 +150,10 @@ export class HolidaysComponent {
           }
         });
     } else {
-      this.messageService.add({severity: 'warn', summary: 'Validation failed',
-        detail: 'Validation failed! ' + this.validationMessage});
+      this.messageService.add({
+        severity: 'warn', summary: 'Validation failed',
+        detail: 'Validation failed! ' + this.validationMessage
+      });
     }
   }
 
@@ -143,7 +186,7 @@ export class HolidaysComponent {
     this.selectedEndDate = undefined;
   }
 
-  selectHoliday(holiday: Holiday){
+  selectHoliday(holiday: Holiday) {
     if (holiday.id != undefined) {
       this.getHolidayById(holiday.id);
       this.selectedStartDate = new Date(holiday.startDate);
@@ -209,8 +252,8 @@ export class HolidaysComponent {
         const holidayEndDate = Date.parse(holiday.endDate);
 
         if ((startDate >= holidayStartDate && startDate <= holidayEndDate) ||
-            (endDate >= holidayStartDate && endDate <= holidayEndDate) ||
-            (startDate <= holidayStartDate && endDate >= holidayEndDate)) {
+          (endDate >= holidayStartDate && endDate <= holidayEndDate) ||
+          (startDate <= holidayStartDate && endDate >= holidayEndDate)) {
           if (holiday.status === HolidayRequestStatus.APPROVED || holiday.status === HolidayRequestStatus.REQUESTED) {
             this.validationMessage = 'Holiday is overlapping with another holiday!';
             return false;
@@ -224,7 +267,7 @@ export class HolidaysComponent {
 
   resetForm() {
     this.submitted = false;
-    this.holiday = { id: undefined, startDate: '', endDate: '', status: undefined, user: undefined };
+    this.holiday = {id: undefined, startDate: '', endDate: '', status: undefined, user: undefined};
     this.formMode = 'details';
   }
 
@@ -266,6 +309,7 @@ export class HolidaysComponent {
             if (user.id != undefined && user.username != undefined) {
               map.set(user.id, user.username);
             }
+            this.setUsernames();
           });
           this.selectTeamHoliday(this.findFirstRequestedHoliday());
         }, error: (error) => {
@@ -297,6 +341,16 @@ export class HolidaysComponent {
           this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday status updated successfully'});
           this.getAllHolidaysFromTeam();
           this.getAllHolidaysFromUser(); // Refresh user holidays because the dm can also approve his own holidays
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Holiday status updated successfully'
+          });
+          this.teamHoliday.status = response.status;
+          const holiday = this.holidays.find(holiday => holiday.id === this.teamHoliday.id);
+          if (holiday != undefined) {
+            holiday.status = response.status; // Refresh user holidays because the dm can also approve his own holidays
+          }
         }, error: (error) => {
           this.messageService.add({severity: 'error', summary: 'Updating holiday failed', detail: error.error});
         }
@@ -330,7 +384,7 @@ export class HolidaysComponent {
   }
 
   getFormattedDateFromString(date: string) {
-    return new Date(date).toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    return new Date(date).toLocaleDateString('de-DE', {year: 'numeric', month: '2-digit', day: '2-digit'});
   }
 
   protected readonly HolidayRequestStatus = HolidayRequestStatus;

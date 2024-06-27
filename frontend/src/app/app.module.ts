@@ -35,6 +35,7 @@ import {CardModule} from "primeng/card";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {PreferencesComponent} from "./components/preferences/preferences.component";
 import {HolidaysComponent} from "./components/holidays/holidays.component";
+import {TagModule} from "primeng/tag";
 
 
 function initializeKeycloak(keycloak: KeycloakService) {
@@ -98,6 +99,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     CardModule,
     ConfirmDialogModule,
     PreferencesComponent,
+    TagModule,
   ],
   providers: [
     MessageService,

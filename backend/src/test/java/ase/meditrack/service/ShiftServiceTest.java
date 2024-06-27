@@ -1,6 +1,7 @@
 package ase.meditrack.service;
 
 import ase.meditrack.config.KeycloakConfig;
+import ase.meditrack.exception.ResourceConflictException;
 import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.*;
 import ase.meditrack.util.DefaultTestCreator;
@@ -8,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,16 +19,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.xml.bind.ValidationException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Transactional
 @SpringBootTest
@@ -45,6 +52,8 @@ public class ShiftServiceTest {
     private ShiftService service;
     @Autowired
     private UserRepository userRepository;
+    @MockBean
+    private UserService userService;
     private User user;
     @Autowired
     private DefaultTestCreator defaultTestCreator;
@@ -127,6 +136,8 @@ public class ShiftServiceTest {
         shift.setUsers(userList3);
         repository.save(shift3);
 
+        when(userService.getPrincipalWithTeam(any(Principal.class))).thenReturn(user);
+
         Principal principal = new Principal() {
             @Override
             public String getName() {
@@ -160,12 +171,13 @@ public class ShiftServiceTest {
     }
 
     @Test
-    void createShift() {
+    void createShift_ExceedsMaxWeeklyWorkingHours() {
         Shift shift = new Shift();
         shift.setDate(LocalDate.now());
 
         List<User> users = new ArrayList<>();
         users.add(user);
+        user.getRole().setMaxWeeklyHours(0);
         shift.setUsers(users);
 
         ShiftType shiftType = new ShiftType();
@@ -178,6 +190,56 @@ public class ShiftServiceTest {
         shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftTypeRepository.save(shiftType);
         shift.setShiftType(shiftType);
+
+        when(userService.findById(user.getId())).thenReturn(user);
+
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        MonthlyWorkDetails monthlyWorkDetails = new MonthlyWorkDetails();
+        monthlyWorkDetails.setHoursActuallyWorked(3);
+        monthlyWorkDetails.setMonthlyPlan(monthlyPlan);
+        monthlyWorkDetails.setUser(user);
+        monthlyWorkDetails.setOvertime(3);
+        monthlyWorkDetails.setHoursShouldWork(120);
+        monthlyWorkDetails.setYear(2024);
+        monthlyWorkDetails.setMonth(6);
+        monthlyWorkDetailsRepository.save(monthlyWorkDetails);
+        List<MonthlyWorkDetails> monthlyWorkDetailsList = new ArrayList<>();
+        monthlyWorkDetailsList.add(monthlyWorkDetails);
+        monthlyPlan.setMonthlyWorkDetails(monthlyWorkDetailsList);
+        monthlyPlanRepository.save(monthlyPlan);
+
+        shift.setMonthlyPlan(monthlyPlan);
+        assertThrows(ResourceConflictException.class, () -> service.create(shift));
+    }
+
+    @Test
+    void createShift() {
+        Shift shift = new Shift();
+        shift.setDate(LocalDate.now());
+
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        user.getRole().setMaxWeeklyHours(90);
+        shift.setUsers(users);
+
+        ShiftType shiftType = new ShiftType();
+        shiftType.setName("Test ShiftType");
+        shiftType.setColor("#FF0000");
+        shiftType.setAbbreviation("TS");
+        shiftType.setStartTime(LocalTime.of(8, 0, 0, 0));
+        shiftType.setEndTime(LocalTime.of(16, 0, 0, 0));
+        shiftType.setBreakStartTime(LocalTime.of(12, 0, 0, 0));
+        shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
+        shiftTypeRepository.save(shiftType);
+        shift.setShiftType(shiftType);
+
+        when(userService.findById(user.getId())).thenReturn(user);
 
         MonthlyPlan monthlyPlan = new MonthlyPlan();
         monthlyPlan.setTeam(team);
@@ -221,7 +283,10 @@ public class ShiftServiceTest {
 
         List<User> users = new ArrayList<>();
         users.add(user);
+        user.getRole().setMaxWeeklyHours(90);
         updatedShift.setUsers(users);
+
+        when(userService.findById(user.getId())).thenReturn(user);
 
         ShiftType shiftType = new ShiftType();
         shiftType.setName("Test ShiftType");
@@ -233,6 +298,8 @@ public class ShiftServiceTest {
         shiftType.setBreakEndTime(LocalTime.of(12, 30, 0, 0));
         shiftTypeRepository.save(shiftType);
         updatedShift.setShiftType(shiftType);
+
+        when(userService.findById(user.getId())).thenReturn(user);
 
         MonthlyPlan monthlyPlan = new MonthlyPlan();
         monthlyPlan.setTeam(team);

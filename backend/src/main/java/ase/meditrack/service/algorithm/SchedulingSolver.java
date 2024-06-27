@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
 public final class SchedulingSolver {
-    private static final int MAX_RUNTIME_IN_SECONDS = 10;
+    private static final int MAX_RUNTIME_IN_SECONDS = 30;
 
     static {
         Loader.loadNativeLibraries();
@@ -279,81 +280,84 @@ public final class SchedulingSolver {
             }
         }
 
-        addStrictConstraints(model, input, shifts);
-    }
-
-    /**
-     * Adds constraints to ensure a better schedule - fewer solutions found if used.
-     * No single shifts' constraint.
-     * Stricter Overtime constraint.
-     *
-     * @param model  the model to add the constraints to
-     * @param input  the input object
-     * @param shifts the shift variables
-     */
-    private static void addStrictConstraints(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
-        // Add constraints to prevent shifts that do not have either a shift before or the day after
+        // 2 shifts - Employees should never work only 1 shift with the day before and after free
         for (int n = 0; n < input.employees().size(); n++) {
             for (int d = 0; d < input.numberOfDays(); d++) {
-                List<BoolVar> shiftsToday = Arrays.asList(shifts[n][d]).subList(0, input.shiftTypes().size());
+                List<LinearExpr> shiftsInWindow = new ArrayList<>();
+                List<LinearExpr> shiftsOnDay = new ArrayList<>();
+                for (int s = 0; s < input.shiftTypes().size(); s++) {
+                    if (d > 0) {
+                        shiftsInWindow.add(LinearExpr.term(shifts[n][d - 1][s], 1));
+                    } else if (!input.dayToEmployeeToShiftTypeMapping().isEmpty()
+                            && input.workedAtDayPrevMonth(input.dayToEmployeeToShiftTypeMapping().lastKey(), n)) {
+                        shiftsInWindow.add(LinearExpr.constant(1));
+                    }
+                    shiftsInWindow.add(LinearExpr.term(shifts[n][d][s], 1));
+                    if (d < input.numberOfDays() - 1) shiftsInWindow.add(LinearExpr.term(shifts[n][d + 1][s], 1));
 
-                // Create a variable to represent if there is any shift on the current day
-                BoolVar anyShiftToday = model.newBoolVar("anyShiftToday_" + n + "_" + d);
-                model.addGreaterOrEqual(LinearExpr.sum(shiftsToday.toArray(new BoolVar[0])), 1)
-                        .onlyEnforceIf(anyShiftToday);
-                model.addLessOrEqual(LinearExpr.sum(shiftsToday.toArray(new BoolVar[0])), 0)
-                        .onlyEnforceIf(anyShiftToday.not());
-
-                // Create variables to represent if there is any shift on the previous and next days
-                BoolVar anyShiftPrevDay = d > 0 ? model.newBoolVar("anyShiftPrevDay_" + n + "_" + (d - 1)) : null;
-                BoolVar anyShiftNextDay = d < input.numberOfDays() - 1
-                        ? model.newBoolVar("anyShiftNextDay_" + n + "_" + (d + 1)) : null;
-
-                if (anyShiftPrevDay != null) {
-                    List<BoolVar> shiftsPrevDay = Arrays.asList(shifts[n][d - 1]).subList(0, input.shiftTypes().size());
-                    model.addGreaterOrEqual(LinearExpr.sum(shiftsPrevDay.toArray(new BoolVar[0])), 1)
-                            .onlyEnforceIf(anyShiftPrevDay);
-                    model.addLessOrEqual(LinearExpr.sum(shiftsPrevDay.toArray(new BoolVar[0])), 0)
-                            .onlyEnforceIf(anyShiftPrevDay.not());
+                    shiftsOnDay.add(LinearExpr.term(shifts[n][d][s], 1));
                 }
+                LinearExpr numOfShiftsOnDay = LinearExpr.sum(shiftsOnDay.toArray(LinearExpr[]::new));
+                BoolVar worksOnDay = model.newBoolVar("2_shifts_" + n + "_" + d);
+                // an employee can either have 0 or 1 shift on a day
+                model.addEquality(worksOnDay, numOfShiftsOnDay);
 
-                if (anyShiftNextDay != null) {
-                    List<BoolVar> shiftsNextDay = Arrays.asList(shifts[n][d + 1]).subList(0, input.shiftTypes().size());
-                    model.addGreaterOrEqual(LinearExpr.sum(shiftsNextDay.toArray(new BoolVar[0])), 1)
-                            .onlyEnforceIf(anyShiftNextDay);
-                    model.addLessOrEqual(LinearExpr.sum(shiftsNextDay.toArray(new BoolVar[0])), 0)
-                            .onlyEnforceIf(anyShiftNextDay.not());
-                }
-
-                // if there is a shift today, there must be a shift on either the previous day or the next day
-                if (anyShiftPrevDay != null && anyShiftNextDay != null) {
-                    model.addBoolOr(new Literal[]{anyShiftPrevDay, anyShiftNextDay}).onlyEnforceIf(anyShiftToday);
-                } else if (anyShiftPrevDay != null) {
-                    model.addBoolOr(new Literal[]{anyShiftPrevDay}).onlyEnforceIf(anyShiftToday);
-                } else if (anyShiftNextDay != null) {
-                    model.addBoolOr(new Literal[]{anyShiftNextDay}).onlyEnforceIf(anyShiftToday);
-                }
+                LinearExpr numOfShiftsInWindow = LinearExpr.sum(shiftsInWindow.toArray(LinearExpr[]::new));
+                model.addGreaterOrEqual(numOfShiftsInWindow, 2).onlyEnforceIf(worksOnDay);
             }
         }
 
-        // Assuming input object provides optimal working hours per month for each employee
-        for (int n = 0; n < input.employees().size(); n++) {
-            // Calculate total working hours for the month
-            List<LinearExpr> monthlyHours = new ArrayList<>();
-            for (int d = 0; d < input.numberOfDays(); d++) {
-                for (int s = 0; s < input.shiftTypes().size(); s++) {
-                    LinearExpr shiftHours = LinearExpr.term(shifts[n][d][s], input.shiftTypes().get(s).duration());
-                    monthlyHours.add(shiftHours);
+        // 12h between shifts - Employees should always have 12 hours of between shifts
+        Map<Integer, Set<Integer>> notOkForNextShifts = new TreeMap<>();
+        for (int s1 = 0; s1 < input.shiftTypes().size(); s1++) {
+            for (int s2 = 0; s2 < input.shiftTypes().size(); s2++) {
+                ShiftTypeInfo shiftTypeInfo1 = input.shiftTypes().get(s1);
+                ShiftTypeInfo shiftTypeInfo2 = input.shiftTypes().get(s2);
+                int slot1Start = timeToSlotIndex(shiftTypeInfo1.startTime());
+                int slot1End = timeToSlotIndex(shiftTypeInfo1.endTime());
+                int slot2Start = timeToSlotIndex(shiftTypeInfo2.startTime());
+
+                int slotsBetween;
+                if (slot1Start < slot1End) {
+                    // normal case, no carry over to next day -> calc time to next day + starttime
+                    slotsBetween = (48 - slot1End + slot2Start);
+                } else if (slot1End >= slot2Start) {
+                    // endtime of prev shift is after starttime of current shift
+                    slotsBetween = -Integer.MAX_VALUE;
+                } else {
+                    // endtime of prev shift is before starttime of current shift
+                    slotsBetween = slot2Start - slot1End;
+                }
+                if (slotsBetween < 24) {
+                    int finalS = s2;
+                    notOkForNextShifts.compute(s1, (key, value) -> {
+                        if (value == null) value = new TreeSet<>();
+                        value.add(finalS);
+                        return value;
+                    });
                 }
             }
-            LinearExpr totalMonthlyHours = LinearExpr.sum(monthlyHours.toArray(new LinearExpr[0]));
+        }
+        for (int n = 0; n < input.employees().size(); n++) {
+            // Handle carry over from last month.
+            if (!input.dayToEmployeeToShiftTypeMapping().isEmpty()
+                    && input.workedAtDayPrevMonth(input.dayToEmployeeToShiftTypeMapping().lastKey(), n)) {
+                Integer shift = input.dayToEmployeeToShiftTypeMapping().lastEntry().getValue().get(n);
+                for (Integer s1 : notOkForNextShifts.keySet()) {
+                    if (shift.intValue() != s1) continue;
+                    for (Integer s2 : notOkForNextShifts.get(s1)) {
+                        model.addEquality(shifts[n][0][s2], 0);
+                    }
+                }
+            }
 
-            // Get optimal working hours for the employee
-            int optimalWorkingHours = input.employees().get(n).optimalWorkingHoursPerMonth();
-
-            // Add constraints to ensure total working hours are within 8 hours of the optimal working hours
-            model.addGreaterOrEqual(totalMonthlyHours, optimalWorkingHours - 7);
-            model.addLessOrEqual(totalMonthlyHours, optimalWorkingHours + 7);
+            for (int d = 1; d < input.numberOfDays(); d++) {
+                for (Integer s1 : notOkForNextShifts.keySet()) {
+                    for (Integer s2 : notOkForNextShifts.get(s1)) {
+                        model.addEquality(shifts[n][d][s2], 0).onlyEnforceIf(shifts[n][d - 1][s1]);
+                    }
+                }
+            }
         }
     }
 
@@ -390,7 +394,7 @@ public final class SchedulingSolver {
                 for (int slot = startIndex; slot - startIndex <= shiftTypeInfo.duration() * 2; slot++) {
                     if (slot < timeSlots.length) {
                         timeSlots[slot] = LinearExpr.sum(
-                                new LinearArgument[]{timeSlots[slot], numOfEmployeesWorkingShift}
+                                new LinearArgument[] {timeSlots[slot], numOfEmployeesWorkingShift}
                         );
                         continue;
                     }
@@ -402,7 +406,7 @@ public final class SchedulingSolver {
                     LinearExpr[] timeSlotsNextDay = timeSlotsPerDay.get(d + 1);
                     int slotNextDay = slot % timeSlots.length;
                     timeSlotsNextDay[slotNextDay] = LinearExpr.sum(
-                            new LinearArgument[]{timeSlotsNextDay[slotNextDay], numOfEmployeesWorkingShift}
+                            new LinearArgument[] {timeSlotsNextDay[slotNextDay], numOfEmployeesWorkingShift}
                     );
                     break;
                 }
@@ -443,10 +447,14 @@ public final class SchedulingSolver {
      */
     private static int timeToSlotIndex(LocalTime time) {
         if (!time.isBefore(LocalTime.of(8, 0))) {
-            return time.minusHours(8).getHour() * 2;
+            int slots = time.minusHours(8).getHour() * 2;
+            if (time.getMinute() >= 30) slots++;
+            return slots;
         }
         // Time 0:00 - 8:00 loops around and is at the end
-        return 31 + time.getHour() * 2;
+        int slots = 31 + time.getHour() * 2;
+        if (time.getMinute() >= 30) slots++;
+        return slots;
     }
 
     private static void addOptimization(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {
@@ -473,11 +481,11 @@ public final class SchedulingSolver {
             IntVar deviation = model.newIntVar(0, Integer.MAX_VALUE, "deviation_workingHours_" + n);
 
             // Add constraints to link the deviation with the actual and optimal hours
-            //   model.addAbsEquality(deviation,
-            //            LinearExpr.sum(new LinearArgument[] {totalMonthlyHours, LinearExpr.term(optimalHours, -10)}));
+            model.addAbsEquality(deviation,
+                    LinearExpr.sum(new LinearArgument[] {totalMonthlyHours, LinearExpr.term(optimalHours, -1)}));
 
             // Add the deviation to the objective
-            // objective.add(deviation);
+            objective.add(deviation);
         }
 
 
@@ -500,11 +508,11 @@ public final class SchedulingSolver {
                 // convert formula:
                 //   ´hoursPerMonth / daysPerMonth = hoursPerWeek / daysPerWeek´ ->
                 //   ´hoursPerMonth * daysPerWeek = hoursPerWeek * daysPerMonth´
-                model.addAbsEquality(deviation, LinearExpr.sum(new LinearArgument[]{
+                model.addAbsEquality(deviation, LinearExpr.sum(new LinearArgument[] {
                         LinearExpr.term(totalMonthlyHours, daysPerWeek),
                         LinearExpr.term(totalWeeklyHours, -input.numberOfDays())
                 }));
-                objective.add(LinearExpr.term(deviation, 5));
+                objective.add(deviation);
             }
         }
 
@@ -528,7 +536,7 @@ public final class SchedulingSolver {
             LinearExpr useToCalcAverage = LinearExpr.term(avgShiftCount, input.shiftTypes().size());
             model.addGreaterOrEqual(totalShifts, useToCalcAverage);
             model.addLessOrEqual(totalShifts, LinearExpr.sum(
-                    new LinearArgument[]{useToCalcAverage, LinearExpr.constant(input.shiftTypes().size())}));
+                    new LinearArgument[] {useToCalcAverage, LinearExpr.constant(input.shiftTypes().size())}));
 
             int finalN = n;
             LinearExpr[] deviationFromShift = IntStream.range(0, input.shiftTypes().size())
@@ -538,10 +546,10 @@ public final class SchedulingSolver {
                                         "deviation_sameShift_" + finalN + "_" + s);
                         model.addAbsEquality(deviationFromAverage,
                                 LinearExpr.sum(
-                                        new LinearArgument[]{shiftTypeCounts[s],
+                                        new LinearArgument[] {shiftTypeCounts[s],
                                                 LinearExpr.term(avgShiftCount, -1)}));
                         return LinearExpr.sum(
-                                new LinearArgument[]{totalShifts, LinearExpr.term(deviationFromAverage, -1)});
+                                new LinearArgument[] {totalShifts, LinearExpr.term(deviationFromAverage, -1)});
                     })
                     .toArray(LinearExpr[]::new);
 
@@ -554,7 +562,7 @@ public final class SchedulingSolver {
             for (Integer offDay : input.employees().get(n).offDays()) {
                 for (int s = 0; s < input.shiftTypes().size(); s++) {
                     // high coeff means high importance for this optimization
-                    workingOnOffDays.add(LinearExpr.term(shifts[n][offDay][s], 10));
+                    workingOnOffDays.add(LinearExpr.term(shifts[n][offDay][s], 100));
                 }
             }
             objective.addSum(workingOnOffDays.toArray(LinearExpr[]::new));
@@ -570,7 +578,7 @@ public final class SchedulingSolver {
             List<LinearExpr> worksNonPreferred = new ArrayList<>();
             for (int s : nonPreferredShifts) {
                 for (int d = 0; d < input.numberOfDays(); d++) {
-                    worksNonPreferred.add(LinearExpr.term(shifts[n][d][s], 10));
+                    worksNonPreferred.add(LinearExpr.term(shifts[n][d][s], 5));
                 }
             }
             // minimize non-preferred shifts

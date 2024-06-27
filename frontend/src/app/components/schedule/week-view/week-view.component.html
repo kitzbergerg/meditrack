@@ -113,8 +113,7 @@
       </span>
 
 
-      <div *ngIf="!loading">
-        {{currentSchedule?.published}}
+      <div *ngIf="!loading && currentSchedule?.published">
         <p-button
           icon="pi pi-file-pdf"
           [outlined]="true"
@@ -172,12 +171,12 @@
       </td>
       <td *ngFor="let employeeShift of employee.shifts; index as i; trackBy: trackByShift"
           [ngStyle]="{
-  'background-color': employeeShift?.shiftType?.color || ( days[i] && days[i].dayName.includes('S') && !loading ? 'lightgray' : '#fff'),
+  'background-color':employeeShift?.isSick ? '#db0a0a' : (employeeShift?.shiftType?.color || ( days[i] && days[i].dayName.includes('S') && !loading ? 'lightgray' : '#fff')),
   'color': 'white',
   'opacity': employeeShift?.isSick ? '0.8' : '1',
 }"
           [ngClass]="{'cursor-pointer': editing}"
-          (click)="editing && op.toggle($event); editing && employeeShift ? this.setShiftType(employeeShift.shiftType) : this.setShiftType(null)">
+          (click)="editing && (onCellClick($event, employee, i, employeeShift))">
 
         <ng-container *ngIf="employeeShift">
           <div>
@@ -192,63 +191,62 @@
             </span>
           </div>
         </ng-container>
-        <p-overlayPanel #op>
-          <p-dropdown *ngIf="editing"
-                      [(ngModel)]="this.currentShiftType"
-                      [options]="Object.values(shiftTypes)"
-                      optionLabel="name"
-                      [showClear]="true"
-                      placeholder="Select a Shift Type"
-          >
-          </p-dropdown>
-          <div class="grid justify-content-end mt-3">
-            <div class="flex justify-content-end flex-wrap" *ngIf="editing">
-              <div *ngIf="employeeShift?.shiftType; else newShift">
-                <p-button
-                  class="col"
-                  [outlined]="true"
-                  type="button"
-                  (click)="changeShift(employee, i, this.days[i], false,'delete'); op.toggle($event)"
-                  label="Delete shift"
-                  severity="danger">
-                </p-button>
-                <p-button *ngIf="!employeeShift?.isSick"
-                          class="col"
-                          [outlined]="true"
-                          type="button"
-                          (click)="changeShift(employee, i, this.days[i], true, 'update'); sickLeave(employeeShift, this.days[i]); op.toggle($event)"
-                          label="Sick Leave"
-                          severity="warning">
-                </p-button>
-                <p-button *ngIf="employeeShift?.isSick"
-                          class="col"
-                          [outlined]="true"
-                          type="button"
-                          (click)="changeShift(employee, i, this.days[i], false, 'update'); op.toggle($event)"
-                          label="Cancel Sick Leave"
-                          severity="warning">
-                </p-button>
-                <p-button
-                  class="col"
-                  [outlined]="true"
-                  type="button"
-                  (click)="changeShift(employee, i, this.days[i], false, 'update'); op.toggle($event)"
-                  label="Update shift">
-                </p-button>
-              </div>
-              <ng-template #newShift>
-                <p-button
-                  class="col"
-                  [outlined]="true"
-                  type="button"
-                  (click)="changeShift(employee, i, this.days[i], false, 'create'); op.toggle($event)"
-                  label="Create shift">
-                </p-button>
-              </ng-template>
-            </div>
-          </div>
-        </p-overlayPanel>
       </td>
     </tr>
   </ng-template>
 </p-table>
+<p-overlayPanel #op [dismissable]="true" [hideTransitionOptions]="'0s'" [showCloseIcon]="true">
+  <p-dropdown
+    [(ngModel)]="this.currentShiftType"
+    [options]="Object.values(shiftTypes)"
+    optionLabel="name"
+    [showClear]="true"
+    placeholder="Select a Shift Type"
+  ></p-dropdown>
+  <div class="grid justify-content-end mt-3">
+    <div class="flex justify-content-end flex-wrap" *ngIf="editing">
+      <div *ngIf="selectedEmployeeShift?.shiftType; else newShift">
+        <p-button
+          class="col"
+          [outlined]="true"
+          type="button"
+          (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'delete'); op.hide()"
+          label="Delete shift"
+          severity="danger"
+        ></p-button>
+        <p-button *ngIf="!selectedEmployeeShift?.isSick"
+                  class="col"
+                  [outlined]="true"
+                  type="button"
+                  (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, true, 'update'); sickLeave(selectedEmployeeShift, selectedDay); op.hide()"
+                  label="Sick Leave"
+                  severity="warning"
+        ></p-button>
+        <p-button *ngIf="selectedEmployeeShift?.isSick"
+                  class="col"
+                  [outlined]="true"
+                  type="button"
+                  (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'update'); op.hide()"
+                  label="Cancel Sick Leave"
+                  severity="warning"
+        ></p-button>
+        <p-button
+          class="col"
+          [outlined]="true"
+          type="button"
+          (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'update'); op.hide()"
+          label="Update shift"
+        ></p-button>
+      </div>
+      <ng-template #newShift>
+        <p-button
+          class="col"
+          [outlined]="true"
+          type="button"
+          (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'create'); op.hide()"
+          label="Create shift"
+        ></p-button>
+      </ng-template>
+    </div>
+  </div>
+</p-overlayPanel>

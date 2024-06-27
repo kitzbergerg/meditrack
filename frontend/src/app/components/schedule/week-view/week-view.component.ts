@@ -3,7 +3,7 @@ import {
   EventEmitter,
   Input,
   OnInit,
-  Output,
+  Output, ViewChild,
 } from '@angular/core';
 import {Day, RangeOption, ScheduleWithId, ShiftWithIds, UserWithShifts} from "../../../interfaces/schedule.models";
 import {DatePipe, JsonPipe, NgClass, NgForOf, NgIf, NgStyle} from "@angular/common";
@@ -15,7 +15,7 @@ import {DropdownModule} from "primeng/dropdown";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
-import {OverlayPanelModule} from "primeng/overlaypanel";
+import {OverlayPanel, OverlayPanelModule} from "primeng/overlaypanel";
 import {ShiftType} from "../../../interfaces/shiftType";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
@@ -88,6 +88,12 @@ export class WeekViewComponent implements OnInit {
     {label: 'Month', value: 'month'}
   ];
 
+
+  @ViewChild('op') overlayPanel: OverlayPanel | undefined;
+  selectedEmployee: any;
+  selectedEmployeeShift: any;
+  selectedIndex = 0;
+  selectedDay: any;
 
   constructor(private messageService: MessageService,
               private confirmationService: ConfirmationService,
@@ -164,6 +170,27 @@ export class WeekViewComponent implements OnInit {
       this.currentShiftType = null;
     }
     this.currentShiftType = type;
+  }
+
+  onCellClick(event: MouseEvent, employee: any, index: number, employeeShift: any) {
+    this.selectedEmployee = employee;
+    this.selectedEmployeeShift = employeeShift;
+    this.selectedIndex = index;
+    this.selectedDay = this.days[index];
+
+    const target = event.currentTarget as HTMLElement;
+
+    if (this.overlayPanel?.overlayVisible) {
+      this.overlayPanel.hide();
+      setTimeout(() => {
+        if (this.overlayPanel)
+        this.overlayPanel.show(event, target);
+      }, 10); // Minimum reliable timeout
+    } else if (this.overlayPanel){
+      this.overlayPanel.show(event, target);
+    }
+
+    this.setShiftType(employeeShift ? employeeShift.shiftType : null);
   }
 
   changeShift(user: UserWithShifts, i: number, day: Day, isSick: boolean, operation: string): void {
