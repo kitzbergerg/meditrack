@@ -18,14 +18,6 @@ export class LoginComponent {
     this.authorizationService.login().then();
   }
 
-  ngOnInit(): void {
-    if (this.authorizationService.isLoggedIn()) {
-      console.log(this.authorizationService.parsedToken().sub);
-    }else{
-      console.log("not logged in");
-    }
-  }
-
   isLoggedIn() {
     return this.authorizationService.isLoggedIn()
   }

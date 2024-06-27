@@ -104,18 +104,25 @@
         </p-dropdown>
       </div>
 
-      <div>
-        <p-button
-          (onClick)="generatePdf(days[0])">
-          Generate pdf
-        </p-button>
-      </div>
+
 
       <span class="block mt-2 md:mt-0 p-input-icon-left">
                     <i class="pi pi-search"></i>
                     <input pInputText (input)="onGlobalFilter(dt, $event)" type="text" placeholder="Search..."
                            class="w-full sm:w-auto"/>
-                </span>
+      </span>
+
+
+      <div *ngIf="!loading">
+        {{currentSchedule?.published}}
+        <p-button
+          icon="pi pi-file-pdf"
+          [outlined]="true"
+          severity="help"
+          (onClick)="generatePdf(days[0])"
+          label="Get PDF">
+        </p-button>
+      </div>
     </div>
   </ng-template>
   <ng-template pTemplate="header">

@@ -101,7 +101,6 @@ export class RolesComponent {
       this.rolesService.deleteRole(this.role.id)
         .subscribe({
           next: (response) => {
-          console.log('Role deleted successfully:', response);
           this.messageService.add({severity:'success', summary: 'Successfully Deleted Role ' + this.role.name});
           this.loadRoles();
           this.resetForm();
@@ -118,8 +117,8 @@ export class RolesComponent {
   getRole(id: number) {
     this.rolesService.getRole(id)
       .subscribe((response: Role) => {
-        console.log('Role retrieved successfully:', response);
         this.role = response;
+        this.selectedRole = response;
         this.loadRoles();
       }, error => {
         console.error('Error retrieving Role:', error);
@@ -139,12 +138,10 @@ export class RolesComponent {
       this.rolesService.createRole(newRole)
         .subscribe({
           next: (response) => {
-            console.log('Role created successfully:', response);
             this.messageService.add({severity:'success', summary: 'Successfully Created Role ' + newRole.name});
             this.loadRoles();
             this.resetForm();
           }, error: (error) => {
-            console.error('Error creating role:', error);
             if (error.error === "data integrity violation") {
               this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
             } else {
@@ -163,12 +160,10 @@ export class RolesComponent {
     if (this.valid) {
       this.rolesService.updateRole(this.role)
         .subscribe(response => {
-          console.log('Role updated successfully:', response);
           this.messageService.add({severity:'success', summary: 'Successfully Updated Role ' + this.role.name});
           this.selectRole(this.role);
           this.resetForm();
         }, error => {
-          console.error('Error updating role:', error);
           if (error.error === "data integrity violation") {
             this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
           } else {
