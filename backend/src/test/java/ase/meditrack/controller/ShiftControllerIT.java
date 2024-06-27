@@ -7,6 +7,7 @@ import ase.meditrack.model.entity.*;
 import ase.meditrack.repository.*;
 import ase.meditrack.service.MailService;
 import ase.meditrack.service.TeamService;
+import ase.meditrack.service.UserService;
 import ase.meditrack.util.DefaultTestCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -32,6 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -48,6 +52,8 @@ class ShiftControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -183,6 +189,9 @@ class ShiftControllerIT {
         shift.setUsers(users);
         shiftRepository.save(shift);
 
+        when(userService.getPrincipalWithTeam(any(Principal.class))).thenReturn(user);
+        when(userService.findById(any())).thenReturn(user);
+
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift/month"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
@@ -246,6 +255,9 @@ class ShiftControllerIT {
                 users,
                 null,
                 null);
+
+        when(userService.getPrincipalWithTeam(any(Principal.class))).thenReturn(user);
+        when(userService.findById(any())).thenReturn(user);
 
         String response = mockMvc.perform(
                     MockMvcRequestBuilders.post("/api/shift")
@@ -329,6 +341,9 @@ class ShiftControllerIT {
                 userIds,
                 null,
                 null);
+
+        when(userService.getPrincipalWithTeam(any(Principal.class))).thenReturn(user);
+        when(userService.findById(any())).thenReturn(user);
 
         String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/shift")
                         .contentType("application/json")
