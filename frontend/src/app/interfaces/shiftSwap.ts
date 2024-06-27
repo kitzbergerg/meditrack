@@ -29,6 +29,7 @@ export enum ShiftSwapStatus{
 
 export interface ShiftSwapShift {
   id: string | null;
+  isSick: boolean;
   date: Date;
   shiftType: ShiftType;
   users: User[];

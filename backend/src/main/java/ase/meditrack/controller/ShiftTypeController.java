@@ -3,6 +3,7 @@ package ase.meditrack.controller;
 import ase.meditrack.model.CreateValidator;
 import ase.meditrack.model.UpdateValidator;
 import ase.meditrack.model.dto.ShiftTypeDto;
+import ase.meditrack.model.dto.SimpleShiftTypeDto;
 import ase.meditrack.model.mapper.ShiftTypeMapper;
 import ase.meditrack.service.ShiftTypeService;
 import lombok.extern.slf4j.Slf4j;
@@ -46,9 +47,9 @@ public class ShiftTypeController {
 
     @GetMapping("/team")
     @PreAuthorize("hasAnyAuthority('SCOPE_admin', 'SCOPE_dm', 'SCOPE_employee')")
-    public List<ShiftTypeDto> findAllByTeam(Principal principal) {
+    public List<SimpleShiftTypeDto> findAllByTeam(Principal principal) {
         log.info("Fetching shift types from team");
-        return mapper.toDtoList(service.findAllByTeam(principal));
+        return mapper.toSimpleDtoList(service.findAllByTeam(principal));
     }
 
     @GetMapping("{id}")

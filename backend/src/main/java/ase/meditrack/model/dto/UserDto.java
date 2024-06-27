@@ -26,7 +26,6 @@ public record UserDto(
         @NotNull(groups = CreateValidator.class) SimpleRoleDto role,
         @NotNull(groups = CreateValidator.class) @Range(min = 0, max = 100) Float workingHoursPercentage,
         @Null(groups = CreateValidator.class) Integer currentOverTime,
-        List<String> specialSkills,
         UUID team,
         List<UUID> holidays,
         UUID preferences,

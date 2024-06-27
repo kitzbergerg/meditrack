@@ -28,15 +28,17 @@ public class MonthlyPlanService {
     private final MonthlyPlanRepository repository;
     private final UserService userService;
     private final RealmResource meditrackRealm;
+    private final MailService mailService;
 
     public MonthlyPlanService(MonthlyPlanRepository repository, UserService userService, RealmResource meditrackRealm,
-                              TeamRepository teamRepository,
+                              TeamRepository teamRepository, MailService mailService,
                               ShiftRepository shiftRepository) {
         this.repository = repository;
         this.userService = userService;
         this.meditrackRealm = meditrackRealm;
         this.teamRepository = teamRepository;
         this.shiftRepository = shiftRepository;
+        this.mailService = mailService;
     }
 
     /**
@@ -121,9 +123,10 @@ public class MonthlyPlanService {
      *
      * @param principal that publishes the plan
      * @param id        of the monthly plan to publish
+     * @param shouldSendMail if a mail should be sent to the users of the team
      */
     @Transactional
-    public void publish(UUID id, Principal principal) {
+    public void publish(UUID id, Principal principal, Boolean shouldSendMail) {
         UUID userId = UUID.fromString(principal.getName());
         MonthlyPlan plan = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("MonthlyPlan not found with id " + id));
@@ -132,7 +135,21 @@ public class MonthlyPlanService {
                 .filter(u -> u.getId().equals(userId))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Can not publish plan of other team!"));
-        repository.save(plan);
+
+        plan = repository.save(plan);
+
+        if (shouldSendMail != null && shouldSendMail) {
+            MonthlyPlan finalPlan = plan;
+            new Thread(() -> sendMailToUsers(principal, finalPlan)).start();
+        }
+    }
+
+    private void sendMailToUsers(Principal principal, MonthlyPlan plan) {
+        List<String> mails = userService.findByTeam(principal).stream()
+                .map(u -> u.getUserRepresentation().getEmail())
+                .toList();
+        mailService.sendSimpleMessages(mails, "Monthly Plan published!",
+                generateMonthlyPlanPublishedMessage(plan));
     }
 
     /**
@@ -197,5 +214,13 @@ public class MonthlyPlanService {
         Team team = user.getTeam();
         MonthlyPlan plan = repository.findMonthlyPlanByTeamAndMonthAndYear(team, month.getValue(), year.getValue());
         return plan == null || plan.getPublished();
+    }
+
+    private String generateMonthlyPlanPublishedMessage(MonthlyPlan plan) {
+        return "The monthly plan for " + plan.getMonth() + "/" + plan.getYear() + " has been published!\n\n"
+                + "You can now log in to MediTrack and see your schedule for the month.\n\n"
+                + "If you have any questions or need help, please contact your team leader.\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
     }
 }

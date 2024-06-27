@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {ShiftSwap, ShiftSwapShift, SimpleShiftSwap} from "../interfaces/shiftSwap";
-import {Shift} from "../interfaces/schedule.models";
+import {ShiftSwap, ShiftSwapShift} from "../interfaces/shiftSwap";
 
 @Injectable({
   providedIn: 'root'
@@ -35,11 +34,11 @@ export class ShiftSwapService {
   }
 
   createShiftSwap(shiftSwap: ShiftSwap): Observable<ShiftSwap> {
-    return this.http.post<ShiftSwap>(`${this.apiUrl}`, shiftSwap);
+    return this.http.post<ShiftSwap>(`${this.apiUrl}?shouldSendMail=true`, shiftSwap);
   }
 
   updateShiftSwap(shiftSwap: ShiftSwap): Observable<ShiftSwap> {
-    return this.http.put<ShiftSwap>(`${this.apiUrl}`, shiftSwap);
+    return this.http.put<ShiftSwap>(`${this.apiUrl}?shouldSendMail=true`, shiftSwap);
   }
 
   deleteShiftSwap(id: string) {

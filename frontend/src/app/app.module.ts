@@ -12,7 +12,6 @@ import {StyleClassModule} from "primeng/styleclass";
 import {AccountSettingsComponent} from './components/account-settings/account-settings.component';
 import {EmployeesComponent} from './components/employees/employees.component';
 import {RolesComponent} from './components/roles/roles.component';
-import {DashboardComponent} from "./components/dashboard/dashboard.component";
 import {RippleModule} from "primeng/ripple";
 import {AppLayoutModule} from "./layout/app.layout.module";
 import {ToolbarModule} from "primeng/toolbar";
@@ -34,6 +33,7 @@ import {ShiftSwapComponent} from "./components/shift-swap/shift-swap.component";
 import {RulesComponent} from "./components/rules/rules.component";
 import {CardModule} from "primeng/card";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {PreferencesComponent} from "./components/preferences/preferences.component";
 import {HolidaysComponent} from "./components/holidays/holidays.component";
 
 
@@ -66,7 +66,6 @@ function initializeKeycloak(keycloak: KeycloakService) {
     EmployeesComponent,
     RolesComponent,
     RulesComponent,
-    DashboardComponent,
     ShiftTypesComponent,
     TeamComponent,
     ShiftSwapComponent,
@@ -98,6 +97,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
     InputNumberModule,
     CardModule,
     ConfirmDialogModule,
+    PreferencesComponent,
   ],
   providers: [
     MessageService,

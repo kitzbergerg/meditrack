@@ -2,9 +2,7 @@ package ase.meditrack.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -47,28 +45,25 @@ public class User {
     @Column(nullable = false)
     private Integer currentOverTime;
 
-    @ElementCollection
-    @CollectionTable(name = "special_skills", joinColumns = @JoinColumn(name = "users_id"))
-    private List<String> specialSkills;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Holiday> holidays;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)
     @PrimaryKeyJoinColumn
     private Preferences preferences;
 
-    @OneToMany(mappedBy = "swapRequestingUser")
+    @OneToMany(mappedBy = "swapRequestingUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ShiftSwap> requestedShiftSwaps;
 
-    @OneToMany(mappedBy = "swapSuggestingUser")
+    @OneToMany(mappedBy = "swapSuggestingUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ShiftSwap> suggestedShiftSwaps;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
     private List<Shift> shifts;
 
     @ManyToMany
@@ -91,15 +86,9 @@ public class User {
     @JsonInclude
     private UserRepresentation userRepresentation;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<MonthlyWorkDetails> monthlyWorkDetails;
 
-    public void addSpecialSkills(String skill) {
-        if (specialSkills == null) {
-            specialSkills = new ArrayList<>();
-        }
-        specialSkills.add(skill);
-    }
 
     public void addCanWorkShiftTypes(ShiftType shiftType) {
         if (canWorkShiftTypes == null) {

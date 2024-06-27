@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -85,9 +86,10 @@ public class ShiftSwapController {
     @PreAuthorize("hasAnyAuthority('SCOPE_dm', 'SCOPE_employee') && "
             + "@shiftSwapService.isShiftFromUser(#principal, @shiftSwapMapperImpl.fromDto(#dto))")
     @ResponseStatus(HttpStatus.CREATED)
-    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
+    public ShiftSwapDto create(@Validated(CreateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal,
+                               @RequestParam(required = false) Boolean shouldSendMail) {
         log.info("Creating shift-swap {}", dto);
-        return mapper.toDto(service.create(mapper.fromDto(dto)));
+        return mapper.toDto(service.create(mapper.fromDto(dto), shouldSendMail));
     }
 
     @PutMapping
@@ -95,9 +97,10 @@ public class ShiftSwapController {
             + "(hasAnyAuthority('SCOPE_employee') && "
             + "@shiftSwapService.isShiftSwapFromSuggestedUser(#principal, #dto))")
     @ResponseStatus(HttpStatus.OK)
-    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal) {
+    public ShiftSwapDto update(@Validated(UpdateValidator.class) @RequestBody ShiftSwapDto dto, Principal principal,
+                               @RequestParam(required = false) Boolean shouldSendMail) {
         log.info("Updating shift-swap {}", dto.id());
-        return mapper.toDto(service.update(mapper.fromDto(dto)));
+        return mapper.toDto(service.update(mapper.fromDto(dto), shouldSendMail));
     }
 
 

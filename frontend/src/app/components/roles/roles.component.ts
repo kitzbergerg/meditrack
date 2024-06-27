@@ -17,6 +17,7 @@ export class RolesComponent {
   loading = true;
   teamComponentHeader = "roles";
   roles: Role[] = [];
+  selectedRole: Role | undefined;
   role: Role = { id: 0, name: '', color: '#ff0000', abbreviation: ''};
   userId = '';
 
@@ -39,7 +40,6 @@ export class RolesComponent {
     roles: [],
     workingHoursPercentage: 0,
     currentOverTime: 0,
-    specialSkills: [],
     holidays: [],
     shifts: [],
     role: {name: "", color: "", abbreviation: ""},
@@ -101,13 +101,15 @@ export class RolesComponent {
       this.rolesService.deleteRole(this.role.id)
         .subscribe({
           next: (response) => {
-          console.log('Role deleted successfully:', response);
           this.messageService.add({severity:'success', summary: 'Successfully Deleted Role ' + this.role.name});
           this.loadRoles();
           this.resetForm();
         }, error: (error) => {
-          console.error('Error deleting role:', error);
-          this.messageService.add({severity:'error', summary: 'Deleting Role Failed'});
+            let message = "";
+            if (error.status == 422) {
+              message = ", already assigned to users!";
+            }
+          this.messageService.add({severity:'error', summary: 'Deleting Role Failed' + message});
         }});
     }
   }
@@ -115,8 +117,8 @@ export class RolesComponent {
   getRole(id: number) {
     this.rolesService.getRole(id)
       .subscribe((response: Role) => {
-        console.log('Role retrieved successfully:', response);
         this.role = response;
+        this.selectedRole = response;
         this.loadRoles();
       }, error => {
         console.error('Error retrieving Role:', error);
@@ -130,17 +132,16 @@ export class RolesComponent {
       const newRole: Role = {
         name: this.role.name,
         color: this.role.color,
-        abbreviation: this.role.abbreviation
+        abbreviation: this.role.abbreviation,
+        team: this.currentUser.team
       }
       this.rolesService.createRole(newRole)
         .subscribe({
           next: (response) => {
-            console.log('Role created successfully:', response);
             this.messageService.add({severity:'success', summary: 'Successfully Created Role ' + newRole.name});
             this.loadRoles();
             this.resetForm();
           }, error: (error) => {
-            console.error('Error creating role:', error);
             if (error.error === "data integrity violation") {
               this.messageService.add({severity:'error', summary: 'Creating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
             } else {
@@ -159,12 +160,10 @@ export class RolesComponent {
     if (this.valid) {
       this.rolesService.updateRole(this.role)
         .subscribe(response => {
-          console.log('Role updated successfully:', response);
           this.messageService.add({severity:'success', summary: 'Successfully Updated Role ' + this.role.name});
           this.selectRole(this.role);
           this.resetForm();
         }, error => {
-          console.error('Error updating role:', error);
           if (error.error === "data integrity violation") {
             this.messageService.add({severity:'error', summary: 'Updating Role Failed', detail: "Name, Color and Abbreviation have to be unique."});
           } else {
@@ -181,7 +180,10 @@ export class RolesComponent {
     this.formMode = 'create';
   }
 
-  selectRole(role: Role) {
+  selectRole(role: Role | undefined) {
+    if (role == undefined) {
+      return;
+    }
     if (role.id != undefined) {
       this.getRole(role.id);
       this.formMode = 'details';
@@ -228,6 +230,7 @@ export class RolesComponent {
   }
 
   resetForm() {
+    this.selectedRole = undefined
     this.submitted = false;
     this.role = {id: 0, name: '', color: '#ff0000', abbreviation: '' };
   }

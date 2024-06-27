@@ -22,6 +22,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(NoSolutionException.class)
+    private ResponseEntity<String> handleNotFoundException(NoSolutionException ex) {
+        log.info("I_AM_A_TEAPOT: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(ex.getMessage());
+    }
+
     @ExceptionHandler(ResourceConflictException.class)
     private ResponseEntity<String> handleResourceConflictException(ResourceConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());

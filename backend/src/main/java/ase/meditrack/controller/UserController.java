@@ -78,7 +78,7 @@ public class UserController {
     @PreAuthorize("hasAnyAuthority('SCOPE_admin') || (hasAnyAuthority('SCOPE_dm') && "
             + "@userService.isCorrectUserSystemRole(#dto.roles(), #principal)  && "
             + "@userService.isSameTeam(#principal, #dto))")
-    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto,
+    public UserDto create(@Validated(CreateValidator.class) @RequestBody UserDto dto, Principal principal,
                           @RequestParam(required = false) Boolean shouldSendInviteMail) {
         log.info("Creating user {}", dto.username());
         return mapper.toDto(service.create(mapper.fromDto(dto), shouldSendInviteMail));

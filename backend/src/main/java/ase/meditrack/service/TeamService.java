@@ -103,17 +103,24 @@ public class TeamService {
      *
      * @param id the id of the team to delete
      */
+    @Transactional
     public void delete(UUID id) {
-        repository.deleteById(id);
+        Team team = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Team not found"));
+
+        // Explicitly delete users first if necessary
+        userRepository.deleteAll(team.getUsers());
+
+        repository.delete(team);
     }
 
-    /**
-     * Checks if a user is in the team.
-     *
-     * @param userId the user to check for
-     * @param teamId the team to check
-     * @return true if the user is in the team, false otherwise
-     */
+        /**
+         * Checks if a user is in the team.
+         *
+         * @param userId the user to check for
+         * @param teamId the team to check
+         * @return true if the user is in the team, false otherwise
+         */
     public boolean isInTeam(UUID userId, UUID teamId) {
         List<User> users = repository.findById(teamId).get().getUsers();
         User user = userRepository.findById(userId).get();

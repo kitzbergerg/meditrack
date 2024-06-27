@@ -110,7 +110,6 @@ public class KeycloakConfig {
                     null,
                     null,
                     null,
-                    null,
                     null
             );
             return mapper.fromDto(user);

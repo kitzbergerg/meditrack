@@ -33,6 +33,7 @@ public interface ShiftMapper {
     @Mapping(target = "date", source = "shift.date")
     @Mapping(target = "shiftType", source = "shift.shiftType")
     @Mapping(target = "users", source = "shift.users")
+    @Mapping(target = "isSick", source = "shift.isSick")
     SimpleShiftDto toSimpleShiftDto(Shift shift);
 
     @IterableMapping(qualifiedByName = "toSimpleShiftDto")

@@ -99,7 +99,6 @@ class MonthlyPlanControllerIT {
                 null,
                 null,
                 null,
-                null,
                 null
         ));
         Preferences preferences = new Preferences(null, List.of(), user);

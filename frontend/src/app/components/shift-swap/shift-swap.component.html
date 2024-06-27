@@ -1,131 +1,90 @@
 <div *ngIf="!loading">
   <p-confirmDialog></p-confirmDialog>
+  <p-dialog [(visible)]="display" [modal]="true" [style]="{width: '50vw'}" [closable]="false" [resizable]="false"
+            select>
+    <p-header>
+      Shift Swap Request
+    </p-header>
+    <div style="display: flex; justify-content: space-around; align-items: center; padding: 20px;">
+      <p-card
+        [header]="this.ownSelectedOffer?.requestedShift?.shiftType?.abbreviation + '-' + ownSelectedOffer?.requestedShift?.shiftType?.name"
+        [style]="{maxWidth: '360px',
+              maxHeight: '280px',}"
+        styleClass="p-card-shadow">
+        <ng-template pTemplate="header">
+          <div class="text-xl font-bold"
+               [ngStyle]="{color: 'white', backgroundColor: ownSelectedOffer?.requestedShift?.shiftType?.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+
+          </div>
+        </ng-template>
+        <div class="text-lg font-semibold">
+          <div class="p-1"> {{ ownSelectedOffer?.requestedShift?.date | date:'dd.MM.YYYY' }}</div>
+          <div class="p-1"> {{ ownSelectedOffer?.requestedShift?.shiftType?.startTime?.slice(0, -3) }}
+            -  {{ ownSelectedOffer?.requestedShift?.shiftType?.endTime?.slice(0, -3) }}
+          </div>
+
+        </div>
+      </p-card>
+
+      <div
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 24px; color: #007ad9;">
+        <i class="pi pi-arrow-right" style="margin: 5px; font-size: 2rem;"></i>
+        <i class="pi pi-arrow-left" style="margin: 5px; font-size: 2rem;"></i>
+      </div>
+
+
+      <p-card
+        [header]="this.otherSelectedOffer?.requestedShift?.shiftType?.abbreviation + '-' + this.otherSelectedOffer?.requestedShift?.shiftType?.name"
+        [style]="{maxWidth: '360px',
+                maxHeight: '280px'}"
+        styleClass="p-card-shadow">
+        <ng-template pTemplate="header">
+          <div class="text-xl font-bold flex justify-content-center align-items-center"
+               [ngStyle]="{color: 'white', backgroundColor: this.otherSelectedOffer?.requestedShift?.shiftType?.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+            <span>{{ findUser(this.otherSelectedOffer?.swapRequestingUser)?.firstName }}  {{ findUser(this.otherSelectedOffer?.swapRequestingUser)?.lastName }}</span>
+          </div>
+        </ng-template>
+        <div class="text-lg font-semibold">
+          <div class="p-1"> {{ this.otherSelectedOffer?.requestedShift?.date | date:'dd.MM.YYYY' }}</div>
+          <div class="p-1"> {{ this.otherSelectedOffer?.requestedShift?.shiftType?.startTime?.slice(0, -3) }}
+            -  {{ this.otherSelectedOffer?.requestedShift?.shiftType?.endTime?.slice(0, -3) }}
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="flex justify-content-end gap-2">
+      <p-button (click)="hideDialog()" label="Cancle" [text]="true" severity="secondary"></p-button>
+      <p-button (click)="createRequest()" label="Create" [text]="true" severity="success" icon="pi pi-check"/>
+    </div>
+  </p-dialog>
   <div class="grid">
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 class="pb-2" style="text-align: center;">My Shift Offers</h2>
-        <ul class="list-none p-0 m-0"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-          <li *ngFor="let shiftSwap of ownShiftSwapsOffers" class="flex items-center mb-4">
-            <p-card
-              [header]="shiftSwap.requestedShift.shiftType.abbreviation + '-' + shiftSwap.requestedShift.shiftType.name"
-              [style]="{maxWidth: '360px',
-              maxHeight: '280px',
-              backgroundColor: ownSelectedOffer?.requestedShift === shiftSwap.requestedShift? 'rgba(128, 128, 128, 0.5)' : 'transparent'}"
-              styleClass="p-card-shadow">
-              <ng-template pTemplate="header">
-                <div class="text-xl font-bold"
-                     [ngStyle]="{color: 'white', backgroundColor: shiftSwap.requestedShift.shiftType.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+        <div class="pb-4 flex flex-column">
+          <div class="flex center">
+            <p-toast></p-toast>
+            <p-calendar
+              [selectOtherMonths]="false"
+              [iconDisplay]="'input'"
+              [showOtherMonths]="false"
+              [maxDate]="maxDate"
+              [minDate]="minDate"
+              [showIcon]="true"
+              [(ngModel)]="selectedDate"
+              [dateFormat]="'dd.mm.yy'"
+              [readonlyInput]="true"
+              placeholder="Create Shift Swap"
+              (onSelect)="generateShiftSwapOffer()">
 
-                </div>
+              <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
+                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
+                   (click)="clickCallBack($event)"> </i>
               </ng-template>
-              <div class="text-lg font-semibold">
-                <div class="p-1"> {{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}</div>
-                <div class="p-1"> {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
-                  -  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
-                </div>
-                {{ shiftSwap.suggestedShift }}
-              </div>
-              <ng-template pTemplate="footer">
-                <div class="flex justify-content-end gap-2">
-                  <p-button (click)="confirmRetractOffer($event, shiftSwap.id)" label="Delete" icon="pi pi-trash"
-                            [outlined]="true"
-                            severity="danger"></p-button>
-                  <p-button (click)="selectOwnOffer(shiftSwap)" label="Select" icon="pi pi-check"
-                            [outlined]="true"></p-button>
-                </div>
-              </ng-template>
-            </p-card>
 
-
-            <!-- <div
-              class="p-3 border-round-lg flex flex-column justify-content-center align-items-start"
-              [ngStyle]="{backgroundColor: shiftSwap === this.ownSelectedOffer ? '#e8e9eb' : 'inherit',
-                    border: '5px solid ' + shiftSwap.requestedShift.shiftType.color}"
-              style="width: 300px;">
-
-              <div class="flex justify-content-center align-items-center mb-2">
-                <span
-                  style="width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border: 1px solid; border-radius: 50%;"
-                >
-                  {{ shiftSwap.requestedShift.shiftType.abbreviation }}
-                </span>
-                <div class="ml-2">
-                  <span class="text-lg font-medium">{{ shiftSwap.requestedShift.shiftType.name }}</span>
-                </div>
-              </div>
-
-              <div class="text-center">
-                <div class="text-lg m-0 font-medium">{{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }} </div>
-                {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
-                {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
-              </div>
-            </div>
-            <div class="flex flex-row ml-4 justify-content-center align-items-center" style="width: 300px; gap: 10px">
-              <p-button label="Select Offer" [raised]="true" severity="info" (click)="selectOwnOffer(shiftSwap)" [style]="{'font-size': '1rem', 'padding': '0.65rem 0.6rem'}" />
-              <p-button label="Retract Offer" [outlined]="true" severity="danger" (click)="retractOffer(shiftSwap.id)" [style]="{'font-size': '1rem', 'padding': '0.65rem 0.6rem'}" />
-            </div> -->
-          </li>
-
-          <p-dialog [(visible)]="shiftSwapDialog" [style]="{ width: '400px'}" header="Shift Swap Offer" [modal]="true"
-                    class="p-fluid">
-            <ng-template pTemplate="content">
-
-              <div *ngIf="newShiftSwap !== undefined">
-                <p-card
-                  [header]="newShiftSwap.requestedShift.shiftType.abbreviation + '-' + newShiftSwap.requestedShift.shiftType.name"
-                  [style]="{maxWidth: '250px', maxHeight: '280px'}" styleClass="p-card-shadow">
-                  <ng-template pTemplate="header">
-                    <div class="text-xl font-bold"
-                         [ngStyle]="{color: 'white', backgroundColor: newShiftSwap.requestedShift.shiftType.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
-
-                    </div>
-                  </ng-template>
-                  <div class="text-lg font-semibold">
-                    <div class="p-1"> {{ newShiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}</div>
-                    <div class="p-1"> {{ newShiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
-                      -  {{ newShiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
-                    </div>
-                    {{ newShiftSwap.suggestedShift }}
-                  </div>
-                </p-card>
-                <p-toast></p-toast>
-                <div class="flex flex-row justify-content-end mt-3">
-                  <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
-                            (click)="toggleDialog()"></p-button>
-                  <p-button label="Create" icon="pi pi-check" [text]="true"
-                            (click)="createShiftSwapOffer()"></p-button>
-                </div>
-              </div>
-
-            </ng-template>
-
-          </p-dialog>
-
-          <div class="flex flex-column">
-            <div class="flex center">
-              <p-toast></p-toast>
-              <p-calendar
-                [selectOtherMonths]="false"
-                [iconDisplay]="'input'"
-                [showOtherMonths]="false"
-                [maxDate]="maxDate"
-                [minDate]="minDate"
-                [showIcon]="true"
-                [(ngModel)]="selectedDate"
-                [dateFormat]="'dd.mm.yy'"
-                [readonlyInput]="true"
-                placeholder="Create Shift Swap"
-                (selectionchange)="generateShiftSwapOffer()"
-                (onSelect)="generateShiftSwapOffer()">
-
-                <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
-                  <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
-                     (click)="clickCallBack($event)"> </i>
-                </ng-template>
-
-                <ng-template pTemplate="date" let-date>
-                  <div [ngStyle]="{
+              <ng-template pTemplate="date" let-date>
+                <div [ngStyle]="{
                         backgroundColor: 'inherit',
                         border: (isSpecialDate(date)) ? '5px solid ' + colorOfShift(date) : '1px solid transparent',
                         width: '30px',
@@ -135,95 +94,149 @@
                         justifyContent: 'center',
                         boxSizing: 'border-box'
                       }">
-                    {{ date.day }}
+                  {{ date.day }}
+                </div>
+              </ng-template>
+
+            </p-calendar>
+          </div>
+          <div class="flex center">
+            <small *ngIf="!valid">Selected day has no valid shift</small>
+          </div>
+        </div>
+
+        <div *ngIf="ownShiftSwapsOffers && ownShiftSwapsOffers.length > 0">
+          <p-table
+            [value]="ownShiftSwapsOffers"
+            selectionMode="single"
+            [(selection)]="ownSelectedOffer"
+            (selectionChange)="checkCondition()"
+            [metaKeySelection]="false"
+            [tableStyle]="{ 'min-width': '30rem' }">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="requestedShift.shiftType.name">Shift</th>
+                <th pSortableColumn="requestedShift.date">Date</th>
+                <th pSortableColumn="requestedShift.shiftType.startTime">Time</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-shiftSwap>
+              <tr [pSelectableRow]="shiftSwap">
+                <td>
+                  <div class=" flex align-items-center justify-content-start"> <span [ngStyle]="{
+                'display': 'inline-block',
+                'width': '20px',
+                'height': '20px',
+                'background-color': shiftSwap.requestedShift.shiftType.color,
+                'border-radius': '50%',
+                'margin-right': '10px'}">
+
+                </span>{{ shiftSwap.requestedShift.shiftType.abbreviation }} {{ shiftSwap.requestedShift.shiftType.name }}
+                  </div>
+                </td>
+                <td>{{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}
+                </td>
+                <td>{{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
+                  -  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                </td>
+                <td>
+
+                  <p-button icon="pi pi-trash" [outlined]="true" severity="danger"
+                            (click)="confirmRetractOffer($event, shiftSwap.id)"
+                            [style]="{'font-size': '1rem', 'padding': '0.65rem 0.6rem'}"/>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <p-dialog [(visible)]="shiftSwapDialog" [style]="{ width: '400px'}" header="Shift Swap Offer" [modal]="true"
+                  class="p-fluid">
+          <ng-template pTemplate="content">
+
+            <div *ngIf="newShiftSwap !== undefined">
+              <p-card
+                [header]="newShiftSwap.requestedShift.shiftType.abbreviation + '-' + newShiftSwap.requestedShift.shiftType.name"
+                [style]="{maxWidth: '250px', maxHeight: '280px'}" styleClass="p-card-shadow">
+                <ng-template pTemplate="header">
+                  <div class="text-xl font-bold"
+                       [ngStyle]="{color: 'white', backgroundColor: newShiftSwap.requestedShift.shiftType.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+
                   </div>
                 </ng-template>
+                <div class="text-lg font-semibold">
+                  <div class="p-1"> {{ newShiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}</div>
+                  <div class="p-1"> {{ newShiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
+                    -  {{ newShiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                  </div>
+                  {{ newShiftSwap.suggestedShift }}
+                </div>
+              </p-card>
+              <p-toast></p-toast>
+              <div class="flex flex-row justify-content-end mt-3">
+                <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
+                          (click)="toggleDialog()"></p-button>
+                <p-button label="Create" icon="pi pi-check" [text]="true"
+                          (click)="createShiftSwapOffer()"></p-button>
+              </div>
+            </div>
 
-              </p-calendar>
-            </div>
-            <div class="flex center">
-              <small *ngIf="!valid">Selected day has no valid shift</small>
-            </div>
-          </div>
-        </ul>
+          </ng-template>
+
+        </p-dialog>
+
       </div>
     </div>
 
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
-        <h2 style="text-align: center;">Other Shift Offers</h2>
+        <h2 style="text-align: center;">Colleague Shift Offers</h2>
         <h5 *ngIf="shiftSwapOffers.length === 0 && ownShiftSwapsOffers.length !== 0"
             style="text-align: center; margin-top: 30px;">There are no shift swap offers available.</h5>
         <h5 *ngIf="ownShiftSwapsOffers.length === 0" style="text-align: center; margin-top: 30px;">You have to make a
           shift swap
           first to see other offers.</h5>
         <div *ngIf="shiftSwapOffers.length !== 0 && ownShiftSwapsOffers.length !== 0">
-          <ul class="list-none p-0 m-0"
-              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-            <li *ngFor="let shiftSwap of shiftSwapOffers" class="flex items-center mb-4">
+          <h6 style="text-align: center; margin-top: 50px;">Select one of your own shift offer and one from the table to
+            make a request!</h6>
+          <p-table
+            [value]="shiftSwapOffers"
+            selectionMode="single"
+            [(selection)]="otherSelectedOffer"
+            (selectionChange)="checkCondition()"
+            [metaKeySelection]="false"
+            [tableStyle]="{ 'min-width': '30rem' }">
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="requestedShift.shiftType.name">Shift</th>
+                <th pSortableColumn="requestedShift.date">Date</th>
+                <th pSortableColumn="requestedShift.shiftType.startTime">Time</th>
+                <th pSortableColumn="swapRequestingUser.firstName">Colleague</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-shiftSwap>
+              <tr [pSelectableRow]="shiftSwap">
+                <td class=" flex align-items-center justify-content-start"><span [ngStyle]="{
+                'display': 'inline-block',
+                'width': '20px',
+                'height': '20px',
+                'background-color': shiftSwap.requestedShift.shiftType.color,
+                'border-radius': '50%',
+                'margin-right': '10px'}">
 
-              <p-card
-                [header]="shiftSwap.requestedShift.shiftType.abbreviation + '-' + shiftSwap.requestedShift.shiftType.name"
-                [style]="{maxWidth: '360px',
-                maxHeight: '280px',
-                backgroundColor: otherSelectedOffer?.requestedShift === shiftSwap.requestedShift ? 'rgba(128, 128, 128, 0.5)' : 'transparent'}"
-                styleClass="p-card-shadow">
-                <ng-template pTemplate="header">
-                  <div class="text-xl font-bold flex justify-content-center align-items-center"
-                       [ngStyle]="{color: 'white', backgroundColor: shiftSwap.requestedShift.shiftType.color, height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
-                    <span>{{ findUser(shiftSwap.swapRequestingUser)?.firstName }}  {{ findUser(shiftSwap.swapRequestingUser)?.lastName }}</span>
-                  </div>
-                </ng-template>
-                <div class="text-lg font-semibold">
-                  <div class="p-1"> {{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}</div>
-                  <div class="p-1"> {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
-                    -  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
-                  </div>
-                </div>
-                <ng-template pTemplate="footer">
-                  <div class="flex justify-content-end gap-2">
-                    <p-button label="Select" icon="pi pi-check"
-                              [style]="{'visibility': 'hidden'}" [outlined]="true"></p-button>
-                    <p-button (click)="selectOtherOffer(shiftSwap)" label="Select" icon="pi pi-check"
-                              [outlined]="true"></p-button>
-                  </div>
-                </ng-template>
-              </p-card>
+                </span>{{ shiftSwap.requestedShift.shiftType.abbreviation }} {{ shiftSwap.requestedShift.shiftType.name }}
+                </td>
+                <td>{{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }}
+                </td>
+                <td>{{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }}
+                  -  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                </td>
+                <td>{{ findUser(shiftSwap.swapRequestingUser)?.firstName }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
 
-              <!--
-              <div
-                class="p-3 border-round-lg flex flex-column justify-content-center align-items-start"
-                [ngStyle]="{backgroundColor: shiftSwap === this.otherSelectedOffer ? '#e8e9eb' : 'inherit',
-                        border: '5px solid ' + shiftSwap.requestedShift.shiftType.color}"
-                style="width: 300px;">
-
-                <div class="flex justify-content-center align-items-center mb-2">
-                    <span
-                      style="width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border: 1px solid; border-radius: 50%;"
-                    >
-                      {{ shiftSwap.requestedShift.shiftType.abbreviation }}
-                    </span>
-                  <div class="ml-2">
-                    <span class="text-lg font-medium">{{ shiftSwap.requestedShift.shiftType.name }}</span>
-                  </div>
-                </div>
-
-
-                <div class="">
-
-                  <div class="text-lg m-0 font-medium">{{ shiftSwap.requestedShift.date | date:'dd.MM.YYYY' }} </div>
-                  {{ shiftSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
-                  {{ shiftSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
-                  <div class="text-lg">From: {{ findUser(shiftSwap.swapRequestingUser)?.firstName}}
-                    {{ findUser(shiftSwap.swapRequestingUser)?.lastName}}</div>
-                </div>
-              </div>
-              <div class="flex flex-column ml-4 justify-content-center align-items-center" style="width: 250px">
-                <p-button label="Select Offer" [raised]="true" severity="info" (click)="selectOtherOffer(shiftSwap)" [style]="{'font-size': '1rem'}" />
-              </div>
-              -->
-            </li>
-          </ul>
         </div>
       </div>
     </div>
@@ -232,73 +245,71 @@
       <div class="card px-6 py-6">
         <h2 class="pb-2" style="text-align: center;">Shift Swap Requests</h2>
         <div class="flex flex-column justify-content-center align-items-center">
-          <p-button label="Create Request"
-                    [disabled]="ownSelectedOffer === undefined || otherSelectedOffer === undefined" [raised]="true"
-                    severity="info" (click)="createRequest()"/>
           <div *ngFor="let requestSwap of requestedShiftSwaps" class="mt-4">
             <p-card [style]="{maxWidth: '800px',
             maxHeight: '320px',
             backgroundColor: requestSwap.suggestedShiftSwapStatus === ShiftSwapStatus.REJECTED ? 'rgba(255, 0, 0, 0.1)' : 'transparent'}"
                     styleClass="p-card-shadow">
-            <ng-template pTemplate="header">
-              <div class="text-xl font-bold flex"
-                   style="height: 3em; border-top-left-radius: 0.5em; border-top-right-radius: 0.5em;">
-                <div
-                  [ngStyle]="{color: 'white', backgroundColor: requestSwap.requestedShift.shiftType.color, width: '50%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: '0.5em'}">
-                  <span>My Shift</span>
-                </div>
-                <div
-                  [ngStyle]="{color: 'white', backgroundColor: requestSwap.suggestedShift?.shiftType?.color, width: '50%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderTopRightRadius: '0.5em'}">
+              <ng-template pTemplate="header">
+                <div class="text-xl font-bold flex"
+                     style="height: 3em; border-top-left-radius: 0.5em; border-top-right-radius: 0.5em;">
+                  <div
+                    [ngStyle]="{color: 'white', backgroundColor: requestSwap.requestedShift.shiftType.color, width: '50%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: '0.5em'}">
+                    <span>My Shift</span>
+                  </div>
+                  <div
+                    [ngStyle]="{color: 'white', backgroundColor: requestSwap.suggestedShift?.shiftType?.color, width: '50%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderTopRightRadius: '0.5em'}">
         <span>{{ findUser(requestSwap.swapSuggestingUser === undefined ? '' : requestSwap.swapSuggestingUser)?.firstName }}
           {{ findUser(requestSwap.swapSuggestingUser === undefined ? '' : requestSwap.swapSuggestingUser)?.lastName }}
         </span>
+                  </div>
                 </div>
-              </div>
-            </ng-template>
-            <div class="text-lg font-semibold flex flex-row justify-content-between">
-              <div>
-                <div class="p-1">
-                  Requested Shift: <span [ngStyle]="{color: requestSwap.requestedShift.shiftType.color}">
+              </ng-template>
+
+              <div class="text-lg font-semibold flex flex-row justify-content-between">
+                <div>
+                  <div class="p-1">
+                    Requested Shift: <span [ngStyle]="{color: requestSwap.requestedShift.shiftType.color}">
           {{ requestSwap.requestedShift.shiftType.abbreviation }}
         </span>
+                  </div>
+                  <div class="p-1">
+                    {{ requestSwap.requestedShift.date | date:'dd.MM.YYYY' }}
+                  </div>
+                  <div class="p-1">
+                    {{ requestSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
+                    {{ requestSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
+                  </div>
                 </div>
-                <div class="p-1">
-                  {{ requestSwap.requestedShift.date | date:'dd.MM.YYYY' }}
-                </div>
-                <div class="p-1">
-                  {{ requestSwap.requestedShift.shiftType.startTime.slice(0, -3) }} -
-                  {{ requestSwap.requestedShift.shiftType.endTime.slice(0, -3) }}
-                </div>
-              </div>
-              <div>
-                <div class="p-1">
-                  Suggested Shift: <span [ngStyle]="{color: requestSwap.suggestedShift?.shiftType?.color}">
+                <div>
+                  <div class="p-1">
+                    Suggested Shift: <span [ngStyle]="{color: requestSwap.suggestedShift?.shiftType?.color}">
           {{ requestSwap.suggestedShift?.shiftType?.abbreviation }}
         </span>
-                </div>
-                <div class="p-1">
-                  {{ requestSwap.suggestedShift?.date | date:'dd.MM.YYYY' }}
-                </div>
-                <div class="p-1">
-                  {{ requestSwap.suggestedShift?.shiftType?.startTime?.slice(0, -3) }} -
-                  {{ requestSwap.suggestedShift?.shiftType?.endTime?.slice(0, -3) }}
-                </div>
-                <div class="p-1" *ngIf="requestSwap.suggestedShiftSwapStatus">
-                  Status:
-                  <span
-                    [ngStyle]="{color: requestSwap.suggestedShiftSwapStatus === ShiftSwapStatus.PENDING ? 'orange' : requestSwap.suggestedShiftSwapStatus === ShiftSwapStatus.REJECTED ? 'red' : 'inherit'}">
+                  </div>
+                  <div class="p-1">
+                    {{ requestSwap.suggestedShift?.date | date:'dd.MM.YYYY' }}
+                  </div>
+                  <div class="p-1">
+                    {{ requestSwap.suggestedShift?.shiftType?.startTime?.slice(0, -3) }} -
+                    {{ requestSwap.suggestedShift?.shiftType?.endTime?.slice(0, -3) }}
+                  </div>
+                  <div class="p-1" *ngIf="requestSwap.suggestedShiftSwapStatus">
+                    Status:
+                    <span
+                      [ngStyle]="{color: requestSwap.suggestedShiftSwapStatus === ShiftSwapStatus.PENDING ? 'orange' : requestSwap.suggestedShiftSwapStatus === ShiftSwapStatus.REJECTED ? 'red' : 'inherit'}">
             {{ requestSwap.suggestedShiftSwapStatus }}
-        </span>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <ng-template pTemplate="footer">
-              <div class="flex justify-content-end gap-2">
-                <p-button (onClick)="confirmRetractRequest($event, requestSwap)" severity="danger" label="Retract"
-                          icon="pi pi-trash"
-                          [outlined]="true"></p-button>
-              </div>
-            </ng-template>
+              <ng-template pTemplate="footer">
+                <div class="flex justify-content-end gap-2">
+                  <p-button (onClick)="confirmRetractRequest($event, requestSwap)" severity="danger" label="Retract"
+                            icon="pi pi-trash"
+                            [outlined]="true"></p-button>
+                </div>
+              </ng-template>
             </p-card>
 
           </div>
@@ -318,6 +329,7 @@
                     [ngStyle]="{color: 'white', backgroundColor: suggestedSwap.requestedShift.shiftType.color, width: '50%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderTopLeftRadius: '0.5em'}">
                     <span>{{ findUser(suggestedSwap.swapRequestingUser)?.firstName }} {{ findUser(suggestedSwap.swapRequestingUser)?.lastName }}</span>
                   </div>
+
                   <div
                     [ngStyle]="{color: 'white', backgroundColor: suggestedSwap.suggestedShift?.shiftType?.color, width: '50%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', borderTopRightRadius: '0.5em'}">
                     <span>My Shift</span>

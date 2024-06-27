@@ -6,7 +6,13 @@ import ase.meditrack.repository.PreferencesRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import jakarta.validation.ValidationException;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -45,6 +51,23 @@ public class PreferencesService {
      * @return the created preference
      */
     public Preferences create(Preferences preference) {
+        if (preference.getOffDays().size() > 3) {
+            throw new ValidationException("The maximum number of preferred off days can be 3.");
+        }
+        Set<LocalDate> uniqueOffDays = new HashSet<>(preference.getOffDays());
+        if (uniqueOffDays.size() < preference.getOffDays().size()) {
+            throw new ValidationException("All off days must be unique.");
+        }
+        LocalDate now = LocalDate.now();
+        YearMonth nextMonth = YearMonth.of(now.getYear(), now.getMonth().plus(1));
+        LocalDate startOfNextMonth = nextMonth.atDay(1);
+        LocalDate endOfNextMonth = nextMonth.atEndOfMonth();
+
+        for (LocalDate offDay : preference.getOffDays()) {
+            if (offDay.isBefore(startOfNextMonth) || offDay.isAfter(endOfNextMonth)) {
+                throw new ValidationException("All off days must be within the next month.");
+            }
+        }
         return repository.save(preference);
     }
 
@@ -58,6 +81,13 @@ public class PreferencesService {
         Preferences dbPreferences = findById(preference.getId());
 
         if (preference.getOffDays() != null) {
+            if (preference.getOffDays().size() > 3) {
+                throw new ValidationException("The maximum number of preferred off days can be 3.");
+            }
+            Set<LocalDate> uniqueOffDays = new HashSet<>(preference.getOffDays());
+            if (uniqueOffDays.size() < preference.getOffDays().size()) {
+                throw new ValidationException("All off days must be unique.");
+            }
             dbPreferences.setOffDays(preference.getOffDays());
         }
 

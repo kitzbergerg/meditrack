@@ -23,6 +23,7 @@ export class ShiftTypesComponent {
 
   roles: Role[] = [];
 
+  selectedShiftType: ShiftType | undefined;
   shiftType: ShiftType = {
     id: 0,
     name: '',
@@ -59,7 +60,6 @@ export class ShiftTypesComponent {
     roles: [],
     workingHoursPercentage: 0,
     currentOverTime: 0,
-    specialSkills: [],
     holidays: [],
     shifts: [],
     role: {name: "", color: "", abbreviation: ""},
@@ -70,7 +70,7 @@ export class ShiftTypesComponent {
     preferredShiftTypes: []
   };
 
-  constructor(private shiftService: ShiftTypeService,
+  constructor(private shiftTypeService: ShiftTypeService,
               private cdr: ChangeDetectorRef,
               private messageService: MessageService,
               private userService: UserService,
@@ -86,7 +86,7 @@ export class ShiftTypesComponent {
 
   receiveTeam(team: Team) {
     this.currentUser.team = team.id;
-    this.loadShiftTypes()
+
   }
 
   getUser(): void {
@@ -94,7 +94,7 @@ export class ShiftTypesComponent {
       next: response => {
         this.currentUser = response;
         if (response.team != null) {
-          this.loadShiftTypes();
+          this.loadShiftTypes()
           this.loadRoles();
         }
         this.loading = false;
@@ -106,7 +106,7 @@ export class ShiftTypesComponent {
   }
 
   loadShiftTypes(): void {
-    this.shiftService.getAllShiftTypesByTeam()
+    this.shiftTypeService.getAllShiftTypesByTeam()
       .subscribe(fetchedShiftTypes => {
         this.shiftTypes = fetchedShiftTypes;
         if (this.shiftTypes.length === 0) {
@@ -128,35 +128,37 @@ export class ShiftTypesComponent {
 
   deleteShiftType(): void {
     if (this.shiftType.id != undefined) {
-      this.shiftService.deleteShiftType(this.shiftType.id)
+      this.shiftTypeService.deleteShiftType(this.shiftType.id)
         .subscribe(response => {
-          console.log('Shift Type deleted successfully');
           this.messageService.add({
             severity: 'success',
             summary: 'Successfully Deleted Shift Type ' + this.shiftType.name
           });
-          this.loadShiftTypes();
+          this.shiftTypes = this.shiftTypes.filter(s => s.id != this.shiftType.id)
           this.resetForm();
         }, error => {
-          console.error('Error deleting shift type:', error);
-          this.messageService.add({severity: 'error', summary: 'Deleting Shift Type Failed', detail: error.error});
+          let message = "";
+          if (error.status == 422) {
+            message = ", already assigned to shifts!";
+          }
+          this.messageService.add({severity: 'error', summary: 'Deleting Shift Type Failed' + message});
         });
     }
   }
 
   getShiftType(id: number) {
 
-    this.shiftService.getShiftType(id)
+    this.shiftTypeService.getShiftType(id)
       .subscribe((response: ShiftType) => {
-        console.log('Shift Type retrieved successfully:', response);
         this.shiftType = response;
+        this.selectedShiftType = response;
 
         this.startTimeDate = this.getTime(this.shiftType.startTime);
         this.endTimeDate = this.getTime(this.shiftType.endTime);
         this.breakStartTimeDate = this.getTime(this.shiftType.breakStartTime);
         this.breakEndTimeDate = this.getTime(this.shiftType.breakEndTime);
 
-        this.loadShiftTypes();
+        this.shiftTypes = this.shiftTypes.map(shift => shift.id === id ? { ...shift, ...response } : shift);
       }, error => {
         console.error('Error retrieving Shift Type:', error);
       });
@@ -201,12 +203,11 @@ export class ShiftTypesComponent {
         }) : '',
         color: this.shiftType.color,
         abbreviation: this.shiftType.abbreviation,
-        team: this.shiftType.team
+        team: this.currentUser.team
       };
 
-      this.shiftService.createShiftType(newShiftType)
+      this.shiftTypeService.createShiftType(newShiftType)
         .subscribe(response => {
-          console.log('Shift Type created successfully:', response);
           this.messageService.add({
             severity: 'success',
             summary: 'Successfully Created Shift Type ' + newShiftType.name
@@ -214,8 +215,6 @@ export class ShiftTypesComponent {
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
-          //console.log(error.error);
-          console.error('Error creating shift type:', error);
           if (error.error === "data integrity violation") {
             this.messageService.add({
               severity: 'error',
@@ -267,9 +266,8 @@ export class ShiftTypesComponent {
         team: this.shiftType.team
       };
 
-      console.log(shiftTypeToUpdate)
 
-      this.shiftService.updateShiftType(shiftTypeToUpdate)
+      this.shiftTypeService.updateShiftType(shiftTypeToUpdate)
         .subscribe(response => {
           this.messageService.add({
             severity: 'success',
@@ -278,7 +276,6 @@ export class ShiftTypesComponent {
           this.resetForm();
           this.selectShiftType(shiftTypeToUpdate);
         }, error => {
-          console.error('Error updating shift type:', error);
           if (error.error === "data integrity violation") {
             this.messageService.add({
               severity: 'error',
@@ -299,7 +296,10 @@ export class ShiftTypesComponent {
     this.formMode = 'create';
   }
 
-  selectShiftType(shiftType: ShiftType) {
+  selectShiftType(shiftType: ShiftType | undefined) {
+    if (shiftType == undefined) {
+      return;
+    }
     if (shiftType.id != undefined) {
       this.getShiftType(shiftType.id);
       this.formMode = 'details';
@@ -350,6 +350,7 @@ export class ShiftTypesComponent {
   }
 
   resetForm() {
+    this.selectedShiftType = undefined;
     this.submitted = false;
     this.startTimeDate = this.emptyTime;
     this.endTimeDate = this.emptyTime;
