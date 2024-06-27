@@ -26,16 +26,15 @@ public class ShiftSwapService {
     private final ShiftRepository shiftRepository;
     private final UserService userService;
     private final ShiftSwapValidator validator;
+    private final MailService mailService;
 
-    public ShiftSwapService(ShiftSwapRepository repository,
-                            UserService userService,
-                            ShiftRepository shiftRepository,
-                            ShiftSwapValidator validator) {
-
+    public ShiftSwapService(ShiftSwapRepository repository, UserService userService, ShiftRepository shiftRepository,
+                            ShiftSwapValidator validator, MailService mailService) {
         this.repository = repository;
         this.shiftRepository = shiftRepository;
         this.userService = userService;
         this.validator = validator;
+        this.mailService = mailService;
     }
 
     /**
@@ -120,15 +119,31 @@ public class ShiftSwapService {
      * Creates a shift swap in the database. ShiftSwap status can be set as here, since these are the required values.
      *
      * @param shiftSwap the shift swap to create
+     * @param shouldSendMail if a mail should be sent to the suggested user about the swap
      * @return the created shift swap
      */
     @Transactional
-    public ShiftSwap create(ShiftSwap shiftSwap) {
+    public ShiftSwap create(ShiftSwap shiftSwap, Boolean shouldSendMail) {
         validator.shiftSwapCreateValidation(shiftSwap);
 
         ShiftSwap created = repository.save(shiftSwap);
 
-        return findById(created.getId());
+       if (shouldSendMail != null && shouldSendMail) {
+           if (shiftSwap.getSwapSuggestingUser() != null && shiftSwap.getSwapRequestingUser() != null) {
+               User suggestingUser = userService.findById(shiftSwap.getSwapSuggestingUser().getId());
+               User requestingUser = userService.findById(shiftSwap.getSwapRequestingUser().getId());
+               if (suggestingUser.getUserRepresentation() != null
+                       && suggestingUser.getUserRepresentation().getEmail() != null) {
+                   new Thread(() -> sendRequestMail(suggestingUser, requestingUser, created)).start();
+               }
+           }
+       }
+       return findById(created.getId());
+    }
+
+    private void sendRequestMail(User suggestingUser, User requestingUser, ShiftSwap swap) {
+        mailService.sendSimpleMessage(suggestingUser.getUserRepresentation().getEmail(), "New shift swap request!",
+                generateRequestMail(swap, requestingUser));
     }
 
     /**
@@ -136,10 +151,11 @@ public class ShiftSwapService {
      * shifts from users.
      *
      * @param shiftSwap the shift swap to update
+     * @param shouldSendMail if a mail should be sent to the users about the swap update
      * @return the updated shift swap
      */
     @Transactional
-    public ShiftSwap update(ShiftSwap shiftSwap) {
+    public ShiftSwap update(ShiftSwap shiftSwap, Boolean shouldSendMail) {
         ShiftSwap dbShiftSwap = findById(shiftSwap.getId());
 
         // check if shift swap is the same as the one from the database except the status of the user
@@ -161,13 +177,41 @@ public class ShiftSwapService {
             requestedShift.setUsers(suggestedUsers);
             suggestedShift.setUsers(requestedUsers);
 
+            if (shouldSendMail != null && shouldSendMail) {
+                User requestedUser = userService.findById(requestedUsers.get(0).getId());
+                User suggestedUser = userService.findById(suggestedUsers.get(0).getId());
+                if (requestedUser.getUserRepresentation() != null
+                        && requestedUser.getUserRepresentation().getEmail() != null
+                        && suggestedUser.getUserRepresentation() != null
+                        && suggestedUser.getUserRepresentation().getEmail() != null) {
+                    new Thread(() -> sendAcceptedMails(requestedUser, suggestedUser, dbShiftSwap)).start();
+                }
+            }
             return null;
-            // email notification
         } else {
             // decline
-            // email notification
+            if (shouldSendMail != null && shouldSendMail) {
+                User requestedUser = userService.findById(dbShiftSwap.getSwapRequestingUser().getId());
+                if (requestedUser.getUserRepresentation() != null
+                        && requestedUser.getUserRepresentation().getEmail() != null) {
+                    new Thread(() -> sendDeclinedMail(requestedUser, dbShiftSwap)).start();
+                }
+            }
             return repository.save(shiftSwap);
         }
+    }
+
+    private void sendAcceptedMails(User requestingUser, User suggestingUser, ShiftSwap swap) {
+        mailService.sendSimpleMessage(requestingUser.getUserRepresentation().getEmail(), "Shift swap accepted!",
+                generateAcceptedMailForRequestingUser(requestingUser, swap));
+
+        mailService.sendSimpleMessage(suggestingUser.getUserRepresentation().getEmail(), "Shift swap accepted!",
+                generateAcceptedMailForSuggestingUser(suggestingUser, swap));
+    }
+
+    private void sendDeclinedMail(User requestingUser, ShiftSwap swap) {
+        mailService.sendSimpleMessage(requestingUser.getUserRepresentation().getEmail(), "Shift swap declined!",
+                generateDeclinedMail(swap));
     }
 
     /**
@@ -248,4 +292,39 @@ public class ShiftSwapService {
         return user.getId().equals(shiftSwap.getSwapRequestingUser().getId());
     }
 
+    private String generateRequestMail(ShiftSwap swap, User user) {
+        return "New shift swap request from " + user.getUserRepresentation().getFirstName() + " "
+                + user.getUserRepresentation().getLastName() + ":\n\n"
+                + "Swapping the shift from: " + swap.getRequestedShift().getDate() + " to: "
+                + swap.getSuggestedShift().getDate() + "!\n\n"
+                + "To get more details and approve or reject the swap, please log in to MediTrack.\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
+    }
+
+    private String generateAcceptedMailForRequestingUser(User suggestingUser, ShiftSwap swap) {
+        return "Your shift swap request has been accepted by " + suggestingUser.getUserRepresentation().getFirstName()
+                + " " + suggestingUser.getUserRepresentation().getLastName() + "!\n\n"
+                + "Swapping the shift from: " + swap.getRequestedShift().getDate() + " to: "
+                + swap.getSuggestedShift().getDate() + "!\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
+    }
+
+    private String generateAcceptedMailForSuggestingUser(User requestingUser, ShiftSwap swap) {
+        return "You have accepted the shift swap request from " + requestingUser.getUserRepresentation().getFirstName()
+                + " " + requestingUser.getUserRepresentation().getLastName() + "!\n\n"
+                + "Swapping the shift from: " + swap.getSuggestedShift().getDate() + " to: "
+                + swap.getRequestedShift().getDate() + "!\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
+    }
+
+    private String generateDeclinedMail(ShiftSwap swap) {
+        return "Your shift swap request has been declined!\n\n"
+                + "Swapping the shift from: " + swap.getRequestedShift().getDate() + " to: "
+                + swap.getSuggestedShift().getDate() + "!\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
+    }
 }

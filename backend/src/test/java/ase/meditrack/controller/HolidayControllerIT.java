@@ -230,7 +230,8 @@ class HolidayControllerIT {
 
         when(userService.findByTeam(any(Principal.class))).thenReturn(List.of(user));
 
-        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/holiday/" + savedHoliday.getId() + "/APPROVED"))
+        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/holiday/" + savedHoliday.getId() +
+                        "/APPROVED"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
