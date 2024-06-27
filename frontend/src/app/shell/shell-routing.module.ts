@@ -38,6 +38,10 @@ const routes: Routes = [
     component: ScheduleComponent,
   },
   {
+    path: 'holidays',
+    component: HolidaysComponent,
+  },
+  {
     path: 'rules',
     canActivate: [dmGuard],
     component: RulesComponent,
@@ -47,10 +51,6 @@ const routes: Routes = [
     canActivate: [employeeGuard],
     component: ShiftSwapComponent,
   },
-  {
-    path: 'holidays',
-    component: HolidaysComponent,
-  }
 ]
 
 @NgModule({
