@@ -123,7 +123,7 @@ export class ScheduleComponent implements OnInit {
         this.updateData();
       },
       error => {
-        this.messageService.add({severity: 'error', summary: 'Error creating schedule' + JSON.stringify(error.error).replaceAll('"', '')});
+        this.messageService.add({severity: 'error', summary: 'Error creating schedule: ' + JSON.stringify(error.error).replaceAll('"', '')});
         this.loading = false;
 
       });
