@@ -32,7 +32,6 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -94,7 +93,7 @@ public class UserService {
      * @param principal the current user's id
      * @return List of all users from the team of the dm
      */
-    public List<User> findByTeam(Principal principal) throws NoSuchElementException {
+    public List<User> findByTeam(Principal principal) throws NotFoundException {
         return repository.findAllByTeam(getPrincipalWithTeam(principal).getTeam()).stream()
                 .peek(u -> u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation()))
                 .toList();
@@ -219,26 +218,9 @@ public class UserService {
         if (user.getCurrentOverTime() != null) {
             dbUser.setCurrentOverTime(user.getCurrentOverTime());
         }
-        if (user.getSpecialSkills() != null) {
-            dbUser.setSpecialSkills(user.getSpecialSkills());
-        }
-        if (user.getTeam() != null) {
-            dbUser.setTeam(user.getTeam());
-        }
-        if (user.getHolidays() != null) {
-            dbUser.setHolidays(user.getHolidays());
-        }
+
         if (user.getPreferences() != null) {
             dbUser.setPreferences(user.getPreferences());
-        }
-        if (user.getRequestedShiftSwaps() != null) {
-            dbUser.setRequestedShiftSwaps(user.getRequestedShiftSwaps());
-        }
-        if (user.getSuggestedShiftSwaps() != null) {
-            dbUser.setSuggestedShiftSwaps(user.getSuggestedShiftSwaps());
-        }
-        if (user.getShifts() != null) {
-            dbUser.setShifts(user.getShifts());
         }
         if (user.getCanWorkShiftTypes() != null) {
             for (ShiftType shiftType : dbUser.getCanWorkShiftTypes()) {
@@ -255,7 +237,8 @@ public class UserService {
             }
         }
         if (user.getPreferredShiftTypes() != null) {
-            dbUser.setPreferredShiftTypes(user.getPreferredShiftTypes());
+            dbUser.getPreferredShiftTypes().clear();
+            dbUser.getPreferredShiftTypes().addAll(user.getPreferredShiftTypes());
         }
 
         return dbUser;

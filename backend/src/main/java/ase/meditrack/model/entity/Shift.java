@@ -51,10 +51,10 @@ public class Shift {
     )
     private List<User> users;
 
-    @OneToMany(mappedBy = "requestedShift", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "requestedShift", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShiftSwap> requestedShiftSwap;
 
-    @OneToMany(mappedBy = "suggestedShift")
+    @OneToMany(mappedBy = "suggestedShift", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShiftSwap> suggestedShiftSwap;
 
 

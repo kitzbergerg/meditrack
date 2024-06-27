@@ -1,5 +1,6 @@
 package ase.meditrack.model.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -62,13 +63,13 @@ public class ShiftType {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToMany(mappedBy = "shiftType")
+    @OneToMany(mappedBy = "shiftType", cascade = CascadeType.REMOVE)
     private List<Shift> shifts;
 
-    @ManyToMany(mappedBy = "canWorkShiftTypes")
+    @ManyToMany(mappedBy = "canWorkShiftTypes", cascade = CascadeType.ALL)
     private List<User> workUsers;
 
-    @ManyToMany(mappedBy = "preferredShiftTypes")
+    @ManyToMany(mappedBy = "preferredShiftTypes", cascade = CascadeType.ALL)
     private List<User> preferUsers;
 
     @Override

@@ -2,9 +2,7 @@ package ase.meditrack.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -52,20 +50,20 @@ public class User {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Holiday> holidays;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)
     @PrimaryKeyJoinColumn
     private Preferences preferences;
 
-    @OneToMany(mappedBy = "swapRequestingUser")
+    @OneToMany(mappedBy = "swapRequestingUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShiftSwap> requestedShiftSwaps;
 
-    @OneToMany(mappedBy = "swapSuggestingUser")
+    @OneToMany(mappedBy = "swapSuggestingUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShiftSwap> suggestedShiftSwaps;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
     private List<Shift> shifts;
 
     @ManyToMany
