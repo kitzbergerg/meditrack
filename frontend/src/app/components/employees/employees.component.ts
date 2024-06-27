@@ -152,7 +152,6 @@ export class EmployeesComponent {
     this.shiftTypeService.getAllShiftTypesByTeam().subscribe({
       next: (response: ShiftType[]) => {
         this.shiftTypes = response;
-        console.log("Fetched Shift Types successfully")
       },
       error: (error: { error: any; }) => {
         this.messageService.add({severity: 'error', summary: 'Error fetching Shift Types: ', detail: error.error});
@@ -266,7 +265,6 @@ export class EmployeesComponent {
               //this.usersFromTeam[this.findIndexById(user.id)] = user;
               this.usersFromTeam = this.usersFromTeam.filter(u => u.id != user.id)
               this.usersFromTeam.push(user);
-              console.log(user)
             }
             this.messageService.add({severity: 'success', summary: 'Successfully Updated User ' + user.firstName});
             this.userDialog = false;
@@ -284,7 +282,6 @@ export class EmployeesComponent {
         }
         this.newUser.team = this.team.id;
         this.newUser.password = <string>this.newUser.username;
-        console.log(this.newUser);
         this.userService.createUser(this.newUser)
           .subscribe({
               next: (user) => {

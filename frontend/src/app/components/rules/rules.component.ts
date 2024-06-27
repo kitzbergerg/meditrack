@@ -125,7 +125,6 @@ export class RulesComponent implements OnInit {
           this.selectedRuleBackup = { ...this.selectedRule! };
         },
         error: (error) => {
-          console.error('Error updating rule:', error);
           this.messageService.add({
             severity: 'error',
             summary: $localize`@@rules.component.updating-rule-failed:Updating Rule Failed`,
@@ -147,7 +146,6 @@ export class RulesComponent implements OnInit {
             this.selectedRoleRulesBackup = { ...this.selectedRoleRules! };
           },
           error: (error) => {
-            console.error('Error updating rule:', error);
             this.messageService.add({
               severity: 'error',
               summary: $localize`@@rules.component.updating-rule-failed:Updating rules for role failed`,

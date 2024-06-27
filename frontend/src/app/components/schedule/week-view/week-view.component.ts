@@ -270,7 +270,6 @@ export class WeekViewComponent implements OnInit {
       a.click();
       window.URL.revokeObjectURL(url);
     }, error => {
-      console.error('Error downloading PDF:', error);
       if (error.status === 404) {
         this.messageService.add({ severity: 'error', summary: 'No monthly plan created yet!'});
       } else {
