@@ -316,8 +316,9 @@ public class UserService {
 
         // remove users that have worked too many days in a row in the past or present
         LocalDate shiftDate = shift.get().getDate();
-        LocalDate startDate = shiftDate.minusDays(3);
-        LocalDate endDate = shiftDate.plusDays(3);
+        int maxConsecutiveShifts = sickUser.getRole().getMaxConsecutiveShifts();
+        LocalDate startDate = shiftDate.minusDays(maxConsecutiveShifts);
+        LocalDate endDate = shiftDate.plusDays(maxConsecutiveShifts);
 
         usersSameRole.removeIf(user -> {
             List<Shift> userShifts = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(
@@ -342,19 +343,23 @@ public class UserService {
                 return true;
             }
 
-            // Check if there is at least one day off in the specified period
-            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                LocalDate finalDate = date;
-                // skip if the date is the same as the replacements shift date
-                if (finalDate.equals(shiftDate)) {
-                    continue;
+            // Check how many consecutive shifts the user has in the period around the new shift
+            int consecutiveShifts = 0;
+            log.info("dates: {} - {}", startDate, endDate);
+            for (LocalDate date = startDate.plusDays(1); !date.isAfter(endDate.minusDays(1)); date = date.plusDays(1)) {
+                LocalDate currentDate = date;
+                boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(currentDate));
+                // Log if the user has a shift on the current date
+                if (currentDate.equals(shiftDate) || hasShift) {
+                    consecutiveShifts++;
+                } else {
+                    consecutiveShifts = 0;
                 }
-                boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(finalDate));
-                if (!hasShift) {
-                    return false; // User has at least one day off
+                if (consecutiveShifts > maxConsecutiveShifts) {
+                    return true;
                 }
             }
-            return true; // User does not have any day off in the period
+            return false; // if the user has less than maxConsecutiveShifts, keep them
         });
         return usersSameRole;
     }
