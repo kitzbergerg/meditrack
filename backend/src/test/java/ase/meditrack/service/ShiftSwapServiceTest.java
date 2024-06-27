@@ -144,7 +144,7 @@ public class ShiftSwapServiceTest {
         shiftSwap.setRequestedShift(shift);
         shiftSwap.setRequestedShiftSwapStatus(ShiftSwapStatus.ACCEPTED);
 
-        ShiftSwap result = shiftSwapService.create(shiftSwap);
+        ShiftSwap result = shiftSwapService.create(shiftSwap, false);
         assertEquals(result.getSwapRequestingUser().getId(), user.getId());
     }
 
@@ -168,7 +168,7 @@ public class ShiftSwapServiceTest {
         shiftSwap.setSuggestedShift(shiftSuggesting);
         shiftSwap.setSuggestedShiftSwapStatus(ShiftSwapStatus.PENDING);
 
-        assertThrows(ValidationException.class, () -> shiftSwapService.create(shiftSwap));
+        assertThrows(ValidationException.class, () -> shiftSwapService.create(shiftSwap, false));
     }
 
     @Test

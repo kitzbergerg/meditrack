@@ -17,7 +17,7 @@ export class HolidaysService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    return this.http.post<Holiday>(this.apiUrl, holiday, httpOptions);
+    return this.http.post<Holiday>(`${this.apiUrl}?shouldSendMail=true`, holiday, httpOptions);
   }
 
   updateHoliday(holiday: Holiday): Observable<Holiday> {
@@ -29,7 +29,7 @@ export class HolidaysService {
   }
 
   updateHolidayStatus(id: string, status: string): Observable<Holiday> {
-    return this.http.put<Holiday>(this.apiUrl + `/${id}/${status}`, null);
+    return this.http.put<Holiday>(this.apiUrl + `/${id}/${status}?shouldSendMail=true`, null);
   }
 
   getAllHolidaysByUser(): Observable<Holiday[]> {

@@ -8,11 +8,10 @@ import ase.meditrack.model.entity.Role;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
-import ase.meditrack.repository.RoleRepository;
-import ase.meditrack.repository.TeamRepository;
-import ase.meditrack.repository.UserRepository;
 import ase.meditrack.repository.MonthlyPlanRepository;
+import ase.meditrack.repository.RoleRepository;
 import ase.meditrack.repository.ShiftRepository;
+import ase.meditrack.repository.UserRepository;
 import ase.meditrack.util.DefaultTestCreator;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +38,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -152,7 +154,7 @@ public class MonthlyPlanServiceTest {
         monthlyPlan.setPublished(false);
         repository.save(monthlyPlan);
 
-        service.publish(monthlyPlan.getId(), () -> USER_ID);
+        service.publish(monthlyPlan.getId(), () -> USER_ID, false);
 
         MonthlyPlan savedMonthlyPlan = repository.findById(monthlyPlan.getId()).get();
 
@@ -178,7 +180,7 @@ public class MonthlyPlanServiceTest {
 
         assertFalse(service.isPublished(Month.JUNE, Year.of(2024), () -> USER_ID));
 
-        service.publish(monthlyPlan.getId(), () -> USER_ID);
+        service.publish(monthlyPlan.getId(), () -> USER_ID, false);
 
         assertTrue(service.isPublished(Month.JUNE, Year.of(2024), () -> USER_ID));
     }

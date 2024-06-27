@@ -7,10 +7,13 @@ import ase.meditrack.model.entity.MonthlyWorkDetails;
 import ase.meditrack.model.entity.Preferences;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
+import ase.meditrack.model.mapper.UserMapper;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.ShiftTypeRepository;
+import ase.meditrack.repository.TeamRepository;
 import ase.meditrack.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
@@ -47,20 +50,22 @@ public class UserService {
     private final ShiftTypeRepository shiftTypeRepository;
     private final MailService mailService;
     private final MonthlyWorkDetailsRepository monthlyWorkDetailsRepository;
-
+    private final TeamRepository teamRepository;
+    private final UserMapper mapper;
     private final ShiftRepository shiftRepository;
 
     public UserService(RealmResource meditrackRealm, UserRepository repository, UserValidator userValidator,
-                       ShiftTypeRepository shiftTypeRepository,
-                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, ShiftRepository shiftRepository,
-                       MailService mailService) {
-
+                       ShiftTypeRepository shiftTypeRepository, MailService mailService,
+                       MonthlyWorkDetailsRepository monthlyWorkDetailsRepository, TeamRepository teamRepository,
+                       UserMapper mapper, ShiftRepository shiftRepository) {
         this.meditrackRealm = meditrackRealm;
         this.repository = repository;
         this.userValidator = userValidator;
         this.shiftTypeRepository = shiftTypeRepository;
         this.mailService = mailService;
         this.monthlyWorkDetailsRepository = monthlyWorkDetailsRepository;
+        this.teamRepository = teamRepository;
+        this.mapper = mapper;
         this.shiftRepository = shiftRepository;
     }
 
@@ -135,10 +140,14 @@ public class UserService {
         user.setUserRepresentation(userRepresentation);
 
         if (shouldSendInviteMail != null && shouldSendInviteMail) {
-            mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
-                    generateWelcomeMessage(userRepresentation));
+            new Thread(() -> sendMailToUser(userRepresentation)).start();
         }
         return user;
+    }
+
+    private void sendMailToUser(UserRepresentation userRepresentation) {
+        mailService.sendSimpleMessage(userRepresentation.getEmail(), "Welcome to Meditrack",
+                generateWelcomeMessage(userRepresentation));
     }
 
     private UserRepresentation createKeycloakUser(UserRepresentation userRepresentation) {
@@ -424,14 +433,39 @@ public class UserService {
         return dm.getTeam().getId().equals(user.getTeam().getId());
     }
 
+    /**
+     * Fetches the team leader of a given user.
+     *
+     * @param user the user to find the team leader for
+     * @return the team leader of the user
+     */
+    public Optional<User> findTeamLeaderByMember(User user) {
+        if (user.getTeam() == null) {
+            throw new NotFoundException("User has no team.");
+        }
+        Team team = teamRepository.findById(user.getTeam().getId())
+                .orElseThrow(() -> new NotFoundException("Team not found."));
+
+        if (team.getUsers() != null && !team.getUsers().isEmpty()) {
+            for (User u : team.getUsers()) {
+                u = findById(u.getId()); //we need to call findById to get the userRepresentation
+                List<String> roles = mapper.mapRoles(u);
+                if (roles.contains("dm")) {
+                    return Optional.of(u);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     private String generateWelcomeMessage(UserRepresentation userRepresentation) {
-        return "Welcome to Meditrack, " + userRepresentation.getFirstName() + " "
+        return "Welcome to MediTrack, " + userRepresentation.getFirstName() + " "
                 + userRepresentation.getLastName() + "!\n\n"
-                + "You have been successfully registered as a user in Meditrack.\n\n"
+                + "You have been successfully registered as a user in MediTrack.\n\n"
                 + "Your username is: " + userRepresentation.getUsername() + "\n\n"
-                + "You can now log in to Meditrack and start using the application.\n\n"
+                + "You can now log in to MediTrack and start using the application.\n\n"
                 + "If you have any questions or need help, please contact your team leader.\n\n"
                 + "Best regards,\n"
-                + "Your Meditrack Team";
+                + "Your MediTrack Team";
     }
 }
