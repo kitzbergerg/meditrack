@@ -34,7 +34,7 @@ import {
   getISOWeek
 } from 'date-fns';
 import {ScheduleLegendComponent} from "./schedule-legend/schedule-legend.component";
-import {ScheduleMapService} from "../../schedule.service";
+import {ScheduleCacheService} from "../../services/schedule-cache.service";
 
 @Component({
   selector: 'app-schedule',
@@ -75,7 +75,7 @@ export class ScheduleComponent implements OnInit {
   constructor(private scheduleService: ScheduleService, private roleService: RolesService,
               private userService: UserService, private shiftTypeService: ShiftTypeService,
               private authorizationService: AuthorizationService, private shiftService: ShiftService,
-              private messageService: MessageService, private scheduleMapService: ScheduleMapService) {
+              private messageService: MessageService, private scheduleMapService: ScheduleCacheService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -110,12 +110,10 @@ export class ScheduleComponent implements OnInit {
         const cacheKey = this.generateCacheKey(this.startDate);
 
         if (!this.scheduleMapService.getCachedSchedule(cacheKey) && data.id != null) {
-          //this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
           this.scheduleMapService.setCachedSchedule(cacheKey, {id: data.id, published: data.published});
+          this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
         }
-        //this.parseScheduleToMap(data);
         this.scheduleMapService.parseScheduleToMap(data);
-        //this.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
         this.scheduleMapService.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
         this.changeRange("month");
         this.displayCreateScheduleButton = false;
@@ -140,13 +138,14 @@ export class ScheduleComponent implements OnInit {
             resolve();
             return;
           }
-          if (!this.scheduleMapService.getCachedSchedule(cacheKey)) {
-            //this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
+          const schedule = this.scheduleMapService.getCachedSchedule(cacheKey);
+          if (!schedule) {
+            this.cachedSchedules[cacheKey] = {id: data.id, published: data.published};
             this.scheduleMapService.setCachedSchedule(cacheKey, {id: data.id, published: data.published});
             this.scheduleMapService.parseScheduleToMap(data);
-            //this.parseScheduleToMap(data);
-            //this.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
             this.scheduleMapService.parseWorkDetailsToMap(data.monthlyWorkDetails, cacheKey);
+          } else {
+            this.cachedSchedules[cacheKey] = schedule
           }
 
           this.userWorkDetails = data.monthlyWorkDetails;
@@ -181,35 +180,6 @@ export class ScheduleComponent implements OnInit {
     });
   }
 
-  parseWorkDetailsToMap(workDetails: WorkDetails[], cacheKey: string): void {
-    // Maps the work details to the employee work details map
-    workDetails.forEach((detail) => {
-      if (!this.workDetailsMap.has(detail.userId)) {
-        this.workDetailsMap.set(detail.userId, new Map<string, WorkDetails>());
-      }
-      this.workDetailsMap.get(detail.userId)?.set(cacheKey, detail);
-    });
-  }
-
-  parseScheduleToMap(schedule: Schedule): void {
-    // Maps the schedule to the employee shift map
-    schedule.shifts.forEach((shift) => {
-      const employeeId = shift.users[0];
-      if (!shift.date) {
-        return;
-      }
-      const shiftId = new Date(shift.date); // Create a unique shift identifier
-
-      if (!this.employeeShiftMap.has(employeeId)) {
-        this.employeeShiftMap.set(employeeId, new Map<string, SimpleShift>());
-      }
-
-      if (this.employeeShiftMap.get(employeeId)) {
-        this.employeeShiftMap.get(employeeId)?.set(format(shiftId, 'yyyy-MM-dd'), shift);
-      }
-    });
-  }
-
   deleteMonthlyPlanFromMap(monthlyPlan: string): void {
     // Iterate through each employee's shift map
     this.employeeShiftMap.forEach((shiftMap) => {
@@ -231,12 +201,11 @@ export class ScheduleComponent implements OnInit {
 
   setCurrentSchedule(): void {
     const cacheKey = this.generateCacheKey(this.startDate);
-    //this.currentSchedule = this.cachedSchedules[cacheKey];
     const schedule = this.scheduleMapService.getCachedSchedule(cacheKey);
     if (schedule) {
       this.cachedSchedules[cacheKey] = schedule;
+      this.currentSchedule = schedule;
     }
-    // this.cachedSchedules = this.scheduleMapService.getCachedSchedule(cacheKey);
   }
 
   mapUsers(users: User[]): UserWithShifts[] {
@@ -401,6 +370,7 @@ export class ScheduleComponent implements OnInit {
     return new Promise<void>((resolve, reject) => {
       this.userService.getAllUserFromTeam().subscribe({
         next: data => {
+          data = data.filter(user => user.roles.includes('employee'));
           this.users = data;
           // Sort users so current user is always first and the rest are alphabetical by last name
           this.users.sort((a, b) => {
