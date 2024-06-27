@@ -12,7 +12,6 @@ export interface User {
   role: Role ;
   workingHoursPercentage: number;
   currentOverTime?: number | null; // Nullable in CreateValidator class
-  specialSkills: string[];
   team?: string; // Nullable
   holidays: string[]; // List of UUIDs
   preferences?: string; // Nullable

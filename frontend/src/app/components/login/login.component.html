@@ -1,21 +1,19 @@
-<div class="grid surface-section text-800" >
-  <div class="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center">
-    <section>
-      <span class="block text-6xl font-bold mb-1">Log in to access </span>
-      <div class="text-6xl text-primary font-bold mb-3">MediTrack</div>
-      <p class="mt-0 mb-4 text-700 line-height-3">Unique and refreshing experiences are waiting for you.</p>
-      <button style="padding: 15px 30px; font-size: 20px; border: none; border-radius: 6px; background-color: var(--primary-color); color: white; cursor: pointer; transition: background-color 0.3s ease;" (click)="login()">Login</button>
+<div class="grid grid-nogutter surface-section text-800" style="height: 100vh;">
+  <div class="col-12 md:col-4 p-6 text-center md:text-left flex align-items-center" style="height: 100%;">
+    <section class="ml-8">
+      <span class="block text-6xl font-bold mb-1">Welcome to</span>
+      <div class="text-8xl text-primary font-bold mb-3">MediTrack</div>
+      <p class="mt-0 mb-4 text-md line-height-3">
+        Effortlessly manage your schedule with our comprehensive and user-friendly platform.
+      </p>
+      <button pButton pRipple label="Log In" type="button" class="mr-3 p-button-raised" (click)="login()"></button>
     </section>
   </div>
-
-  <div class="col-12 md:col-6 overflow-hidden" style="height: 98vh; display: flex; align-items: center; justify-content: center;">
-    <p-image src="/assets/layout/images/Calendar.webp" alt="Image" styleClass="md:ml-auto block"
-             [ngStyle]="{
-            'max-height': '100%',
-            'max-width': '100%',
-            'object-fit': 'cover',
-            'clip-path': 'polygon(10% 0, 100% 0%, 100% 100%, 0 100%)'
-          }">
-    </p-image>
+  <div class="col-12 md:col-8 overflow-hidden" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+    <img src="assets/layout/images/Color_Calendar2.webp" alt="Image" class="md:ml-auto block" style="clip-path: polygon(20% 0, 100% 0%, 100% 100%, 0 100%); height: 100%; width: 100%; object-fit: cover;">
   </div>
 </div>
+
+
+
+

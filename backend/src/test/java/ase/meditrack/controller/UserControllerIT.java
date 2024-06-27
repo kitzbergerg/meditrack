@@ -114,7 +114,6 @@ class UserControllerIT {
                 new SimpleRoleDto(role.getId(), role.getName()),
                 1f,
                 null,
-                null,
                 team.getId(),
                 null,
                 null,

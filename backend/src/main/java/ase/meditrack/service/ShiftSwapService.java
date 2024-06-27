@@ -125,6 +125,8 @@ public class ShiftSwapService {
     @Transactional
     public ShiftSwap create(ShiftSwap shiftSwap, Boolean shouldSendMail) {
         validator.shiftSwapCreateValidation(shiftSwap);
+        Optional<Shift> requestedShift = shiftRepository.findById(shiftSwap.getRequestedShift().getId());
+        requestedShift.ifPresent(shift -> shift.getRequestedShiftSwap().add(shiftSwap));
 
         ShiftSwap created = repository.save(shiftSwap);
 

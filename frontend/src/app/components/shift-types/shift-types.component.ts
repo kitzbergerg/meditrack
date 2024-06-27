@@ -60,7 +60,6 @@ export class ShiftTypesComponent {
     roles: [],
     workingHoursPercentage: 0,
     currentOverTime: 0,
-    specialSkills: [],
     holidays: [],
     shifts: [],
     role: {name: "", color: "", abbreviation: ""},
@@ -139,8 +138,12 @@ export class ShiftTypesComponent {
           this.loadShiftTypes();
           this.resetForm();
         }, error => {
+          let message = "";
+          if (error.status == 422) {
+            message = ", already assigned to shifts!";
+          }
           console.error('Error deleting shift type:', error);
-          this.messageService.add({severity: 'error', summary: 'Deleting Shift Type Failed', detail: error.error});
+          this.messageService.add({severity: 'error', summary: 'Deleting Shift Type Failed' + message});
         });
     }
   }

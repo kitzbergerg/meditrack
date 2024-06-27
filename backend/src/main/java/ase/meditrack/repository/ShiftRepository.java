@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -47,4 +48,13 @@ public interface ShiftRepository extends JpaRepository<Shift, UUID> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /**
+     * Fetches a shift and loads the shift swaps.
+     *
+     * @param id from t
+     * @return shift with the id
+     */
+    @Query("SELECT s FROM shift s LEFT JOIN FETCH s.requestedShiftSwap WHERE s.id = :id")
+    Optional<Shift> findByIdWithShiftSwaps(@Param("id") UUID id);
 }

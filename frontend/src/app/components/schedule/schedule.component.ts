@@ -123,7 +123,7 @@ export class ScheduleComponent implements OnInit {
         this.updateData();
       },
       error => {
-        this.messageService.add({severity: 'error', summary: 'Error creating schedule' + error.error});
+        this.messageService.add({severity: 'error', summary: 'Error creating schedule' + JSON.stringify(error.error).replaceAll('"', '')});
         this.loading = false;
 
       });
@@ -480,13 +480,7 @@ export class ScheduleComponent implements OnInit {
               this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
             }
           }, error: (error) => {
-            let message = 'Creating shift failed:';
-            if (error.error.date) {
-              message += ` ${error.error.date}`;
-            } else {
-              message += ` ${error.error}`;
-            }
-            this.messageService.add({severity: 'error', summary: message});
+            this.messageService.add({severity: 'error', summary: 'Creating shift failed: ' + JSON.stringify(error.error).replaceAll('"', '')});
           }
         });
         break;
@@ -502,7 +496,7 @@ export class ScheduleComponent implements OnInit {
             }
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Deleting shift failed: ' + error.error});
+            this.messageService.add({severity: 'error', summary: 'Deleting shift failed: ' + JSON.stringify(error.error).replaceAll('"', '')});
           }
         })
         break;
@@ -516,7 +510,7 @@ export class ScheduleComponent implements OnInit {
             this.employeeShiftMap.get(data.users[0])?.set(shiftDateString, shift);
             if (shiftInfo.user.id != undefined) this.fetchWorkDetails(shiftInfo.user.id, shiftDate);
           }, error: (error) => {
-            this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + error.error});
+            this.messageService.add({severity: 'error', summary: 'Updating shift failed: ' + JSON.stringify(error.error).replaceAll('"', '')});
           }
         })
         break;

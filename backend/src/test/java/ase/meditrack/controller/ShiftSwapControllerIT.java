@@ -88,7 +88,6 @@ class ShiftSwapControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,
@@ -288,6 +287,7 @@ class ShiftSwapControllerIT {
         newRequest.setUsers(users);
         SimpleShiftDto newRequestDto = new SimpleShiftDto(newRequest.getId(),
                 newRequest.getDate(),
+                false,
                 monthlyPlan.getId(),
                 simpleShiftTypeDto,
                 userIds);
@@ -296,7 +296,6 @@ class ShiftSwapControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,
@@ -318,6 +317,7 @@ class ShiftSwapControllerIT {
         newSuggest.setUsers(suggestUsers);
         SimpleShiftDto newSuggestDto = new SimpleShiftDto(newSuggest.getId(),
                 newSuggest.getDate(),
+                false,
                 monthlyPlan.getId(),
                 simpleShiftTypeDto,
                 suggestUserIds);
@@ -389,7 +389,6 @@ class ShiftSwapControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,
