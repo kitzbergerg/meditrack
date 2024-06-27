@@ -1,9 +1,9 @@
 package ase.meditrack.service;
 
-
 import ase.meditrack.exception.NotFoundException;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
+import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -27,6 +27,8 @@ import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -70,9 +72,9 @@ public class PdfGenerationService {
                         + monthlyPlan.getTeam().getName() + " "
                         + month.getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " "
                         + year.toString())
-                .setFontSize(14)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBold();
+                        .setFontSize(14)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold();
         document.add(title);
 
         YearMonth yearMonthObject = YearMonth.of(year.getValue(), month.getValue());
@@ -109,9 +111,30 @@ public class PdfGenerationService {
         }
 
         document.add(table);
+
+        // Add legend for shift types
+        document.add(new Paragraph("\nShift Type Legend").setBold().setFontSize(12));
+
+        Table legendTable = new Table(new float[]{1, 2});
+        legendTable.setWidth(UnitValue.createPercentValue(30));
+
+        legendTable.addHeaderCell(new Cell().add(new Paragraph("Abbreviation").setBold().setFontSize(10)));
+        legendTable.addHeaderCell(new Cell().add(new Paragraph("Shift Type").setBold().setFontSize(10)));
+
+        Set<ShiftType> shiftTypes = monthlyPlan.getShifts().stream()
+                .map(Shift::getShiftType)
+                .collect(Collectors.toSet());
+
+        for (ShiftType shiftType : shiftTypes) {
+            shiftType.getColor();
+            legendTable.addCell(new Cell().add(new Paragraph(shiftType.getAbbreviation()).setFontSize(10)));
+            legendTable.addCell(new Cell().add(new Paragraph(shiftType.getName()).setFontSize(10)));
+        }
+
+        document.add(legendTable);
+
         document.close();
         return baos.toByteArray();
-
     }
 
     /**
