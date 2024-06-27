@@ -113,8 +113,7 @@
       </span>
 
 
-      <div *ngIf="!loading">
-        {{currentSchedule?.published}}
+      <div *ngIf="!loading && currentSchedule?.published">
         <p-button
           icon="pi pi-file-pdf"
           [outlined]="true"
