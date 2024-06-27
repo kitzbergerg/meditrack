@@ -16,6 +16,7 @@ import {AuthorizationService} from "../../services/authorization/authorization.s
 import {PreferencesService} from "../../services/preferences.service";
 import {Preferences} from "../../interfaces/preferences";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {format, parseISO} from "date-fns";
 
 @Component({
   selector: 'app-preferences',
@@ -129,12 +130,12 @@ export class PreferencesComponent {
               this.toggleDialog()
               this.reset();
             }, error: error => {
+              this.toggleDialog()
               this.messageService.add({
                 severity: 'error',
                 summary: 'Saving Off Day Failed',
                 detail: error.error
               });
-              this.toggleDialog()
               this.reset();
             }
           });
@@ -174,9 +175,15 @@ export class PreferencesComponent {
   }
 
   generateOffDay() {
+
     if (this.selectedDate != undefined) {
+      const date = this.selectedDate;
+      if (this.offDays.filter(day => day.toString() == format(date.toDateString(), 'yyyy-MM-dd')).length == 0) {
         this.valid = true;
         this.toggleDialog()
+      } else {
+        this.valid= false;
+      }
     } else {
       this.valid = false;
     }

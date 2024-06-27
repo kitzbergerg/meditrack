@@ -1,56 +1,18 @@
 <div class="grid">
-  <div class="col-12 md:col-6">
+  <div class="col-12">
     <div class="card px-6 py-6">
-      <h2 class="pb-2" style="text-align: center;">Preferred Off Days</h2>
-      <ul class="list-none p-0 m-0"
-          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-        <li *ngFor="let offDay of offDays" class="flex items-center mt-2">
-          <p-card [style]="{width: '500px', maxHeight: '60px'}" styleClass="p-card-shadow">
-            <div class="flex" style="display: flex; align-items: center; margin-top: -25px">
-              <div class="pi pi-calendar mr-2" style="font-size: 1.8rem; width: 50px;"></div>
-              <div class="text font-medium" style="font-size: 1.4rem; flex-grow: 1;">
-                {{ offDay | date:'dd.MM.YYYY' }}
-              </div>
-              <div style="display: flex; align-items: center; gap: 10px">
-                <p-button (click)="confirmDeleteOffDay($event, offDay)" icon="pi pi-trash" [outlined]="true" severity="danger"></p-button>
-              </div>
-            </div>
-            <p-confirmDialog/>
-          </p-card>
-        </li>
+      <h2 style="text-align: center;">Preferred Off Days</h2>
+      <div class="flex flex-column pb-4">
 
-        <p-dialog [(visible)]="offDayDialog" [style]="{ width: '450px'}" header="Off Day" [modal]="true"
-                  class="p-fluid">
-          <ng-template pTemplate="content">
-            <div *ngIf="selectedDate !== undefined">
-              <div class="p-1">
-                <p>Would you like to set the following date as your off day?</p>
-                <div class="text-lg font-semibold" style="display: block; text-align: center; margin-top: 10px;">
-                  {{ selectedDate | date:'dd.MM.YYYY' }}
-                </div>
-              </div>
-              <ng-template pTemplate="header">
-                <div class="text-xl font-bold"
-                     [ngStyle]="{color: 'white', height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+        <div>
+          <h6 *ngIf="offDays.length < 3" style="text-align: center; margin-top: 10px;">You can
+            choose three off days of for this month.</h6>
+          <h6 *ngIf="offDays.length === 3" style="text-align: center; margin-top: 10px;">Maximum number
+            of off days selected.</h6>
+        </div>
 
-                </div>
-              </ng-template>
-              <p-toast></p-toast>
-              <div class="flex flex-row justify-content-end mt-3">
-                <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
-                          (click)="toggleDialog()"></p-button>
-                <p-button label="Save" icon="pi pi-check" [text]="true"
-                          (click)="savePreferences()"></p-button>
-              </div>
-            </div>
-
-          </ng-template>
-
-        </p-dialog>
-
-        <div class="flex flex-column" *ngIf="this.offDays.length < 3">
+        <div *ngIf="offDays.length < 3" class="flex flex-column">
           <div class="flex center">
-            <p-toast></p-toast>
             <p-calendar
               [selectOtherMonths]="false"
               [iconDisplay]="'input'"
@@ -65,7 +27,8 @@
               (onSelect)="generateOffDay()"
               placeholder="Choose Off Day">
               <ng-template pTemplate="inputicon" let-clickCallBack="clickCallBack">
-                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;" (click)="clickCallBack($event)"> </i>
+                <i class="pi pi-plus pointer-events-click" style="cursor: pointer;"
+                   (click)="clickCallBack($event)"> </i>
               </ng-template>
               <ng-template pTemplate="date" let-date>
                 <div [ngStyle]="{
@@ -85,9 +48,61 @@
               </ng-template>
             </p-calendar>
           </div>
+          <div class="flex center">
+            <small *ngIf="!valid">Off day for this day is already selected</small>
+          </div>
         </div>
-        <h6 style="text-align: center; margin-top: 10px; margin-bottom: -20px">You can choose three off days of your preference.</h6>
+
+      </div>
+
+      <ul class="list-none"
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 8px;">
+
+        <li *ngFor="let offDay of offDays" class="flex justify-content-between mt-2">
+          <p-card [style]="{width: '250px', maxHeight: '60px'}" styleClass="p-card-shadow">
+            <div class="flex" style="display: flex; align-items: center; margin-top: -25px">
+              <div class="pi pi-calendar mr-2" style="font-size: 1.8rem; width: 50px;"></div>
+              <div class="text font-medium" style="font-size: 1.4rem; flex-grow: 1;">
+                {{ offDay | date:'dd.MM.YYYY' }}
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <p-button (click)="confirmDeleteOffDay($event, offDay)" icon="pi pi-trash" [outlined]="true"
+                          severity="danger"></p-button>
+              </div>
+            </div>
+            <p-confirmDialog/>
+          </p-card>
+        </li>
+
       </ul>
+
+      <p-dialog [(visible)]="offDayDialog" [style]="{ width: '450px'}" header="Off Day" [modal]="true"
+                class="p-fluid">
+        <ng-template pTemplate="content">
+          <div *ngIf="selectedDate !== undefined">
+            <div class="p-1">
+              <p>Would you like to set the following date as your off day?</p>
+              <div class="text-lg font-semibold" style="display: block; text-align: center; margin-top: 10px;">
+                {{ selectedDate | date:'dd.MM.YYYY' }}
+              </div>
+            </div>
+            <ng-template pTemplate="header">
+              <div class="text-xl font-bold"
+                   [ngStyle]="{color: 'white', height:'3em', borderTopLeftRadius: '0.5em', borderTopRightRadius: '0.5em'}">
+
+              </div>
+            </ng-template>
+            <div class="flex flex-row justify-content-end mt-3">
+              <p-button label="Cancel" icon="pi pi-times" [text]="true" severity="secondary"
+                        (click)="toggleDialog()"></p-button>
+              <p-button label="Save" icon="pi pi-check" [text]="true"
+                        (click)="savePreferences()"></p-button>
+            </div>
+          </div>
+
+        </ng-template>
+      </p-dialog>
+
     </div>
   </div>
 </div>
