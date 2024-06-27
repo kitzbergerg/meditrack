@@ -2,6 +2,7 @@ package ase.meditrack.model.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,11 +52,11 @@ public class Shift {
     )
     private List<User> users;
 
-    @OneToMany(mappedBy = "requestedShift", cascade = CascadeType.ALL)
-    private List<ShiftSwap> requestedShiftSwap;
+    @OneToMany(mappedBy = "requestedShift", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ShiftSwap> requestedShiftSwap = new ArrayList<ShiftSwap>();
 
-    @OneToMany(mappedBy = "suggestedShift")
-    private List<ShiftSwap> suggestedShiftSwap;
+    @OneToMany(mappedBy = "suggestedShift", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ShiftSwap> suggestedShiftSwap = new ArrayList<ShiftSwap>();
 
 
     public void addUser(User user) {

@@ -83,7 +83,6 @@ class ShiftControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,

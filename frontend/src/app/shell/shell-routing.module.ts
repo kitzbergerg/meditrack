@@ -4,7 +4,6 @@ import {AccountSettingsComponent} from "../components/account-settings/account-s
 import {ShellComponent} from "./shell/shell.component";
 import {EmployeesComponent} from "../components/employees/employees.component";
 import {RolesComponent} from "../components/roles/roles.component";
-import {DashboardComponent} from "../components/dashboard/dashboard.component";
 import {employeeGuard} from "../guard/employee.guard";
 import {dmGuard} from "../guard/dm.guard";
 import {ShiftTypesComponent} from "../components/shift-types/shift-types.component";
@@ -14,11 +13,6 @@ import {HolidaysComponent} from "../components/holidays/holidays.component";
 import {RulesComponent} from "../components/rules/rules.component";
 
 const routes: Routes = [
-  {
-    path: 'dashboard',
-    canActivate: [employeeGuard],
-    component: DashboardComponent,
-  },
   {
     path: 'employees',
     canActivate: [dmGuard],
@@ -44,6 +38,10 @@ const routes: Routes = [
     component: ScheduleComponent,
   },
   {
+    path: 'holidays',
+    component: HolidaysComponent,
+  },
+  {
     path: 'rules',
     canActivate: [dmGuard],
     component: RulesComponent,
@@ -53,10 +51,6 @@ const routes: Routes = [
     canActivate: [employeeGuard],
     component: ShiftSwapComponent,
   },
-  {
-    path: 'holidays',
-    component: HolidaysComponent,
-  }
 ]
 
 @NgModule({

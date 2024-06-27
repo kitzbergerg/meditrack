@@ -142,7 +142,6 @@ export class HolidaysComponent {
       this.holidaysService.createHoliday(holiday)
         .subscribe({
           next: (response) => {
-            console.log('Holiday created successfully:', response);
             this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday created successfully'});
             this.getAllHolidaysFromUser();
             this.resetForm();
@@ -165,7 +164,6 @@ export class HolidaysComponent {
       this.holidaysService.updateHoliday(this.holiday)
         .subscribe({
           next: (response) => {
-            console.log('Holiday successfully updated:', response);
             this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday updated successfully'});
             this.selectHoliday(this.holiday);
             this.resetForm();
@@ -340,7 +338,9 @@ export class HolidaysComponent {
     this.holidaysService.updateHolidayStatus(this.teamHoliday.id, status)
       .subscribe({
         next: (response) => {
-          console.log('Holiday status updated successfully:', response);
+          this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday status updated successfully'});
+          this.getAllHolidaysFromTeam();
+          this.getAllHolidaysFromUser(); // Refresh user holidays because the dm can also approve his own holidays
           this.messageService.add({
             severity: 'success',
             summary: 'Success',

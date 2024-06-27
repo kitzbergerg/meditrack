@@ -42,7 +42,7 @@ public class MonthlyPlan {
     @OneToMany(mappedBy = "monthlyPlan", cascade = {CascadeType.REMOVE})
     private List<Shift> shifts;
 
-    @OneToMany(mappedBy = "monthlyPlan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "monthlyPlan", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<MonthlyWorkDetails> monthlyWorkDetails;
 
     @Override

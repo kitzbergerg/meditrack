@@ -81,7 +81,6 @@ public class ShiftServiceTest {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,
@@ -99,6 +98,7 @@ public class ShiftServiceTest {
         user = userRepository.save(user);
     }
 
+    @Transactional
     @Test
     void findAllReturnsAllShift() {
         List<Shift> resultList = service.findAll();

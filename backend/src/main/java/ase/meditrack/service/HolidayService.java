@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,13 +24,15 @@ public class HolidayService {
     private final UserService userService;
     private final HolidayValidator validator;
     private final TeamService teamService;
+    private final MailService mailService;
 
     public HolidayService(HolidayRepository repository, UserService userService,
-                HolidayValidator validator, TeamService teamService) {
+                HolidayValidator validator, TeamService teamService, MailService mailService) {
         this.repository = repository;
         this.userService = userService;
         this.validator = validator;
         this.teamService = teamService;
+        this.mailService = mailService;
     }
 
     /**
@@ -37,14 +40,35 @@ public class HolidayService {
      *
      * @param holiday the holiday to create
      * @param userId the id of the user
+     * @param shouldSendMail if a mail should be sent to the dm about the new holiday
      * @return the created holiday
      */
-    public Holiday create(Holiday holiday, String userId) {
+    public Holiday create(Holiday holiday, String userId, Boolean shouldSendMail) {
         User user = userService.findById(UUID.fromString(userId));
         validator.validateHoliday(holiday, user);
         holiday.setUser(user);
         holiday.setStatus(HolidayRequestStatus.REQUESTED);
-        return repository.save(holiday);
+
+        holiday = repository.save(holiday);
+        if (shouldSendMail != null && shouldSendMail) {
+            Optional<User> dm = userService.findTeamLeaderByMember(user);
+            if (dm.isPresent() && dm.get().getUserRepresentation() != null
+                    && dm.get().getUserRepresentation().getEmail() != null
+                    && dm.get().getUserRepresentation().getFirstName() != null
+                    && dm.get().getUserRepresentation().getLastName() != null) {
+                Holiday finalHoliday = holiday;
+                new Thread(() -> sendMailToDm(dm.get(), user, finalHoliday)).start();
+            }
+        }
+
+        return holiday;
+    }
+
+    private void sendMailToDm(User dm, User user, Holiday holiday) {
+        mailService.sendSimpleMessage(dm.getUserRepresentation().getEmail(),
+                "New holiday request from " + user.getUserRepresentation().getFirstName() + " "
+                        + user.getUserRepresentation().getLastName() + "!",
+                generateHolidayRequestMessageForDm(holiday));
     }
 
     /**
@@ -139,9 +163,10 @@ public class HolidayService {
      * @param id the id of the holiday
      * @param status the new status
      * @param principal the principal
+     * @param shouldSendMail if a mail should be sent to the user about the status change
      * @return the updated holiday
      */
-    public Holiday updateStatus(UUID id, HolidayRequestStatus status, Principal principal) {
+    public Holiday updateStatus(UUID id, HolidayRequestStatus status, Principal principal, Boolean shouldSendMail) {
         Holiday holiday = findById(id);
         // check if holiday is in the list of the dm's team holidays
         if (!findAllByTeam(principal).contains(holiday)) {
@@ -149,7 +174,22 @@ public class HolidayService {
                     "You are not allowed to update the status of this holiday! Only the team lead can update it.");
         }
         holiday.setStatus(status);
-        return repository.save(holiday);
+        holiday = repository.save(holiday);
+
+        if (shouldSendMail != null && shouldSendMail) {
+            Holiday finalHoliday = holiday;
+            new Thread(() -> sendMailToUser(finalHoliday)).start();
+        }
+        return holiday;
+    }
+
+    private void sendMailToUser(Holiday holiday) {
+        User user = userService.findById(holiday.getUser().getId());
+        if (user.getUserRepresentation() != null && user.getUserRepresentation().getEmail() != null) {
+            mailService.sendSimpleMessage(user.getUserRepresentation().getEmail(),
+                    "The status of your holiday request has been updated!",
+                    generateStatusUpdateMessageForUser(holiday));
+        }
     }
 
     /**
@@ -196,5 +236,23 @@ public class HolidayService {
     public boolean isCurrentUserSameAsUser(Principal principal, UUID userIdFromHoliday) {
         User user = userService.getPrincipalWithTeam(principal);
         return user.getId().equals(userIdFromHoliday);
+    }
+
+    private String generateHolidayRequestMessageForDm(Holiday holiday) {
+        return "New holiday request from " + holiday.getUser().getUserRepresentation().getFirstName() + " "
+                + holiday.getUser().getUserRepresentation().getLastName() + ":\n\n"
+                + "Holiday from: " + holiday.getStartDate() + " to: " + holiday.getEndDate() + "!\n\n"
+                + "To get more details and approve or reject the holiday, please log in to MediTrack.\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
+    }
+
+    private String generateStatusUpdateMessageForUser(Holiday holiday) {
+        return "The status of your holiday request from " + holiday.getStartDate() + " to " + holiday.getEndDate()
+                + " has been updated to " + holiday.getStatus() + "!\n\n"
+                + "To get more details about and edit your holiday, please log in to MediTrack.\n\n"
+                + "If you have any questions or need help, please contact your team leader.\n\n"
+                + "Best regards,\n"
+                + "Your MediTrack Team";
     }
 }

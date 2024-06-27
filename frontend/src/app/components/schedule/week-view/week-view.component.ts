@@ -17,9 +17,10 @@ import {Role} from "../../../interfaces/role";
 import {User} from "../../../interfaces/user";
 import {OverlayPanel, OverlayPanelModule} from "primeng/overlaypanel";
 import {ShiftType} from "../../../interfaces/shiftType";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {format, startOfDay} from 'date-fns';
+import {PdfGenerationService} from "../../../services/pdf-generation.service";
 import {SickLeaveDialogComponent} from "../sick-leave-dialog/sick-leave-dialog.component";
 
 @Component({
@@ -94,7 +95,9 @@ export class WeekViewComponent implements OnInit {
   selectedIndex = 0;
   selectedDay: any;
 
-  constructor(private confirmationService: ConfirmationService) {
+  constructor(private messageService: MessageService,
+              private confirmationService: ConfirmationService,
+              private pdfGenerationService: PdfGenerationService) {
   }
 
 
@@ -280,4 +283,25 @@ export class WeekViewComponent implements OnInit {
 
   protected readonly format = format;
   protected readonly Object = Object;
+
+  generatePdf(day: Day) {
+
+
+    this.pdfGenerationService.downloadPdf(day.date.toLocaleString('default', { month: 'long' }), day.date.getFullYear()).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'monthly_plan.pdf';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      if (error.status === 404) {
+        this.messageService.add({ severity: 'error', summary: 'No monthly plan created yet!'});
+      } else {
+        this.messageService.add({ severity: 'error', summary: 'error creating pdf: ' + error.error});
+      }
+    });
+  }
 }

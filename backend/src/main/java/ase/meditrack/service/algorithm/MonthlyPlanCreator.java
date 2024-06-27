@@ -1,5 +1,6 @@
 package ase.meditrack.service.algorithm;
 
+import ase.meditrack.exception.NoSolutionException;
 import ase.meditrack.model.entity.Holiday;
 import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.MonthlyWorkDetails;
@@ -97,7 +98,7 @@ public class MonthlyPlanCreator {
         );
 
         AlgorithmOutput output = SchedulingSolver.solve(input)
-                .orElseThrow(() -> new RuntimeException("unable to create plan"));
+                .orElseThrow(() -> new NoSolutionException("Could not generate schedule with given requirements."));
 
         MonthlyPlan monthlyPlan = monthlyPlanRepository.save(new MonthlyPlan(null, month, year, false,
                 team, null, null));

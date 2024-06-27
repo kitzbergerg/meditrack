@@ -13,6 +13,7 @@ import java.util.UUID;
 public record SimpleShiftDto(
         @Null(groups = CreateValidator.class) @NotNull(groups = UpdateValidator.class) UUID id,
         @FutureOrPresent(groups = CreateValidator.class) LocalDate date,
+        boolean isSick,
         UUID monthlyPlan,
         SimpleShiftTypeDto shiftType,
         List<UUID> users
