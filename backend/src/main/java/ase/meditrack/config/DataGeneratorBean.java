@@ -33,9 +33,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 @Profile("generate-data")
@@ -132,8 +134,8 @@ public class DataGeneratorBean {
                 role.setTeam(team);
                 role.setAllowedFlextimeTotal(40);
                 role.setAllowedFlextimePerMonth(20);
-                role.setDaytimeRequiredPeople(0);
-                role.setNighttimeRequiredPeople(0);
+                role.setDaytimeRequiredPeople(2);
+                role.setNighttimeRequiredPeople(1);
                 role.setWorkingHours(40);
                 role.setMaxWeeklyHours(80);
                 role.setMaxConsecutiveShifts(7);
@@ -214,11 +216,18 @@ public class DataGeneratorBean {
                         userEntity.setTeam(team);
                         userEntity.setRole(role);
 
-                        // Random random = new Random();
-                        // int subsetSize = random.nextInt(shiftTypes.size() + 1);
-                        // Collections.shuffle(shiftTypes, random);
-                        userEntity.setCanWorkShiftTypes(shiftTypes);
-                        userEntity.setPreferredShiftTypes(List.of(shiftTypes.get(0), shiftTypes.get(3)));
+                        Random random = new Random();
+                        List<ShiftType> shiftTypesRandom = new ArrayList<>(shiftTypes);
+                        Collections.shuffle(shiftTypesRandom, random);
+
+                        List<ShiftType> canWorkShift =
+                                shiftTypesRandom.subList(0, random.nextInt(shiftTypesRandom.size()));
+                        userEntity.setCanWorkShiftTypes(canWorkShift);
+
+                        if (canWorkShift.isEmpty()) canWorkShift = new ArrayList<>(shiftTypes);
+                        Collections.shuffle(canWorkShift, random);
+                        List<ShiftType> preferredShifts = canWorkShift.subList(0, random.nextInt(canWorkShift.size()));
+                        userEntity.setPreferredShiftTypes(preferredShifts);
 
                         users.add(userService.create(userEntity, false));
                     }
@@ -259,7 +268,7 @@ public class DataGeneratorBean {
             ShiftType dayShift = new ShiftType();
             dayShift.setName("Day Shift");
             dayShift.setStartTime(LocalTime.of(8, 0));
-            dayShift.setEndTime(LocalTime.of(20, 30));
+            dayShift.setEndTime(LocalTime.of(20, 0));
             dayShift.setBreakStartTime(LocalTime.of(12, 0));
             dayShift.setBreakEndTime(LocalTime.of(12, 30));
             dayShift.setAbbreviation("D7");
@@ -292,7 +301,7 @@ public class DataGeneratorBean {
             ShiftType nightShift = new ShiftType();
             nightShift.setName("Night Shift");
             nightShift.setStartTime(LocalTime.of(20, 0));
-            nightShift.setEndTime(LocalTime.of(8, 30));
+            nightShift.setEndTime(LocalTime.of(8, 0));
             nightShift.setBreakStartTime(LocalTime.of(23, 0));
             nightShift.setBreakEndTime(LocalTime.of(23, 30));
             nightShift.setAbbreviation("N7");
