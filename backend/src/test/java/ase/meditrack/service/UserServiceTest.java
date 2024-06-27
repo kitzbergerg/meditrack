@@ -61,6 +61,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         Shift shift = new Shift();
@@ -82,6 +84,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -111,6 +115,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -148,6 +154,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -188,6 +196,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -236,6 +246,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -261,7 +273,7 @@ class UserServiceTest {
         when(userResourceMock.toRepresentation()).thenReturn(userRepresentation);
 
         List<Shift> userShifts = new ArrayList<>();
-        for (int i = -3; i <= 2; i++) {
+        for (int i = -2; i <= 2; i++) {
             if (i == 0) {
                 continue;
             }
@@ -284,6 +296,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -334,6 +348,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -385,6 +401,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -436,6 +454,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -487,6 +507,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -533,6 +555,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -578,6 +602,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
@@ -624,6 +650,8 @@ class UserServiceTest {
         User sickUser = new User();
         sickUser.setId(UUID.randomUUID());
         Role role = new Role();
+        role.setMaxConsecutiveShifts(5);
+        role.setMaxWeeklyHours(80);
         sickUser.setRole(role);
 
         User replacementUser = new User();
