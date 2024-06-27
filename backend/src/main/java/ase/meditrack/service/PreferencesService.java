@@ -80,8 +80,9 @@ public class PreferencesService {
     public Preferences update(Preferences preference) {
         Preferences dbPreferences = findById(preference.getId());
 
-        if (preference.getOffDays() != null) {
-            if (preference.getOffDays().size() > 3) {
+        List<LocalDate> offDays = preference.getOffDays();
+        if (offDays != null) {
+            if (offDays.size() > 3) {
                 throw new ValidationException("The maximum number of preferred off days can be 3.");
             }
             Set<LocalDate> uniqueOffDays = new HashSet<>(preference.getOffDays());

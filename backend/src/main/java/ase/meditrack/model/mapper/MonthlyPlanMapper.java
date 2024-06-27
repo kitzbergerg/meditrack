@@ -11,7 +11,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         uses = {EntityUuidMapper.class, ShiftMapper.class})
@@ -31,12 +30,6 @@ public interface MonthlyPlanMapper {
                 monthlyWorkDetail.getHoursActuallyWorked(),
                 monthlyWorkDetail.getOvertime()
         );
-    }
-
-    default List<MonthlyWorkDetailsDto> toMonthlyWorkDetailDtoList(List<MonthlyWorkDetails> monthlyWorkDetails) {
-        return monthlyWorkDetails.stream()
-                .map(this::toMonthlyWorkDetailDto)
-                .collect(Collectors.toList());
     }
 
     @Mapping(target = "month", expression = "java(dto.month().getValue())")

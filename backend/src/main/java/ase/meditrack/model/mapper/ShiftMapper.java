@@ -41,7 +41,4 @@ public interface ShiftMapper {
 
     @IterableMapping(qualifiedByName = "toDto")
     List<ShiftDto> toDtoList(List<Shift> shifts);
-
-    @IterableMapping(qualifiedByName = "toScheduleDto")
-    List<ShiftScheduleDto> toScheduleDtoList(List<Shift> shifts);
 }
