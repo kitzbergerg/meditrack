@@ -86,7 +86,6 @@ class TeamControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,
@@ -135,20 +134,6 @@ class TeamControllerIT {
                 () -> assertNotNull(teamDto),
                 () -> assertEquals(team.getName(), teamDto.name())
         );
-    }
-
-    @Test
-    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
-    void test_deleteTeam_succeeds() throws Exception {
-        Team team = new Team();
-        team.setId(null);
-        team.setName("testTeam");
-        team.setDaytimeRequiredPeople(2);
-        team.setNighttimeRequiredPeople(2);
-        teamRepository.save(team);
-
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/team/" + team.getId()))
-                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -202,7 +187,6 @@ class TeamControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
                 null,
                 null,

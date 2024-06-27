@@ -1,23 +1,25 @@
 package ase.meditrack.controller;
 
 import ase.meditrack.config.KeycloakConfig;
-import ase.meditrack.model.dto.MonthlyPlanDto;
-import ase.meditrack.model.entity.*;
+import ase.meditrack.model.dto.*;
+import ase.meditrack.model.entity.MonthlyPlan;
+import ase.meditrack.model.entity.User;
+import ase.meditrack.model.entity.Team;
+import ase.meditrack.model.entity.ShiftType;
+import ase.meditrack.model.entity.Role;
 import ase.meditrack.repository.MonthlyPlanRepository;
 import ase.meditrack.repository.ShiftRepository;
 import ase.meditrack.repository.UserRepository;
 import ase.meditrack.service.MailService;
-import ase.meditrack.service.RoleService;
 import ase.meditrack.service.ShiftTypeService;
-import ase.meditrack.service.TeamService;
 import ase.meditrack.util.DefaultTestCreator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,17 +33,18 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Transactional
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
@@ -59,26 +62,21 @@ class MonthlyPlanControllerIT {
     private ObjectMapper objectMapper;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private TeamService teamService;
-    @Autowired
-    private RoleService roleService;
+    private User user;
+    private Team team;
     @Autowired
     private ShiftTypeService shiftTypeService;
     @Autowired
-    private MonthlyPlanRepository monthlyPlanRepository;
+    private MonthlyPlanRepository repository;
     @Autowired
     private ShiftRepository shiftRepository;
+    @Autowired
+    private DefaultTestCreator defaultTestCreator;
+    private Role role;
     @MockBean
     private RealmResource realmResource;
     @MockBean
     private UsersResource usersResource;
-    @Autowired
-    private DefaultTestCreator defaultTestCreator;
-
-    private Team team;
-    private Role role;
-    private User user;
 
     @BeforeEach
     void setup() {
@@ -90,8 +88,8 @@ class MonthlyPlanControllerIT {
                 role,
                 1f,
                 0,
-                null,
                 team,
+                null,
                 null,
                 null,
                 null,
@@ -101,26 +99,13 @@ class MonthlyPlanControllerIT {
                 null,
                 null
         ));
-        Preferences preferences = new Preferences(null, List.of(), user);
-        user.setPreferences(preferences);
-        userRepository.save(user);
-
-        // Mock the realmResource and usersResource behavior
-        when(realmResource.users()).thenReturn(usersResource);
-
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setId(USER_ID);
-        userRepresentation.setUsername("testUser");
-
-        UserResource userResource = mock(UserResource.class);
-        when(usersResource.get(USER_ID)).thenReturn(userResource);
-        when(userResource.toRepresentation()).thenReturn(userRepresentation);
     }
 
-    //@Test
+    // @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
-    void test_createPlan_succeeds() throws Exception {
-        ShiftType shiftType = new ShiftType(null,
+    void test_createMonthlyPlan_succeeds() throws Exception {
+        ShiftType shiftType = new ShiftType(
+                null,
                 "test shift type",
                 LocalTime.of(8, 0, 0),
                 LocalTime.of(12, 0, 0),
@@ -132,7 +117,6 @@ class MonthlyPlanControllerIT {
                 null,
                 null,
                 null
-
         );
         shiftTypeService.create(shiftType, () -> USER_ID);
 
@@ -146,14 +130,147 @@ class MonthlyPlanControllerIT {
                 .andReturn().getResponse().getContentAsString();
         MonthlyPlanDto created = objectMapper.readValue(response, MonthlyPlanDto.class);
 
-        assertNotNull(created);
-        assertNotNull(created.id());
-        assertFalse(created.shifts().isEmpty());
-        assertEquals(Year.of(2024), created.year());
-        assertEquals(Month.APRIL, created.month());
-        assertEquals(team.getId(), created.team());
+        Team finalTeam = team;
+        assertAll(
+                () -> assertNotNull(created),
+                () -> assertNotNull(created.id()),
+                () -> assertFalse(created.shifts().isEmpty()),
+                () -> assertEquals(Year.of(2024), created.year()),
+                () -> assertEquals(Month.APRIL, created.month()),
+                () -> assertEquals(finalTeam.getId(), created.team()),
+                () -> assertEquals(1, repository.count()),
+                () -> assertTrue(shiftRepository.count() > 0)
+        );
+    }
 
-        assertEquals(1, monthlyPlanRepository.count());
-        assertTrue(shiftRepository.count() > 0);
+    // @Test
+    @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
+    void test_getMonthlyPlanByTeamMonthYear_succeeds() throws Exception {
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        repository.save(monthlyPlan);
+        MonthlyPlan savedMonthlyPlan = repository.findById(monthlyPlan.getId()).get();
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/monthly-plan/team")
+                        .param("year", Year.of(2024).toString())
+                        .param("month", Month.JUNE.toString())
+                        .param("teamId", team.getId().toString()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        MonthlyPlanDto foundMonthlyPlan = objectMapper.readValue(response, MonthlyPlanDto.class);
+
+        assertAll(
+                () -> assertEquals(savedMonthlyPlan.getId(), foundMonthlyPlan.id()),
+                () -> assertEquals(Month.JUNE, foundMonthlyPlan.month()),
+                () -> assertEquals(Year.of(2024), foundMonthlyPlan.year()),
+                () -> assertEquals(savedMonthlyPlan.getPublished(), foundMonthlyPlan.published())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_getMonthlyPlans_succeeds() throws Exception {
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/monthly-plan"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        List<MonthlyPlanDto> monthlyPlans = objectMapper.readValue(response, new TypeReference<>() {
+        });
+
+        assertAll(
+                () -> assertNotNull(monthlyPlans),
+                () -> assertEquals(0, monthlyPlans.size())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_deleteMonthlyPlan_succeeds() throws Exception {
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        repository.save(monthlyPlan);
+        MonthlyPlan savedMonthlyPlan = repository.findById(monthlyPlan.getId()).get();
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/monthly-plan/" + savedMonthlyPlan.getId()))
+                .andExpect(status().isNoContent());
+
+        assertAll(
+                () -> assertFalse(repository.existsById(savedMonthlyPlan.getId())),
+                () -> assertEquals(0, repository.count())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_findMonthlyPlanById_succeeds() throws Exception {
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        repository.save(monthlyPlan);
+        MonthlyPlan savedMonthlyPlan = repository.findById(monthlyPlan.getId()).get();
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/monthly-plan/" + savedMonthlyPlan.getId()))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        MonthlyPlanDto foundMonthlyPlan = objectMapper.readValue(response, MonthlyPlanDto.class);
+
+        assertAll(
+                () -> assertEquals(savedMonthlyPlan.getId(), foundMonthlyPlan.id()),
+                () -> assertEquals(Month.JUNE, foundMonthlyPlan.month()),
+                () -> assertEquals(Year.of(2024), foundMonthlyPlan.year()),
+                () -> assertEquals(savedMonthlyPlan.getPublished(), foundMonthlyPlan.published())
+        );
+    }
+
+    @Test
+    @WithMockUser(authorities = "SCOPE_admin")
+    void test_updateMonthlyPlan_succeeds() throws Exception {
+        MonthlyPlan monthlyPlan = new MonthlyPlan();
+        monthlyPlan.setTeam(team);
+        monthlyPlan.setYear(2024);
+        monthlyPlan.setMonth(6);
+        monthlyPlan.setPublished(false);
+        repository.save(monthlyPlan);
+
+        MonthlyPlan savedMonthlyPlan = repository.findById(monthlyPlan.getId()).get();
+
+        List<UUID> users = new ArrayList<>();
+        users.add(user.getId());
+        ShiftDto shiftDto = new ShiftDto(null, null, false, null, null, users, null, null);
+        List<ShiftDto> shifts = new ArrayList<>();
+        shifts.add(shiftDto);
+        MonthlyPlanDto updatedMonthlyPlanDto = new MonthlyPlanDto(
+                savedMonthlyPlan.getId(),
+                Month.of(5),
+                Year.of(2024),
+                true,
+                team.getId(),
+                shifts,
+                null
+        );
+
+        String response = mockMvc.perform(MockMvcRequestBuilders.put("/api/monthly-plan")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(updatedMonthlyPlanDto)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        MonthlyPlanDto responseMonthlyPlan = objectMapper.readValue(response, MonthlyPlanDto.class);
+
+        assertAll(
+                () -> assertEquals(savedMonthlyPlan.getId(), responseMonthlyPlan.id()),
+                () -> assertEquals(updatedMonthlyPlanDto.month(), responseMonthlyPlan.month()),
+                () -> assertEquals(updatedMonthlyPlanDto.year(), responseMonthlyPlan.year()),
+                () -> assertEquals(updatedMonthlyPlanDto.published(), responseMonthlyPlan.published())
+        );
     }
 }
