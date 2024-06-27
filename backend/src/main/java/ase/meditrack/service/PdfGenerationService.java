@@ -5,6 +5,12 @@ import ase.meditrack.model.entity.MonthlyPlan;
 import ase.meditrack.model.entity.Shift;
 import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.User;
+
+import java.util.*;
+
+import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -24,10 +30,6 @@ import java.time.Month;
 import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,7 +97,12 @@ public class PdfGenerationService {
             table.addHeaderCell(getCenteredCell(String.valueOf(day), 9f).setBold());
         }
 
-        List<User> users = userService.findByTeam(principal);
+        List<User> users = new ArrayList<User>(userService.findByTeam(principal));
+        Comparator<User> userComparator = Comparator.comparing(user -> user.getUserRepresentation().getLastName());
+        // Sort users by their last name
+        users.sort(userComparator);
+        users = users.stream().filter(user -> user.getRole().getAbbreviation() != null).toList();
+
 
         for (User user : users) {
             table.addCell(new Cell().add(new Paragraph(getUserName(user)).setFontSize(7)));
@@ -104,9 +111,13 @@ public class PdfGenerationService {
                     x -> x.getUsers().get(0).getId() == user.getId()).toList();
 
             for (int day = 1; day <= daysInMonth; day++) {
-                String a = getShiftOfEmployeeAtDay(
+                String[] shiftData = getShiftOfEmployeeAtDay(
                         LocalDate.of(year.getValue(), month.getValue(), day), shifts);
-                table.addCell(getCenteredCell(a, 8f));
+                table.addCell(getCenteredCell(shiftData[0], 8f).setBackgroundColor(new DeviceRgb(
+                        Integer.valueOf(shiftData[1].substring(1, 3), 16),
+                        Integer.valueOf(shiftData[1].substring(3, 5), 16),
+                        Integer.valueOf(shiftData[1].substring(5, 7), 16)
+                )).setFontColor(new DeviceRgb(255,255,255)));
             }
         }
 
@@ -126,7 +137,6 @@ public class PdfGenerationService {
                 .collect(Collectors.toSet());
 
         for (ShiftType shiftType : shiftTypes) {
-            shiftType.getColor();
             legendTable.addCell(new Cell().add(new Paragraph(shiftType.getAbbreviation()).setFontSize(10)));
             legendTable.addCell(new Cell().add(new Paragraph(shiftType.getName()).setFontSize(10)));
         }
@@ -138,20 +148,21 @@ public class PdfGenerationService {
     }
 
     /**
-     * Retrieves the shift abbreviation for a specific employee on a given day.
-     * This method iterates through the list of user shifts and returns the shift abbreviation
-     * for the specified date. If no shift is found for that date, it returns an empty string.
+     * Retrieves the shift abbreviation and color for a specific employee on a given day.
+     * This method iterates through the list of user shifts and returns an array containing
+     * the shift abbreviation and color for the specified date. If no shift is found for that date,
+     * it returns an array with an empty string and default color.
      * @param time The date for which the shift is being retrieved.
      * @param userShifts The list of shifts for the specific user.
-     * @return The abbreviation of the shift type for the specified date, or an empty string if no shift is found.
+     * @return An array containing the abbreviation of the shift type and its color for the specified date, or an empty string and default color if no shift is found.
      */
-    private String getShiftOfEmployeeAtDay(LocalDate time, List<Shift> userShifts) {
+    private String[] getShiftOfEmployeeAtDay(LocalDate time, List<Shift> userShifts) {
         for (Shift shift : userShifts) {
             if (shift.getDate().equals(time)) {
-                return shift.getShiftType().getAbbreviation();
+                return new String[]{shift.getShiftType().getAbbreviation(), shift.getShiftType().getColor()};
             }
         }
-        return "";
+        return new String[]{"", "#FFFFFF"}; // Default color (white) for no shift
     }
 
     /**
