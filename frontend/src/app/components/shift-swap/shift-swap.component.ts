@@ -151,7 +151,7 @@ export class ShiftSwapComponent {
   getShiftsFromCurrentMonth() {
     this.shiftSwapService.getAllShiftsFromCurrentMonth().subscribe({
         next: response => {
-          this.currentShifts = response;
+          this.currentShifts = response.filter(s => !s.isSick);
         },
         error: (error) => {
           console.error('Error fetching data:', error);
