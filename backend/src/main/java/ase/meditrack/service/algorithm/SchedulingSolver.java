@@ -328,7 +328,7 @@ public final class SchedulingSolver {
                     // endtime of prev shift is before starttime of current shift
                     slotsBetween = slot2Start - slot1End;
                 }
-                if (slotsBetween <= 24) {
+                if (slotsBetween < 24) {
                     int finalS = s2;
                     notOkForNextShifts.compute(s1, (key, value) -> {
                         if (value == null) value = new TreeSet<>();
@@ -447,10 +447,14 @@ public final class SchedulingSolver {
      */
     private static int timeToSlotIndex(LocalTime time) {
         if (!time.isBefore(LocalTime.of(8, 0))) {
-            return time.minusHours(8).getHour() * 2;
+            int slots = time.minusHours(8).getHour() * 2;
+            if (time.getMinute() >= 30) slots++;
+            return slots;
         }
         // Time 0:00 - 8:00 loops around and is at the end
-        return 31 + time.getHour() * 2;
+        int slots = 31 + time.getHour() * 2;
+        if (time.getMinute() >= 30) slots++;
+        return slots;
     }
 
     private static void addOptimization(CpModel model, AlgorithmInput input, BoolVar[][][] shifts) {

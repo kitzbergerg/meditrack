@@ -268,7 +268,7 @@ public class DataGeneratorBean {
             ShiftType dayShift = new ShiftType();
             dayShift.setName("Day Shift");
             dayShift.setStartTime(LocalTime.of(8, 0));
-            dayShift.setEndTime(LocalTime.of(20, 30));
+            dayShift.setEndTime(LocalTime.of(20, 0));
             dayShift.setBreakStartTime(LocalTime.of(12, 0));
             dayShift.setBreakEndTime(LocalTime.of(12, 30));
             dayShift.setAbbreviation("D7");
@@ -301,7 +301,7 @@ public class DataGeneratorBean {
             ShiftType nightShift = new ShiftType();
             nightShift.setName("Night Shift");
             nightShift.setStartTime(LocalTime.of(20, 0));
-            nightShift.setEndTime(LocalTime.of(8, 30));
+            nightShift.setEndTime(LocalTime.of(8, 0));
             nightShift.setBreakStartTime(LocalTime.of(23, 0));
             nightShift.setBreakEndTime(LocalTime.of(23, 30));
             nightShift.setAbbreviation("N7");
