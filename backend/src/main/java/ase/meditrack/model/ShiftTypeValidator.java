@@ -44,5 +44,31 @@ public class ShiftTypeValidator {
         if (shiftType.getBreakStartTime().isAfter(shiftType.getBreakEndTime())) {
             throw new ValidationException("Break Starting Time has to be before Break Ending Time");
         }
+
+        // Calculate total working hours
+        long totalWorkMinutes;
+        if (isOvernightShift) {
+            totalWorkMinutes = java.time.Duration.between(shiftType.getStartTime(), shiftType.getEndTime())
+                    .plus(java.time.Duration.ofDays(1)).toMinutes();
+        } else {
+            totalWorkMinutes = java.time.Duration.between(shiftType.getStartTime(), shiftType.getEndTime()).toMinutes();
+        }
+
+        // Check for maximum allowable working hours
+        long workMinutesWithoutBreak = totalWorkMinutes - java.time.Duration.between(shiftType.getBreakStartTime(),
+                shiftType.getBreakEndTime()).toMinutes();
+        if (workMinutesWithoutBreak > 13 * 60) {
+            throw new ValidationException("The maximum allowable working hours are 13 hours");
+        }
+
+        // Check for minimum break time if workday exceeds six hours
+        if (totalWorkMinutes > 6 * 60) {
+            long breakMinutes = java.time.Duration.between(shiftType.getBreakStartTime(),
+                    shiftType.getBreakEndTime()).toMinutes();
+            if (breakMinutes < 30) {
+                throw new ValidationException("A minimum of 30 minutes break is required"
+                        + "for shift longer than six hours");
+            }
+        }
     }
 }
