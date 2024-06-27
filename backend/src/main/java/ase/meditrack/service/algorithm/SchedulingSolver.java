@@ -311,13 +311,24 @@ public final class SchedulingSolver {
         Map<Integer, Set<Integer>> notOkForNextShifts = new TreeMap<>();
         for (int s1 = 0; s1 < input.shiftTypes().size(); s1++) {
             for (int s2 = 0; s2 < input.shiftTypes().size(); s2++) {
-                if (s1 == s2) continue;
                 ShiftTypeInfo shiftTypeInfo1 = input.shiftTypes().get(s1);
                 ShiftTypeInfo shiftTypeInfo2 = input.shiftTypes().get(s2);
-                int slot1 = timeToSlotIndex(shiftTypeInfo1.endTime());
-                int slot2 = timeToSlotIndex(shiftTypeInfo2.startTime());
-                int hoursBetween = (48 - slot1 + slot2) / 2;
-                if (hoursBetween < 12) {
+                int slot1Start = timeToSlotIndex(shiftTypeInfo1.startTime());
+                int slot1End = timeToSlotIndex(shiftTypeInfo1.endTime());
+                int slot2Start = timeToSlotIndex(shiftTypeInfo2.startTime());
+
+                int slotsBetween;
+                if (slot1Start < slot1End) {
+                    // normal case, no carry over to next day -> calc time to next day + starttime
+                    slotsBetween = (48 - slot1End + slot2Start);
+                } else if (slot1End >= slot2Start) {
+                    // endtime of prev shift is after starttime of current shift
+                    slotsBetween = -Integer.MAX_VALUE;
+                } else {
+                    // endtime of prev shift is before starttime of current shift
+                    slotsBetween = slot2Start - slot1End;
+                }
+                if (slotsBetween <= 24) {
                     int finalS = s2;
                     notOkForNextShifts.compute(s1, (key, value) -> {
                         if (value == null) value = new TreeSet<>();
