@@ -66,10 +66,10 @@ public class ShiftType {
     @OneToMany(mappedBy = "shiftType", cascade = CascadeType.REMOVE)
     private List<Shift> shifts;
 
-    @ManyToMany(mappedBy = "canWorkShiftTypes", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "canWorkShiftTypes", cascade = CascadeType.REMOVE)
     private List<User> workUsers;
 
-    @ManyToMany(mappedBy = "preferredShiftTypes", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "preferredShiftTypes", cascade = CascadeType.REMOVE)
     private List<User> preferUsers;
 
     @Override

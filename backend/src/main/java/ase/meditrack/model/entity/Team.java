@@ -31,10 +31,10 @@ public class Team {
     @Column(unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Role> roles;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<User> users;
 
     @Column(nullable = false)
@@ -43,10 +43,10 @@ public class Team {
     @Column(nullable = false)
     private Integer nighttimeRequiredPeople;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<MonthlyPlan> monthlyPlans;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ShiftType> shiftTypes;
 
     @Override

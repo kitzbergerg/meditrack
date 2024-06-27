@@ -57,13 +57,13 @@ public class User {
     @PrimaryKeyJoinColumn
     private Preferences preferences;
 
-    @OneToMany(mappedBy = "swapRequestingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "swapRequestingUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ShiftSwap> requestedShiftSwaps;
 
-    @OneToMany(mappedBy = "swapSuggestingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "swapSuggestingUser", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ShiftSwap> suggestedShiftSwaps;
 
-    @ManyToMany(mappedBy = "users", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
     private List<Shift> shifts;
 
     @ManyToMany
@@ -86,7 +86,7 @@ public class User {
     @JsonInclude
     private UserRepresentation userRepresentation;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<MonthlyWorkDetails> monthlyWorkDetails;
 
 
