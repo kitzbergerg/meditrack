@@ -30,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
@@ -303,11 +305,12 @@ public class UserService {
                     u.setUserRepresentation(meditrackRealm.users().get(u.getId().toString()).toRepresentation());
                 }).collect(Collectors.toList());
         usersSameRole.remove(sickUser);
-        log.info("Users with same role and can work shift types: {}", usersSameRole);
+
         // remove users that have worked too many days in a row in the past or present
         LocalDate shiftDate = shift.get().getDate();
-        LocalDate startDate = shiftDate.minusDays(3);
-        LocalDate endDate = shiftDate.plusDays(3);
+        int maxConsecutiveShifts = sickUser.getRole().getMaxConsecutiveShifts();
+        LocalDate startDate = shiftDate.minusDays(maxConsecutiveShifts);
+        LocalDate endDate = shiftDate.plusDays(maxConsecutiveShifts);
 
         usersSameRole.removeIf(user -> {
             List<Shift> userShifts = shiftRepository.findAllByUsersAndDateAfterAndDateBefore(
@@ -320,12 +323,7 @@ public class UserService {
             }
 
             // Check for day shift following night shift
-            if (hasDayShiftFollowingNightShift(shift.get(), userShifts, shiftDate)) {
-                return true;
-            }
-
-            // Check for night shift before day shift
-            if (hasNightShiftBeforeDayShift(shift.get(), userShifts, shiftDate)) {
+            if (!hasSufficientRest(shift.get(), userShifts, shiftDate)) {
                 return true;
             }
 
@@ -337,51 +335,66 @@ public class UserService {
                 return true;
             }
 
-            // Check if there is at least one day off in the specified period
-            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-                LocalDate finalDate = date;
-                boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(finalDate));
-                if (!hasShift) {
-                    return false; // User has at least one day off
+            // Check how many consecutive shifts the user has in the period around the new shift
+            int consecutiveShifts = 0;
+            log.info("dates: {} - {}", startDate, endDate);
+            for (LocalDate date = startDate.plusDays(1); !date.isAfter(endDate.minusDays(1)); date = date.plusDays(1)) {
+                LocalDate currentDate = date;
+                boolean hasShift = userShifts.stream().anyMatch(s -> s.getDate().equals(currentDate));
+                // Log if the user has a shift on the current date
+                if (currentDate.equals(shiftDate) || hasShift) {
+                    consecutiveShifts++;
+                } else {
+                    consecutiveShifts = 0;
+                }
+                if (consecutiveShifts > maxConsecutiveShifts) {
+                    return true;
                 }
             }
-            return true; // User does not have any day off in the period
+            return false; // if the user has less than maxConsecutiveShifts, keep them
         });
         return usersSameRole;
     }
 
-    private boolean hasDayShiftFollowingNightShift(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
-        LocalTime dayStart = LocalTime.of(8, 0);
-        LocalTime nightStart = LocalTime.of(20, 0);
+    private boolean hasSufficientRest(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
+        Duration minimumRestPeriod = Duration.ofHours(11);
         LocalTime shiftStartTime = shift.getShiftType().getStartTime();
-        boolean isDayShift = !shiftStartTime.isBefore(dayStart) && shiftStartTime.isBefore(nightStart);
+        LocalTime shiftEndTime = shift.getShiftType().getEndTime();
+        LocalDateTime currentShiftStartDateTime = LocalDateTime.of(shiftDate, shiftStartTime);
+        LocalDateTime currentShiftEndDateTime = shiftEndTime.isBefore(shiftStartTime)
+                ? LocalDateTime.of(shiftDate.plusDays(1), shiftEndTime)
+                : LocalDateTime.of(shiftDate, shiftEndTime);
 
-        if (isDayShift) {
-            return userShifts.stream().anyMatch(s -> {
-                LocalTime previousShiftStartTime = s.getShiftType().getStartTime();
-                boolean isNightShift = previousShiftStartTime.isBefore(dayStart)
-                        || !previousShiftStartTime.isBefore(nightStart);
-                return isNightShift && s.getDate().equals(shiftDate.minusDays(1));
-            });
-        }
-        return false;
-    }
+        boolean hasSufficientRestBefore = userShifts.stream()
+                .filter(s -> s.getDate().equals(shiftDate.minusDays(1)))
+                .findAny()
+                .map(s -> {
+                    LocalDate previousShiftDate = s.getDate();
+                    LocalTime previousShiftEndTime = s.getShiftType().getEndTime();
+                    LocalDateTime previousShiftEndDateTime
+                            = previousShiftEndTime.isBefore(s.getShiftType().getStartTime())
+                            ? LocalDateTime.of(previousShiftDate.plusDays(1), previousShiftEndTime)
+                            : LocalDateTime.of(previousShiftDate, previousShiftEndTime);
 
-    private boolean hasNightShiftBeforeDayShift(Shift shift, List<Shift> userShifts, LocalDate shiftDate) {
-        LocalTime dayStart = LocalTime.of(8, 0);
-        LocalTime nightStart = LocalTime.of(20, 0);
-        LocalTime shiftStartTime = shift.getShiftType().getStartTime();
-        boolean isNightShift = shiftStartTime.isBefore(dayStart) || !shiftStartTime.isBefore(nightStart);
+                    Duration restDuration = Duration.between(previousShiftEndDateTime, currentShiftStartDateTime);
+                    return !restDuration.isNegative() && restDuration.compareTo(minimumRestPeriod) >= 0;
+                })
+                .orElse(true);
 
-        if (isNightShift) {
-            return userShifts.stream().anyMatch(s -> {
-                LocalTime nextShiftStartTime = s.getShiftType().getStartTime();
-                boolean isDayShift = !nextShiftStartTime.isBefore(dayStart)
-                        && nextShiftStartTime.isBefore(nightStart);
-                return isDayShift && s.getDate().equals(shiftDate.plusDays(1));
-            });
-        }
-        return false;
+        boolean hasSufficientRestAfter = userShifts.stream()
+                .filter(s -> s.getDate().equals(shiftDate.plusDays(1)))
+                .findAny()
+                .map(s -> {
+                    LocalDate nextShiftDate = s.getDate();
+                    LocalTime nextShiftStartTime = s.getShiftType().getStartTime();
+                    LocalDateTime nextShiftStartDateTime = LocalDateTime.of(nextShiftDate, nextShiftStartTime);
+
+                    Duration restDuration = Duration.between(currentShiftEndDateTime, nextShiftStartDateTime);
+                    return !restDuration.isNegative() && restDuration.compareTo(minimumRestPeriod) >= 0;
+                })
+                .orElse(true);
+
+        return hasSufficientRestBefore && hasSufficientRestAfter;
     }
 
     /**

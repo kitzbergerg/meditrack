@@ -30,9 +30,9 @@ public class DefaultTestCreator {
         role.setAllowedFlextimePerMonth(0);
         role.setDaytimeRequiredPeople(0);
         role.setNighttimeRequiredPeople(0);
-        role.setWorkingHours(0);
-        role.setMaxWeeklyHours(0);
-        role.setMaxConsecutiveShifts(0);
+        role.setWorkingHours(40);
+        role.setMaxWeeklyHours(30);
+        role.setMaxConsecutiveShifts(5);
         return roleRepository.save(role);
     }
 }

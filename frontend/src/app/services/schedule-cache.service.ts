@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import {Schedule, ScheduleWithId, SimpleShift, WorkDetails} from "./interfaces/schedule.models";
+import {Schedule, ScheduleWithId, SimpleShift, WorkDetails} from "../interfaces/schedule.models";
 import {format} from "date-fns";
 
 @Injectable({
   providedIn: 'root'
 })
-export class ScheduleMapService {
+export class ScheduleCacheService {
   private employeeShiftMap: Map<string, Map<string, SimpleShift>> = new Map<string, Map<string, SimpleShift>>()
   private workDetailsMap: Map<string, Map<string, WorkDetails>> = new Map<string, Map<string, WorkDetails>>();
   private cachedSchedules: { [key: string]: ScheduleWithId } = {};
