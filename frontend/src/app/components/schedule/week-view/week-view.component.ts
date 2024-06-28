@@ -22,6 +22,7 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {format, startOfDay} from 'date-fns';
 import {PdfGenerationService} from "../../../services/pdf-generation.service";
 import {SickLeaveDialogComponent} from "../sick-leave-dialog/sick-leave-dialog.component";
+import {TooltipModule} from "primeng/tooltip";
 
 @Component({
   selector: 'app-week-view',
@@ -43,6 +44,7 @@ import {SickLeaveDialogComponent} from "../sick-leave-dialog/sick-leave-dialog.c
     NgClass,
     ConfirmDialogModule,
     SickLeaveDialogComponent,
+    TooltipModule,
   ],
   templateUrl: './week-view.component.html',
   styleUrl: './week-view.component.scss'

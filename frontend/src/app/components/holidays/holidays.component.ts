@@ -339,8 +339,6 @@ export class HolidaysComponent {
       .subscribe({
         next: (response) => {
           this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday status updated successfully'});
-          this.getAllHolidaysFromTeam();
-          this.getAllHolidaysFromUser(); // Refresh user holidays because the dm can also approve his own holidays
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
