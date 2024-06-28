@@ -150,7 +150,7 @@ class TeamServiceTest {
         );
     }
 
-    //@Test hast to be fixed later on
+    @Test
     @WithMockUser(authorities = "SCOPE_admin", username = USER_ID)
     void test_updateTeam_succeeds() {
         Team team = new Team();

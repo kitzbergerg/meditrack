@@ -259,9 +259,9 @@ class ShiftControllerIT {
         when(userService.findById(any())).thenReturn(user);
 
         String response = mockMvc.perform(
-                    MockMvcRequestBuilders.post("/api/shift")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(shiftDto))
+                        MockMvcRequestBuilders.post("/api/shift")
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(shiftDto))
                 )
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();

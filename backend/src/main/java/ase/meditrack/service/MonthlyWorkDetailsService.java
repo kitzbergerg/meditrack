@@ -6,7 +6,6 @@ import ase.meditrack.model.entity.ShiftType;
 import ase.meditrack.model.entity.Team;
 import ase.meditrack.model.entity.User;
 import ase.meditrack.repository.MonthlyWorkDetailsRepository;
-import ase.meditrack.repository.ShiftRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,15 +19,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class MonthlyWorkDetailsService {
-    private final ShiftRepository shiftRepository;
 
     private MonthlyWorkDetailsRepository monthlyWorkDetailRepository;
 
 
-    public MonthlyWorkDetailsService(MonthlyWorkDetailsRepository monthlyWorkDetailRepository,
-                                     ShiftRepository shiftRepository) {
+    public MonthlyWorkDetailsService(MonthlyWorkDetailsRepository monthlyWorkDetailRepository) {
         this.monthlyWorkDetailRepository = monthlyWorkDetailRepository;
-        this.shiftRepository = shiftRepository;
     }
 
     /**

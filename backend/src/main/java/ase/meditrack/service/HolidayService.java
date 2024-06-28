@@ -23,15 +23,13 @@ public class HolidayService {
     private final HolidayRepository repository;
     private final UserService userService;
     private final HolidayValidator validator;
-    private final TeamService teamService;
     private final MailService mailService;
 
     public HolidayService(HolidayRepository repository, UserService userService,
-                HolidayValidator validator, TeamService teamService, MailService mailService) {
+                HolidayValidator validator, MailService mailService) {
         this.repository = repository;
         this.userService = userService;
         this.validator = validator;
-        this.teamService = teamService;
         this.mailService = mailService;
     }
 
@@ -200,42 +198,6 @@ public class HolidayService {
     public void delete(UUID id) {
         validator.validateHolidayOnDelete(findById(id));
         repository.deleteById(id);
-    }
-
-    /**
-     * Checks if the holiday belongs to the team.
-     *
-     * @param principal current user
-     * @param holidayId of the holiday
-     * @return true, if the holiday belongs to the team, false otherwise
-     */
-    public boolean isHolidayFromTeam(Principal principal, UUID holidayId) {
-        Holiday holiday = findById(holidayId);
-        return teamService.isInTeam(UUID.fromString(principal.getName()), holiday.getUser().getTeam().getId());
-    }
-
-    /**
-     * Checks if the holiday belongs to the user.
-     *
-     * @param principal current user
-     * @param holidayId of the holiday
-     * @return true, if the holiday belongs to the user, false otherwise
-     */
-    public boolean isHolidayFromUser(Principal principal, UUID holidayId) {
-        Holiday holiday = findById(holidayId);
-        return isCurrentUserSameAsUser(principal, holiday.getUser().getId());
-    }
-
-    /**
-     * Checks if the user of the holiday is the same as the current user.
-     *
-     * @param principal current user
-     * @param userIdFromHoliday the user who owns the holiday
-     * @return true if the both users are the same, false otherwise
-     */
-    public boolean isCurrentUserSameAsUser(Principal principal, UUID userIdFromHoliday) {
-        User user = userService.getPrincipalWithTeam(principal);
-        return user.getId().equals(userIdFromHoliday);
     }
 
     private String generateHolidayRequestMessageForDm(Holiday holiday) {

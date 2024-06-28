@@ -77,6 +77,8 @@ class ShiftSwapControllerIT {
     private MonthlyPlanRepository monthlyPlanRepository;
     @Autowired
     private TeamRepository teamRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @BeforeEach
     void setup() {
@@ -131,23 +133,27 @@ class ShiftSwapControllerIT {
         usersBefore.add(user);
         shiftBefore.setUsers(usersBefore);
         shiftRepository.save(shiftBefore);
+        shiftRepository.flush();
 
         ShiftSwap shiftSwapBefore = new ShiftSwap();
         shiftSwapBefore.setSwapRequestingUser(user);
         shiftSwapBefore.setRequestedShift(shiftBefore);
         shiftSwapRepository.save(shiftSwapBefore);
+        shiftSwapRepository.flush();
 
         Shift shiftComing = new Shift();
-        shiftComing.setDate(LocalDate.now().plusDays(1));
+        shiftComing.setDate(LocalDate.now().plusDays(50));
         List<User> usersComing = new ArrayList<>();
         usersComing.add(user);
         shiftComing.setUsers(usersComing);
         shiftRepository.save(shiftComing);
+        shiftRepository.flush();
 
         ShiftSwap shiftSwap = new ShiftSwap();
         shiftSwap.setSwapRequestingUser(user);
         shiftSwap.setRequestedShift(shiftComing);
         shiftSwapRepository.save(shiftSwap);
+        shiftSwapRepository.flush();
 
         String response = mockMvc.perform(MockMvcRequestBuilders.get("/api/shift-swap/own-offers"))
                 .andExpect(status().isOk())
