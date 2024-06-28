@@ -511,9 +511,10 @@ export class ScheduleComponent implements OnInit {
     }
     this.scheduleService.deleteSchedule(scheduleId).subscribe(() => {
       this.messageService.add({severity: 'success', summary: 'Schedule deleted successfully!'});
-      // delete this.cachedSchedules[cacheKey];
       this.scheduleMapService.deleteCachedSchedule(cacheKey);
+      this.scheduleMapService.deleteWorkDetails(cacheKey);
       this.deleteMonthlyPlanFromMap(scheduleId);
+      delete this.cachedSchedules[cacheKey];
       this.updateData();
       this.displayCreateScheduleButton = true;
     });

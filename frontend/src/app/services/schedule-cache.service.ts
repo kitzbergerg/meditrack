@@ -70,4 +70,15 @@ export class ScheduleCacheService {
   clearEmployeeShiftMap(): void {
     this.employeeShiftMap.clear();
   }
+
+  deleteWorkDetails(month: string): void {
+    this.workDetailsMap.forEach((detailsMap, userId) => {
+      detailsMap.forEach((workDetails, cacheKey) => {
+        if (cacheKey.startsWith(month)) {
+          detailsMap.delete(cacheKey);
+        }
+      });
+    });
+  }
+
 }
