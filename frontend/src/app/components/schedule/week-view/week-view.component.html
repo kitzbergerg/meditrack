@@ -12,7 +12,8 @@
     (click)="confirmPublish($event)"
     severity="success"
     icon="pi pi-check-circle"
-    label="{{'Publish'}}"/>
+    label="Publish"
+    i18n-label="@@week-view.component.publish"/>
 
 
   <p-button
@@ -21,7 +22,9 @@
     *ngIf="displayCreateScheduleButton && checkEditingAuthority()"
     type="button"
     (click)="createNewSchedule()"
-    label="{{'Create plan for ' + missingMonth}}"/>
+
+    label="'Create plan for ' + {{missingMonth}}"
+    i18n-label="@@week-view.component.createPlan"/>
 
   <p-confirmDialog/>
 
@@ -33,7 +36,8 @@
     (click)="confirmDelete($event)"
     icon="pi pi-times"
     severity="danger"
-    label="{{'Delete'}}"/>
+    label="Delete"
+    i18n-label="@@delete"/>
 
   <p-button
     class="mb-2 ml-2"
@@ -42,7 +46,8 @@
     type="button"
     (click)="toggleEdit()"
     icon="pi pi-pencil"
-    label="{{'Edit'}}"/>
+    label="Edit"
+    i18n-label="@@edit"/>
 
   <p-button
     class="mb-2 ml-2"
@@ -51,7 +56,8 @@
     type="button"
     (click)="toggleEdit()"
     icon="pi pi-check"
-    label="{{'Done'}}"/>
+    label="Done"
+    i18n-label="@@week-view.component.done"/>
 
 </div>
 <p-table *ngIf="days.length > 0" #dt [value]="employees" [customSort]="true" [scrollable]="true" scrollHeight='60vh'
@@ -60,8 +66,10 @@
          [globalFilterFields]="['firstName','lastName', 'role.name']" [loading]="loading">
   <ng-template pTemplate="caption">
     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center select-none">
-      <h5 *ngIf="range==='week'" class="m-0">Calendar Week {{ weekNumber }}</h5>
-      <h5 *ngIf="weekNumber && range==='2weeks'" class="m-0">Calendar Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
+      <h5 *ngIf="range==='week'" class="m-0" i18n="@@week-view.component.calendarWeek">Calendar
+        Week {{ weekNumber }}</h5>
+      <h5 *ngIf="weekNumber && range==='2weeks'" class="m-0" i18n="@@week-view.component.calendarTwoWeek">Calendar
+        Week {{ weekNumber }}/{{ weekNumber + 1 }}</h5>
       <h5 *ngIf="range==='month'" class="m-0">Calendar Month {{ monthString }}
         <i *ngIf="currentSchedule?.published && !loading" class="pi pi-check"
            style="color: green; font-size: 1.2rem"></i>
@@ -88,7 +96,7 @@
         <p-columnFilter field="role.name" [showMenu]="false">
           <ng-template pTemplate="filter" let-value let-filter="filterCallback">
             <p-dropdown [ngModel]="value" optionValue="name" optionLabel="name" [options]="roles"
-                        (onChange)="filter($event.value)" placeholder="Role">
+                        (onChange)="filter($event.value)" i18n-placeholder="@@role" placeholder="Role">
             </p-dropdown>
           </ng-template>
         </p-columnFilter>
@@ -100,15 +108,16 @@
           [ngModel]="range"
           [options]="rangeOptions"
           (onChange)="setRange($event.value)"
+          i18n-placeholder="@@selectRange"
           placeholder="Select Range">
         </p-dropdown>
       </div>
 
 
-
       <span class="block mt-2 md:mt-0 p-input-icon-left">
                     <i class="pi pi-search"></i>
-                    <input pInputText (input)="onGlobalFilter(dt, $event)" type="text" placeholder="Search..."
+                    <input pInputText (input)="onGlobalFilter(dt, $event)" type="text" i18n-placeholder="@@search"
+                           placeholder="Search..."
                            class="w-full sm:w-auto"/>
       </span>
 
@@ -119,6 +128,7 @@
           [outlined]="true"
           severity="help"
           (onClick)="generatePdf(days[0])"
+          i18n-label="@@week-view.component.getPDF"
           label="Get PDF">
         </p-button>
       </div>
@@ -126,7 +136,7 @@
   </ng-template>
   <ng-template pTemplate="header">
     <tr class="font-semibold select-none">
-      <th pFrozenColumn class="w-5rem">Employees</th>
+      <th pFrozenColumn class="w-5rem" i18n="@@week-view.component.employees">Employees</th>
       <th *ngIf="range==='month'">Details</th>
       <!-- TODO: Weekend check should be language independent -->
       <th (click)="toggleTodaysShifts(day)" class="cursor-pointer hover:bg-gray-100" [ngStyle]="{
@@ -164,16 +174,19 @@
 
       <td *ngIf="range==='month'">
         <div style="white-space: nowrap;" *ngIf="employee && employee.workDetails as detail">
-          <div>HSW: {{ detail.hoursShouldWork }}</div>
-          <div>HAW: {{ detail.hoursActuallyWorked }}</div>
-          <div>OT: {{ detail.overtime }}</div>
+          <div pTooltip="Hours should work Hours actually works Overtime"
+                       tooltipPosition="right">
+            <div >HSW: {{ detail.hoursShouldWork }}</div>
+            <div>HAW: {{ detail.hoursActuallyWorked }}</div>
+            <div>OT: {{ detail.overtime }}</div>
+          </div>
         </div>
       </td>
       <td *ngFor="let employeeShift of employee.shifts; index as i; trackBy: trackByShift"
           [ngStyle]="{
   'background-color':employeeShift?.isSick ? '#db0a0a' : (employeeShift?.shiftType?.color || ( days[i] && days[i].dayName.includes('S') && !loading ? 'lightgray' : '#fff')),
   'color': 'white',
-  'opacity': employeeShift?.isSick ? '0.8' : '1',
+  'opacity': employeeShift?.isSick ? '0.5' : '1',
 }"
           [ngClass]="{'cursor-pointer': editing}"
           (click)="editing && (onCellClick($event, employee, i, employeeShift))">
@@ -201,6 +214,7 @@
     [options]="Object.values(shiftTypes)"
     optionLabel="name"
     [showClear]="true"
+    i18n-placeholder="@@selectShiftType"
     placeholder="Select a Shift Type"
   ></p-dropdown>
   <div class="grid justify-content-end mt-3">
@@ -211,7 +225,8 @@
           [outlined]="true"
           type="button"
           (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'delete'); op.hide()"
-          label="Delete shift"
+          i18n-label="@@week-view.component.deleteShift"
+          label="Delete Shift"
           severity="danger"
         ></p-button>
         <p-button *ngIf="!selectedEmployeeShift?.isSick"
@@ -219,6 +234,7 @@
                   [outlined]="true"
                   type="button"
                   (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, true, 'update'); sickLeave(selectedEmployeeShift, selectedDay); op.hide()"
+                  i18n-label="@@week-view.component.sickLeave"
                   label="Sick Leave"
                   severity="warning"
         ></p-button>
@@ -227,6 +243,7 @@
                   [outlined]="true"
                   type="button"
                   (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'update'); op.hide()"
+                  i18n-label="@@week-view.component.cancelSickLeave"
                   label="Cancel Sick Leave"
                   severity="warning"
         ></p-button>
@@ -235,6 +252,7 @@
           [outlined]="true"
           type="button"
           (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'update'); op.hide()"
+          i18n-label="@@updateShift"
           label="Update shift"
         ></p-button>
       </div>
@@ -244,6 +262,7 @@
           [outlined]="true"
           type="button"
           (click)="changeShift(selectedEmployee, selectedIndex, selectedDay, false, 'create'); op.hide()"
+          i18n-label="@@createShift"
           label="Create shift"
         ></p-button>
       </ng-template>

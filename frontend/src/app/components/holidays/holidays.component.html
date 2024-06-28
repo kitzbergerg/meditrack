@@ -1,5 +1,5 @@
 <div *ngIf="!loading">
-  <div class="grid">
+  <div *ngIf="!isUserDm" class="grid">
     <div class="col-12 md:col-6">
       <div class="card px-6 py-6">
         <h2 style="text-align: center;">Holidays</h2>
@@ -202,7 +202,7 @@
         <p-table
           #dt
           [loading] = "userIdNameMap.size === 0 || !teamHolidays"
-          [scrollable]="true" scrollHeight='30vh'
+          [scrollable]="true" scrollHeight='63vh'
           [globalFilterFields]="['username']"
           [value]="teamHolidays"
           selectionMode="single">
@@ -323,4 +323,4 @@
   </div>
 </div>
 
-<app-preferences></app-preferences>
+<app-preferences *ngIf="!isUserDm"></app-preferences>
