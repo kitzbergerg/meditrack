@@ -339,11 +339,6 @@ export class HolidaysComponent {
       .subscribe({
         next: (response) => {
           this.messageService.add({severity: 'success', summary: 'Success', detail: 'Holiday status updated successfully'});
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Success',
-            detail: 'Holiday status updated successfully'
-          });
           this.teamHoliday.status = response.status;
           const holiday = this.holidays.find(holiday => holiday.id === this.teamHoliday.id);
           if (holiday != undefined) {
