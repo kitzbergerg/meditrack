@@ -1,0 +1,1 @@
+![ASE_DomainModel](uploads/5f7c29923a7b9e66d8d984d06a191f10/ASE_DomainModel.png)

@@ -1,0 +1,1057 @@
+---
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/LucasWolke/MediTrack/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /employee-roles:
+    get:
+      tags:
+      - Employee Role Endpoint
+      summary: Retrieve all employee roles
+      operationId: getEmployeeRoles
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeRolesDto'
+    post:
+      tags:
+      - Employee Role Endpoint
+      summary: Create a new employee role
+      operationId: createEmployeeRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRoleDto'
+        required: true
+      responses:
+        "201":
+          description: Employee role created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeRoleDto'
+  /employee-roles/{roleId}:
+    get:
+      tags:
+      - Employee Role Endpoint
+      summary: Retrieve an employee role
+      operationId: getEmployeeRole
+      parameters:
+      - name: roleId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeRoleDto'
+    put:
+      tags:
+      - Employee Role Endpoint
+      summary: Update an existing employee role
+      operationId: updateEmployeeRole
+      parameters:
+      - name: roleId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRoleDto'
+        required: true
+      responses:
+        "200":
+          description: Employee role updated
+    delete:
+      tags:
+      - Employee Role Endpoint
+      summary: Delete an employee role
+      operationId: deleteEmployeeRole
+      parameters:
+      - name: roleId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Employee role deleted
+  /shift-types:
+    get:
+      tags:
+      - Shift Type Endpoint
+      summary: Retrieve all shift type
+      operationId: getAllShiftTypes
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftTypesDto'
+    post:
+      tags:
+      - Shift Type Endpoint
+      summary: Create a new shift type
+      operationId: createShiftType
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftTypeDto'
+        required: true
+      responses:
+        "201":
+          description: Shift type created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftTypeDto'
+  /shift-types/{id}:
+    get:
+      tags:
+      - Shift Type Endpoint
+      summary: Retrieve a shift type
+      operationId: getShiftType
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftTypeDto'
+    put:
+      tags:
+      - Shift Type Endpoint
+      summary: Update an existing shift type
+      operationId: updateShiftType
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftTypeDto'
+        required: true
+      responses:
+        "200":
+          description: Shift type updated
+    delete:
+      tags:
+      - Shift Type Endpoint
+      summary: Delete a shift type
+      operationId: deleteShiftType
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Shift type deleted
+  /schedule:
+    post:
+      tags:
+      - Scheduling Endpoint
+      summary: Generate a monthly nurse schedule
+      operationId: generateMonthlySchedule
+      responses:
+        "200":
+          description: Schedule generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleEntriesDto'
+        "400":
+          description: Invalid request data
+  /schedule/{scheduleId}:
+    delete:
+      tags:
+      - Scheduling Endpoint
+      summary: Delete a monthly nurse schedule
+      operationId: deleteMonthlySchedule
+      parameters:
+      - name: scheduleId
+        in: path
+        description: Unique identifier of the schedule to delete.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Schedule deleted successfully
+        "404":
+          description: Schedule not found
+  /schedule/{scheduleId}/shifts:
+    post:
+      tags:
+      - Scheduling Endpoint
+      summary: Add a new shift
+      operationId: addShift
+      parameters:
+      - name: scheduleId
+        in: path
+        description: Unique identifier of the schedule to update.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftTypeDto'
+        required: true
+      responses:
+        "200":
+          description: Shift added successfully
+        "404":
+          description: Schedule not found
+  /schedule/{scheduleId}/shifts/{shiftId}:
+    put:
+      tags:
+      - Scheduling Endpoint
+      summary: Update an existing shift
+      operationId: updateShift
+      parameters:
+      - name: scheduleId
+        in: path
+        description: Unique identifier of the schedule to update.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: shiftId
+        in: path
+        description: Unique identifier of the shift to update.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftTypeDto'
+        required: true
+      responses:
+        "200":
+          description: Successfully updated the shift.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftTypeDto'
+        "400":
+          description: Invalid input provided.
+    delete:
+      tags:
+      - Scheduling Endpoint
+      summary: Delete a shift
+      operationId: deleteShift
+      parameters:
+      - name: scheduleId
+        in: path
+        description: Unique identifier of the schedule to update.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: shiftId
+        in: path
+        description: Unique identifier of the shift to delete.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Successfully deleted the shift.
+        "404":
+          description: Shift not found.
+  /schedule/{scheduleId}/publish:
+    post:
+      tags:
+      - Scheduling Endpoint
+      summary: Publish the monthly nurse schedule
+      operationId: publishMonthlySchedule
+      parameters:
+      - name: scheduleId
+        in: path
+        description: Unique identifier of the schedule to update.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Schedule published successfully
+        "404":
+          description: Schedule not found
+  /scheduling-rules:
+    get:
+      tags:
+      - Scheduling Rules Endpoint
+      summary: Get the current scheduling rules
+      operationId: getSchedulingRules
+      responses:
+        "200":
+          description: Current scheduling rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchedulingRulesDto'
+    put:
+      tags:
+      - Scheduling Rules Endpoint
+      summary: Update existing scheduling rules
+      operationId: updateSchedulingRules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchedulingRulesDto'
+        required: true
+      responses:
+        "200":
+          description: Scheduling rules updated successfully
+    post:
+      tags:
+      - Scheduling Rules Endpoint
+      summary: Define new scheduling rules
+      operationId: createSchedulingRules
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchedulingRulesDto'
+        required: true
+      responses:
+        "201":
+          description: Scheduling rules created successfully
+  /shift-swaps:
+    get:
+      tags:
+      - Shift Swap Endpoint
+      summary: View shifts available for swapping
+      operationId: getAvailableSwaps
+      responses:
+        "200":
+          description: An array of available shifts for swapping.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShiftSwapsDto'
+  /shift-swaps/offer:
+    post:
+      tags:
+      - Shift Swap Endpoint
+      summary: Offer a shift for swapping
+      operationId: offerShiftForSwap
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShiftSwapOfferDto'
+        required: true
+      responses:
+        "201":
+          description: Successfully offered the shift for swap.
+        "400":
+          description: Invalid input provided.
+  /shift-swaps/{offerId}:
+    get:
+      tags:
+      - Shift Swap Endpoint
+      summary: Get details of a shift swap offer by ID
+      parameters:
+      - name: offerId
+        in: path
+        description: ID of the shift swap offer
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftSwapOfferDto'
+        "404":
+          description: Not Found
+  /shift-swaps/{offerId}/requests:
+    get:
+      tags:
+      - Shift Swap Endpoint
+      summary: Get requests for one shift offer
+      parameters:
+      - name: offerId
+        in: path
+        description: ID of the shift swap offer
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftSwapRequestsDto'
+        "404":
+          description: Not Found
+  /shift-swaps/{requestId}:
+    get:
+      tags:
+      - Shift Swap Endpoint
+      summary: Get details of a shift swap request by ID
+      parameters:
+      - name: requestId
+        in: path
+        description: ID of the shift swap request
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedShiftSwapRequestDto'
+        "404":
+          description: Not Found
+  /shift-swaps/{offerId}/request:
+    post:
+      tags:
+      - Shift Swap Endpoint
+      summary: Request to swap a shift
+      operationId: requestShiftSwap
+      parameters:
+      - name: offerId
+        in: path
+        description: Unique identifier of the shift swap offer to accept.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetailedShiftSwapRequestDto'
+        required: true
+      responses:
+        "201":
+          description: Successfully created a swap request.
+        "400":
+          description: Invalid input provided.
+  /shift-swaps/{requestId}/accept:
+    post:
+      tags:
+      - Shift Swap Endpoint
+      summary: Accept a shift swap offer
+      operationId: acceptShiftSwap
+      parameters:
+      - name: requestId
+        in: path
+        description: Unique identifier of the shift swap request to accept.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successfully accepted the shift swap offer.
+        "404":
+          description: Shift swap offer not found.
+  /shift-swaps/{requestId}/:
+    delete:
+      tags:
+      - Shift Swap Endpoint
+      summary: Delete a swap request
+      operationId: deleteSwapRequest
+      parameters:
+      - name: requestId
+        in: path
+        description: Unique identifier of the swap request to delete.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Successfully deleted the swap request.
+        "404":
+          description: Swap request not found.
+  /shift-swaps/{offerId}/:
+    delete:
+      tags:
+      - Shift Swap Endpoint
+      summary: Delete a swap offer
+      operationId: deleteSwapOffer
+      parameters:
+      - name: offerId
+        in: path
+        description: Unique identifier of the swap offer to delete.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Successfully deleted the swap offer.
+        "404":
+          description: Swap offer not found.
+  /schedule/off-days:
+    post:
+      tags:
+      - Off Days Endpoint
+      summary: Request a single off day
+      operationId: requestOffDay
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OffDayDto'
+        required: true
+      responses:
+        "201":
+          description: Off day request submitted
+        "400":
+          description: Invalid data
+  /employees/{employeeId}/off-days:
+    get:
+      tags:
+      - Off Days Endpoint
+      summary: Retrieve off day requests from one employee
+      operationId: getAllOffDayRequests
+      parameters:
+      - name: employeeId
+        in: path
+        description: Unique identifier of the employee.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: A list of off day requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OffDayDto'
+        "404":
+          description: No off day requests found
+  /schedule/off-days/{offDayId}:
+    delete:
+      tags:
+      - Off Days Endpoint
+      summary: Delete an off day request
+      operationId: deleteOffDayRequest
+      parameters:
+      - name: offDayId
+        in: path
+        description: The ID of the off day request to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Off day request successfully deleted
+        "400":
+          description: Invalid request ID
+        "404":
+          description: Off day request not found
+  /holidays:
+    get:
+      tags:
+      - Holiday Endpoint
+      summary: Get holiday requests from all employees
+      operationId: getAllHolidayRequests
+      responses:
+        "201":
+          description: Holiday request submitted
+        "400":
+          description: Invalid data
+    post:
+      tags:
+      - Holiday Endpoint
+      summary: Request holidays
+      operationId: requestHolidays
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HolidayRequestDto'
+        required: true
+      responses:
+        "201":
+          description: Holiday request submitted
+        "400":
+          description: Invalid data
+  /employees/{employeeId}/holidays:
+    get:
+      tags:
+      - Holiday Endpoint
+      summary: Retrieve all holiday requests of one employee
+      operationId: getEmployeeHolidayRequests
+      parameters:
+      - name: employeeId
+        in: path
+        description: Unique identifier of the employee.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: A list of holiday requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HolidayRequestDto'
+        "404":
+          description: No holiday requests found
+  /holidays/{holidayId}/status:
+    put:
+      tags:
+      - Holiday Endpoint
+      summary: Change a holiday request status
+      operationId: changeHolidayRequestStatus
+      parameters:
+      - name: holidayId
+        in: path
+        description: Unique identifier of the holiday.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Holiday status successfully changed
+        "400":
+          description: Invalid request ID
+        "404":
+          description: Holiday request not found
+    delete:
+      tags:
+      - Holiday Endpoint
+      summary: Delete a holiday request
+      operationId: deleteHolidayRequest
+      parameters:
+      - name: holidayId
+        in: path
+        description: Unique identifier of the holiday.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Holiday request successfully deleted
+        "400":
+          description: Invalid request ID
+        "404":
+          description: Holiday request not found
+  /schedule/holidays/{id}/approve:
+    post:
+      tags:
+      - Holiday Endpoint
+      summary: Approve a holiday request
+      operationId: approveHolidayRequest
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: Holiday request approved
+        "404":
+          description: Request not found
+components:
+  schemas:
+    ShiftSwapsDto:
+      type: array
+      items:
+        $ref: '#/components/schemas/ShiftSwapDto'
+    ShiftSwapDto:
+      required:
+      - id
+      - shiftId
+      - userId
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the shift swap.
+          format: uuid
+        shiftId:
+          $ref: '#/components/schemas/ShiftDto'
+    ShiftSwapOfferDto:
+      required:
+      - id
+      - offeringEmployee
+      - offeringShift
+      - requestedEmployee
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the shift swap offer.
+          format: int64
+          example: 1
+        offeringEmployee:
+          $ref: '#/components/schemas/EmployeeDto'
+        offeringShift:
+          $ref: '#/components/schemas/ShiftDto'
+        requestedEmployee:
+          $ref: '#/components/schemas/EmployeeDto'
+    ShiftSwapRequestsDto:
+      type: array
+      items:
+        $ref: '#/components/schemas/DetailedShiftSwapRequestDto'
+    SimpleShiftSwapRequestDto:
+      required:
+      - id
+      - requestedOfferId
+      - shiftId
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the shift swap request.
+          format: int64
+          example: 1
+        requestedOfferId:
+          type: integer
+          example: 69
+        shiftId:
+          type: integer
+          example: 12
+    DetailedShiftSwapRequestDto:
+      required:
+      - id
+      - requestedOfferId
+      - shiftId
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the shift swap request.
+          format: int64
+          example: 1
+        requestedOfferId:
+          type: integer
+          example: 69
+        shift:
+          $ref: '#/components/schemas/ShiftDto'
+    ShiftTypeDto:
+      required:
+      - color
+      - endTime
+      - name
+      - startTime
+      - typeOfShift
+      type: object
+      properties:
+        name:
+          type: string
+          example: D12
+        color:
+          type: string
+          format: hex
+          example: '#FFA500'
+        startTime:
+          type: string
+          format: time
+          example: 07:15:00
+        endTime:
+          type: string
+          format: time
+          example: 19:15:00
+        typeOfShift:
+          type: string
+          example: D
+    ShiftTypesDto:
+      type: array
+      items:
+        $ref: '#/components/schemas/ShiftTypeDto'
+    EmployeeRoleDto:
+      required:
+      - description
+      - roleAbbreviation
+      - roleName
+      type: object
+      properties:
+        roleName:
+          type: string
+          example: Qualified Nurse
+        roleAbbreviation:
+          type: string
+          example: QN
+        description:
+          type: string
+          example: A nurse with advanced certifications and responsibilities.
+    EmployeeRolesDto:
+      type: array
+      items:
+        $ref: '#/components/schemas/EmployeeRoleDto'
+    ShiftDto:
+      required:
+      - date
+      - employee
+      - id
+      - shiftType
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the shift.
+          format: int64
+          example: 1
+        date:
+          type: string
+          description: Date of the shift.
+          format: date
+          example: 2024-04-22
+        shiftType:
+          $ref: '#/components/schemas/ShiftTypeDto'
+        employee:
+          $ref: '#/components/schemas/EmployeeDto'
+    EmployeeDto:
+      required:
+      - employeeId
+      - employeeRole
+      - workingHoursPercentage
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          description: Unique identifier for the employee.
+          format: int64
+          example: 1
+        employeeRole:
+          $ref: '#/components/schemas/EmployeeRoleDto'
+        workingHoursPercentage:
+          maximum: 100
+          minimum: 0
+          type: number
+          description: Percentage of standard working hours the employee is scheduled for.
+          format: float
+          example: 80.5
+    ScheduleEntryDto:
+      required:
+      - dayOfMonth
+      - dayOfWeek
+      - shift
+      type: object
+      properties:
+        dayOfMonth:
+          maximum: 31
+          minimum: 1
+          type: integer
+          description: Day of the month for the schedule entry.
+          format: int32
+          example: 15
+        dayOfWeek:
+          type: string
+          description: Name of the day of the week.
+          example: Tuesday
+          enum:
+          - Sunday
+          - Monday
+          - Tuesday
+          - Wednesday
+          - Thursday
+          - Friday
+          - Saturday
+        shifts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ShiftDto'
+    ScheduleEntriesDto:
+      type: array
+      items:
+        $ref: '#/components/schemas/ScheduleEntryDto'
+    SchedulingRulesDto:
+      required:
+      - minimumStaffPerShift
+      - roleRequirements
+      type: object
+      properties:
+        minimumStaffPerShift:
+          type: integer
+          description: Minimum number of staff required for each shift
+          format: int32
+        roleRequirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleRequirementDto'
+        maximumConsecutiveWorkingDays:
+          type: integer
+          description: Maximum consecutive days an employee can work
+          format: int32
+        generalConstraints:
+          $ref: '#/components/schemas/SchedulingRulesDto_generalConstraints'
+    RoleRequirementDto:
+      required:
+      - numberRequired
+      - role
+      type: object
+      properties:
+        role:
+          type: string
+        numberRequired:
+          type: integer
+          format: int32
+    OffDayDto:
+      required:
+      - date
+      - employeeId
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          description: Employee identifier
+          format: int32
+        date:
+          type: string
+          description: Date of requested off day
+          format: date
+    HolidayRequestDto:
+      required:
+      - employeeId
+      - endDate
+      - startDate
+      type: object
+      properties:
+        employeeId:
+          type: integer
+          description: Employee identifier
+          format: int32
+        startDate:
+          type: string
+          description: Start date of the holiday period
+          format: date
+        endDate:
+          type: string
+          description: End date of the holiday period
+          format: date
+    SchedulingRulesDto_generalConstraints:
+      type: object
+      properties:
+        maxHoursPerWeek:
+          type: integer
+          description: Maximum number of working hours per week for an employee
+          format: int32
+        minHoursPerWeek:
+          type: integer
+          description: Minimum number of working hours per week for an employee
+          format: int32
